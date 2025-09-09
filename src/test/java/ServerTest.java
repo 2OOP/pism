@@ -34,4 +34,5 @@ public class ServerTest {
     public void testNotNullAfterConstruction() {
         Assert.assertNotNull(server);
     }
+
 }
