@@ -27,7 +27,7 @@ public class ServerTest {
     @Test
     public void testSetPortUpdatesValue() {
         server.setPort("9090");
-        Assert.assertEquals("909", server.getPort());
+        Assert.assertEquals("9090", server.getPort());
     }
 
     @Test
