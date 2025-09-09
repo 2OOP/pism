@@ -1,7 +1,8 @@
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.toop.Server;
+import org.toop.server.Server;
+import org.toop.server.backend.*;
 
 public class ServerTest {
 
@@ -9,7 +10,7 @@ public class ServerTest {
 
     @Before
     public void setUp() {
-        server = new Server("127.0.0.1", "8080");
+        server = new Server(Server.ServerBackend.LOCAL, "127.0.0.1", "8080");
     }
 
     @Test
@@ -28,6 +29,17 @@ public class ServerTest {
     public void testSetPortUpdatesValue() {
         server.setPort("9090");
         Assert.assertEquals("9090", server.getPort());
+    }
+
+    @Test
+    public void testSetLocalBackend() {
+        Assert.assertEquals(new Local(), server.getBackend());
+    }
+
+    @Test
+    public void testSetRemoteBackend() {
+        server.setBackend(Server.ServerBackend.REMOTE);
+        Assert.assertEquals(new Remote(), server.getBackend());
     }
 
     @Test
