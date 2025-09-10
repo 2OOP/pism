@@ -89,6 +89,11 @@ public enum GlobalEventBus {
         GlobalEventBus.INSTANCE.get().unregister(event.getEvent());
     }
 
+    /**
+     * Wrapper for posting events.
+     *
+     * @param event The event to post.
+     */
     public static <T> void post(T event) {
         Class<T> type = (Class<T>) event.getClass();
 

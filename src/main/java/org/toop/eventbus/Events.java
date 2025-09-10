@@ -8,6 +8,12 @@ import org.toop.server.Server;
 public class Events implements IEvents {
 
     public static class ServerEvents {
+
+        /**
+         * Triggers sending a command to a server.
+         */
+        public record command(Server.Command command, String... args) {}
+
         /**
          * Triggers when a command is sent to a server.
          */

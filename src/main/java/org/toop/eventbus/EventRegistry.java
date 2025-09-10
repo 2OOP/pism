@@ -1,5 +1,9 @@
 package org.toop.eventbus;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.Main;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,6 +14,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class EventRegistry {
 
+    private static final Logger logger = LogManager.getLogger(Main.class);
+
     private static final Map<Class<?>, CopyOnWriteArrayList<EventEntry<?>>> eventHistory =
             new ConcurrentHashMap<>();
 
@@ -19,6 +25,7 @@ public class EventRegistry {
      * Stores an event in the registry. Safe for concurrent use.
      */
     public static <T> void storeEvent(EventMeta<T> eventMeta) {
+        logger.info("Storing event: {}", eventMeta.toString());
         eventHistory
                 .computeIfAbsent(eventMeta.getType(), k -> new CopyOnWriteArrayList<>())
                 .add(new EventEntry<>(eventMeta));
@@ -28,6 +35,7 @@ public class EventRegistry {
      * Marks a specific event type as ready (safe to post).
      */
     public static <T> void markReady(Class<T> type) {
+        logger.info("Marking event as ready: {}", type.toString());
         readyStates.put(type, true);
     }
 
@@ -35,6 +43,7 @@ public class EventRegistry {
      * Marks a specific event type as not ready (posting will fail).
      */
     public static <T> void markNotReady(Class<T> type) {
+        logger.info("Marking event as not ready: {}", type.toString());
         readyStates.put(type, false);
     }
 
@@ -70,6 +79,7 @@ public class EventRegistry {
      * Clears the stored events for a given type.
      */
     public static <T> void clearEvents(Class<T> type) {
+        logger.info("Clearing events: {}", type.toString());
         eventHistory.remove(type);
     }
 
@@ -77,6 +87,7 @@ public class EventRegistry {
      * Clears all events and resets readiness.
      */
     public static void reset() {
+        logger.info("Resetting event registry events");
         eventHistory.clear();
         readyStates.clear();
     }

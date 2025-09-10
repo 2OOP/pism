@@ -156,6 +156,7 @@ public class Server {
     }
 
     private void initEvents() {
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.command.class, e -> this.sendCommand(e.command(), e.args()));
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerIp.class, e -> this.setIp(e.ip()));
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerPort.class, e -> this.setPort(e.port()));
     }
