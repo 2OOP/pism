@@ -1,6 +1,7 @@
 package org.toop.server;
 
-import org.toop.GlobalEventBus;
+import org.toop.eventbus.Events;
+import org.toop.eventbus.GlobalEventBus;
 import org.toop.server.backend.*;
 import java.util.EnumSet;
 
@@ -48,7 +49,7 @@ public class Server {
 
     String ip;
     String port;
-    Backend backend;
+    IBackend backend;
 
     public Server(ServerBackend set_backend, String set_ip, String set_port) {
         ip = set_ip;
@@ -57,13 +58,19 @@ public class Server {
 
     }
 
-    public Backend getBackend() {
+    public IBackend getBackend() {
         return backend;
     }
 
     public void setBackend(ServerBackend backend) {
-        if (backend == ServerBackend.LOCAL) { this.backend = new Local(); }
-        else { this.backend = new Remote(); }
+        if (backend == ServerBackend.LOCAL) {
+            this.backend = new Local();
+            GlobalEventBus.post(new Events.ServerEvents.OnChangingServerBackend(ServerBackend.LOCAL));
+        }
+        else {
+            this.backend = new Remote();
+            GlobalEventBus.post(new Events.ServerEvents.OnChangingServerBackend(ServerBackend.REMOTE));
+        }
     }
 
     public String getIp() {
@@ -102,7 +109,7 @@ public class Server {
         }
         Message result = sendCommandString(command.toString());
 
-        GlobalEventBus.INSTANCE.get().post(new CommandEvent(command, new String[0], result));
+        GlobalEventBus.post(new Events.ServerEvents.OnCommand(command, new String[0], result));
 
         return sendCommandString(command.toString());
     }
@@ -132,7 +139,7 @@ public class Server {
 
         Message result = sendCommandString(String.join(" ", fullCommand));
 
-        GlobalEventBus.INSTANCE.get().post(new CommandEvent(command, args, result));
+        GlobalEventBus.post(new Events.ServerEvents.OnCommand(command, args, result));
 
         return result;
     }
