@@ -18,6 +18,26 @@ public class Events {
          */
         public record OnChangingServerBackend(Server.ServerBackend backend) {}
 
+        /**
+         * Triggers changing the server ip.
+         */
+        public record changeServerIp(String ip) {}
+
+        /**
+         * Triggers on changing the server ip.
+         */
+        public record OnChangingServerIp(String ip) {}
+
+        /**
+         * Triggers changing the server port.
+         */
+        public record changeServerPort(String port) {}
+
+        /**
+         * Triggers on changing the server port.
+         */
+        public record OnChangingServerPort(String port) {}
+
     }
 
 }

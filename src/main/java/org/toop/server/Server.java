@@ -55,7 +55,7 @@ public class Server {
         ip = set_ip;
         port = set_port;
         setBackend(set_backend);
-
+        this.initEvents();
     }
 
     public IBackend getBackend() {
@@ -79,6 +79,7 @@ public class Server {
 
     public void setIp(String ip) {
         this.ip = ip;
+        GlobalEventBus.post(new Events.ServerEvents.OnChangingServerIp(ip));
     }
 
     public String getPort() {
@@ -87,6 +88,7 @@ public class Server {
 
     public void setPort(String port) {
         this.port = port;
+        GlobalEventBus.post(new Events.ServerEvents.OnChangingServerPort(port));
     }
 
     private Message sendCommandString(String sentence) {
@@ -150,6 +152,11 @@ public class Server {
                 "Server {ip: \"%s\", port: \"%s\", backend: \"%s\"}",
                 ip, port, backend
         );
+    }
+
+    private void initEvents() {
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerIp.class, e -> this.setIp(e.ip()));
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerPort.class, e -> this.setPort(e.port()));
     }
 
 }
