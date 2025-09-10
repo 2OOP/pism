@@ -97,9 +97,9 @@ public enum GlobalEventBus {
     public static <T> void post(T event) {
         Class<T> type = (Class<T>) event.getClass();
 
-        if (!EventRegistry.isReady(type)) {
-            throw new IllegalStateException("Event type not ready: " + type.getSimpleName());
-        }
+//        if (!EventRegistry.isReady(type)) {
+//            throw new IllegalStateException("Event type not ready: " + type.getSimpleName());
+//        } TODO: Handling non ready events.
 
         // store in registry
         EventMeta<T> eventMeta = new EventMeta<>(type, event);
