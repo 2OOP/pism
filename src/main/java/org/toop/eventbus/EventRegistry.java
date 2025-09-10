@@ -63,7 +63,7 @@ public class EventRegistry {
         if (entries == null || entries.isEmpty()) {
             return null;
         }
-        return (EventEntry<T>) entries.get(entries.size() - 1);
+        return (EventEntry<T>) entries.getLast();
     }
 
     /**
