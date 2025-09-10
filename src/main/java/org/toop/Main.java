@@ -21,15 +21,7 @@ public class Main {
         server.setBackend(Server.ServerBackend.REMOTE);
 
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.OnCommand.class, e -> {
-            if (e.command() == Server.Command.LOGIN) {
-                logger.info("LOGIN command -> {}", String.join(" ", e.args()));
-            }
-            else if (e.command() == Server.Command.HELP) {
-                logger.info("HELP command -> {}", String.join(" ", e.args()));
-            }
-            else {
-                logger.info(e.command().toString());
-            }
+            logger.info("Command sent to server: {} with args: {}", e.command(), e.args());
         });
 
         GlobalEventBus.post(new Events.ServerEvents.command(Server.Command.HELP, "test", "test2"));
