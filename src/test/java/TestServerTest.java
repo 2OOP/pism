@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.toop.server.Server;
 import org.toop.server.backend.*;
 
-public class ServerTest {
+public class TestServerTest {
 
     private Server server;
 

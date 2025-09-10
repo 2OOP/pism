@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GlobalEventBusTest {
+public class TestGlobalEventBus {
 
     // Sample event class
     public static class TestEvent {
