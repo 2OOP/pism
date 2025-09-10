@@ -16,5 +16,6 @@ public class Main {
         System.out.println(msg);
         System.out.println(server);
 
+        Window.start();
     }
 }
