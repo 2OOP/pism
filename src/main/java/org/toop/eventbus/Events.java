@@ -5,7 +5,7 @@ import org.toop.server.Server;
 /**
  * Events that are used in the GlobalEventBus class.
  */
-public class Events {
+public class Events implements IEvents {
 
     public static class ServerEvents {
         /**

@@ -30,12 +30,13 @@ public enum GlobalEventBus {
 
     /**
      * Wraps a Consumer into a Guava @Subscribe-compatible listener.
+     * TODO
      *
      * @param type The event to be used. (e.g. Events.ServerCommand.class)
      * @param action The function, or lambda to run when fired.
      * @return Object to be used for registering an event.
      */
-    public static <T> Object subscribe(Class<T> type, Consumer<T> action) {
+    private static <T> Object subscribe(Class<T> type, Consumer<T> action) {
         return new Object() {
             @Subscribe
             public void handle(T event) {
@@ -51,7 +52,7 @@ public enum GlobalEventBus {
      * @param action The function, or lambda to run when fired.
      * @return Object to be used for registering an event.
      */
-    public static <T> Object subscribeAndRegister(Class<T> type, Consumer<T> action) {
+    public static <T> EventMeta subscribeAndRegister(Class<T> type, Consumer<T> action) {
         Object listener = new Object() {
             @Subscribe
             public void handle(Object event) {
@@ -60,30 +61,46 @@ public enum GlobalEventBus {
                 }
             }
         };
-        register(listener);
-        return listener;
+        var re = new EventMeta<>(type, listener);
+        register(re);
+        return re;
     }
 
 
     /**
      * Wrapper for registering a listener.
      *
-     * @param listener The event listener to register.
+     * @param event The ready event to add to register.
      */
-    public static void register(Object listener) {
-        GlobalEventBus.INSTANCE.get().register(listener);
+    public static <T> void register(EventMeta<T> event) {
+        GlobalEventBus.INSTANCE.get().register(event.getEvent());
+        event.setReady(true);
+        EventRegistry.markReady(event.getType());
     }
 
     /**
      * Wrapper for unregistering a listener.
      *
-     * @param listener The event listener to unregister.
+     * @param event The ready event to unregister.
      */
-    public static void unregister(Object listener) {
-        GlobalEventBus.INSTANCE.get().unregister(listener);
+    public static <T> void unregister(EventMeta<T> event) {
+        EventRegistry.markNotReady(event.getType());
+        event.setReady(false);
+        GlobalEventBus.INSTANCE.get().unregister(event.getEvent());
     }
 
-    public static void post(Object event) {
+    public static <T> void post(T event) {
+        Class<T> type = (Class<T>) event.getClass();
+
+        if (!EventRegistry.isReady(type)) {
+            throw new IllegalStateException("Event type not ready: " + type.getSimpleName());
+        }
+
+        // store in registry
+        EventMeta<T> eventMeta = new EventMeta<>(type, event);
+        EventRegistry.storeEvent(eventMeta);
+
+        // post to Guava EventBus
         GlobalEventBus.INSTANCE.get().post(event);
     }
 

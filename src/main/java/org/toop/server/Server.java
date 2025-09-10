@@ -1,5 +1,6 @@
 package org.toop.server;
 
+import org.toop.eventbus.EventRegistry;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.server.backend.*;
