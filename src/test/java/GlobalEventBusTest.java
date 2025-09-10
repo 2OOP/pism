@@ -7,10 +7,9 @@ import org.toop.eventbus.GlobalEventBus;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestGlobalEventBus {
+public class GlobalEventBusTest {
 
     // Sample event class
     public static class TestEvent {
