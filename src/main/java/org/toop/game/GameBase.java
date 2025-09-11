@@ -7,8 +7,7 @@ public abstract class GameBase {
 	protected int size;
 	protected char[] grid;
 
-	public GameBase(Player[] players, int size) {
-		this.players = players;
+	public GameBase(int size) {
 		currentPlayer = 0;
 
 		this.size = size;

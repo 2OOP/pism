@@ -1,12 +1,17 @@
 package org.toop.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.Main;
 import org.toop.eventbus.EventRegistry;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.server.backend.*;
 import java.util.EnumSet;
 
-public class Server {
+public class Server extends Thread {
+
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
     public enum ServerBackend {
         LOCAL,
@@ -161,4 +166,12 @@ public class Server {
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerPort.class, e -> this.setPort(e.port()));
     }
 
+    public void run() {
+        while (true) {
+//            logger.info(server.getIp());
+            logger.info(this.isAlive());
+        }
+    }
+
 }
+

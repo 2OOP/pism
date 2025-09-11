@@ -4,11 +4,10 @@ public class TTT extends GameBase {
 	private int moveCount;
 
 	public TTT(String player1, String player2) {
-		Player[] players = new Player[2];
+		super(9);
+		players = new Player[2];
 		players[0] = new Player(player1, 'X');
 		players[1] = new Player(player2, 'O');
-
-		super(players, 9);
 
 		moveCount = 0;
 	}
@@ -19,7 +18,7 @@ public class TTT extends GameBase {
 			return false;
 		}
 
-		return (grid[index] == ' ') ? true : false;
+		return grid[index] == ' ';
 	}
 
 	@Override
