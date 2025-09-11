@@ -168,9 +168,17 @@ public class Server extends Thread {
 
     public void run() {
         while (true) {
-//            logger.info(server.getIp());
-            logger.info(this.isAlive());
+            logger.info("Ik ben Bas, hallo");
+            try {
+                sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+    }
+
+    public static void start(String backend, String ip, String port) {
+        new Server(ServerBackend.valueOf(backend.toUpperCase()), ip, port).start();
     }
 
 }
