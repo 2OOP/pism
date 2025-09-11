@@ -178,7 +178,11 @@ public class Server extends Thread {
     }
 
     public static void start(String backend, String ip, String port) {
-        new Server(ServerBackend.valueOf(backend.toUpperCase()), ip, port).start();
+        try {
+            new Server(ServerBackend.valueOf(backend.toUpperCase()), ip, port).start();
+        } catch (IllegalArgumentException e) {
+            new Server(ServerBackend.LOCAL, ip, port).start();
+        }
     }
 
 }
