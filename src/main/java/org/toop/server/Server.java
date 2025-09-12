@@ -181,7 +181,7 @@ public class Server extends Thread {
         try {
             new Server(ServerBackend.valueOf(backend.toUpperCase()), ip, port).start();
         } catch (IllegalArgumentException e) {
-            new Server(ServerBackend.LOCAL, ip, port).start();
+            new Server(ServerBackend.LOCAL, "127.0.0.1", "5001").start();
         }
     }
 
