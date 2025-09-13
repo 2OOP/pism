@@ -10,8 +10,10 @@ public class Testsss extends Thread {
     public void run() {
         while (true) {
             try {
-                sleep(1000);
+                sleep(100);
                 GlobalEventBus.post(new Events.ServerEvents.command("HELP", "TEST"));
+                sleep(1000);
+                GlobalEventBus.post(new Events.ServerEvents.ChangeConnection("127.0.0.1", "5001"));
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

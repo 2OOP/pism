@@ -4,10 +4,10 @@ import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.server.Server;
 import org.toop.server.backend.Testsss;
+import org.toop.server.backend.TcpServer;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.toop.server.backend.local.TcpServer;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
@@ -21,8 +21,8 @@ public class Main {
         TcpServer server = new TcpServer(5001);
         Thread serverThread = new Thread(server);
         serverThread.start();
-        Server.start("REMOTE", "127.0.0.1", "5001");
-//        Testsss.start(""); // Used for testing server.
+        Server.start("127.0.0.1", "5001");
+        // Testsss.start(""); // Used for testing server.
         Window.start("");
 
     }
@@ -32,10 +32,6 @@ public class Main {
      */
      private static boolean initEvents() {
         try {
-            GlobalEventBus.subscribeAndRegister(Events.ServerEvents.OnChangingServerBackend.class,
-                    event ->
-                    logger.info("Changing server backend state to {}", event.backend())
-            );
 
             GlobalEventBus.subscribeAndRegister(Events.ServerEvents.OnChangingServerIp.class,
                     event ->

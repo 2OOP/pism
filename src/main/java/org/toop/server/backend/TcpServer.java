@@ -1,8 +1,9 @@
-package org.toop.server.backend.local;
+package org.toop.server.backend;
+
+import org.toop.Main;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.Main;
 
 import java.io.*;
 import java.net.*;

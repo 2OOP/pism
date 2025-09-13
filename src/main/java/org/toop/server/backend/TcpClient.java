@@ -1,4 +1,4 @@
-package org.toop.server.backend.remote;
+package org.toop.server.backend;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class TcpClient {
 
@@ -32,8 +31,12 @@ public class TcpClient {
         this.out = createOut();
     }
 
-    private Socket createSocket() throws IOException {
+    public Socket createSocket() throws IOException {
         return new Socket(serverAddress, serverPort);
+    }
+
+    public void closeSocket() throws IOException {
+        this.socket.close();
     }
 
     private BufferedReader createIn() throws IOException {
