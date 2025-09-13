@@ -141,7 +141,7 @@ public class Server extends Thread {
         }
     }
 
-    public void theRemoteServerTimeline(TcpClient client) throws InterruptedException {
+    private void theRemoteServerTimeline(TcpClient client) throws InterruptedException {
         while (true) {
             sleep(500); // 1s delay to not overload server.
             if (!commandQueue.isEmpty()) {
