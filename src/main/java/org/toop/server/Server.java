@@ -12,8 +12,8 @@ import org.toop.server.backend.remote.TcpClient;
 
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Server extends Thread {
 
@@ -33,20 +33,23 @@ public class Server extends Thread {
     String ip;
     String port;
     IBackend backend;
-    List<String> commandQueue;
+    BlockingQueue<String> commandQueue;
 
-    public Server(ServerBackend set_backend, String set_ip, String set_port) {
+    public Server(String set_backend, String set_ip, String set_port) {
         ip = set_ip;
         port = set_port;
-        setBackend(set_backend);
+        this.setBackend(set_backend);
         this.initEvents();
-        this.commandQueue = new LinkedList<>();
+        this.commandQueue = new LinkedBlockingQueue<>();
     }
 
     public IBackend getBackend() {
         return backend;
     }
 
+    /**
+     * @param backend The backend to change to.
+     */
     public void setBackend(ServerBackend backend) {
         if (backend == ServerBackend.LOCAL) {
             this.backend = new Local();
@@ -58,10 +61,25 @@ public class Server extends Thread {
         }
     }
 
+    public void setBackend(String backend) {
+        if (backend.equalsIgnoreCase("REMOTE")) {
+            this.backend = new Remote();
+            GlobalEventBus.post(new Events.ServerEvents.OnChangingServerBackend(ServerBackend.REMOTE));
+        }
+        else {
+            this.backend = new Local();
+            GlobalEventBus.post(new Events.ServerEvents.OnChangingServerBackend(ServerBackend.LOCAL));
+        }
+
+    }
+
     public String getIp() {
         return ip;
     }
 
+    /**
+     * @param ip The ip to change to.
+     */
     public void setIp(String ip) {
         this.ip = ip;
         GlobalEventBus.post(new Events.ServerEvents.OnChangingServerIp(ip));
@@ -71,11 +89,22 @@ public class Server extends Thread {
         return port;
     }
 
+
+    /**
+     * @param port The port to change to.
+     */
     public void setPort(String port) {
         this.port = port;
         GlobalEventBus.post(new Events.ServerEvents.OnChangingServerPort(port));
     }
 
+    /**
+     *
+     * Sends a command to the server.
+     *
+     * @param command The command to send to the server.
+     * @param args The arguments for the command.
+     */
     private void sendCommandByString(String command, String... args) {
         if (!ServerCommand.isValid(command)) {
             return;
@@ -91,10 +120,10 @@ public class Server extends Thread {
         String[] fullCommand = new String[args.length + 1];
         fullCommand[0] = command;
         System.arraycopy(args, 0, fullCommand, 1, args.length);
+        command = String.join(" ", fullCommand);
 
-        this.commandQueue.add(Arrays.toString(fullCommand)); // TODO Dunno if correct
-
-        logger.info("Command {} added to the queue", Arrays.toString(fullCommand));
+        this.commandQueue.add(command);
+        logger.info("Command {} added to the queue", command);
 
     }
 
@@ -132,9 +161,13 @@ public class Server extends Thread {
                 -> this.setPort(event.port()));
     }
 
+
+    /**
+     * DO NOT USE, USE START INSTEAD.
+     */
     public void run() {
         try {
-            TcpClient client = new TcpClient(this.getIp(), Integer.parseInt(this.getPort())); // TODO This is unsafe
+            TcpClient client = new TcpClient(this.getIp(), Integer.parseInt(this.getPort())); // TODO Parsing to int is unsafe
             theRemoteServerTimeline(client);
         } catch (UnknownHostException | InterruptedException e) { // TODO Better error handling.
             throw new RuntimeException(e);
@@ -142,26 +175,35 @@ public class Server extends Thread {
     }
 
     private void theRemoteServerTimeline(TcpClient client) throws InterruptedException {
+        sleep(1000);
         while (true) {
-            sleep(500); // 1s delay to not overload server.
-            if (!commandQueue.isEmpty()) {
-                String command = commandQueue.removeFirst();
+            try {
+                String command = this.commandQueue.take(); // waits until an element is available
                 logger.info("Sending command: {}", command);
-                try {
-                    client.sendMessage(command); // TODO: Will block.
-                    client.readLine(); // TODO Does this need to wait?
-                }  catch (Exception e) {
-                    // TODO: Error handling.
-                }
+                client.sendMessage(command);
+                client.readLine();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            } catch (Exception e) {
+                logger.error("Error in remote server timeline", e);
             }
         }
     }
 
+    /**
+     *
+     * Starts a server thread.
+     *
+     * @param backend The backend to use {remote, local}
+     * @param ip The address of the server to contact.
+     * @param port The port of the server.
+     */
     public static void start(String backend, String ip, String port) {
         try {
-            new Server(ServerBackend.valueOf(backend.toUpperCase()), ip, port).start();
+            new Server(backend, ip, port).start();
         } catch (IllegalArgumentException e) {
-            new Server(ServerBackend.LOCAL, "127.0.0.1", "5001").start();
+            new Server(backend, "127.0.0.1", "5001").start(); // TODO: Doesn't do anything.
         }
     }
 

@@ -12,7 +12,7 @@ public class ServerTest {
 
     @BeforeEach
     public void setUp() {
-        server = new Server(Server.ServerBackend.LOCAL, "127.0.0.1", "8080");
+        server = new Server("LOCAL", "127.0.0.1", "8080");
     }
 
     @Test

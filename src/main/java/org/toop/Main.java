@@ -16,7 +16,11 @@ public class Main {
             throw new RuntimeException("A event could not be initialized");
         }
 
-        Server.start("remote", "127.0.0.1", "5001");
+        Server.start("REMOTE", "127.0.0.1", "5001");
+
+        GlobalEventBus.post(new Events.ServerEvents.command("HELP", "THANK"));
+        GlobalEventBus.post(new Events.ServerEvents.command("GET"));
+
         Window.start("");
 
     }
