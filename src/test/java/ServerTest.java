@@ -1,7 +1,8 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.toop.server.Server;
-import org.toop.server.backend.*;
+import org.toop.server.backend.local.Local;
+import org.toop.server.backend.remote.Remote;
 
 import static org.junit.jupiter.api.Assertions.*;
 

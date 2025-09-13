@@ -1,6 +1,7 @@
 package org.toop.eventbus;
 
 import org.toop.server.Server;
+import org.toop.server.ServerCommand;
 
 /**
  * Events that are used in the GlobalEventBus class.
@@ -12,12 +13,12 @@ public class Events implements IEvents {
         /**
          * Triggers sending a command to a server.
          */
-        public record command(Server.Command command, String... args) {}
+        public record command(String command, String... args) {}
 
         /**
          * Triggers when a command is sent to a server.
          */
-        public record OnCommand(Server.Command command, String[] args, Server.Message result) {}
+        public record OnCommand(org.toop.server.ServerCommand command, String[] args, String result) {}
 
         /**
          * Triggers on changing the server backend.

@@ -3,11 +3,17 @@ package org.toop.server;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.Main;
-import org.toop.eventbus.EventRegistry;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.server.backend.*;
-import java.util.EnumSet;
+import org.toop.server.backend.local.Local;
+import org.toop.server.backend.remote.Remote;
+import org.toop.server.backend.remote.TcpClient;
+
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Server extends Thread {
 
@@ -18,35 +24,6 @@ public class Server extends Thread {
         REMOTE,
     }
 
-    public enum Command {
-        /**
-         * Login, "username"
-         */
-        LOGIN,
-        /**
-         * Logout, "username"
-         */
-        LOGOUT,
-        EXIT,
-        QUIT,
-        DISCONNECT,
-        BYE,
-        GET,
-        SUBSCRIBE,
-        MOVE,
-        CHALLENGE,
-        FORFEIT,
-        MESSAGE,
-        HELP,
-    }
-
-    private static final EnumSet<Command> VALID_COMMANDS = EnumSet.of(
-        Command.LOGIN, Command.LOGOUT, Command.EXIT, Command.QUIT,
-        Command.DISCONNECT, Command.BYE, Command.GET, Command.SUBSCRIBE,
-        Command.MOVE, Command.CHALLENGE, Command.FORFEIT,
-        Command.MESSAGE, Command.HELP
-    );
-
     public enum Message {
         OK,
         ERR,
@@ -56,12 +33,14 @@ public class Server extends Thread {
     String ip;
     String port;
     IBackend backend;
+    List<String> commandQueue;
 
     public Server(ServerBackend set_backend, String set_ip, String set_port) {
         ip = set_ip;
         port = set_port;
         setBackend(set_backend);
         this.initEvents();
+        this.commandQueue = new LinkedList<>();
     }
 
     public IBackend getBackend() {
@@ -97,60 +76,44 @@ public class Server extends Thread {
         GlobalEventBus.post(new Events.ServerEvents.OnChangingServerPort(port));
     }
 
-    private Message sendCommandString(String sentence) {
-        return Message.OK;
-    }
-
-    private boolean isCommandValid(Command command) {
-        return VALID_COMMANDS.contains(command);
-    }
-
-    /**
-     * Sends a command to the server.
-     *
-     * @param command the command to execute
-     * @return a Message indicating success or error
-     */
-    public Message sendCommand(Command command) {
-        if (!isCommandValid(command)) {
-            throw new IllegalArgumentException("Invalid command: " + command);
-        }
-        Message result = sendCommandString(command.toString());
-
-        GlobalEventBus.post(new Events.ServerEvents.OnCommand(command, new String[0], result));
-
-        return sendCommandString(command.toString());
-    }
-
-    /**
-     * Sends a command to the server.
-     *
-     * @param command the command to execute
-     * @param args command arguments.
-     * @return a Message indicating success or error
-     */
-    public Message sendCommand(Command command, String... args) {
-        if (!isCommandValid(command)) {
-            throw new IllegalArgumentException("Invalid command: " + command);
+    private void sendCommandByString(String command, String... args) {
+        if (!ServerCommand.isValid(command)) {
+            return;
         }
 
         for (int i = 0; i < args.length; i++) {
             args[i] = args[i].trim();
             if (args[i].isEmpty()) {
-                throw new IllegalArgumentException("Empty argument");
+                throw new IllegalArgumentException("Empty argument"); // TODO: Error handling, just crashes atm.
             }
         }
 
         String[] fullCommand = new String[args.length + 1];
-        fullCommand[0] = command.toString();
+        fullCommand[0] = command;
         System.arraycopy(args, 0, fullCommand, 1, args.length);
 
-        Message result = sendCommandString(String.join(" ", fullCommand));
+        this.commandQueue.add(Arrays.toString(fullCommand)); // TODO Dunno if correct
 
-        GlobalEventBus.post(new Events.ServerEvents.OnCommand(command, args, result));
+        logger.info("Command {} added to the queue", Arrays.toString(fullCommand));
 
-        return result;
     }
+
+//    /**
+//     * Sends a command to the server.
+//     *
+//     * @param command the command to execute
+//     * @return a Message indicating success or error
+//     */
+//    public void sendCommand(ServerCommand command) {
+//
+//        Message result = Message.OK;
+//
+//        this.commandQueue.add(command.toString());
+//
+//        GlobalEventBus.post(new Events.ServerEvents.OnCommand(command, new String[0], result));
+//
+//        return result;
+//    }
 
     @Override
     public String toString() {
@@ -161,18 +124,35 @@ public class Server extends Thread {
     }
 
     private void initEvents() {
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.command.class, e -> this.sendCommand(e.command(), e.args()));
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerIp.class, e -> this.setIp(e.ip()));
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerPort.class, e -> this.setPort(e.port()));
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.command.class, event
+                -> this.sendCommandByString(event.command(), event.args()));
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerIp.class, event
+                -> this.setIp(event.ip()));
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.changeServerPort.class, event
+                -> this.setPort(event.port()));
     }
 
     public void run() {
+        try {
+            TcpClient client = new TcpClient(this.getIp(), Integer.parseInt(this.getPort())); // TODO This is unsafe
+            theRemoteServerTimeline(client);
+        } catch (UnknownHostException | InterruptedException e) { // TODO Better error handling.
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void theRemoteServerTimeline(TcpClient client) throws InterruptedException {
         while (true) {
-            logger.info("Ik ben Bas, hallo");
-            try {
-                sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            sleep(500); // 1s delay to not overload server.
+            if (!commandQueue.isEmpty()) {
+                String command = commandQueue.removeFirst();
+                logger.info("Sending command: {}", command);
+                try {
+                    client.sendMessage(command); // TODO: Will block.
+                    client.readLine(); // TODO Does this need to wait?
+                }  catch (Exception e) {
+                    // TODO: Error handling.
+                }
             }
         }
     }

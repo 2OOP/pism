@@ -1,6 +1,7 @@
-package org.toop.server.backend;
+package org.toop.server.backend.remote;
 
 import org.toop.server.Server;
+import org.toop.server.backend.IBackend;
 
 public class Remote implements IBackend {
     @Override
