@@ -1,8 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.toop.server.Server;
-import org.toop.server.backend.local.Local;
-import org.toop.server.backend.remote.Remote;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +10,7 @@ public class ServerTest {
 
     @BeforeEach
     public void setUp() {
-        server = new Server("LOCAL", "127.0.0.1", "8080");
+        server = new Server("127.0.0.1", "8080");
     }
 
     @Test
@@ -31,17 +29,6 @@ public class ServerTest {
     public void testSetPortUpdatesValue() {
         server.setPort("9090");
         assertEquals("9090", server.getPort());
-    }
-
-    @Test
-    public void testSetLocalBackend() {
-        assertEquals(new Local(), server.getBackend());
-    }
-
-    @Test
-    public void testSetRemoteBackend() {
-        server.setBackend(Server.ServerBackend.REMOTE);
-        assertEquals(new Remote(), server.getBackend());
     }
 
     @Test
