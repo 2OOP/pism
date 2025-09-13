@@ -1,5 +1,7 @@
 package org.toop;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -14,8 +16,9 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.stb.STBImage.*;
 
-public class Window {
+public class Window extends Thread {
 
+    private static final Logger logger = LogManager.getLogger(Main.class);
     // The window handle
     private long window;
 
@@ -148,8 +151,14 @@ public class Window {
     //public static void main(String[] args) {
         //new Window().run();
     //}
-    public static void start(){
-        new Window().run();
+    /**
+     * TODO: Is putting the window on a second thread, safe?
+     * Can't overwrite start(), so a overload is needed.
+     *
+     * @param ignoredKeepEmpty Just input "" an empty string.
+     */
+    public static void start(String ignoredKeepEmpty){
+        new Window().start();
     }
 
 }
