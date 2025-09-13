@@ -24,9 +24,12 @@ public class TcpClient {
         this.out = createOut();
     }
 
-    public TcpClient(String serverIp, int serverPort) throws UnknownHostException {
+    public TcpClient(String serverIp, int serverPort) throws IOException {
         this.serverAddress = InetAddress.getByName(serverIp);
         this.serverPort = serverPort;
+        this.socket = createSocket();
+        this.in = createIn();
+        this.out = createOut();
     }
 
     private Socket createSocket() throws IOException {
@@ -42,7 +45,7 @@ public class TcpClient {
     }
 
     public void sendMessage(String message) throws IOException {
-        this.out.write(message);
+        this.out.println(message);
     }
 
     public String readLine() throws IOException {

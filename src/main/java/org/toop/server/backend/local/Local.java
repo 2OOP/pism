@@ -1,11 +1,11 @@
 package org.toop.server.backend.local;
 
-import org.toop.server.Server;
+import org.toop.server.ServerMessage;
 import org.toop.server.backend.IBackend;
 
 public class Local implements IBackend {
     @Override
-    public Server.Message login(String username) {
+    public ServerMessage login(String username) {
         return null;
     }
 

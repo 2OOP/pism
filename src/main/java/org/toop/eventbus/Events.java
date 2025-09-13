@@ -20,6 +20,8 @@ public class Events implements IEvents {
          */
         public record OnCommand(org.toop.server.ServerCommand command, String[] args, String result) {}
 
+        public record ReceivedMessage(String message) {}
+
         /**
          * Triggers on changing the server backend.
          */

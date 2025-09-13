@@ -10,8 +10,8 @@ import org.toop.server.backend.local.Local;
 import org.toop.server.backend.remote.Remote;
 import org.toop.server.backend.remote.TcpClient;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -24,16 +24,11 @@ public class Server extends Thread {
         REMOTE,
     }
 
-    public enum Message {
-        OK,
-        ERR,
-        SVR,
-    }
-
     String ip;
     String port;
     IBackend backend;
     BlockingQueue<String> commandQueue;
+    // TODO Reconnect and keep trying to connect.
 
     public Server(String set_backend, String set_ip, String set_port) {
         ip = set_ip;
@@ -107,6 +102,7 @@ public class Server extends Thread {
      */
     private void sendCommandByString(String command, String... args) {
         if (!ServerCommand.isValid(command)) {
+            logger.error("Invalid command: {}", command);
             return;
         }
 
@@ -123,26 +119,9 @@ public class Server extends Thread {
         command = String.join(" ", fullCommand);
 
         this.commandQueue.add(command);
-        logger.info("Command {} added to the queue", command);
+        logger.info("Command '{}' added to the queue", command);
 
     }
-
-//    /**
-//     * Sends a command to the server.
-//     *
-//     * @param command the command to execute
-//     * @return a Message indicating success or error
-//     */
-//    public void sendCommand(ServerCommand command) {
-//
-//        Message result = Message.OK;
-//
-//        this.commandQueue.add(command.toString());
-//
-//        GlobalEventBus.post(new Events.ServerEvents.OnCommand(command, new String[0], result));
-//
-//        return result;
-//    }
 
     @Override
     public String toString() {
@@ -161,7 +140,6 @@ public class Server extends Thread {
                 -> this.setPort(event.port()));
     }
 
-
     /**
      * DO NOT USE, USE START INSTEAD.
      */
@@ -171,24 +149,43 @@ public class Server extends Thread {
             theRemoteServerTimeline(client);
         } catch (UnknownHostException | InterruptedException e) { // TODO Better error handling.
             throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private void theRemoteServerTimeline(TcpClient client) throws InterruptedException {
-        sleep(1000);
-        while (true) {
+    private void theRemoteServerTimeline(TcpClient client) throws InterruptedException { // TODO: Rename
+        sleep(1000); // Just wait, because why not
+
+        new Thread(() -> {
             try {
-                String command = this.commandQueue.take(); // waits until an element is available
-                logger.info("Sending command: {}", command);
-                client.sendMessage(command);
-                client.readLine();
+                while (true) {
+                    String received = client.readLine(); // blocks until a line is available
+                    if (received != null) {
+                        logger.info("Received: '{}'", received);
+                        GlobalEventBus.post(new Events.ServerEvents.ReceivedMessage(received));
+                    } else {
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                logger.error("Error reading from server", e);
+            }
+        }).start();
+
+        new Thread(() -> {
+            try {
+                while (true) {
+                    String command = commandQueue.take(); // blocks until a command is available
+                    client.sendMessage(command);
+                    logger.info("Sent command: '{}'", command);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
-            } catch (Exception e) {
-                logger.error("Error in remote server timeline", e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        }
+        }).start();
     }
 
     /**
@@ -203,7 +200,7 @@ public class Server extends Thread {
         try {
             new Server(backend, ip, port).start();
         } catch (IllegalArgumentException e) {
-            new Server(backend, "127.0.0.1", "5001").start(); // TODO: Doesn't do anything.
+            new Server("REMOTE", "127.0.0.1", "5001").start(); // TODO: Doesn't do anything.
         }
     }
 
