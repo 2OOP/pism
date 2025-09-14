@@ -1,9 +1,12 @@
 package org.toop.eventbus;
 
-import org.toop.server.Server;
+import org.toop.server.ServerConnection;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Events that are used in the GlobalEventBus class.
@@ -74,10 +77,42 @@ public class Events implements IEvents {
 
     public static class ServerEvents {
 
+        public record RequestsAllConnections(CompletableFuture<String> future) {}
+
+        public record ForceCloseAllConnections() {}
+
+        /**
+         *
+         * Triggers starting a server connection.
+         *
+         * @param ip
+         * @param port
+         */
+        public record StartConnection(String ip, String port) {}
+
+        /**
+         * Triggers starting a server connection, returns a future.
+         * WARNING: This is a blocking operation.
+         *
+         * @param ip
+         * @param port
+         * @param future
+         */
+        public record StartConnectionRequest(String ip, String port, CompletableFuture<String> future) {}
+
+        /**
+         * Triggers when a connection to a server is established.
+         *
+         * @param connectionId
+         * @param ip
+         * @param port
+         */
+        public record ConnectionEstablished(Object connectionId, String ip, String port) {}
+
         /**
          * Triggers sending a command to a server.
          */
-        public record command(String command, String... args) {}
+        public record Command(Object connectionId, String command, String... args) { }
 
         /**
          * Triggers when a command is sent to a server.
@@ -102,12 +137,19 @@ public class Events implements IEvents {
         /**
          * Triggers reconnecting to previous address.
          */
-        public record Reconnect() {}
+        public record Reconnect(Object connectionId) {}
 
         /**
          * Triggers changing connection to a new address.
          */
-        public record ChangeConnection(String ip, String port) { }
+        public record ChangeConnection(Object connectionId, String ip, String port) {}
+
+        /**
+         * Triggers when the server couldn't connect to the desired address.
+         */
+        public record CouldNotConnect(Object connectionId) {}
+
+        public record ClosedConnection() {}
 
     }
 
