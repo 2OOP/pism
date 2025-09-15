@@ -42,7 +42,7 @@ public class TTT extends GameBase {
 		return State.NORMAL;
 	}
 
-	private boolean CheckWin() {
+	public boolean CheckWin() {
 		// Horizontal
 		for (int i = 0; i < 3; i++) {
 			int index = i * 3;
@@ -73,4 +73,15 @@ public class TTT extends GameBase {
 
 		return false;
 	}
+
+    public TTT copy() {
+        /**
+         * This method copies the board, mainly for AI use.
+         */
+        TTT clone = new TTT(players[0].Name(), players[1].Name());
+        System.arraycopy(this.grid, 0, clone.grid, 0, this.grid.length);
+        clone.moveCount = this.moveCount;
+        clone.currentPlayer = this.currentPlayer;
+        return clone;
+    }
 }
