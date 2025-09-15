@@ -12,36 +12,37 @@ public class MinMaxTTT {
 
     private static final Logger logger = LogManager.getLogger(Main.class);
 
-    public int findbestmove(TTT game) {
+    public int findBestMove(TTT game) {
         /**
          * This method tries to find the best move by seeing if it can set a winning move, if not, it will do a minimax.
          */
-        int bestval = -100; // set bestval to something impossible
-        int bestmove = 10; // set bestmove to something impossible
+        int bestVal = -100; // set bestval to something impossible
+        int bestMove = 10; // set bestmove to something impossible
 
         // simulate all possible moves on the field
         for (int i = 0; i < game.grid.length; i++) {
             if (game.ValidateMove(i)) {  // check if the move is legal here
-                TTT copyGame = game.copy(); // make a copy of the game
+                TTT copyGame = game.copyBoard(); // make a copy of the game
                 State result = copyGame.PlayMove(i); // play a move on the copy board
 
-                int thismovevalue;
+                int thisMoveValue;
+
                 if (result == State.WIN) {
                     return i; // just return right away if you can win on the next move
                 }
                 else {
-                    thismovevalue = minimax(copyGame, 8, false); // else look at other moves
+                    thisMoveValue = doMinimax(copyGame, 8, false); // else look at other moves
                 }
-                if (thismovevalue > bestval) { // if better move than the current best, change the move
-                    bestval = thismovevalue;
-                    bestmove = i;
+                if (thisMoveValue > bestVal) { // if better move than the current best, change the move
+                    bestVal = thisMoveValue;
+                    bestMove = i;
                 }
             }
         }
-        return bestmove; // return the best move when we've done everything
+        return bestMove; // return the best move when we've done everything
     }
 
-    public int minimax(TTT game, int depth, boolean maximizing) {
+    public int doMinimax(TTT game, int depth, boolean maximizing) {
         /**
          * This method simulates all the possible future moves in the game through a copy in search of the best move.
          */
@@ -71,29 +72,29 @@ public class MinMaxTTT {
         }
 
         if (maximizing) { // its the maximizing players turn, the AI
-            int bestval = -100; // set the value to lowest as possible
+            int bestVal = -100; // set the value to lowest as possible
             for (int i = 0; i < game.grid.length; i++) { // loop through the grid
                 if (game.ValidateMove(i)) {
-                    TTT copyGame = game.copy();
+                    TTT copyGame = game.copyBoard();
                     copyGame.PlayMove(i); // play the move on a copy board
-                    int value = minimax(copyGame, depth - 1, false); // keep going with the minimax
-                    bestval = Math.max(bestval, value); // select the best value for the maximizing player (the AI)
+                    int value = doMinimax(copyGame, depth - 1, false); // keep going with the minimax
+                    bestVal = Math.max(bestVal, value); // select the best value for the maximizing player (the AI)
                 }
             }
-            return bestval;
+            return bestVal;
         }
 
         else { // it's the minimizing players turn, the player
-            int bestval = 100; // set the value to the highest possible
+            int bestVal = 100; // set the value to the highest possible
             for (int i = 0; i < game.grid.length; i++) { // loop through the grid
                 if (game.ValidateMove(i)) {
-                    TTT copyGame = game.copy();
+                    TTT copyGame = game.copyBoard();
                     copyGame.PlayMove(i); // play the move on a copy board
-                    int value = minimax(copyGame, depth - 1, true); // keep minimaxing
-                    bestval = Math.min(bestval, value); // select the lowest score for the minimizing player, they want to make it hard for us
+                    int value = doMinimax(copyGame, depth - 1, true); // keep minimaxing
+                    bestVal = Math.min(bestVal, value); // select the lowest score for the minimizing player, they want to make it hard for us
                 }
             }
-            return bestval;
+            return bestVal;
         }
     }
 }

@@ -24,7 +24,7 @@ class MinMaxTTTTest {
     void testFindBestMove_AIImmediateWin() {
         TTT game = makeGame("XX OO    ", 0);
         MinMaxTTT ai = new MinMaxTTT();
-        int bestMove = ai.findbestmove(game);
+        int bestMove = ai.findBestMove(game);
         assertEquals(2, bestMove, "AI has to take winning move at 2");
     }
 
@@ -32,7 +32,7 @@ class MinMaxTTTTest {
     void testFindBestMove_BlockOpponentWin() {
         TTT game = makeGame("OO X    ", 0); // 0 = AI's turn
         MinMaxTTT ai = new MinMaxTTT();
-        int bestMove = ai.findbestmove(game);
+        int bestMove = ai.findBestMove(game);
         assertEquals(2, bestMove, "AI should block opponent win at 2");
     }
 
@@ -40,7 +40,7 @@ class MinMaxTTTTest {
     void testFindBestMove_ChooseDrawIfNoWin() {
         TTT game = makeGame("XOXOX O  ", 0);
         MinMaxTTT ai = new MinMaxTTT();
-        int bestMove = ai.findbestmove(game);
+        int bestMove = ai.findBestMove(game);
         assertTrue(bestMove == 6 || bestMove == 8, "AI should draw");
     }
 
@@ -48,7 +48,7 @@ class MinMaxTTTTest {
     void testMinimax_ScoreWin() {
         TTT game = makeGame("XXX      ", 0);
         MinMaxTTT ai = new MinMaxTTT();
-        int score = ai.minimax(game, 5, false);
+        int score = ai.doMinimax(game, 5, false);
         assertTrue(score > 0, "AI win scored positively");
     }
 
@@ -56,7 +56,7 @@ class MinMaxTTTTest {
     void testMinimax_ScoreLoss() {
         TTT game = makeGame("OOO      ", 1);
         MinMaxTTT ai = new MinMaxTTT();
-        int score = ai.minimax(game, 5, true);
+        int score = ai.doMinimax(game, 5, true);
         assertTrue(score < 0, "AI loss is negative");
     }
 
@@ -64,7 +64,7 @@ class MinMaxTTTTest {
     void testMinimax_ScoreDraw() {
         TTT game = makeGame("XOXOXOOXO", 0);
         MinMaxTTT ai = new MinMaxTTT();
-        int score = ai.minimax(game, 5, true);
+        int score = ai.doMinimax(game, 5, true);
         assertEquals(0, score, "Draw should be zero!");
     }
 
@@ -72,7 +72,7 @@ class MinMaxTTTTest {
     void testMiniMax_MultipleMoves() {
         TTT game = makeGame(" X OX  O ", 0);
         MinMaxTTT ai = new MinMaxTTT();
-        int bestMove = ai.findbestmove(game);
+        int bestMove = ai.findBestMove(game);
         assertTrue(bestMove == 0 || bestMove == 2, "Can look at multiple moves!");
     }
 }

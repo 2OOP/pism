@@ -79,7 +79,7 @@ public class TTT extends GameBase {
 		return false;
 	}
 
-    public TTT copy() {
+    public TTT copyBoard() {
         /**
          * This method copies the board, mainly for AI use.
          */
