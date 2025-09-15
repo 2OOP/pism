@@ -5,13 +5,14 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.*;
+import java.sql.Time;
 import java.util.concurrent.*;
 
 import static java.lang.Thread.sleep;
 
 public class TcpServer implements Runnable {
 
-    private static final Logger logger = LogManager.getLogger(TcpServer.class);
+    protected static final Logger logger = LogManager.getLogger(TcpServer.class);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
     private final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>();
@@ -19,13 +20,17 @@ public class TcpServer implements Runnable {
     private final int WAIT_TIME = 500; // MS
     private final int RETRY_ATTEMPTS = 3;
 
-    private int port;
-    private ServerSocket serverSocket = null;
+    protected int port;
+    protected ServerSocket serverSocket = null;
     private boolean running = true;
 
     public TcpServer(int port) throws IOException {
         this.port = port;
         this.serverSocket = new ServerSocket(port);
+    }
+
+    public boolean isRunning() {
+        return this.running;
     }
 
     @Override
@@ -44,7 +49,19 @@ public class TcpServer implements Runnable {
         }
     }
 
-    private void startWorkers(Socket clientSocket) {
+    protected String getNewestCommand() {
+        try { return receivedQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS); }
+        catch (InterruptedException e) {
+            logger.error("Interrupted", e);
+            return null;
+        }
+    }
+
+    protected void sendMessage(String message) throws InterruptedException {
+        sendQueue.put(message);
+    }
+
+    protected void startWorkers(Socket clientSocket) {
         running = true;
 
         try {
