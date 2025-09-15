@@ -31,7 +31,7 @@ public class TcpServer implements Runnable {
     @Override
     public void run() {
         try {
-            logger.info("Server listening on port " + port);
+            logger.info("Server listening on port {}", port);
 
             while (running) {
                 Socket clientSocket = this.serverSocket.accept();
@@ -61,6 +61,7 @@ public class TcpServer implements Runnable {
 
     private void stopWorkers() {
         this.running = false;
+        this.receivedQueue.clear();
         this.sendQueue.clear();
         this.executor.shutdownNow();
     }
