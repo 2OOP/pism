@@ -66,7 +66,7 @@ public class MinMaxTTT {
                     break; // break the loop
                 }
             }
-            if (empty || depth == 0) { // if the grid is empty or the depth is 0 (both meaning game is over) return 0 for draw
+            if (!empty || depth == 0) { // if the grid is full or the depth is 0 (both meaning game is over) return 0 for draw
                 return 0;
             }
         }
