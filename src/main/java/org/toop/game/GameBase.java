@@ -34,6 +34,6 @@ public abstract class GameBase {
 		return grid;
 	}
 
-	public abstract boolean ValidateMove(int index);
-	public abstract State PlayMove(int index);
+	public abstract boolean validateMove(int index);
+	public abstract State playMove(int index);
 }

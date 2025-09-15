@@ -21,9 +21,9 @@ public class MinMaxTTT {
 
         // simulate all possible moves on the field
         for (int i = 0; i < game.grid.length; i++) {
-            if (game.ValidateMove(i)) {  // check if the move is legal here
+            if (game.validateMove(i)) {  // check if the move is legal here
                 TTT copyGame = game.copyBoard(); // make a copy of the game
-                State result = copyGame.PlayMove(i); // play a move on the copy board
+                State result = copyGame.playMove(i); // play a move on the copy board
 
                 int thisMoveValue;
 
@@ -46,7 +46,7 @@ public class MinMaxTTT {
         /**
          * This method simulates all the possible future moves in the game through a copy in search of the best move.
          */
-        boolean state = game.CheckWin(); // check for a win (base case stuff)
+        boolean state = game.checkWin(); // check for a win (base case stuff)
 
         if (state) {
             if (maximizing) {
@@ -74,9 +74,9 @@ public class MinMaxTTT {
         if (maximizing) { // its the maximizing players turn, the AI
             int bestVal = -100; // set the value to lowest as possible
             for (int i = 0; i < game.grid.length; i++) { // loop through the grid
-                if (game.ValidateMove(i)) {
+                if (game.validateMove(i)) {
                     TTT copyGame = game.copyBoard();
-                    copyGame.PlayMove(i); // play the move on a copy board
+                    copyGame.playMove(i); // play the move on a copy board
                     int value = doMinimax(copyGame, depth - 1, false); // keep going with the minimax
                     bestVal = Math.max(bestVal, value); // select the best value for the maximizing player (the AI)
                 }
@@ -87,9 +87,9 @@ public class MinMaxTTT {
         else { // it's the minimizing players turn, the player
             int bestVal = 100; // set the value to the highest possible
             for (int i = 0; i < game.grid.length; i++) { // loop through the grid
-                if (game.ValidateMove(i)) {
+                if (game.validateMove(i)) {
                     TTT copyGame = game.copyBoard();
-                    copyGame.PlayMove(i); // play the move on a copy board
+                    copyGame.playMove(i); // play the move on a copy board
                     int value = doMinimax(copyGame, depth - 1, true); // keep minimaxing
                     bestVal = Math.min(bestVal, value); // select the lowest score for the minimizing player, they want to make it hard for us
                 }

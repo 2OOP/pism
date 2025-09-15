@@ -18,7 +18,7 @@ public class TTT extends GameBase {
 	}
 
 	@Override
-	public boolean ValidateMove(int index) {
+	public boolean validateMove(int index) {
 		if (index < 0 || index > (size * size - 1)) {
 			return false;
 		}
@@ -27,15 +27,15 @@ public class TTT extends GameBase {
 	}
 
 	@Override
-	public State PlayMove(int index) {
-		if (!ValidateMove(index)) {
+	public State playMove(int index) {
+		if (!validateMove(index)) {
 			return State.INVALID;
 		}
 
 		grid[index] = players[currentPlayer].Move();
 		moveCount += 1;
 
-		if (CheckWin()) {
+		if (checkWin()) {
 			return State.WIN;
 		}
 
@@ -47,7 +47,7 @@ public class TTT extends GameBase {
 		return State.NORMAL;
 	}
 
-	public boolean CheckWin() {
+	public boolean checkWin() {
 		// Horizontal
 		for (int i = 0; i < 3; i++) {
 			int index = i * 3;
