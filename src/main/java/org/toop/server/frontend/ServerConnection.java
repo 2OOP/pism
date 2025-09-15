@@ -1,9 +1,9 @@
-package org.toop.server;
+package org.toop.server.frontend;
 
 import org.toop.Main;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
-import org.toop.server.backend.TcpClient;
+import org.toop.server.ServerCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,6 +50,8 @@ public final class ServerConnection implements Runnable {
             return;
         }
 
+        System.out.println();
+
         if (!this.running) {
             logger.warn("Server has been stopped");
             return;
@@ -72,11 +74,7 @@ public final class ServerConnection implements Runnable {
     }
 
     private void initEvents() {
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.Command.class, event
-                -> this.sendCommandByString(event.command(), event.args()));
-
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.Reconnect.class, event
-                -> {
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.Reconnect.class, _ -> {
                     try {
                         this.reconnect();
                     } catch (IOException e) {
@@ -84,8 +82,7 @@ public final class ServerConnection implements Runnable {
                     }
         });
 
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ChangeConnection.class, event
-                -> {
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ChangeConnection.class, event -> {
                     try {
                         this.connect(event.ip(), event.port());
                     } catch (IOException e) {
@@ -101,7 +98,6 @@ public final class ServerConnection implements Runnable {
     }
 
     private void stopWorkers() {
-        running = false;
         this.running = false;
         this.commandQueue.clear();
 
@@ -117,7 +113,7 @@ public final class ServerConnection implements Runnable {
     }
 
     private void inputLoop() {
-        logger.info("Starting server read");
+        logger.info("Starting {}:{} connection read", this.ip, this.port);
         try {
             while (running) {
                 String received = tcpClient.readLine(); // blocks
@@ -133,7 +129,7 @@ public final class ServerConnection implements Runnable {
     }
 
     private void outputLoop() {
-        logger.info("Starting server write");
+        logger.info("Starting {}:{} connection write", this.ip, this.port);
         try {
             while (this.running) {
                 String command = this.commandQueue.poll(500, TimeUnit.MILLISECONDS);
@@ -191,7 +187,7 @@ public final class ServerConnection implements Runnable {
     }
 
     /**
-     * DO NOT USE, USE START INSTEAD.
+     * DO NOT USE, USE startNew INSTEAD.
      */
     @Override
     public void run() {

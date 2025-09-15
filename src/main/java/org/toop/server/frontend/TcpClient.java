@@ -1,4 +1,4 @@
-package org.toop.server.backend;
+package org.toop.server.frontend;
 
 import java.io.BufferedReader;
 import java.io.IOException;

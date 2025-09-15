@@ -1,11 +1,7 @@
 package org.toop.eventbus;
 
-import org.toop.server.ServerConnection;
-
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -79,7 +75,17 @@ public class Events implements IEvents {
 
         public record RequestsAllConnections(CompletableFuture<String> future) {}
 
+        public record RequestsAllServers(CompletableFuture<String> future) {}
+
         public record ForceCloseAllConnections() {}
+
+        public record ForceCloseAllServers() {}
+
+        public record StartServer(String port) {}
+
+        public record StartServerRequest(String port, CompletableFuture<String> future) {}
+
+        public record ServerStarted(String uuid, String port) {}
 
         /**
          *
@@ -112,7 +118,7 @@ public class Events implements IEvents {
         /**
          * Triggers sending a command to a server.
          */
-        public record Command(Object connectionId, String command, String... args) { }
+        public record Command(String connectionId, String command, String... args) { }
 
         /**
          * Triggers when a command is sent to a server.

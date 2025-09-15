@@ -1,4 +1,4 @@
-package org.toop.server;
+package org.toop.server.frontend;
 
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
@@ -12,16 +12,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServerManager {
+public class ConnectionManager {
 
-    private static final Logger logger = LogManager.getLogger(ServerManager.class);
+    private static final Logger logger = LogManager.getLogger(ConnectionManager.class);
 
     /**
      * Map of serverId -> Server instances
      */
     private final Map<String, ServerConnection> serverConnections = new ConcurrentHashMap<>();
 
-    public ServerManager() {
+    /**
+     * Starts a connection manager, to manage, connections.
+     */
+    public ConnectionManager() {
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartConnectionRequest.class, this::handleStartConnectionRequest);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartConnection.class, this::handleStartConnection);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.Command.class, this::handleCommand);
@@ -31,22 +34,25 @@ public class ServerManager {
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.RequestsAllConnections.class, this::getAllConnections);
     }
 
-    private void handleStartConnectionRequest(Events.ServerEvents.StartConnectionRequest request) {
+    private String startConnectionRequest(String ip, String port) {
         String connectionId = UUID.randomUUID().toString();
-        ServerConnection connection = new ServerConnection(request.ip(), request.port());
+        ServerConnection connection = new ServerConnection(ip, port);
         this.serverConnections.put(connectionId, connection);
         new Thread(connection, "Connection-" + connectionId).start();
+        logger.info("Connected to server {} at {}:{}", connectionId, ip, port);
+        return connectionId;
+    }
 
-        request.future().complete(connectionId);
+    private void handleStartConnectionRequest(Events.ServerEvents.StartConnectionRequest request) {
+        request.future().complete(this.startConnectionRequest(request.ip(), request.port())); // TODO: Maybe post ConnectionEstablished event.
     }
 
     private void handleStartConnection(Events.ServerEvents.StartConnection event) {
-        String connectionId = UUID.randomUUID().toString();
-        ServerConnection connection = new ServerConnection(event.ip(), event.port());
-        this.serverConnections.put(connectionId, connection);
-        new Thread(connection, "Connection-" + connectionId).start();
-        logger.info("Connected to server {} at {}:{}", connectionId, event.ip(), event.port());
-        GlobalEventBus.post(new Events.ServerEvents.ConnectionEstablished(connectionId, event.ip(), event.port()));
+        GlobalEventBus.post(new Events.ServerEvents.ConnectionEstablished(
+                this.startConnectionRequest(event.ip(), event.port()),
+                event.ip(),
+                event.port()
+        ));
     }
 
     private void handleCommand(Events.ServerEvents.Command event) {
