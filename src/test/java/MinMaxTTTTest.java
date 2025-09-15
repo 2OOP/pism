@@ -67,4 +67,12 @@ class MinMaxTTTTest {
         int score = ai.minimax(game, 5, true);
         assertEquals(0, score, "Draw should be zero!");
     }
+
+    @Test
+    void testMiniMax_MultipleMoves() {
+        TTT game = makeGame(" X OX  O ", 0);
+        MinMaxTTT ai = new MinMaxTTT();
+        int bestMove = ai.findbestmove(game);
+        assertTrue(bestMove == 0 || bestMove == 2, "Can look at multiple moves!");
+    }
 }
