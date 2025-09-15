@@ -1,6 +1,17 @@
 package org.toop.game;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.Main;
+
+/*
+ * TTT = TIC TAC TOE FOR THE LESS EDUCATED POPULATION ON THIS CODE
+ */
+
 public class MinMaxTTT {
+
+    private static final Logger logger = LogManager.getLogger(Main.class);
+
     public int findbestmove(TTT game) {
         /**
          * This method tries to find the best move by seeing if it can set a winning move, if not, it will do a minimax.
@@ -19,7 +30,7 @@ public class MinMaxTTT {
                     return i; // just return right away if you can win on the next move
                 }
                 else {
-                    thismovevalue = minimax(copyGame, 9, false); // else look at other moves
+                    thismovevalue = minimax(copyGame, 8, false); // else look at other moves
                 }
                 if (thismovevalue > bestval) { // if better move than the current best, change the move
                     bestval = thismovevalue;
@@ -30,7 +41,7 @@ public class MinMaxTTT {
         return bestmove; // return the best move when we've done everything
     }
 
-    private int minimax(TTT game, int depth, boolean maximizing) {
+    public int minimax(TTT game, int depth, boolean maximizing) {
         /**
          * This method simulates all the possible future moves in the game through a copy in search of the best move.
          */

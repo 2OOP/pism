@@ -2,10 +2,10 @@ package org.toop.game;
 
 public abstract class GameBase {
 	protected Player[] players;
-	protected int currentPlayer;
+	public int currentPlayer;
 
 	protected int size;
-	protected char[] grid;
+	public char[] grid;
 
 	public GameBase(int size) {
 		currentPlayer = 0;

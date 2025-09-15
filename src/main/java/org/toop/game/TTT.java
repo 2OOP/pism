@@ -1,7 +1,12 @@
 package org.toop.game;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.Main;
+
 public class TTT extends GameBase {
-	private int moveCount;
+	public int moveCount;
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
 	public TTT(String player1, String player2) {
 		super(9);
