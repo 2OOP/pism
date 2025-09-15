@@ -4,11 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.Main;
 
-public class TTT extends GameBase {
+public class TicTacToe extends GameBase {
 	public int moveCount;
     private static final Logger logger = LogManager.getLogger(Main.class);
 
-	public TTT(String player1, String player2) {
+	public TicTacToe(String player1, String player2) {
 		super(3); // 3x3 Grid
 		players = new Player[2];
 		players[0] = new Player(player1, 'X');
@@ -79,11 +79,11 @@ public class TTT extends GameBase {
 		return false;
 	}
 
-    public TTT copyBoard() {
+    public TicTacToe copyBoard() {
         /**
          * This method copies the board, mainly for AI use.
          */
-        TTT clone = new TTT(players[0].Name(), players[1].Name());
+        TicTacToe clone = new TicTacToe(players[0].Name(), players[1].Name());
         System.arraycopy(this.grid, 0, clone.grid, 0, this.grid.length);
         clone.moveCount = this.moveCount;
         clone.currentPlayer = this.currentPlayer;
