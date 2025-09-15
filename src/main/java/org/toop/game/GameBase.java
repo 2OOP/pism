@@ -2,10 +2,10 @@ package org.toop.game;
 
 public abstract class GameBase {
 	protected Player[] players;
-	protected int currentPlayer;
+	public int currentPlayer;
 
 	protected int size;
-	protected char[] grid;
+	public char[] grid;
 
 	public GameBase(int size) {
 		currentPlayer = 0;
@@ -18,22 +18,22 @@ public abstract class GameBase {
 		}
 	}
 
-	public Player[] Players() {
+	public Player[] getPlayers() {
 		return players;
 	}
 
-	public Player CurrentPlayer() {
+	public Player getCurrentPlayer() {
 		return players[currentPlayer];
 	}
 
-	public int Size() {
+	public int getSize() {
 		return size;
 	}
 
-	public char[] Grid() {
+	public char[] getGrid() {
 		return grid;
 	}
 
-	public abstract boolean ValidateMove(int index);
-	public abstract State PlayMove(int index);
+	public abstract boolean validateMove(int index);
+	public abstract State playMove(int index);
 }

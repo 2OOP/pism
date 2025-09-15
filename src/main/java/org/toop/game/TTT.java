@@ -1,10 +1,15 @@
 package org.toop.game;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.Main;
+
 public class TTT extends GameBase {
-	private int moveCount;
+	public int moveCount;
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
 	public TTT(String player1, String player2) {
-		super(9);
+		super(3); // 3x3 Grid
 		players = new Player[2];
 		players[0] = new Player(player1, 'X');
 		players[1] = new Player(player2, 'O');
@@ -13,7 +18,7 @@ public class TTT extends GameBase {
 	}
 
 	@Override
-	public boolean ValidateMove(int index) {
+	public boolean validateMove(int index) {
 		if (index < 0 || index > (size * size - 1)) {
 			return false;
 		}
@@ -22,15 +27,15 @@ public class TTT extends GameBase {
 	}
 
 	@Override
-	public State PlayMove(int index) {
-		if (!ValidateMove(index)) {
+	public State playMove(int index) {
+		if (!validateMove(index)) {
 			return State.INVALID;
 		}
 
 		grid[index] = players[currentPlayer].Move();
 		moveCount += 1;
 
-		if (CheckWin()) {
+		if (checkWin()) {
 			return State.WIN;
 		}
 
@@ -42,7 +47,7 @@ public class TTT extends GameBase {
 		return State.NORMAL;
 	}
 
-	private boolean CheckWin() {
+	public boolean checkWin() {
 		// Horizontal
 		for (int i = 0; i < 3; i++) {
 			int index = i * 3;
@@ -73,4 +78,15 @@ public class TTT extends GameBase {
 
 		return false;
 	}
+
+    public TTT copyBoard() {
+        /**
+         * This method copies the board, mainly for AI use.
+         */
+        TTT clone = new TTT(players[0].Name(), players[1].Name());
+        System.arraycopy(this.grid, 0, clone.grid, 0, this.grid.length);
+        clone.moveCount = this.moveCount;
+        clone.currentPlayer = this.currentPlayer;
+        return clone;
+    }
 }
