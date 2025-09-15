@@ -9,7 +9,7 @@ public class TTT extends GameBase {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
 	public TTT(String player1, String player2) {
-		super(9);
+		super(3); // 3x3 Grid
 		players = new Player[2];
 		players[0] = new Player(player1, 'X');
 		players[1] = new Player(player2, 'O');
