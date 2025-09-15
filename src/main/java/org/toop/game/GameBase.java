@@ -18,19 +18,19 @@ public abstract class GameBase {
 		}
 	}
 
-	public Player[] Players() {
+	public Player[] getPlayers() {
 		return players;
 	}
 
-	public Player CurrentPlayer() {
+	public Player getCurrentPlayer() {
 		return players[currentPlayer];
 	}
 
-	public int Size() {
+	public int getSize() {
 		return size;
 	}
 
-	public char[] Grid() {
+	public char[] getGrid() {
 		return grid;
 	}
 
