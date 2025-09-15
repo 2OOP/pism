@@ -1,5 +1,7 @@
 package org.toop.eventbus;
 
+import org.toop.server.backend.tictactoe.ServerCommand;
+
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -123,7 +125,7 @@ public class Events implements IEvents {
         /**
          * Triggers when a command is sent to a server.
          */
-        public record OnCommand(org.toop.server.ServerCommand command, String[] args, String result) {}
+        public record OnCommand(ServerCommand command, String[] args, String result) {}
 
         /**
          * Triggers when the server client receives a message.

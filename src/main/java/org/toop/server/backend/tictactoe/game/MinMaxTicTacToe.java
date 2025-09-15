@@ -1,4 +1,4 @@
-package org.toop.game;
+package org.toop.server.backend.tictactoe.game;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

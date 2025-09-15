@@ -1,4 +1,4 @@
-package org.toop.game;
+package org.toop.server.backend.tictactoe.game;
 
 public abstract class GameBase {
 	protected Player[] players;

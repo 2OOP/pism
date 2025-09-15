@@ -1,17 +1,17 @@
-package org.toop.server;
+package org.toop.server.backend.tictactoe;
 
 import java.util.EnumSet;
 
-public enum ServerMessage {
+public enum TicTacToeServerMessage {
     OK,
     ERR,
     SVR;
 
-    private static final EnumSet<ServerMessage> VALID_COMMANDS = EnumSet.of(
-        ServerMessage.OK,     ServerMessage.ERR,     ServerMessage.SVR
+    private static final EnumSet<TicTacToeServerMessage> VALID_COMMANDS = EnumSet.of(
+        TicTacToeServerMessage.OK,     TicTacToeServerMessage.ERR,     TicTacToeServerMessage.SVR
     );
 
-    public static EnumSet<ServerMessage> getValidCommands() {
+    public static EnumSet<TicTacToeServerMessage> getValidCommands() {
         return VALID_COMMANDS;
     }
 
@@ -22,7 +22,7 @@ public enum ServerMessage {
      */
     public static boolean isValid(String command) {
         try {
-            ServerMessage.valueOf(command.toUpperCase());
+            TicTacToeServerMessage.valueOf(command.toUpperCase());
             return true;
         } catch (IllegalArgumentException err) {
             return false;
@@ -34,10 +34,10 @@ public enum ServerMessage {
      * @param command Converts a string into a ServerCommand.
      * @return returns a ServerCommand enum.
      */
-    public static ServerMessage getCommand(String command) {
+    public static TicTacToeServerMessage getCommand(String command) {
         if (isValid(command)) {
-            ServerMessage.valueOf(command.toUpperCase());
-            return ServerMessage.valueOf(command.toUpperCase());
+            TicTacToeServerMessage.valueOf(command.toUpperCase());
+            return TicTacToeServerMessage.valueOf(command.toUpperCase());
         }
         return null;
     }

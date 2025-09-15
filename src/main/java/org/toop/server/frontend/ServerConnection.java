@@ -3,7 +3,7 @@ package org.toop.server.frontend;
 import org.toop.Main;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
-import org.toop.server.ServerCommand;
+import org.toop.server.backend.tictactoe.ServerCommand;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
