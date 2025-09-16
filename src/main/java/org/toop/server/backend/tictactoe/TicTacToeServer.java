@@ -58,7 +58,9 @@ public class TicTacToeServer extends TcpServer {
     public void gameManagerThread() {
         while (true) { // TODO: Very heavy on thread
             try {
-                wait(250);
+                synchronized (this) {
+                    wait(250);
+                } // Fixes current thread is not owner.
             } catch (InterruptedException e) {
                 logger.error("Interrupted", e);
             }

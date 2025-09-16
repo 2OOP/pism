@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import static java.lang.Thread.sleep;
-
 public class TcpServer implements Runnable {
 
     protected static final Logger logger = LogManager.getLogger(TcpServer.class);
@@ -120,11 +118,6 @@ public class TcpServer implements Runnable {
                     new Thread(() -> {
                         for (int i = 0; i < this.RETRY_ATTEMPTS; i++) {
                             if (this.receivedQueue.offer(finalMessage)) break;
-                            try {
-                                sleep(this.WAIT_TIME);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
                         }
                     }).start();
                 }

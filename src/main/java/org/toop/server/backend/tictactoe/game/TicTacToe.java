@@ -41,11 +41,11 @@ public class TicTacToe extends GameBase implements Runnable {
 //            command = this.parseCommand(command).toString();
 //            if (command == null) { continue; }
 
-			if (commandQueue.poll() != null) {
-				logger.info(commandQueue.poll());
+			if (commandQueue.poll() == null) {
+				continue;
 			}
 
-            // TODO: Game
+            // TODO: Game use the commandQueue to get the commands.
         }
 
     }

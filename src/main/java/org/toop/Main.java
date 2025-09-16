@@ -18,10 +18,6 @@ public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
 
-//        TcpServer server = new TcpServer(5001);
-//        Thread serverThread = new Thread(server);
-//        serverThread.start();
-
         initSystems();
 
         CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
@@ -36,46 +32,11 @@ public class Main {
         GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest(serverId, "John", "Pim", ticTacToeGame));
         String ticTacToeGameId = ticTacToeGame.get();
 
-
         GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
-        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "0"));
-        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "1"));
-        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "2"));
-        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "3"));
-        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "4"));
-        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "5"));
-//        GlobalEventBus.post(new Events.ServerEvents.EndTicTacToeGame(serverId, ticTacToeGameId));
 
-//        for (int i = 0; i < 1; i++) {
-//            Thread thread = new Thread(() -> {
-////                logger.info("Server ID: {}", serverId);
-//                GlobalEventBus.post(new Events.ServerEvents.Command(serverId, "HELP", "TEST"));
-//            });
-//            thread.start();
-//        }
-
-//        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllConnections());
-//        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllServers());
-
-//
-//        CompletableFuture<String> future2 = new CompletableFuture<>();
-//        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", future2));
-//        String serverId2 = future.get();
-//        logger.info("Server ID: {}", serverId2);
-//        GlobalEventBus.post(new Events.ServerEvents.Command(serverId2, "HELP", "TEST2"));
-
-//        GlobalEventBus.post(new Events.ServerEvents.StartConnection("127.0.0.1", "5001"));
-
-
-//        Server.startNew("127.0.0.1", "5001");
-//        Testsss.start(""); // Used for testing server.
-//        Window.start("");
-
-//        CompletableFuture<String> future6 = new CompletableFuture<>();
-//        GlobalEventBus.post(new Events.ServerEvents.RequestsAllConnections(future6));
-//        String serverConnections = future6.get();
-//        logger.info("Running connections: {}", serverConnections);
-
+        for (int x = 0; x < 100; x++) {
+            GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "" + x));
+        }
     }
 
     public static void initSystems() {
