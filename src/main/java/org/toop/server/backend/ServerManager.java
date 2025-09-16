@@ -31,7 +31,7 @@ public class ServerManager {
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartServerRequest.class, this::handleStartServerRequest);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartServer.class, this::handleStartServer);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ForceCloseAllServers.class, _ -> shutdownAll());
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.CreateTicTacToeGame.class, this::handleStartTicTacToeGameOnAServer);
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.CreateTicTacToeGameRequest.class, this::handleStartTicTacToeGameOnAServer);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.RunTicTacToeGame.class, this::handleRunTicTacToeGameOnAServer);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.EndTicTacToeGame.class, this::handleEndTicTacToeGameOnAServer);
     }
@@ -69,18 +69,18 @@ public class ServerManager {
         ));
     }
 
-    private void handleStartTicTacToeGameOnAServer(Events.ServerEvents.CreateTicTacToeGame event) {
+    private void handleStartTicTacToeGameOnAServer(Events.ServerEvents.CreateTicTacToeGameRequest event) {
         TicTacToeServer serverThing = (TicTacToeServer) this.servers.get(event.serverUuid());
         String gameId = null;
         if (serverThing != null) {
             try {
                 gameId = serverThing.newGame(event.playerA(), event.playerB());
-                logger.info("Created game on server {}", event.serverUuid());
+                logger.info("Created game on server: {}", event.serverUuid());
             }
             catch (Exception e) { // TODO: Error handling
-                logger.info("Could not create game on server {}", event.serverUuid());
+                logger.error("Could not create game on server: {}", event.serverUuid());
             }
-        }
+        } else { logger.warn("Could not find server: {}", event.serverUuid()); }
         event.future().complete(gameId);
     }
 

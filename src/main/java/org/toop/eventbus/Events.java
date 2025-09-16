@@ -90,7 +90,7 @@ public class Events implements IEvents {
 
         public record ServerStarted(String uuid, String port) {}
 
-        public record CreateTicTacToeGame(String serverUuid, String playerA, String playerB, CompletableFuture<String> future) {}
+        public record CreateTicTacToeGameRequest(String serverUuid, String playerA, String playerB, CompletableFuture<String> future) {}
 
         public record RunTicTacToeGame(String serverUuid, String gameUuid) {}
 

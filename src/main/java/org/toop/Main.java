@@ -24,19 +24,22 @@ public class Main {
 
         initSystems();
 
-        GlobalEventBus.post(new Events.ServerEvents.StartServer("5001", "tictactoe"));
+        CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartServerRequest("5001", "tictactoe", serverIdFuture));
+        String serverId = serverIdFuture.get();
 
-        CompletableFuture<String> future = new CompletableFuture<>();
-        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", future));
-        String serverId = future.get();
+        CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", connectionIdFuture));
+        String connectionId = connectionIdFuture.get();
 
-        CompletableFuture<String> future2 = new CompletableFuture<>();
-        GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGame(serverId, "John", "Pim", future2));
-        String gameId = future.get();
+        CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest(serverId, "John", "Pim", ticTacToeGame));
+        String ticTacToeGameId = ticTacToeGame.get();
 
-        GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, gameId));
-        GlobalEventBus.post(new Events.ServerEvents.Command(serverId, "MOVE", "0"));
-        GlobalEventBus.post(new Events.ServerEvents.EndTicTacToeGame(serverId, gameId));
+
+        GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
+        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "0"));
+        GlobalEventBus.post(new Events.ServerEvents.EndTicTacToeGame(serverId, ticTacToeGameId));
 
 //        for (int i = 0; i < 1; i++) {
 //            Thread thread = new Thread(() -> {
