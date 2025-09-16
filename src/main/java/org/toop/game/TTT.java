@@ -5,6 +5,7 @@ public class TTT extends GameBase {
 
 	public TTT(String player1, String player2) {
 		super(9);
+
 		players = new Player[2];
 		players[0] = new Player(player1, 'X');
 		players[1] = new Player(player2, 'O');

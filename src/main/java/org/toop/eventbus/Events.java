@@ -1,6 +1,7 @@
 package org.toop.eventbus;
 
 import org.toop.server.Server;
+import org.toop.core.*;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -116,7 +117,30 @@ public class Events implements IEvents {
     }
 
     public static class WindowEvents {
+		/**
+		* Triggers when the window wants to quit.
+		*/
+		public record OnQuitRequested() {}
 
+		/**
+		* Triggers when the window is resized.
+		*/
+		public record OnResize(Window.Size size) {}
+
+		/**
+		* Triggers when the mouse is moved within the window.
+		*/
+		public record OnMouseMove(int x, int y) {}
+
+		/**
+		* Triggers when the mouse is clicked within the window.
+		*/
+		public record OnMouseClick(int button) {}
+
+		/**
+		* Triggers when the mouse is released within the window.
+		*/
+		public record OnMouseRelease(int button) {}
     }
 
     public static class TttEvents {
