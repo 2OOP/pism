@@ -50,6 +50,7 @@ public class TicTacToeServer extends TcpServer {
                 this.command = null;
                 this.arguments = null;
                 this.isValidCommand = false;
+                this.returnMessage = TicTacToeServerMessage.ERR;
                 this.errorMessage = "The received command is empty";
                 this.originalCommand = receivedCommand;
                 return;
@@ -60,6 +61,7 @@ public class TicTacToeServer extends TcpServer {
                 this.command = null;
                 this.arguments = null;
                 this.isValidCommand = false;
+                this.returnMessage = TicTacToeServerMessage.ERR;
                 this.errorMessage = "The received command is empty or couldn't be split";
                 this.originalCommand = receivedCommand;
                 return;
@@ -69,8 +71,14 @@ public class TicTacToeServer extends TcpServer {
             switch (commandEnum) {
                 case MOVE -> {
                     if (segments.length == 2 && !segments[1].isEmpty()) {
-                        ParsedCommand toReturn = new ParsedCommand(commandEnum, new ArrayList<Object>(1));
-                        toReturn.arguments.add(segments[1]);
+                        this.command = commandEnum;
+                        this.arguments = new ArrayList<Object>();
+                        this.arguments.add(segments[1]);
+                        this.returnMessage = TicTacToeServerMessage.OK;
+                        this.isValidCommand = true;
+                        this.errorMessage = null;
+                        this.originalCommand = receivedCommand;
+                        return;
                     }
                 }
                 case
