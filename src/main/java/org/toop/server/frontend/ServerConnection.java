@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 
 public final class ServerConnection implements Runnable {
 
-    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LogManager.getLogger(ServerConnection.class);
 
     private final BlockingQueue<String> commandQueue = new LinkedBlockingQueue<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(2);

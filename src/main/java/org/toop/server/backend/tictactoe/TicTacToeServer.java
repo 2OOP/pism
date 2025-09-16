@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class TicTacToeServer extends TcpServer {
 
@@ -34,35 +36,52 @@ public class TicTacToeServer extends TcpServer {
         }
     }
 
-    @FunctionalInterface
-    public interface TicTacToeCommand {
-        Object execute(TicTacToe game, String[] args);
+    private static class ParsedCommand {
+        public TicTacToeServerCommand command;
+        public ArrayList<Object> arguments;
+        public boolean isValidCommand;
+        public String errorMessage;
+        public String originalCommand;
+
+        ParsedCommand(String receivedCommand) {
+
+            if (receivedCommand.isEmpty()) {
+                this.command = null;
+                this.arguments = null;
+                this.isValidCommand = false;
+                this.errorMessage = "The received command is empty";
+                this.originalCommand = receivedCommand;
+                return;
+            }
+
+            String[] segments = receivedCommand.split(" ");
+            if (segments[0].isEmpty()) {
+                this.command = null;
+                this.arguments = null;
+                this.isValidCommand = false;
+                this.errorMessage = "The received command is empty or couldn't be split";
+                this.originalCommand = receivedCommand;
+                return;
+            };
+
+            TicTacToeServerCommand commandEnum = TicTacToeServerCommand.getCommand(segments[0]);
+            switch (commandEnum) {
+                case MOVE -> {
+                    if (segments.length == 2 && !segments[1].isEmpty()) {
+                        ParsedCommand toReturn = new ParsedCommand(commandEnum, new ArrayList<Object>(1));
+                        toReturn.arguments.add(segments[1]);
+                    }
+                }
+                case
+            }
+
+            this.command = command;
+            this.arguments = arguments;
+        }
+
     }
 
-    private TicTacToeCommand parseCommand(String command) {
-        if (command.isEmpty()) {
-            try {
-                wait(250); // TODO: Magic number
-                return null;
-            } catch (InterruptedException e) {
-                logger.error("Interrupted", e);
-                throw new RuntimeException(e); // TODO: Maybe not throw it.
-            }
-        }
-
-        String[] segments = command.split(" ");
-        if (segments[0].isEmpty()) return null;
-
-        TicTacToeServerCommand commandEnum = TicTacToeServerCommand.getCommand(segments[0]);
-        switch (commandEnum) {
-            case MOVE -> {
-                if (segments.length > 1 && !segments[1].isEmpty()) return null;
-                try {
-                    int parsedInteger = Integer.parseInt(segments[1]);
-                    if (this.game.validateMove(parsedInteger)) return this.game.playMove(parsedInteger);
-                };
-            }
-        }
+    private ParsedCommand parseCommand(String command) {
 
     }
 
