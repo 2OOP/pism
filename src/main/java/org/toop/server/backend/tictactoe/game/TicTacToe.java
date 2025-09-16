@@ -2,13 +2,19 @@ package org.toop.server.backend.tictactoe.game;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.Main;
+import org.toop.server.backend.tictactoe.ParsedCommand;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 
 public class TicTacToe extends GameBase implements Runnable {
     private static final Logger logger = LogManager.getLogger(TicTacToe.class);
 
     public int moveCount;
     public Thread gameThread;
+	public BlockingQueue<ParsedCommand> commandQueue = new LinkedBlockingQueue<>();
+	public BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
 
 	public TicTacToe(String player1, String player2) {
 		super(3); // 3x3 Grid
@@ -17,6 +23,10 @@ public class TicTacToe extends GameBase implements Runnable {
 		players[1] = new Player(player2, 'O');
 
 		moveCount = 0;
+	}
+
+	public void addCommandToQueue(ParsedCommand command) {
+		commandQueue.add(command);
 	}
 
     @Override
@@ -30,6 +40,10 @@ public class TicTacToe extends GameBase implements Runnable {
 //            String command = getNewestCommand();
 //            command = this.parseCommand(command).toString();
 //            if (command == null) { continue; }
+
+			if (commandQueue.poll() != null) {
+				logger.info(commandQueue.poll());
+			}
 
             // TODO: Game
         }

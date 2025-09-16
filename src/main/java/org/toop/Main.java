@@ -39,7 +39,12 @@ public class Main {
 
         GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
         GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "0"));
-        GlobalEventBus.post(new Events.ServerEvents.EndTicTacToeGame(serverId, ticTacToeGameId));
+        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "1"));
+        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "2"));
+        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "3"));
+        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "4"));
+        GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "5"));
+//        GlobalEventBus.post(new Events.ServerEvents.EndTicTacToeGame(serverId, ticTacToeGameId));
 
 //        for (int i = 0; i < 1; i++) {
 //            Thread thread = new Thread(() -> {

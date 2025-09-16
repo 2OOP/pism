@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class TicTacToeServer extends TcpServer {
 
@@ -32,9 +33,42 @@ public class TicTacToeServer extends TcpServer {
                 logger.info("Connected to client: {}", clientSocket.getInetAddress());
 
                 new Thread(() -> this.startWorkers(clientSocket)).start();
+                new Thread(this::gameManagerThread).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected ParsedCommand getNewestCommand() {
+        try {
+            String rec = receivedQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS);
+            if (rec != null) {
+                return new ParsedCommand(rec);
+            }
+        }
+        catch (InterruptedException e) {
+            logger.error("Interrupted", e);
+            return null;
+        }
+        return null;
+    }
+
+    public void gameManagerThread() {
+        while (true) { // TODO: Very heavy on thread
+            try {
+                wait(250);
+            } catch (InterruptedException e) {
+                logger.error("Interrupted", e);
+            }
+            ParsedCommand command = getNewestCommand();
+            if (command != null && !command.isServerCommand) {
+                TicTacToe testGame = games.values().iterator().next(); // TODO: Is to get first for testing, must be done a different way later.
+                testGame.addCommandToQueue(command);
+                logger.info("Added command to the game queue: {}", command);
+                return;
+            }
         }
     }
 
@@ -43,6 +77,10 @@ public class TicTacToeServer extends TcpServer {
         String gameId = UUID.randomUUID().toString();
         TicTacToe game = new TicTacToe(playerA, playerB);
         this.games.put(gameId, game);
+//        this.knownPlayers.put(sockA, playerA); // TODO: For remembering players and validation.
+//        this.knownPlayers.put(sockB, playerB);
+//        this.playersGames.put(playerA, gameId);
+//        this.playersGames.put(playerB, gameId);
         logger.info("Created a new game: {}. {} vs {}", gameId, playerA, playerB);
         return gameId;
     }
@@ -56,93 +94,12 @@ public class TicTacToeServer extends TcpServer {
     public void endGame(String gameId) {
         TicTacToe game = this.games.get(gameId);
         this.games.remove(gameId);
+//        this.knownPlayers.put(sockA, playerA); // TODO: Remove players when game is done.
+//        this.knownPlayers.put(sockB, playerB);
+//        this.playersGames.put(playerA, gameId);
+//        this.playersGames.put(playerB, gameId);
         logger.info("Ended game: {}", gameId);
         // TODO: Multithreading, close game in a graceful matter, etc.
-    }
-
-    private static class ParsedCommand {
-        public TicTacToeServerCommand command;
-        public ArrayList<Object> arguments;
-        public boolean isValidCommand;
-        public TicTacToeServerMessage returnMessage;
-        public String errorMessage;
-        public String originalCommand;
-
-        ParsedCommand(String receivedCommand) {
-
-            if (receivedCommand.isEmpty()) {
-                this.command = null;
-                this.arguments = null;
-                this.isValidCommand = false;
-                this.returnMessage = TicTacToeServerMessage.ERR;
-                this.errorMessage = "The received command is empty";
-                this.originalCommand = receivedCommand;
-                return;
-            }
-
-            String[] segments = receivedCommand.split(" ");
-            if (segments[0].isEmpty()) {
-                this.command = null;
-                this.arguments = null;
-                this.isValidCommand = false;
-                this.returnMessage = TicTacToeServerMessage.ERR;
-                this.errorMessage = "The received command is empty or couldn't be split";
-                this.originalCommand = receivedCommand;
-                return;
-            };
-
-            TicTacToeServerCommand commandEnum = TicTacToeServerCommand.getCommand(segments[0]);
-            switch (commandEnum) {
-                case MOVE -> {
-                    if (segments.length == 2 && !segments[1].isEmpty()) {
-                        this.command = commandEnum;
-                        this.arguments = new ArrayList<Object>(1);
-                        this.arguments.add(segments[1]);
-                        this.returnMessage = TicTacToeServerMessage.OK;
-                        this.isValidCommand = true;
-                        this.errorMessage = null;
-                        this.originalCommand = receivedCommand;
-                        return;
-                    }
-                }
-                case FORFEIT -> {
-                        this.command = commandEnum;
-                        this.arguments = null;
-                        this.returnMessage = TicTacToeServerMessage.OK;
-                        this.isValidCommand = true;
-                        this.errorMessage = null;
-                        this.originalCommand = receivedCommand;
-                        return;
-                }
-                case MESSAGE -> {
-                    if (segments.length == 3 && !segments[2].isEmpty()) {
-                        this.command = commandEnum;
-                        this.arguments = new ArrayList<Object>(2);
-                        this.arguments.add(segments[2]);
-                        this.returnMessage = TicTacToeServerMessage.OK;
-                        this.isValidCommand = true;
-                        this.errorMessage = null;
-                        this.originalCommand = receivedCommand;
-                        return;
-                    }
-                }
-                case BYE, DISCONNECT, LOGOUT, QUIT, EXIT -> {
-                    this.command = commandEnum;
-                    this.arguments = null;
-                    this.returnMessage = TicTacToeServerMessage.OK;
-                    this.isValidCommand = true;
-                    this.errorMessage = null;
-                    this.originalCommand = receivedCommand;
-                    return;
-                }
-            }
-            this.command = command;
-            this.arguments = arguments;
-        }
-    }
-
-    private ParsedCommand parseCommand(String command) {
-        return null;
     }
 
 }

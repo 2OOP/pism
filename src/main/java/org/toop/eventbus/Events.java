@@ -115,6 +115,8 @@ public class Events implements IEvents {
          */
         public record StartConnectionRequest(String ip, String port, CompletableFuture<String> future) {}
 
+//        public record StartGameConnectionRequest(String ip, String port, CompletableFuture<String> future) {}
+
         /**
          * Triggers when a connection to a server is established.
          *
