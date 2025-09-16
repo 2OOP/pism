@@ -40,6 +40,7 @@ public class TicTacToeServer extends TcpServer {
         public TicTacToeServerCommand command;
         public ArrayList<Object> arguments;
         public boolean isValidCommand;
+        public TicTacToeServerMessage returnMessage;
         public String errorMessage;
         public String originalCommand;
 
