@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.*;
-import java.sql.Time;
 import java.util.concurrent.*;
 
 import static java.lang.Thread.sleep;
@@ -46,6 +45,16 @@ public class TcpServer implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void runGame() {}
+
+    protected String sendServerMessage() {
+        try { return sendQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS); }
+        catch (InterruptedException e) {
+            logger.error("Interrupted", e);
+            return null;
         }
     }
 

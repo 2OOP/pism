@@ -29,6 +29,7 @@ public class ServerManager {
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartServerRequest.class, this::handleStartServerRequest);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartServer.class, this::handleStartServer);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ForceCloseAllServers.class, _ -> shutdownAll());
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartTicTacToeGame.class, this::handleStartTicTacToeGameOnAServer);
     }
 
     private String startServer(String port) {
@@ -54,6 +55,20 @@ public class ServerManager {
                 this.startServer(event.port()),
                 event.port()
         ));
+    }
+
+    private void handleStartTicTacToeGameOnAServer(Events.ServerEvents.StartTicTacToeGame event) {
+        TcpServer serverThing = this.servers.get(event.id());
+        if (serverThing != null) {
+            try {
+                serverThing.runGame();
+                logger.info("Started game on server {}", event.id());
+            }
+            catch (Exception e) {
+                logger.info("Could not start game on server {}", event.id());
+            }
+        }
+
     }
 
     private void getAllServers(Events.ServerEvents.RequestsAllServers request) {

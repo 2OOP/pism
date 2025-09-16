@@ -6,17 +6,18 @@ import org.toop.server.backend.TcpServer;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TicTacToeServer extends TcpServer {
 
-    private TicTacToe game;
+    /**
+     * Map of gameId -> Game instances
+     */
+    private final Map<String, TicTacToe> games = new ConcurrentHashMap<>();
 
-    public TicTacToeServer(int port, String playerA, String playerB) throws IOException {
+    public TicTacToeServer(int port) throws IOException {
         super(port);
-        this.game = new TicTacToe(playerA, playerB);
     }
 
     @Override
@@ -29,11 +30,30 @@ public class TicTacToeServer extends TcpServer {
                 logger.info("Connected to client: {}", clientSocket.getInetAddress());
 
                 new Thread(() -> this.startWorkers(clientSocket)).start();
-                new Thread(() -> this.gameThread()).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void newGame(String playerA, String playerB) {
+        String gameId = UUID.randomUUID().toString();
+        TicTacToe game = new TicTacToe(playerA, playerB);
+        this.games.put(gameId, game);
+        logger.info("Created a new game: {}. {} vs {}", gameId, playerA, playerB);
+    }
+
+    public void runGame(String gameId) {
+        TicTacToe game = this.games.get(gameId);
+        game.run();
+        logger.info("Running game: {}, players: {}", gameId, game.getPlayers());
+    }
+
+    public void endGame(String gameId) {
+        TicTacToe game = this.games.get(gameId);
+        this.games.remove(gameId);
+        logger.info("Removed game: {}", gameId);
+        // TODO: Multithreading, close game in a graceful matter, etc.
     }
 
     private static class ParsedCommand {
@@ -119,19 +139,6 @@ public class TicTacToeServer extends TcpServer {
 
     private ParsedCommand parseCommand(String command) {
         return null;
-    }
-
-    private void gameThread() {
-
-
-        while (true) {
-            String command = getNewestCommand();
-            command = this.parseCommand(command).toString();
-            if (command == null) { continue; }
-
-            // TODO: Game
-        }
-
     }
 
 }

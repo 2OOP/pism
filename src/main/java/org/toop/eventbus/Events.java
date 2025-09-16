@@ -90,6 +90,8 @@ public class Events implements IEvents {
 
         public record ServerStarted(String uuid, String port) {}
 
+        public record StartTicTacToeGame(String id, String port) {}
+
         /**
          *
          * Triggers starting a server connection.

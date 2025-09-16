@@ -4,9 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.Main;
 
-public class TicTacToe extends GameBase {
-	public int moveCount;
+public class TicTacToe extends GameBase implements Runnable {
     private static final Logger logger = LogManager.getLogger(TicTacToe.class);
+
+    public int moveCount;
+    public Thread gameThread;
 
 	public TicTacToe(String player1, String player2) {
 		super(3); // 3x3 Grid
@@ -16,6 +18,23 @@ public class TicTacToe extends GameBase {
 
 		moveCount = 0;
 	}
+
+    @Override
+    public void run() {
+        this.gameThread = new Thread(this::gameThread);
+        this.gameThread.start();
+    }
+
+    private void gameThread() {
+        while (true) {
+            String command = getNewestCommand();
+            command = this.parseCommand(command).toString();
+            if (command == null) { continue; }
+
+            // TODO: Game
+        }
+
+    }
 
 	@Override
 	public boolean validateMove(int index) {
