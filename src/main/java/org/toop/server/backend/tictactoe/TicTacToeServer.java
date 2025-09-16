@@ -1,16 +1,18 @@
 package org.toop.server.backend.tictactoe;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.server.backend.tictactoe.game.TicTacToe;
 import org.toop.server.backend.TcpServer;
 
 import java.io.IOException;
-import java.io.ObjectStreamException;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TicTacToeServer extends TcpServer {
 
+    protected static final Logger logger = LogManager.getLogger(TicTacToeServer.class);
     /**
      * Map of gameId -> Game instances
      */
@@ -36,11 +38,13 @@ public class TicTacToeServer extends TcpServer {
         }
     }
 
-    public void newGame(String playerA, String playerB) {
+    public String newGame(String playerA, String playerB) {
+        logger.info("Creating a new game: {} vs {}", playerA, playerB);
         String gameId = UUID.randomUUID().toString();
         TicTacToe game = new TicTacToe(playerA, playerB);
         this.games.put(gameId, game);
         logger.info("Created a new game: {}. {} vs {}", gameId, playerA, playerB);
+        return gameId;
     }
 
     public void runGame(String gameId) {
@@ -52,7 +56,7 @@ public class TicTacToeServer extends TcpServer {
     public void endGame(String gameId) {
         TicTacToe game = this.games.get(gameId);
         this.games.remove(gameId);
-        logger.info("Removed game: {}", gameId);
+        logger.info("Ended game: {}", gameId);
         // TODO: Multithreading, close game in a graceful matter, etc.
     }
 

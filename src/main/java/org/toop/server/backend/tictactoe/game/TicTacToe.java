@@ -27,9 +27,9 @@ public class TicTacToe extends GameBase implements Runnable {
 
     private void gameThread() {
         while (true) {
-            String command = getNewestCommand();
-            command = this.parseCommand(command).toString();
-            if (command == null) { continue; }
+//            String command = getNewestCommand();
+//            command = this.parseCommand(command).toString();
+//            if (command == null) { continue; }
 
             // TODO: Game
         }

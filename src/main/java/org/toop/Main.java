@@ -24,11 +24,19 @@ public class Main {
 
         initSystems();
 
-        GlobalEventBus.post(new Events.ServerEvents.StartServer("5001"));
+        GlobalEventBus.post(new Events.ServerEvents.StartServer("5001", "tictactoe"));
 
         CompletableFuture<String> future = new CompletableFuture<>();
         GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", future));
         String serverId = future.get();
+
+        CompletableFuture<String> future2 = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGame(serverId, "John", "Pim", future2));
+        String gameId = future.get();
+
+        GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, gameId));
+        GlobalEventBus.post(new Events.ServerEvents.Command(serverId, "MOVE", "0"));
+        GlobalEventBus.post(new Events.ServerEvents.EndTicTacToeGame(serverId, gameId));
 
 //        for (int i = 0; i < 1; i++) {
 //            Thread thread = new Thread(() -> {
@@ -38,10 +46,8 @@ public class Main {
 //            thread.start();
 //        }
 
-        GlobalEventBus.post(new Events.ServerEvents.Command(serverId, "HELP", "TEST"));
-
-        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllConnections());
-        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllServers());
+//        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllConnections());
+//        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllServers());
 
 //
 //        CompletableFuture<String> future2 = new CompletableFuture<>();

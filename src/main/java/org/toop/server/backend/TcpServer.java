@@ -50,6 +50,10 @@ public class TcpServer implements Runnable {
 
     public void runGame() {}
 
+    public void endGame() {}
+
+    public void newGame() {}
+
     protected String sendServerMessage() {
         try { return sendQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS); }
         catch (InterruptedException e) {
