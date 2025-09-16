@@ -72,7 +72,7 @@ public class TicTacToeServer extends TcpServer {
                 case MOVE -> {
                     if (segments.length == 2 && !segments[1].isEmpty()) {
                         this.command = commandEnum;
-                        this.arguments = new ArrayList<Object>();
+                        this.arguments = new ArrayList<Object>(1);
                         this.arguments.add(segments[1]);
                         this.returnMessage = TicTacToeServerMessage.OK;
                         this.isValidCommand = true;
@@ -81,17 +81,44 @@ public class TicTacToeServer extends TcpServer {
                         return;
                     }
                 }
-                case
+                case FORFEIT -> {
+                        this.command = commandEnum;
+                        this.arguments = null;
+                        this.returnMessage = TicTacToeServerMessage.OK;
+                        this.isValidCommand = true;
+                        this.errorMessage = null;
+                        this.originalCommand = receivedCommand;
+                        return;
+                }
+                case MESSAGE -> {
+                    if (segments.length == 3 && !segments[2].isEmpty()) {
+                        this.command = commandEnum;
+                        this.arguments = new ArrayList<Object>(2);
+                        this.arguments.add(segments[2]);
+                        this.returnMessage = TicTacToeServerMessage.OK;
+                        this.isValidCommand = true;
+                        this.errorMessage = null;
+                        this.originalCommand = receivedCommand;
+                        return;
+                    }
+                }
+                case BYE, DISCONNECT, LOGOUT, QUIT, EXIT -> {
+                    this.command = commandEnum;
+                    this.arguments = null;
+                    this.returnMessage = TicTacToeServerMessage.OK;
+                    this.isValidCommand = true;
+                    this.errorMessage = null;
+                    this.originalCommand = receivedCommand;
+                    return;
+                }
             }
-
             this.command = command;
             this.arguments = arguments;
         }
-
     }
 
     private ParsedCommand parseCommand(String command) {
-
+        return null;
     }
 
     private void gameThread() {
@@ -99,10 +126,8 @@ public class TicTacToeServer extends TcpServer {
 
         while (true) {
             String command = getNewestCommand();
-            command = this.parseCommand(command);
+            command = this.parseCommand(command).toString();
             if (command == null) { continue; }
-
-
 
             // TODO: Game
         }

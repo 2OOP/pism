@@ -6,7 +6,7 @@ import org.toop.Main;
 
 public class TicTacToe extends GameBase {
 	public int moveCount;
-    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LogManager.getLogger(TicTacToe.class);
 
 	public TicTacToe(String player1, String player2) {
 		super(3); // 3x3 Grid

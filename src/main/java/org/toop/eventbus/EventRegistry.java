@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class EventRegistry {
 
-    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LogManager.getLogger(EventRegistry.class);
 
     private static final Map<Class<?>, CopyOnWriteArrayList<EventEntry<?>>> eventHistory =
             new ConcurrentHashMap<>();

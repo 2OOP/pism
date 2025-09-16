@@ -6,7 +6,7 @@ import org.toop.Main;
 
 public class MinMaxTicTacToe {
 
-    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static final Logger logger = LogManager.getLogger(MinMaxTicTacToe.class);
 
     public int findBestMove(TicTacToe game) {
         /**
