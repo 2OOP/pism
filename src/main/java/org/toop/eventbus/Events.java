@@ -1,6 +1,7 @@
 package org.toop.eventbus;
 
-import org.toop.server.backend.tictactoe.ServerCommand;
+import org.toop.server.backend.tictactoe.TicTacToeServer;
+import org.toop.server.backend.tictactoe.TicTacToeServerCommand;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -125,7 +126,7 @@ public class Events implements IEvents {
         /**
          * Triggers when a command is sent to a server.
          */
-        public record OnCommand(ServerCommand command, String[] args, String result) {}
+        public record OnCommand(TicTacToeServer command, String[] args, String result) {}
 
         /**
          * Triggers when the server client receives a message.
