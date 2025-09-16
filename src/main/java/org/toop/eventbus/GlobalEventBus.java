@@ -124,4 +124,5 @@ public class GlobalEventBus {
         // post to Guava EventBus
         GlobalEventBus.get().post(event);
     }
+
 }
