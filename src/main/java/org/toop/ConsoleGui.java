@@ -62,7 +62,7 @@ public class ConsoleGui {
 				String name = scanner.nextLine();
 
 				player1 = name;
-				ai2 = player2 = "AI #" + random.nextInt();
+				ai2 = player2 = "AI#" + random.nextInt();
 
 				break;
 			}
@@ -72,7 +72,7 @@ public class ConsoleGui {
 				System.out.print("Enter your name: ");
 				String name = scanner.nextLine();
 
-				ai1 = player1 = "AI #" + random.nextInt();
+				ai1 = player1 = "AI#" + random.nextInt();
 				player2 = name;
 
 				break;
@@ -80,8 +80,8 @@ public class ConsoleGui {
 
 			// ai vs ai
 			case 4: {
-				ai1 = player1 = "AI #" + random.nextInt();
-				ai2 = player2 = "AI 2" + random.nextInt();
+				ai1 = player1 = "AI#" + random.nextInt();
+				ai2 = player2 = "AI2" + random.nextInt();
 
 				break;
 			}
@@ -184,7 +184,7 @@ public class ConsoleGui {
 
         GlobalEventBus.post(new Events.ServerEvents.SendCommand(
                 connectionId,
-                "gameid " + ticTacToeGameId, current.name(), "MOVE", String.valueOf(move)
+                "gameid " + ticTacToeGameId, "player " + current.name(), "MOVE", String.valueOf(move)
         ));
 
 		if (!keepRunning) {
