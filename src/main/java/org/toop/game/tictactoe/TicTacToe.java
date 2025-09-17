@@ -107,10 +107,10 @@ public class TicTacToe extends GameBase implements Runnable {
 		movesLeft--;
 	}
 
+	/**
+	 * This method copies the board, mainly for AI use.
+	 */
 	public TicTacToe copyBoard() {
-		/**
-		 * This method copies the board, mainly for AI use.
-		 */
 		TicTacToe clone = new TicTacToe(players[0].name(), players[1].name());
 		System.arraycopy(this.grid, 0, clone.grid, 0, this.grid.length);
 		clone.movesLeft = this.movesLeft;

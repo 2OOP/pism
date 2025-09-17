@@ -42,9 +42,9 @@ public class Main {
 
 		console.print();
 
-		while (console.next()) {
+		do {
 			console.print();
-		}
+		} while (console.next());
 
 		console.print();
     }

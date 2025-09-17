@@ -20,7 +20,13 @@ public class ConsoleGui {
 
 		int mode = -1;
 
-		System.out.printf("1. player vs player\n2. player vs ai\n3. ai vs player\n4. ai v ai\nChoose mode (default is 1): ");
+		System.out.print(
+                """
+                        1. player vs player
+                        2. player vs ai
+                        3. ai vs player
+                        4. ai v ai
+                        Choose mode (default is 1):\s""");
 		String modeString = scanner.nextLine();
 
 		try {
