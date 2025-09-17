@@ -36,11 +36,11 @@ public class Main {
         String ticTacToeGameId = ticTacToeGame.get();
         GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
 
-        GlobalEventBus.post(new Events.ServerEvents.Command(
+        GlobalEventBus.post(new Events.ServerEvents.SendCommand(
                 connectionId,
                 "gameid " + ticTacToeGameId, "player J", "MOVE", "0"
         ));
-        GlobalEventBus.post(new Events.ServerEvents.Command(
+        GlobalEventBus.post(new Events.ServerEvents.SendCommand(
                 connectionId,
                 "gameid " + ticTacToeGameId, "player P", "MOVE", "1"
         ));

@@ -129,7 +129,7 @@ public class Events implements IEvents {
         /**
          * Triggers sending a command to a server.
          */
-        public record Command(String connectionId, String... args) { }
+        public record SendCommand(String connectionId, String... args) { }
 
         /**
          * Triggers when a command is sent to a server.

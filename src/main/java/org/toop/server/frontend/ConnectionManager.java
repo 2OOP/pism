@@ -27,7 +27,7 @@ public class ConnectionManager {
     public ConnectionManager() {
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartConnectionRequest.class, this::handleStartConnectionRequest);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartConnection.class, this::handleStartConnection);
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.Command.class, this::handleCommand);
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.SendCommand.class, this::handleCommand);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.Reconnect.class, this::handleReconnect);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ChangeConnection.class, this::handleChangeConnection);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ForceCloseAllConnections.class, _ -> shutdownAll());
@@ -55,7 +55,7 @@ public class ConnectionManager {
         ));
     }
 
-    private void handleCommand(Events.ServerEvents.Command event) { // TODO: Move this to ServerConnection class, keep it internal.
+    private void handleCommand(Events.ServerEvents.SendCommand event) { // TODO: Move this to ServerConnection class, keep it internal.
         ServerConnection serverConnection = this.serverConnections.get(event.connectionId());
         if (serverConnection != null) {
             serverConnection.sendCommandByString(event.args());
