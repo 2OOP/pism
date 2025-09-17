@@ -7,6 +7,9 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.toop.eventbus.EventRegistry;
 
+/**
+ * Options for logging.
+ */
 public final class Logging {
     public static void disableLogs() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
