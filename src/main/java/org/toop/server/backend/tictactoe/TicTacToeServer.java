@@ -114,7 +114,7 @@ public class TicTacToeServer extends TcpServer {
             try {
                 while (isRunning()) {
                     String msg = game.sendQueue.take(); // blocks until a message is added to the queue
-                    logger.info("Adding: {} to the send queue", msg);
+                    logger.info("Games: {}, Adding: {} to the send queue", game.gameId, msg);
                     this.sendQueue.put(msg); // push to network layer
                 }
             } catch (InterruptedException e) {
