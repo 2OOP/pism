@@ -1,15 +1,14 @@
 package org.toop;
 
-import org.toop.core.*;
+import org.toop.UI.GameSelectorWindow;
 import org.toop.eventbus.*;
-import org.toop.graphics.*;
 
 public class Main {
 	private static boolean running = false;
 
 	public static void main(String[] args) {
 		registerEvents();
-
+        /*
 		Window window = Window.setup(Window.API.GLFW, "Test", new Window.Size(1280, 720));
 		Renderer renderer = Renderer.setup(Renderer.API.OPENGL);
 
@@ -30,6 +29,11 @@ public class Main {
 		if (shader != null) shader.cleanup();
 		if (renderer != null) renderer.cleanup();
 		if (window != null) window.cleanup();
+
+         */
+        //JFrameWindow window = new JFrameWindow();
+        GameSelectorWindow gameSelectorWindow = new GameSelectorWindow();
+
 	}
 
 	private static void registerEvents() {

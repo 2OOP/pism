@@ -110,6 +110,10 @@ public class Events implements IEvents {
          */
         public record ChangeConnection(String ip, String port) { }
 
+        /**
+         * Triggers when a cell is clicked in one of the game boards.
+         */
+        public record CellClicked(int cell) {}
     }
 
     public static class EventBusEvents {
