@@ -32,9 +32,6 @@ public class Main {
 		while (running) {
 			window.update();
 			renderer.clear();
-		do {
-			console.print();
-		} while (console.next());
 
 			shader.start();
 			renderer.render();
@@ -45,6 +42,11 @@ public class Main {
 		if (shader != null) shader.cleanup();
 		if (renderer != null) renderer.cleanup();
 		if (window != null) window.cleanup();
+
+         */
+        //JFrameWindow window = new JFrameWindow();
+        GameSelectorWindow gameSelectorWindow = new GameSelectorWindow();
+
 	}
 
 	private static void registerEvents() {

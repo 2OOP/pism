@@ -258,6 +258,10 @@ public class Events implements IEvents {
          */
         public record ClosedConnection() {}
 
+        /**
+         * Triggers when a cell is clicked in one of the game boards.
+         */
+        public record CellClicked(int cell) {}
     }
 
     public static class EventBusEvents {
