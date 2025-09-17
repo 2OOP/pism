@@ -110,7 +110,6 @@ public class Events implements IEvents {
          */
         public record StartServer(String port, String gameType) {}
 
-
         /**
          * BLOCKING
          * Requests starting a server with a specific port and game type, and returns a CompletableFuture
