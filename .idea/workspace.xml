@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="997b32da-b4d4-48ac-ab51-52d65f364f81" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/Logging.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/Logging.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/GlobalEventBus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/GlobalEventBus.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +84,7 @@
   <component name="RunManager">
     <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.toop.Main" />
-      <module name="pism" />
+      <module name="pis" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="org.toop.*" />

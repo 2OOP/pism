@@ -1,6 +1,7 @@
 package org.toop;
 
 import org.toop.UI.GameSelectorWindow;
+import org.toop.eventbus.EventRegistry;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.server.backend.ServerManager;
@@ -16,6 +17,8 @@ public class Main {
     private static boolean running = false;
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException {
+//        Logging.disableAllLogs();
+//        Logging.enableAllLogsForClass(EventRegistry.class);
         initSystems();
         registerEvents();
 
