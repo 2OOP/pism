@@ -139,7 +139,7 @@ public class Events implements IEvents {
         /**
          * Triggers when the server client receives a message.
          */
-        public record ReceivedMessage(String message) {}
+        public record ReceivedMessage(String ConnectionUuid, String message) {}
 
         /**
          * Triggers on changing the server ip.

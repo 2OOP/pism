@@ -18,12 +18,13 @@ public final class ServerConnection implements Runnable {
     private final BlockingQueue<String> commandQueue = new LinkedBlockingQueue<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
 
+    String uuid;
     String ip;
     String port;
     TcpClient tcpClient;
     volatile boolean running = false;
 
-    public ServerConnection(String ip, String port) {
+    public ServerConnection(String uuid, String ip, String port) {
         this.ip = ip;
         this.port = port;
         this.initEvents();
@@ -119,6 +120,7 @@ public final class ServerConnection implements Runnable {
                 String received = tcpClient.readLine(); // blocks
                 if (received != null) {
                     logger.info("Received: '{}'", received);
+                    GlobalEventBus.post(new Events.ServerEvents.ReceivedMessage(this.uuid, received));
                 } else {
                     break;
                 }
@@ -205,8 +207,8 @@ public final class ServerConnection implements Runnable {
      * @param ip The address of the server to contact.
      * @param port The port of the server.
      */
-    public static ServerConnection startNew(String ip, String port) {
-        ServerConnection serverConnection = new ServerConnection(ip, port);
+    public static ServerConnection startNew(String uuid, String ip, String port) {
+        ServerConnection serverConnection = new ServerConnection(uuid, ip, port);
         new Thread(serverConnection).start();
         return serverConnection;
     }

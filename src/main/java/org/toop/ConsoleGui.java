@@ -1,11 +1,20 @@
 package org.toop;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.eventbus.Events;
+import org.toop.eventbus.GlobalEventBus;
 import org.toop.game.*;
 import org.toop.game.tictactoe.*;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class ConsoleGui {
+
+	private static final Logger logger = LogManager.getLogger(ConsoleGui.class);
+
 	private Scanner scanner;
 
 	private TicTacToe game;
@@ -14,7 +23,7 @@ public class ConsoleGui {
 	String ai1 = null;
 	String ai2 = null;
 
-	public ConsoleGui() {
+	public ConsoleGui() throws ExecutionException, InterruptedException {
 		scanner = new Scanner(System.in);
 		Random random = new Random(3453498);
 
@@ -32,6 +41,7 @@ public class ConsoleGui {
 		try {
 			mode = Integer.parseInt(modeString);
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 		}
 
 		String player1 = null;
