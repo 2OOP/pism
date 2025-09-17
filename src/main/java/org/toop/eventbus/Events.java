@@ -2,11 +2,11 @@ package org.toop.eventbus;
 
 import org.toop.server.backend.tictactoe.TicTacToeServer;
 import org.toop.server.backend.tictactoe.TicTacToeServerCommand;
-import org.toop.server.Server;
 import org.toop.core.*;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Events that are used in the GlobalEventBus class.
@@ -184,7 +184,6 @@ public class Events implements IEvents {
          *
          * @param ip The IP address of the server to connect to.
          * @param port The port of the server to connect to.
-         * @param future The CompletableFuture that will complete when the connection is established.
          */
         public record ConnectionEstablished(Object connectionId, String ip, String port) {}
 
@@ -262,9 +261,6 @@ public class Events implements IEvents {
          * Triggers when a cell is clicked in one of the game boards.
          */
         public record CellClicked(int cell) {}
-    }
-
-    public static class EventBusEvents {
 
     }
 
