@@ -108,7 +108,7 @@ public final class ServerConnection implements Runnable {
             while (running) {
                 String received = tcpClient.readLine(); // blocks
                 if (received != null) {
-                    logger.info("Received: '{}'", received);
+                    logger.info("Connection: {} received: '{}'", this.uuid, received);
                     GlobalEventBus.post(new Events.ServerEvents.ReceivedMessage(this.uuid, received));
                 } else {
                     break;

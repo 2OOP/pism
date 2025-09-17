@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -35,6 +36,13 @@ public class Main {
         GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest(serverId, "J", "P", ticTacToeGame));
         String ticTacToeGameId = ticTacToeGame.get();
         GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
+        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ReceivedMessage.class,
+            event -> {
+                if (Objects.equals(event.ConnectionUuid(), connectionId)) {
+                    logger.info("Received '{}'", event.message());
+                }
+            }
+        );
 
         GlobalEventBus.post(new Events.ServerEvents.SendCommand(
                 connectionId,

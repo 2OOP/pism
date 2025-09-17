@@ -34,6 +34,7 @@ public class TicTacToe extends GameBase implements Runnable {
 	 */
 	public TicTacToe(String player1, String player2, String gameId) {
 		super(3, new Player(player1, 'X'), new Player(player2, 'O'));
+		this.gameId = gameId;
 		movesLeft = size * size;
 	}
 
@@ -59,7 +60,7 @@ public class TicTacToe extends GameBase implements Runnable {
 //			  if (command == null) { continue; }
             try {
                 ParsedCommand cmd = this.commandQueue.take();
-				logger.info("Game {}, took command: {}", this.gameId, cmd.originalCommand); // TODO: Fix null gameid
+				logger.info("Game {}, took command: {}", this.gameId, cmd.originalCommand);
 				this.addSendToQueue("OK");
             } catch (InterruptedException e) {
 				logger.error("Game {} has crashed.", this.gameId);
