@@ -18,7 +18,7 @@ public class MinMaxTicTacToe {
         int bestMove = 10; // set bestmove to something impossible
 
         // simulate all possible moves on the field
-        for (int i = 0; i < game.getGrid().length; i++) {
+        for (int i = 0; i < game.grid.length; i++) {
             if (game.validateMove(i)) {  // check if the move is legal here
                 TicTacToe copyGame = game.copyBoard(); // make a copy of the game
                 GameBase.State result = copyGame.play(i); // play a move on the copy board
@@ -58,7 +58,7 @@ public class MinMaxTicTacToe {
 
         else {
             boolean empty = false;
-            for (char cell : game.getGrid()) { // else, look at draw conditions. we check per cell if it's empty or not
+            for (char cell : game.grid) { // else, look at draw conditions. we check per cell if it's empty or not
                 if (cell == ' ') {
                     empty = true; // if a thing is empty, set to true
                     break; // break the loop
@@ -71,7 +71,7 @@ public class MinMaxTicTacToe {
 
         if (maximizing) { // it's the maximizing players turn, the AI
             int bestVal = -100; // set the value to lowest as possible
-            for (int i = 0; i < game.getGrid().length; i++) { // loop through the grid
+            for (int i = 0; i < game.grid.length; i++) { // loop through the grid
                 if (game.validateMove(i)) {
                     TicTacToe copyGame = game.copyBoard();
                     copyGame.play(i); // play the move on a copy board
@@ -84,7 +84,7 @@ public class MinMaxTicTacToe {
 
         else { // it's the minimizing players turn, the player
             int bestVal = 100; // set the value to the highest possible
-            for (int i = 0; i < game.getGrid().length; i++) { // loop through the grid
+            for (int i = 0; i < game.grid.length; i++) { // loop through the grid
                 if (game.validateMove(i)) {
                     TicTacToe copyGame = game.copyBoard();
                     copyGame.play(i); // play the move on a copy board

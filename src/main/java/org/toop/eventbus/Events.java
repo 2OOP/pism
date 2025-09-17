@@ -84,11 +84,17 @@ public class Events implements IEvents {
 
         public record ForceCloseAllServers() {}
 
-        public record StartServer(String port) {}
+        public record StartServer(String port, String gameType) {}
 
-        public record StartServerRequest(String port, CompletableFuture<String> future) {}
+        public record StartServerRequest(String port, String gameType, CompletableFuture<String> future) {}
 
         public record ServerStarted(String uuid, String port) {}
+
+        public record CreateTicTacToeGameRequest(String serverUuid, String playerA, String playerB, CompletableFuture<String> future) {}
+
+        public record RunTicTacToeGame(String serverUuid, String gameUuid) {}
+
+        public record EndTicTacToeGame(String serverUuid, String gameUuid) {}
 
         /**
          *
@@ -108,6 +114,8 @@ public class Events implements IEvents {
          * @param future
          */
         public record StartConnectionRequest(String ip, String port, CompletableFuture<String> future) {}
+
+//        public record StartGameConnectionRequest(String ip, String port, CompletableFuture<String> future) {}
 
         /**
          * Triggers when a connection to a server is established.

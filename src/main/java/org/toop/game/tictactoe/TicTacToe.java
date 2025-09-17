@@ -1,13 +1,46 @@
 package org.toop.game.tictactoe;
 
 import org.toop.game.*;
+import org.toop.server.backend.tictactoe.*;
 
-public class TicTacToe extends GameBase {
-	private int movesLeft;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class TicTacToe extends GameBase implements Runnable {
+	public Thread gameThread;
+	public BlockingQueue<ParsedCommand> commandQueue = new LinkedBlockingQueue<>();
+	public BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
+
+	public int movesLeft;
 
 	public TicTacToe(String player1, String player2) {
 		super(3, new Player(player1, 'X'), new Player(player2, 'O'));
 		movesLeft = size * size;
+	}
+
+	public void addCommandToQueue(ParsedCommand command) {
+		commandQueue.add(command);
+	}
+
+	@Override
+	public void run() {
+		this.gameThread = new Thread(this::gameThread);
+		this.gameThread.start();
+	}
+
+	private void gameThread() {
+		while (true) {
+//			  String command = getNewestCommand();
+//			  command = this.parseCommand(command).toString();
+//			  if (command == null) { continue; }
+
+			if (commandQueue.poll() == null) {
+				continue;
+			}
+
+			// TODO: Game use the commandQueue to get the commands.
+		}
+
 	}
 
 	@Override
@@ -74,14 +107,14 @@ public class TicTacToe extends GameBase {
 		movesLeft--;
 	}
 
-    public TicTacToe copyBoard() {
-        /**
-         * This method copies the board, mainly for AI use.
-         */
-        TicTacToe clone = new TicTacToe(players[0].name(), players[1].name());
-        System.arraycopy(this.grid, 0, clone.grid, 0, this.grid.length);
-        clone.movesLeft = this.movesLeft;
-        clone.currentPlayer = this.currentPlayer;
-        return clone;
-    }
+	public TicTacToe copyBoard() {
+		/**
+		 * This method copies the board, mainly for AI use.
+		 */
+		TicTacToe clone = new TicTacToe(players[0].name(), players[1].name());
+		System.arraycopy(this.grid, 0, clone.grid, 0, this.grid.length);
+		clone.movesLeft = this.movesLeft;
+		clone.currentPlayer = this.currentPlayer;
+		return clone;
+	}
 }

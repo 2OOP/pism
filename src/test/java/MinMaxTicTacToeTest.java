@@ -12,11 +12,10 @@
 //         // Fill the board
 //         for (int i = 0; i < board.length(); i++) {
 //             char c = board.charAt(i);
-// 			game.play(i);
-// 			game.setGridAt(i, c);
-//             if (c != ' ') game.decrementMovesLeft();
+//             game.grid[i] = c;
+//             if (c != ' ') game.movesLeft--;
 //         }
-//         game.setCurrentPlayer(currentPlayer);
+//         game.currentPlayer = currentPlayer;
 //         return game;
 //     }
 // 

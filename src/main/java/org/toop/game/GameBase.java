@@ -12,10 +12,10 @@ public abstract class GameBase {
 	public static char EMPTY = '-';
 
 	protected int size;
-	protected char[] grid;
+	public char[] grid;
 
 	protected Player[] players;
-	protected int currentPlayer;
+	public int currentPlayer;
 
 	public GameBase(int size, Player player1, Player player2) {
 		this.size = size;
@@ -43,18 +43,4 @@ public abstract class GameBase {
 	public Player getCurrentPlayer() { return players[currentPlayer]; }
 
 	public abstract State play(int index);
-
-	/**
-	 * For AI use only. Does not validate.
-	 */
-	public void setGridAt(int index, char move) {
-		grid[index] = move;
-	}
-
-	/**
-	 * For AI use only. Does not validate.
-	 */
-	public void setCurrentPlayer(int player) {
-		currentPlayer = player;
-	}
 }

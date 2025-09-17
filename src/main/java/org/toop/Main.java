@@ -21,49 +21,21 @@ public class Main {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
 
-//        TcpServer server = new TcpServer(5001);
-//        Thread serverThread = new Thread(server);
-//        serverThread.start();
-
         initSystems();
 
-        GlobalEventBus.post(new Events.ServerEvents.StartServer("5001"));
+        CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartServerRequest("5001", "tictactoe", serverIdFuture));
+        String serverId = serverIdFuture.get();
 
-        CompletableFuture<String> future = new CompletableFuture<>();
-        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", future));
-        String serverId = future.get();
+        CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", connectionIdFuture));
+        String connectionId = connectionIdFuture.get();
 
-//        for (int i = 0; i < 1; i++) {
-//            Thread thread = new Thread(() -> {
-////                logger.info("Server ID: {}", serverId);
-//                GlobalEventBus.post(new Events.ServerEvents.Command(serverId, "HELP", "TEST"));
-//            });
-//            thread.start();
-//        }
+        CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest(serverId, "John", "Pim", ticTacToeGame));
+        String ticTacToeGameId = ticTacToeGame.get();
 
-        GlobalEventBus.post(new Events.ServerEvents.Command(serverId, "HELP", "TEST"));
-
-        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllConnections());
-        GlobalEventBus.post(new Events.ServerEvents.ForceCloseAllServers());
-
-//
-//        CompletableFuture<String> future2 = new CompletableFuture<>();
-//        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", future2));
-//        String serverId2 = future.get();
-//        logger.info("Server ID: {}", serverId2);
-//        GlobalEventBus.post(new Events.ServerEvents.Command(serverId2, "HELP", "TEST2"));
-
-//        GlobalEventBus.post(new Events.ServerEvents.StartConnection("127.0.0.1", "5001"));
-
-
-//        Server.startNew("127.0.0.1", "5001");
-//        Testsss.start(""); // Used for testing server.
-//        Window.start("");
-
-//        CompletableFuture<String> future6 = new CompletableFuture<>();
-//        GlobalEventBus.post(new Events.ServerEvents.RequestsAllConnections(future6));
-//        String serverConnections = future6.get();
-//        logger.info("Running connections: {}", serverConnections);
+        GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
 
 		ConsoleGui console = new ConsoleGui();
 		GameBase.State state = GameBase.State.INVALID;

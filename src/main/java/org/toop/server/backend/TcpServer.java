@@ -2,23 +2,26 @@ package org.toop.server.backend;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.server.backend.tictactoe.ParsedCommand;
 
 import java.io.*;
 import java.net.*;
-import java.sql.Time;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
-
-import static java.lang.Thread.sleep;
 
 public class TcpServer implements Runnable {
 
     protected static final Logger logger = LogManager.getLogger(TcpServer.class);
 
     private final ExecutorService executor = Executors.newFixedThreadPool(2);
-    private final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>();
-    private final BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
-    private final int WAIT_TIME = 500; // MS
-    private final int RETRY_ATTEMPTS = 3;
+    public final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>();
+    public final BlockingQueue<ParsedCommand> commandQueue = new LinkedBlockingQueue<>();
+    public final BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
+    public final Map<Socket, String> knownPlayers = new HashMap<>();
+    public final Map<String, String> playersGames = new HashMap<>();
+    public final int WAIT_TIME = 500; // MS
+    public final int RETRY_ATTEMPTS = 3;
 
     protected int port;
     protected ServerSocket serverSocket = null;
@@ -49,17 +52,37 @@ public class TcpServer implements Runnable {
         }
     }
 
-    protected String getNewestCommand() {
-        try { return receivedQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS); }
+    public void runGame() {}
+
+    public void endGame() {}
+
+    public void newGame() {}
+
+    protected String sendServerMessage() {
+        try { return sendQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS); }
         catch (InterruptedException e) {
             logger.error("Interrupted", e);
             return null;
         }
     }
 
-    protected void sendMessage(String message) throws InterruptedException {
-        sendQueue.put(message);
+    protected ParsedCommand getNewestCommand() {
+        try {
+            String rec = receivedQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS);
+            if (rec != null) {
+                return new ParsedCommand(rec);
+            }
+        }
+        catch (InterruptedException e) {
+            logger.error("Interrupted", e);
+            return null;
+        }
+        return null;
     }
+//
+//    protected void sendMessage(String message) throws InterruptedException {
+//        sendQueue.put(message);
+//    }
 
     protected void startWorkers(Socket clientSocket) {
         running = true;
@@ -95,11 +118,6 @@ public class TcpServer implements Runnable {
                     new Thread(() -> {
                         for (int i = 0; i < this.RETRY_ATTEMPTS; i++) {
                             if (this.receivedQueue.offer(finalMessage)) break;
-                            try {
-                                sleep(this.WAIT_TIME);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
                         }
                     }).start();
                 }
