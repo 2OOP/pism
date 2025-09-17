@@ -18,6 +18,7 @@ public class Main {
 	public static void main(String[] args) throws ExecutionException, InterruptedException {
         initSystems();
         registerEvents();
+
         /*
 		Window window = Window.setup(Window.API.GLFW, "Test", new Window.Size(1280, 720));
 		Renderer renderer = Renderer.setup(Renderer.API.OPENGL);
@@ -34,7 +35,9 @@ public class Main {
         Window.start("");
          */
 
-        GameSelectorWindow gameSelectorWindow = new GameSelectorWindow();
+		new Thread(() -> {
+			GameSelectorWindow gameSelectorWindow = new GameSelectorWindow();
+		}).start();
     }
 
     /**

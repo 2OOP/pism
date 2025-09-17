@@ -7,9 +7,8 @@
     <list default="true" id="997b32da-b4d4-48ac-ab51-52d65f364f81" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/Events.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/Events.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/game/TTT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/game/TTT.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/log4j2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.form" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,6 +50,10 @@
     &quot;accountId&quot;: &quot;7694f583-f911-4763-8185-8ea3ed608804&quot;
   }
 }</component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 1
@@ -67,7 +70,8 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "#25 on Merging Ticho",
+    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH": "421",
+    "git-widget-placeholder": "#25 on Ticho",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -109,6 +113,15 @@
       <updated>1758117514311</updated>
       <workItem from="1758117515668" duration="8923000" />
     </task>
+    <task id="LOCAL-00001">
+      <option name="closed" value="true" />
+      <created>1758131224799</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1758131224799</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -1,9 +1,13 @@
 package org.toop.UI;
+import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.*;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 
 public class GameSelectorWindow extends JFrame {
@@ -34,10 +38,54 @@ public class GameSelectorWindow extends JFrame {
 
     }
     private void init() {
-        connectButton.addActionListener((
-                ActionEvent e) -> {
-            if(!nameTextField.getText().equals("") && !ipTextField.getText().equals("") && !portTextField.getText().equals("")) {
-                System.out.println(gameSelectorBox.getSelectedItem().toString()); //todo attempt connecting to the server with given ip, port and name.
+        connectButton.addActionListener((ActionEvent e) -> {
+            if(     !nameTextField.getText().isEmpty() &&
+                    !ipTextField.getText().isEmpty()   &&
+                    !portTextField.getText().isEmpty()) {
+
+                CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
+                GlobalEventBus.post(new Events.ServerEvents.StartServerRequest(
+                        portTextField.getText(),
+                        Objects.requireNonNull(gameSelectorBox.getSelectedItem()).toString().toLowerCase().replace(" ", ""),
+                        serverIdFuture
+                ));
+                String serverId;
+                try {
+                    serverId = serverIdFuture.get();
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                } // TODO: Better error handling to not crash the system.
+
+                CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
+                GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest(
+                        ipTextField.getText(),
+                        portTextField.getText(),
+                        connectionIdFuture
+                ));
+                String connectionId;
+                try {
+                    connectionId = connectionIdFuture.get();
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                } // TODO: Better error handling to not crash the system.
+
+                CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
+                GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest( // TODO: Make this happen through commands send through the connection, instead of an event.
+                        serverId,
+                        nameTextField.getText(),
+                        "P",
+                        ticTacToeGame
+                ));
+                String ticTacToeGameId;
+                try {
+                    ticTacToeGameId = ticTacToeGame.get();
+                } catch (InterruptedException | ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                } // TODO: Better error handling to not crash the system.
+
+
+                GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId)); // TODO: attempt connecting to the server with given ip, port and name.
+
                 frame.remove(mainMenu);
                 UIGameBoard ttt = new UIGameBoard(gameSelectorBox.getSelectedItem().toString(),this);
                 frame.add(ttt.getTTTPanel());
