@@ -4,7 +4,6 @@ import org.toop.eventbus.GlobalEventBus;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.*;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -13,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 public class GameSelectorWindow extends JFrame {
     private JPanel mainMenu;
     private JTextField nameTextField;
+    private JTextField name2TextField;
     private JTextField ipTextField;
     private JTextField portTextField;
     private JButton connectButton;
@@ -40,7 +40,8 @@ public class GameSelectorWindow extends JFrame {
     private void init() {
         connectButton.addActionListener((ActionEvent e) -> {
             if(     !nameTextField.getText().isEmpty() &&
-                    !ipTextField.getText().isEmpty()   &&
+                    !name2TextField.getText().isEmpty()   &&
+                    !ipTextField.getText().isEmpty() &&
                     !portTextField.getText().isEmpty()) {
 
                 CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
@@ -73,7 +74,7 @@ public class GameSelectorWindow extends JFrame {
                 GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest( // TODO: Make this happen through commands send through the connection, instead of an event.
                         serverId,
                         nameTextField.getText(),
-                        "P",
+                        name2TextField.getText(),
                         ticTacToeGame
                 ));
                 String ticTacToeGameId;
@@ -91,7 +92,7 @@ public class GameSelectorWindow extends JFrame {
                 frame.add(ttt.getTTTPanel());
                 frame.revalidate();
                 frame.repaint();
-            }else{
+            } else {
                 fillAllFields.setVisible(true);
             }
         });
