@@ -1,6 +1,5 @@
 package org.toop;
 
-import org.toop.Logging;
 import org.toop.server.backend.ServerManager;
 import org.toop.server.frontend.ConnectionManager;
 
