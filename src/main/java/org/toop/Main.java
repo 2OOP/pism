@@ -1,53 +1,45 @@
 package org.toop;
 
 import org.toop.UI.GameSelectorWindow;
-import org.toop.eventbus.*;
+import org.toop.eventbus.Events;
+import org.toop.eventbus.GlobalEventBus;
 import org.toop.server.backend.ServerManager;
-import org.toop.server.frontend.ConnectionManager;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.toop.server.frontend.ConnectionManager;
 
 import java.util.concurrent.ExecutionException;
 
 public class Main {
-
-	private static final Logger logger = LogManager.getLogger(Main.class);
-	private static boolean running = false;
+    private static final Logger logger = LogManager.getLogger(Main.class);
+    private static boolean running = false;
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException {
-		initSystems();
-		registerEvents();
+        initSystems();
+        registerEvents();
+        /*
+		Window window = Window.setup(Window.API.GLFW, "Test", new Window.Size(1280, 720));
+		Renderer renderer = Renderer.setup(Renderer.API.OPENGL);
 
-//		Window window = Window.setup(Window.API.GLFW, "Test", new Window.Size(1280, 720));
-//		Renderer renderer = Renderer.setup(Renderer.API.OPENGL);
-//        initSystems();
-//        Logging.disableLogs();
-//
-//		Shader shader = Shader.create(
-//			"src/main/resources/shaders/gui_vertex.glsl",
-//			"src/main/resources/shaders/gui_fragment.glsl");
-//
-//		running = window != null && renderer != null && shader != null;
-//		ConsoleGui console = new ConsoleGui();
-//
-//		while (running) {
-//			window.update();
-//			renderer.clear();
-//
-//			shader.start();
-//			renderer.render();
-//		}
-//		console.print();
-//
-//		if (shader != null) shader.cleanup();
-//		if (renderer != null) renderer.cleanup();
-//		if (window != null) window.cleanup();
+        if (!initEvents()) {
+            throw new RuntimeException("A event could not be initialized");
+        }
 
-//        JFrameWindow window = new JFrameWindow();
+        TcpServer server = new TcpServer(5001);
+        Thread serverThread = new Thread(server);
+        serverThread.start();
+        Server.start("127.0.0.1", "5001");
+        // Testsss.start(""); // Used for testing server.
+        Window.start("");
+         */
+
         GameSelectorWindow gameSelectorWindow = new GameSelectorWindow();
+    }
 
-	}
+    /**
+     * Returns false if any event could not be initialized.
+     */
 
 	private static void registerEvents() {
 		GlobalEventBus.subscribeAndRegister(Events.WindowEvents.OnQuitRequested.class, event -> {
@@ -57,6 +49,7 @@ public class Main {
 		GlobalEventBus.subscribeAndRegister(Events.WindowEvents.OnMouseMove.class, event -> {
 		});
 	}
+
     public static void initSystems() {
         new ServerManager();
         new ConnectionManager();
@@ -74,4 +67,3 @@ public class Main {
 		Main.running = running;
 	}
 }
-

@@ -8,7 +8,8 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/Events.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/Events.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/game/TTT.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/game/TTT.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/game/TTT.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/log4j2.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/log4j2.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +41,7 @@
         "id": "PR_kwDOPslbWM6pHd-p",
         "number": 25
       },
-      "lastSeen": 1758130126808
+      "lastSeen": 1758130713799
     }
   ]
 }]]></component>
@@ -66,7 +67,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Ticho",
+    "git-widget-placeholder": "#25 on Merging Ticho",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
