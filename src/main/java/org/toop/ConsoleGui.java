@@ -7,6 +7,10 @@ import org.toop.eventbus.GlobalEventBus;
 import org.toop.game.*;
 import org.toop.game.tictactoe.*;
 
+import com.google.errorprone.annotations.Keep;
+
+import org.toop.eventbus.*;
+
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -20,8 +24,12 @@ public class ConsoleGui {
 	private TicTacToe game;
 	private MinMaxTicTacToe ai;
 
-	String ai1 = null;
-	String ai2 = null;
+	private String ai1 = null;
+	private String ai2 = null;
+
+	private String serverId = null;
+	private String connectionId = null;
+	private String ticTacToeGameId = null;
 
 	public ConsoleGui() throws ExecutionException, InterruptedException {
 		scanner = new Scanner(System.in);
@@ -94,6 +102,19 @@ public class ConsoleGui {
 
 		game = new TicTacToe(player1, player2);
 		ai = new MinMaxTicTacToe();
+
+		CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartServerRequest("5001", "tictactoe", serverIdFuture));
+        serverId = serverIdFuture.get();
+
+        CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", connectionIdFuture));
+        connectionId = connectionIdFuture.get();
+
+        CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest(serverId, player1, player2, ticTacToeGame));
+        ticTacToeGameId = ticTacToeGame.get();
+        GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
 	}
 
 	public void print() {
@@ -134,6 +155,7 @@ public class ConsoleGui {
 		}
 
 		GameBase.State state = game.play(move);
+		boolean keepRunning = true;
 
 		switch (state) {
 			case INVALID: {
@@ -143,17 +165,33 @@ public class ConsoleGui {
 
 			case DRAW: {
 				System.out.println("Game ended in a draw.");
-				return false;
+				keepRunning = false;
+				break;
 			}
 
 			case WIN: {
-				System.out.printf("%s has won the game.\n", game.getCurrentPlayer().name());
-				return false;
+				System.out.printf("%s has won the game.\n", current.name());
+				keepRunning = false;
+				break;
 			}
 
 			case NORMAL:
-			default: return true;
+			default: {
+				keepRunning = true;
+				break;
+			}
 		} 
+
+        GlobalEventBus.post(new Events.ServerEvents.SendCommand(
+                connectionId,
+                "gameid " + ticTacToeGameId, current.name(), "MOVE", String.valueOf(move)
+        ));
+
+		if (!keepRunning) {
+			GlobalEventBus.post(new Events.ServerEvents.EndTicTacToeGame(serverId, ticTacToeGameId));
+		}
+
+		return keepRunning;
 	}
 
 	public GameBase getGame() { return game; }
