@@ -25,6 +25,7 @@ public final class ServerConnection implements Runnable {
     volatile boolean running = false;
 
     public ServerConnection(String uuid, String ip, String port) {
+        this.uuid = uuid;
         this.ip = ip;
         this.port = port;
         this.initEvents();
@@ -45,30 +46,18 @@ public final class ServerConnection implements Runnable {
      * @param command The command to send to the server.
      * @param args The arguments for the command.
      */
-    public void sendCommandByString(String command, String... args) {
-        if (!TicTacToeServerCommand.isValid(command)) {
-            logger.error("Invalid command: {}", command);
-            return;
-        }
-
-        System.out.println();
+    public void sendCommandByString(String... args) {
+//        if (!TicTacToeServerCommand.isValid(command)) {
+//            logger.error("Invalid command: {}", command);
+//            return;
+//        } // TODO: DO I CARE?
 
         if (!this.running) {
             logger.warn("Server has been stopped");
             return;
         }
 
-        for (int i = 0; i < args.length; i++) {
-            args[i] = args[i].trim();
-            if (args[i].isEmpty()) {
-                throw new IllegalArgumentException("Empty argument"); // TODO: Error handling, just crashes atm.
-            }
-        }
-
-        String[] fullCommand = new String[args.length + 1];
-        fullCommand[0] = command;
-        System.arraycopy(args, 0, fullCommand, 1, args.length);
-        command = String.join(" ", fullCommand);
+        String command = String.join(" ", args);
 
         this.commandQueue.add(command);
         logger.info("Command '{}' added to the queue", command);

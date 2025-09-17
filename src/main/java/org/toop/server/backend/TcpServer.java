@@ -4,28 +4,50 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.server.backend.tictactoe.ParsedCommand;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
+/**
+ * Lightweight, thread-pool based TCP server base class.
+ *
+ * Responsibilities:
+ * - accept sockets
+ * - hand off socket I/O to connectionExecutor (pooled threads)
+ * - provide thread-safe queues (receivedQueue / sendQueue) to subclasses
+ *
+ * Notes:
+ * - Subclasses should consume receivedQueue (or call getNewestCommand()) and
+ *   use sendQueue to send messages to all clients (or per-client, if implemented).
+ */
 public class TcpServer implements Runnable {
 
     protected static final Logger logger = LogManager.getLogger(TcpServer.class);
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(2);
-    public final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>();
-    public final BlockingQueue<ParsedCommand> commandQueue = new LinkedBlockingQueue<>();
+    // Executor used for per-connection I/O tasks (reading/writing)
+    protected final ExecutorService connectionExecutor = Executors.newCachedThreadPool();
+
+    // Shared queues for subclasses / consumers
+    public final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>(); // unbounded; you may choose bounded
     public final BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
-    public final Map<Socket, String> knownPlayers = new HashMap<>();
-    public final Map<String, String> playersGames = new HashMap<>();
-    public final int WAIT_TIME = 500; // MS
+
+    // (Optional) if you want to associate sockets -> player ids
+    public final Map<Socket, String> knownPlayers = new ConcurrentHashMap<>();
+    public final Map<String, String> playersGames = new ConcurrentHashMap<>();
+
+    // tunables
+    public final int WAIT_TIME = 500; // ms used by poll-based methods
     public final int RETRY_ATTEMPTS = 3;
 
-    protected int port;
-    protected ServerSocket serverSocket = null;
-    private boolean running = true;
+    protected final int port;
+    protected final ServerSocket serverSocket;
+    private volatile boolean running = true;
 
     public TcpServer(int port) throws IOException {
         this.port = port;
@@ -33,125 +55,148 @@ public class TcpServer implements Runnable {
     }
 
     public boolean isRunning() {
-        return this.running;
+        return running;
     }
 
+    /**
+     * Default run: accept connections and hand off to connectionExecutor.
+     * Subclasses overriding run() should still call startWorkers(Socket) for each accepted socket.
+     */
     @Override
     public void run() {
+        logger.info("Server listening on port {}", port);
         try {
-            logger.info("Server listening on port {}", port);
-
             while (running) {
-                Socket clientSocket = this.serverSocket.accept();
-                logger.info("Connected to client: {}", clientSocket.getInetAddress());
-
-                new Thread(() -> this.startWorkers(clientSocket)).start();
+                Socket clientSocket = serverSocket.accept();
+                logger.info("Accepted connection from {}", clientSocket.getRemoteSocketAddress());
+                // hand off to pool to manage I/O for this socket
+                connectionExecutor.submit(() -> startWorkers(clientSocket));
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void runGame() {}
-
-    public void endGame() {}
-
-    public void newGame() {}
-
-    protected String sendServerMessage() {
-        try { return sendQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS); }
-        catch (InterruptedException e) {
-            logger.error("Interrupted", e);
-            return null;
-        }
-    }
-
-    protected ParsedCommand getNewestCommand() {
-        try {
-            String rec = receivedQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS);
-            if (rec != null) {
-                return new ParsedCommand(rec);
+            if (running) {
+                logger.error("Accept failed", e);
+            } else {
+                logger.info("Server socket closed, stopping acceptor");
             }
         }
-        catch (InterruptedException e) {
-            logger.error("Interrupted", e);
-            return null;
-        }
-        return null;
     }
-//
-//    protected void sendMessage(String message) throws InterruptedException {
-//        sendQueue.put(message);
-//    }
 
+    /**
+     * Listen/Write workers for an accepted client socket.
+     * This method submits two tasks to the connectionExecutor:
+     *  - inputLoop: reads lines and enqueues them to receivedQueue
+     *  - outputLoop: polls sendQueue and writes messages to the client
+     *
+     * Note: This is a simple model where sendQueue is global; if you need per-client
+     * send-queues, adapt this method to use one per socket.
+     */
     protected void startWorkers(Socket clientSocket) {
-        running = true;
-
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            this.executor.submit(() -> this.inputLoop(in));
-            this.executor.submit(() -> this.outputLoop(out));
-        } catch (Exception e) {
-            logger.error("Server could not start, {}", e);
-        }
+            // Input task: read lines and put them on receivedQueue
+            Runnable inputTask = () -> {
+                logger.info("Starting read loop for {}", clientSocket.getRemoteSocketAddress());
+                try {
+                    String line;
+                    while (running && (line = in.readLine()) != null) {
+                        if (line.isEmpty()) continue;
+                        logger.debug("Received from {}: {}", clientSocket.getRemoteSocketAddress(), line);
 
-    }
-
-    private void stopWorkers() {
-        this.running = false;
-        this.receivedQueue.clear();
-        this.sendQueue.clear();
-        this.executor.shutdownNow();
-    }
-
-    private void inputLoop(BufferedReader in) {
-
-        logger.info("Starting {} connection read", this.port);
-        try {
-            String message;
-            while (running && (message = in.readLine()) != null) {
-                logger.info("Received: '{}'", message);
-                if (!message.isEmpty()) {
-                    String finalMessage = message;
-                    new Thread(() -> {
-                        for (int i = 0; i < this.RETRY_ATTEMPTS; i++) {
-                            if (this.receivedQueue.offer(finalMessage)) break;
+                        boolean offered = false;
+                        for (int i = 0; i < RETRY_ATTEMPTS && !offered; i++) {
+                            try {
+                                // Use offer to avoid blocking indefinitely; adapt timeout/policy as needed
+                                offered = this.receivedQueue.offer(line, 200, TimeUnit.MILLISECONDS);
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                                break;
+                            }
                         }
-                    }).start();
+
+                        if (!offered) {
+                            logger.warn("Backpressure: dropping line from {}: {}", clientSocket.getRemoteSocketAddress(), line);
+                            // Policy choice: drop, notify, or close connection. We drop here.
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.info("Connection closed by remote: {}", clientSocket.getRemoteSocketAddress());
+                } finally {
+                    try {
+                        clientSocket.close();
+                    } catch (IOException ignored) {}
+                    logger.info("Stopped read loop for {}", clientSocket.getRemoteSocketAddress());
                 }
-            }
+            };
+
+            // Output task: poll global sendQueue and write to this specific client.
+            // NOTE: With a single global sendQueue, every message is sent to every connected client.
+            // If you want per-client sends, change this to use per-client queue map.
+            Runnable outputTask = () -> {
+                logger.info("Starting write loop for {}", clientSocket.getRemoteSocketAddress());
+                try {
+                    while (running && !clientSocket.isClosed()) {
+                        String msg = sendQueue.poll(WAIT_TIME, TimeUnit.MILLISECONDS);
+                        if (msg != null) {
+                            out.println(msg);
+                            out.flush();
+                            logger.debug("Sent to {}: {}", clientSocket.getRemoteSocketAddress(), msg);
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    logger.info("Writer interrupted for {}", clientSocket.getRemoteSocketAddress());
+                } catch (Exception e) {
+                    logger.error("Writer error for {}: {}", clientSocket.getRemoteSocketAddress(), e.toString());
+                } finally {
+                    try {
+                        clientSocket.close();
+                    } catch (IOException ignored) {}
+                    logger.info("Stopped write loop for {}", clientSocket.getRemoteSocketAddress());
+                }
+            };
+
+            // Submit tasks - they will run on the shared connectionExecutor
+            connectionExecutor.submit(inputTask);
+            connectionExecutor.submit(outputTask);
+
         } catch (IOException e) {
-            logger.error("Error reading from server", e);
-        } finally {
+            logger.error("Could not start workers for client: {}", e.toString());
             try {
-                this.serverSocket.close();
-                logger.info("Client disconnected. {}", this.port);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+                clientSocket.close();
+            } catch (IOException ignored) {}
         }
     }
 
-    private void outputLoop(PrintWriter out) {
-        logger.info("Starting {} connection write", this.port);
+    /**
+     * Convenience: wrapper to obtain the latest command (non-blocking poll).
+     * Subclasses can use this, but for blocking behavior consider using receivedQueue.take()
+     */
+    protected ParsedCommand getNewestCommand() {
         try {
-            while (this.running) {
-                String send = this.sendQueue.poll(this.WAIT_TIME, TimeUnit.MILLISECONDS);
-                if (send != null) {
-                    out.println(send);
-                    logger.info("Sent message from server {}: '{}'", this.port, send);
-                }
-            }
+            String rec = receivedQueue.poll(WAIT_TIME, TimeUnit.MILLISECONDS);
+            if (rec != null) return new ParsedCommand(rec);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            logger.warn("Interrupted while polling receivedQueue", e);
         }
+        return null;
     }
 
+    /**
+     * Stop server and cleanup executors/sockets.
+     */
     public void stop() {
-        stopWorkers();
-        logger.info("sendQueue:     {}", this.sendQueue.toString());
-        logger.info("receivedQueue: {}", this.receivedQueue.toString());
+        running = false;
+
+        try {
+            serverSocket.close();
+        } catch (IOException ignored) {}
+
+        connectionExecutor.shutdownNow();
+
+        logger.info("TcpServer stopped. receivedQueue size={}, sendQueue size={}",
+                receivedQueue.size(), sendQueue.size());
     }
 }

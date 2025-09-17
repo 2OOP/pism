@@ -55,12 +55,12 @@ public class ConnectionManager {
         ));
     }
 
-    private void handleCommand(Events.ServerEvents.Command event) {
+    private void handleCommand(Events.ServerEvents.Command event) { // TODO: Move this to ServerConnection class, keep it internal.
         ServerConnection serverConnection = this.serverConnections.get(event.connectionId());
         if (serverConnection != null) {
-            serverConnection.sendCommandByString(event.command(), event.args());
+            serverConnection.sendCommandByString(event.args());
         } else {
-            logger.warn("Server {} not found for command '{}'", event.connectionId(), event.command());
+            logger.warn("Server {} not found for command '{}'", event.connectionId(), event.args());
         }
     }
 

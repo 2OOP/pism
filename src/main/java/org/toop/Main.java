@@ -23,16 +23,46 @@ public class Main {
 
         initSystems();
 
-		ConsoleGui console = new ConsoleGui();
-		GameBase.State state = GameBase.State.INVALID;
+        CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartServerRequest("5001", "tictactoe", serverIdFuture));
+        String serverId = serverIdFuture.get();
 
-		console.print();
+        CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest("127.0.0.1", "5001", connectionIdFuture));
+        String connectionId = connectionIdFuture.get();
 
-		do {
-			console.print();
-		} while (console.next());
+        CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
+        GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest(serverId, "J", "P", ticTacToeGame));
+        String ticTacToeGameId = ticTacToeGame.get();
+        GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
 
-		console.print();
+        GlobalEventBus.post(new Events.ServerEvents.Command(
+                connectionId,
+                "gameid " + ticTacToeGameId, "player J", "MOVE", "0"
+        ));
+        GlobalEventBus.post(new Events.ServerEvents.Command(
+                connectionId,
+                "gameid " + ticTacToeGameId, "player P", "MOVE", "1"
+        ));
+
+//        for (int x = 0; x < 20000000; x++) {
+//            CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
+//            GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest(serverId, "J"+x, "P"+x, ticTacToeGame));
+//            String ticTacToeGameId = ticTacToeGame.get();
+//            GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId));
+//            GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "" + x));
+//        }
+
+//		ConsoleGui console = new ConsoleGui();
+//		GameBase.State state = GameBase.State.INVALID;
+//
+//		console.print();
+//
+//		do {
+//			console.print();
+//		} while (console.next());
+//
+//		console.print();
     }
 
     public static void initSystems() {

@@ -1,5 +1,7 @@
 package org.toop.game.tictactoe;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.game.*;
 import org.toop.server.backend.tictactoe.*;
 
@@ -7,7 +9,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TicTacToe extends GameBase implements Runnable {
+
+	protected static final Logger logger = LogManager.getLogger(TicTacToe.class);
+
 	public Thread gameThread;
+	public String gameId;
 	public BlockingQueue<ParsedCommand> commandQueue = new LinkedBlockingQueue<>();
 	public BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
 
@@ -18,8 +24,26 @@ public class TicTacToe extends GameBase implements Runnable {
 		movesLeft = size * size;
 	}
 
+	/**
+	 *
+	 * Used for the server.
+	 *
+	 * @param player1
+	 * @param player2
+	 * @param gameId
+	 */
+	public TicTacToe(String player1, String player2, String gameId) {
+		super(3, new Player(player1, 'X'), new Player(player2, 'O'));
+		movesLeft = size * size;
+	}
+
+
 	public void addCommandToQueue(ParsedCommand command) {
 		commandQueue.add(command);
+	}
+
+	private void addSendToQueue(String send) throws InterruptedException {
+		sendQueue.put(send);
 	}
 
 	@Override
@@ -33,12 +57,16 @@ public class TicTacToe extends GameBase implements Runnable {
 //			  String command = getNewestCommand();
 //			  command = this.parseCommand(command).toString();
 //			  if (command == null) { continue; }
+            try {
+                ParsedCommand cmd = this.commandQueue.take();
+				logger.info("Game {}, took command: {}", this.gameId, cmd.originalCommand); // TODO: Fix null gameid
+				this.addSendToQueue("OK");
+            } catch (InterruptedException e) {
+				logger.error("Game {} has crashed.", this.gameId);
+                throw new RuntimeException(e);
+            }
 
-			if (commandQueue.poll() == null) {
-				continue;
-			}
-
-			// TODO: Game use the commandQueue to get the commands.
+            // TODO: Game use the commandQueue to get the commands.
 		}
 
 	}

@@ -1,8 +1,16 @@
 package org.toop.server.backend.tictactoe;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.Main;
+
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ParsedCommand {
+    private static final Logger logger = LogManager.getLogger(ParsedCommand.class);
+
     public TicTacToeServerCommand command;
     public ArrayList<Object> arguments;
     public boolean isValidCommand;
@@ -10,10 +18,15 @@ public class ParsedCommand {
     public TicTacToeServerMessage returnMessage;
     public String errorMessage;
     public String originalCommand;
+    public String gameId;
+    public String player;
 
     public ParsedCommand(String receivedCommand) {
 
         if (receivedCommand.isEmpty()) {
+            logger.info("Received empty command");
+            this.gameId = null;
+            this.player = null;
             this.command = null;
             this.arguments = null;
             this.isValidCommand = false;
@@ -23,6 +36,30 @@ public class ParsedCommand {
             this.originalCommand = receivedCommand;
             return;
         }
+
+        // Case-insensitive regex to match: game_id {id} player {name}
+        Pattern pattern = Pattern.compile(
+                "(?i)\\bgame[_]?id\\s+(\\S+)\\s+player\\s+(\\S+)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(receivedCommand);
+
+        String tempGameId = null;
+        String tempPlayer = null;
+        String tempPayload = receivedCommand;
+
+        if (matcher.find()) {
+            tempGameId = matcher.group(1);  // first capture group → game_id
+            tempPlayer = matcher.group(2);  // second capture group → player
+            // Remove the matched part from the original command
+            tempPayload = matcher.replaceFirst("").trim();
+        }
+
+        this.gameId = tempGameId;
+        this.player = tempPlayer;
+        receivedCommand = tempPayload;
+
+        logger.info("Received gameId: {}", gameId);
+        logger.info("Received player: {}", player);
+        logger.info("Received command: {}", receivedCommand);
 
         String[] segments = receivedCommand.split(" ");
         if (segments[0].isEmpty()) {
