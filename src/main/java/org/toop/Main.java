@@ -53,16 +53,14 @@ public class Main {
 //            GlobalEventBus.post(new Events.ServerEvents.Command(connectionId, "MOVE", "" + x));
 //        }
 
-//		ConsoleGui console = new ConsoleGui();
-//		GameBase.State state = GameBase.State.INVALID;
-//
-//		console.print();
-//
-//		do {
-//			console.print();
-//		} while (console.next());
-//
-//		console.print();
+		ConsoleGui console = new ConsoleGui();
+		GameBase.State state = GameBase.State.INVALID;
+
+		do {
+			console.print();
+		} while (console.next());
+
+		console.print();
     }
 
     public static void initSystems() {

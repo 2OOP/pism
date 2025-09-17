@@ -1,4 +1,3 @@
-
 import org.junit.jupiter.api.Test;
 import org.toop.game.tictactoe.*;
 
@@ -53,7 +52,7 @@ class MinMaxTicTacToeTest {
 
     @Test
     void testMinimax_ScoreLoss() {
-        TicTacToe game = makeGame("OOO      ", 1);
+        TicTacToe game = makeGame("OOO------", 1);
         MinMaxTicTacToe ai = new MinMaxTicTacToe();
         int score = ai.doMinimax(game, 5, true);
         assertTrue(score < 0, "AI loss is negative");
@@ -69,7 +68,7 @@ class MinMaxTicTacToeTest {
 
     @Test
     void testMiniMax_MultipleMoves() {
-        TicTacToe game = makeGame(" X-OX--O-", 0);
+        TicTacToe game = makeGame("-X-OX--O-", 0);
         MinMaxTicTacToe ai = new MinMaxTicTacToe();
         int bestMove = ai.findBestMove(game);
         assertTrue(bestMove == 0 || bestMove == 2, "Can look at multiple moves!");

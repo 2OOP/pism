@@ -121,10 +121,6 @@ public class ConsoleGui {
 		int move = -1;
 
 		if (ai1 != null && current.name() == ai1 || ai2 != null && current.name() == ai2) {
-			try {
-				Thread.sleep(2000);
-			} catch (Exception e) {}
-
 			move = ai.findBestMove(game);
 		} else {
 			System.out.printf("%s's (%c) turn. Please choose an empty cell between 0-8: ", current.name(), current.move());
