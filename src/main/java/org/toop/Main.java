@@ -6,6 +6,9 @@ import org.toop.server.backend.ServerManager;
 import org.toop.server.frontend.ConnectionManager;
 import org.toop.server.backend.TcpServer;
 
+import org.toop.game.*;
+import org.toop.game.tictactoe.*;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -62,11 +65,20 @@ public class Main {
 //        String serverConnections = future6.get();
 //        logger.info("Running connections: {}", serverConnections);
 
+		ConsoleGui console = new ConsoleGui();
+		GameBase.State state = GameBase.State.INVALID;
+
+		console.print();
+
+		while (console.next()) {
+			console.print();
+		}
+
+		console.print();
     }
 
     public static void initSystems() {
         new ServerManager();
         new ConnectionManager();
     }
-
 }

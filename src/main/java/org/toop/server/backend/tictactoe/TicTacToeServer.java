@@ -1,6 +1,6 @@
 package org.toop.server.backend.tictactoe;
 
-import org.toop.server.backend.tictactoe.game.TicTacToe;
+import org.toop.game.tictactoe.*;
 import org.toop.server.backend.TcpServer;
 
 import java.io.IOException;
