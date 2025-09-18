@@ -43,8 +43,20 @@ public class TicTacToe extends GameBase implements Runnable {
 		commandQueue.add(command);
 	}
 
-	private void addSendToQueue(String send) throws InterruptedException {
-		sendQueue.put(send);
+    private void takeFromCommandQueue() {
+        try {
+            ParsedCommand cmd = this.commandQueue.take();
+        } catch (InterruptedException e) {
+            logger.error("Taking from queue interrupted, in game with id: {}", this.gameId);
+        }
+    }
+
+	private void addSendToQueue(String send) {
+        try {
+            sendQueue.put(send);
+        } catch (InterruptedException e) {
+            logger.error("Sending to queue interrupted, in game with id: {}", this.gameId);
+        }
 	}
 
 	@Override
