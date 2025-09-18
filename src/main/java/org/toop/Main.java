@@ -9,7 +9,9 @@ import org.toop.server.backend.ServerManager;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.toop.server.backend.tictactoe.TicTacToeServer;
 import org.toop.server.frontend.ConnectionManager;
+import org.toop.server.frontend.TcpClient;
 
 import java.util.concurrent.ExecutionException;
 
@@ -19,7 +21,10 @@ public class Main {
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException {
         Logging.disableAllLogs();
-        Logging.enableLogsForClass(ServerManager.class, Level.ALL);
+//        Logging.enableLogsForClass(ServerManager.class, Level.ALL);
+//        Logging.enableLogsForClass(TicTacToeServer.class, Level.ALL);
+//        Logging.enableLogsForClass(TcpClient.class, Level.ALL);
+//        Logging.enableLogsForClass(ConnectionManager.class, Level.ALL);
         initSystems();
         registerEvents();
 
@@ -39,9 +44,6 @@ public class Main {
         Window.start("");
          */
 
-		new Thread(() -> {
-			GameSelectorWindow gameSelectorWindow = new GameSelectorWindow();
-		}).start();
     }
 
     /**

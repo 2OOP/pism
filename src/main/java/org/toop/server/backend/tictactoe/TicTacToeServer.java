@@ -118,9 +118,11 @@ public class TicTacToeServer extends TcpServer {
             this.endGame((String) command.arguments.getFirst());
             this.sendQueue.offer("svr game ended successfully");
         } else if (command.command == TicTacToeServerCommand.LOGIN) {
+            this.endGame((String) command.arguments.getFirst());
             this.sendQueue.offer("svr login successful");
         } else if (command.command == TicTacToeServerCommand.SUBSCRIBE) {
-            this.sendQueue.offer("svr added to ");
+            this.endGame((String) command.arguments.getFirst());
+            this.sendQueue.offer("svr added {} to the queue");
         }
     }
 
