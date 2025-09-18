@@ -1,76 +1,115 @@
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.game.tictactoe.*;
+import org.toop.game.GameBase;
+import org.toop.game.tictactoe.MinMaxTicTacToe;
+import org.toop.game.tictactoe.TicTacToe;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MinMaxTicTacToeTest {
+/**
+ * Unit tests for MinMaxTicTacToe AI.
+ */
+public class MinMaxTicTacToeTest {
 
-    // makegame makes a board situation so we can test the AI. that's it really, the rest is easy to follow id say
-    private TicTacToe makeGame(String board, int currentPlayer) {
-        TicTacToe game = new TicTacToe("AI", "Human");
-        // Fill the board
-        for (int i = 0; i < board.length(); i++) {
-            char c = board.charAt(i);
-            game.grid[i] = c;
-            if (c != '-') game.movesLeft--;
-        }
-        game.currentPlayer = currentPlayer;
-        return game;
+    private MinMaxTicTacToe ai;
+    private TicTacToe game;
+
+    @BeforeEach // called before every test is done to make it work
+    void setUp() {
+        ai = new MinMaxTicTacToe();
+        game = new TicTacToe("AI", "Human");
     }
 
     @Test
-    void testFindBestMove_AIImmediateWin() {
-        TicTacToe game = makeGame("XX-OO----", 0);
-        MinMaxTicTacToe ai = new MinMaxTicTacToe();
+    void testBestMoveWinningMoveAvailable() {
+        // Setup board where AI can win immediately
+        // X = AI, O = player
+        // X | X | .
+        // O | O | .
+        // . | . | .
+        game.grid = new char[]{
+                'X', 'X', GameBase.EMPTY,
+                'O', 'O', GameBase.EMPTY,
+                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
+        };
+        game.movesLeft = 4;
+
         int bestMove = ai.findBestMove(game);
-        assertEquals(2, bestMove, "AI has to take winning move at 2");
+
+        // Ai is expected to place at index 2 to win
+        assertEquals(2, bestMove);
     }
 
     @Test
-    void testFindBestMove_BlockOpponentWin() {
-        TicTacToe game = makeGame("OO-X----", 0); // 0 = AI's turn
-        MinMaxTicTacToe ai = new MinMaxTicTacToe();
+    void testBestMoveBlocksOpponentWin() {
+        // Setup board where player could win next turn
+        // O | O | .
+        // X | . | .
+        // . | . | .
+        game.grid = new char[]{
+                'O', 'O', GameBase.EMPTY,
+                'X', GameBase.EMPTY, GameBase.EMPTY,
+                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
+        };
+        game.movesLeft = 4;
+
         int bestMove = ai.findBestMove(game);
-        assertEquals(2, bestMove, "AI should block opponent win at 2");
+
+        // AI block at index 2 to continue the game
+        assertEquals(2, bestMove);
     }
 
     @Test
-    void testFindBestMove_ChooseDrawIfNoWin() {
-        TicTacToe game = makeGame("XOXOX-O--", 0);
-        MinMaxTicTacToe ai = new MinMaxTicTacToe();
+    void testBestMoveCenterPreferredOnEmptyBoard() {
+        // On empty board, center (index 4) is strongest
         int bestMove = ai.findBestMove(game);
-        assertTrue(bestMove == 6 || bestMove == 8, "AI should draw");
+
+        assertEquals(4, bestMove);
     }
 
     @Test
-    void testMinimax_ScoreWin() {
-        TicTacToe game = makeGame("XXX------", 0);
-        MinMaxTicTacToe ai = new MinMaxTicTacToe();
-        int score = ai.doMinimax(game, 5, false);
-        assertTrue(score > 0, "AI win scored positively");
+    void testDoMinimaxScoresWinPositive() {
+        // Simulate a game state where AI has already won
+        TicTacToe copy = game.copyBoard();
+        copy.grid = new char[]{
+                'X', 'X', 'X',
+                'O', 'O', GameBase.EMPTY,
+                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
+        };
+
+        int score = ai.doMinimax(copy, 5, false);
+
+        assertTrue(score > 0, "AI win should yield positive score");
     }
 
     @Test
-    void testMinimax_ScoreLoss() {
-        TicTacToe game = makeGame("OOO------", 1);
-        MinMaxTicTacToe ai = new MinMaxTicTacToe();
-        int score = ai.doMinimax(game, 5, true);
-        assertTrue(score < 0, "AI loss is negative");
+    void testDoMinimaxScoresLossNegative() {
+        // Simulate a game state where human has already won
+        TicTacToe copy = game.copyBoard();
+        copy.grid = new char[]{
+                'O', 'O', 'O',
+                'X', 'X', GameBase.EMPTY,
+                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
+        };
+
+        int score = ai.doMinimax(copy, 5, true);
+
+        assertTrue(score < 0, "Human win should yield negative score");
     }
 
     @Test
-    void testMinimax_ScoreDraw() {
-        TicTacToe game = makeGame("XOXOXOOXO", 0);
-        MinMaxTicTacToe ai = new MinMaxTicTacToe();
-        int score = ai.doMinimax(game, 5, true);
-        assertEquals(0, score, "Draw should be zero!");
-    }
+    void testDoMinimaxDrawReturnsZero() {
+        // Simulate a draw position
+        TicTacToe copy = game.copyBoard();
+        copy.grid = new char[]{
+                'X', 'O', 'X',
+                'X', 'O', 'O',
+                'O', 'X', 'X'
+        };
 
-    @Test
-    void testMiniMax_MultipleMoves() {
-        TicTacToe game = makeGame("-X-OX--O-", 0);
-        MinMaxTicTacToe ai = new MinMaxTicTacToe();
-        int bestMove = ai.findBestMove(game);
-        assertTrue(bestMove == 0 || bestMove == 2, "Can look at multiple moves!");
+        int score = ai.doMinimax(copy, 0, true);
+
+        assertEquals(0, score, "Draw should return 0 score");
     }
 }

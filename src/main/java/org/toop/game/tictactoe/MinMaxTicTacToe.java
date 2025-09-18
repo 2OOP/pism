@@ -4,18 +4,31 @@ import org.toop.game.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.Main;
 
 public class MinMaxTicTacToe {
 
     private static final Logger logger = LogManager.getLogger(MinMaxTicTacToe.class);
 
+    /**
+     * This method tries to find the best move by seeing if it can set a winning move, if not, it will do a minimax.
+     */
+
     public int findBestMove(TicTacToe game) {
-        /**
-         * This method tries to find the best move by seeing if it can set a winning move, if not, it will do a minimax.
-         */
         int bestVal = -100; // set bestval to something impossible
         int bestMove = 10; // set bestmove to something impossible
+
+
+        boolean empty = true;
+        for (char cell : game.grid) {
+            if(!(cell == GameBase.EMPTY)) {
+                empty = false;
+                break;
+            }
+        }
+
+        if (empty && game.validateMove(4)) {
+            return 4;
+        }
 
         // simulate all possible moves on the field
         for (int i = 0; i < game.grid.length; i++) {
@@ -28,9 +41,18 @@ public class MinMaxTicTacToe {
                 if (result == GameBase.State.WIN) {
                     return i; // just return right away if you can win on the next move
                 }
-                else {
-                    thisMoveValue = doMinimax(copyGame, game.movesLeft, false); // else look at other moves
+
+                for (int index = 0; index < game.grid.length; index++ ) {
+                    if (game.validateMove(index)) {
+                        TicTacToe opponentCopy = copyGame.copyBoard();
+                        GameBase.State opponentResult = opponentCopy.play(index);
+                        if (opponentResult == GameBase.State.WIN) {
+                            return index;
+                        }
+                    }
                 }
+
+                thisMoveValue = doMinimax(copyGame, game.movesLeft, false); // else look at other moves
                 if (thisMoveValue > bestVal) { // if better move than the current best, change the move
                     bestVal = thisMoveValue;
                     bestMove = i;
@@ -40,10 +62,11 @@ public class MinMaxTicTacToe {
         return bestMove; // return the best move when we've done everything
     }
 
+    /**
+     * This method simulates all the possible future moves in the game through a copy in search of the best move.
+     */
+
     public int doMinimax(TicTacToe game, int depth, boolean maximizing) {
-        /**
-         * This method simulates all the possible future moves in the game through a copy in search of the best move.
-         */
         boolean state = game.checkWin(); // check for a win (base case stuff)
 
         if (state) {
