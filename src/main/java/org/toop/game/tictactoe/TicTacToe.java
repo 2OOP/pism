@@ -101,7 +101,7 @@ public class TicTacToe extends GameBase implements Runnable {
                         // TODO: What is the reaction of the game? WIN, DRAW etc?
                         String player = getCurrentPlayer().name();
                         addSendToQueue("SVR GAME MOVE {PLAYER: \"" +
-                                getCurrentPlayer().name() +
+                                player +
                                 "\", DETAILS: \"<reactie spel op zet>\",MOVE: \"" +
                                 index +
                                 "\"}\n");
