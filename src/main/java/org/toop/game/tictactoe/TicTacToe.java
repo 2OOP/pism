@@ -45,7 +45,7 @@ public class TicTacToe extends GameBase implements Runnable {
 
     private ParsedCommand takeFromCommandQueue() {
         try {
-            ParsedCommand cmd = this.commandQueue.take();
+            return this.commandQueue.take();
         } catch (InterruptedException e) {
             logger.error("Taking from queue interrupted, in game with id: {}", this.gameId);
         }
