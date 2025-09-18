@@ -112,13 +112,13 @@ public class TicTacToe extends GameBase implements Runnable {
                         case State.WIN:{
                             // Win
                             running = false;
-                            addSendToQueue("VR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"" +
+                            addSendToQueue("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"" +
                                     "<score speler2>\", COMMENT: \"<commentaar op resultaat>\"}\n");
                         }
                         case State.DRAW:{
                             // Draw
                             running = false;
-                            addSendToQueue("VR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"" +
+                            addSendToQueue("SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"" +
                                     "<score speler2>\", COMMENT: \"<commentaar op resultaat>\"}\n");
                         }
                         case State.NORMAL:{
