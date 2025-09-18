@@ -67,7 +67,9 @@ public class TicTacToe extends GameBase implements Runnable {
 	}
 
 	private void gameThread() {
-		while (true) {
+        boolean running = true;
+
+		while (running) {
             ParsedCommand cmd = takeFromCommandQueue();
 
             // Get next command if there was no command
@@ -98,9 +100,11 @@ public class TicTacToe extends GameBase implements Runnable {
                     switch (state){
                         case State.WIN:{
                             // Win
+                            running = false;
                         }
                         case State.DRAW:{
                             // Draw
+                            running = false;
                         }
                         case State.NORMAL:{
                             // Nothing wrong?
@@ -109,7 +113,6 @@ public class TicTacToe extends GameBase implements Runnable {
                             // Invalid move
                         }
                     }
-
                 }
             }
 		}
