@@ -68,6 +68,49 @@ public class TicTacToe extends GameBase implements Runnable {
 
 	private void gameThread() {
 		while (true) {
+            ParsedCommand cmd = takeFromCommandQueue();
+
+            // Make sure command was received
+            if (cmd == null){
+                continue;
+            }
+
+            switch (cmd.command) {
+                case TicTacToeServerCommand.MOVE:{
+                    // TODO: Check if it is this player's turn, not required for local or AI play.
+
+                    // Convert given argument to integer
+                    Object arg = cmd.arguments.getFirst();
+                    int index;
+                    try{
+                        index = Integer.parseInt((String)arg);
+                    }
+                    catch (Exception e){
+                        logger.error("Error parsing argument to String or Integer");
+                        continue;
+                    }
+
+                    // Attempt to play the move
+                    State state = play(index);
+
+                    // Check move result
+                    switch (state){
+                        case State.WIN:{
+                            // Win
+                        }
+                        case State.DRAW:{
+                            // Draw
+                        }
+                        case State.NORMAL:{
+                            // Nothing wrong?
+                        }
+                        case State.INVALID:{
+                            // Invalid move
+                        }
+                    }
+
+                }
+            }
             // TODO: Game use the commandQueue to get the commands.
 		}
 
