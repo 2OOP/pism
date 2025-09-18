@@ -1,15 +1,20 @@
 package org.toop.UI;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 
 public class GameSelectorWindow extends JFrame {
+    private static final Logger logger = LogManager.getLogger(GameSelectorWindow.class);
+
     private JPanel mainMenu;
     private JTextField nameTextField;
     private JTextField name2TextField;
@@ -70,22 +75,36 @@ public class GameSelectorWindow extends JFrame {
                     throw new RuntimeException(ex);
                 } // TODO: Better error handling to not crash the system.
 
-                CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
-                GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest( // TODO: Make this happen through commands send through the connection, instead of an event.
-                        serverId,
-                        nameTextField.getText(),
-                        name2TextField.getText(),
-                        ticTacToeGame
-                ));
-                String ticTacToeGameId;
-                try {
-                    ticTacToeGameId = ticTacToeGame.get();
-                } catch (InterruptedException | ExecutionException ex) {
-                    throw new RuntimeException(ex);
-                } // TODO: Better error handling to not crash the system.
+                GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ReceivedMessage.class,
+                    event -> {
+                        if (event.message().equalsIgnoreCase("ok")) {
+                            logger.info("received ok from server.");
+                        } else if (event.message().toLowerCase().startsWith("gameid")) {
+                            String gameId = event.message().toLowerCase().replace("gameid ", "");
+                            GlobalEventBus.post(new Events.ServerEvents.SendCommand("start_game " + gameId));
+                        }
+                        else {
+                            logger.info("{}", event.message());
+                        }
+                    }
+                );
 
+                GlobalEventBus.post(new Events.ServerEvents.SendCommand(connectionId, "create_game", nameTextField.getText(), name2TextField.getText()));
 
-                GlobalEventBus.post(new Events.ServerEvents.RunTicTacToeGame(serverId, ticTacToeGameId)); // TODO: attempt connecting to the server with given ip, port and name.
+//                CompletableFuture<String> ticTacToeGame = new CompletableFuture<>();
+//                GlobalEventBus.post(new Events.ServerEvents.CreateTicTacToeGameRequest( // TODO: Make this happen through commands send through the connection, instead of an event.
+//                        serverId,
+//                        nameTextField.getText(),
+//                        name2TextField.getText(),
+//                        ticTacToeGame
+//                ));
+//                String ticTacToeGameId;
+//                try {
+//                    ticTacToeGameId = ticTacToeGame.get();
+//                } catch (InterruptedException | ExecutionException ex) {
+//                    throw new RuntimeException(ex);
+//                } // TODO: Better error handling to not crash the system.
+
 
                 frame.remove(mainMenu);
                 UIGameBoard ttt = new UIGameBoard(gameSelectorBox.getSelectedItem().toString(),this);

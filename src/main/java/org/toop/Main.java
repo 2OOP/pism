@@ -1,5 +1,6 @@
 package org.toop;
 
+import org.apache.logging.log4j.Level;
 import org.toop.UI.GameSelectorWindow;
 import org.toop.eventbus.EventRegistry;
 import org.toop.eventbus.Events;
@@ -17,8 +18,8 @@ public class Main {
     private static boolean running = false;
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException {
-//        Logging.disableAllLogs();
-//        Logging.enableAllLogsForClass(EventRegistry.class);
+        Logging.disableAllLogs();
+        Logging.enableLogsForClass(ServerManager.class, Level.ALL);
         initSystems();
         registerEvents();
 

@@ -104,9 +104,24 @@ public class TicTacToeServer extends TcpServer {
     }
 
     private void handleServerCommand(ParsedCommand command) {
+        if (command.isValidCommand) {
+            this.sendQueue.offer("ok");
+        }
 
-        // TODO
-
+        if (command.command == TicTacToeServerCommand.CREATE_GAME) {
+            String gameId = this.newGame((String) command.arguments.getFirst(), (String) command.arguments.get(1));
+            this.sendQueue.offer("game created successfully|gameid " + gameId);
+        } else if (command.command == TicTacToeServerCommand.START_GAME) {
+            this.runGame((String) command.arguments.getFirst());
+            this.sendQueue.offer("svr game is running successfully");
+        } else if (command.command == TicTacToeServerCommand.END_GAME) {
+            this.endGame((String) command.arguments.getFirst());
+            this.sendQueue.offer("svr game ended successfully");
+        } else if (command.command == TicTacToeServerCommand.LOGIN) {
+            this.sendQueue.offer("svr login successful");
+        } else if (command.command == TicTacToeServerCommand.SUBSCRIBE) {
+            this.sendQueue.offer("svr added to ");
+        }
     }
 
     public void forwardGameMessages(TicTacToe game) {

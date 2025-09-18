@@ -11,9 +11,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class UIGameBoard extends JFrame {
+    private static final Logger logger = LogManager.getLogger(UIGameBoard.class);
+
     private final int TICTACTOE_SIZE = 3;
     private final int REVERSI_SIZE = 8;
-    private static final Logger logger = LogManager.getLogger(Main.class);
     private JLabel name;
     private JLabel ip;
     private JLabel gameName;

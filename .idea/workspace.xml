@@ -6,9 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="997b32da-b4d4-48ac-ab51-52d65f364f81" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/Logging.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/Logging.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/GlobalEventBus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/eventbus/GlobalEventBus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/UI/UIGameBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/UI/UIGameBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/ServerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/ServerManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/ParsedCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/ParsedCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServerCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServerCommand.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +74,8 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "UI_DESIGNER_EDITOR_MODE.PaletteManager.STATE": "right",
+    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.STATE": "left",
     "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH": "421",
     "git-widget-placeholder": "#25 on Ticho",
     "node.js.detected.package.eslint": "true",
