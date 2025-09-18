@@ -52,10 +52,10 @@ public final class ServerConnection implements Runnable {
 //            return;
 //        } // TODO: DO I CARE?
 
-        if (!this.running) {
-            logger.warn("Server has been stopped");
-            return;
-        }
+//        if (!this.running) {
+//            logger.warn("Server has been stopped");
+//            return;
+//        } // TODO: Server not running
 
         String command = String.join(" ", args);
 

@@ -6,14 +6,13 @@ import org.toop.eventbus.GlobalEventBus;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 
-public class GameSelectorWindow extends JFrame {
-    private static final Logger logger = LogManager.getLogger(GameSelectorWindow.class);
+public class RemoteGameSelector {
+    private static final Logger logger = LogManager.getLogger(RemoteGameSelector.class);
 
     private JPanel mainMenu;
     private JTextField nameTextField;
@@ -27,7 +26,7 @@ public class GameSelectorWindow extends JFrame {
     private JFrame frame;
     private JLabel fillAllFields;
 
-    public  GameSelectorWindow() {
+    public RemoteGameSelector() {
         gameSelectorBox.addItem("Tic Tac Toe");
         gameSelectorBox.addItem("Reversi");
         //todo get supported games from server and add to gameSelectorBox
@@ -107,8 +106,8 @@ public class GameSelectorWindow extends JFrame {
 
 
                 frame.remove(mainMenu);
-                UIGameBoard ttt = new UIGameBoard(gameSelectorBox.getSelectedItem().toString(),this);
-                frame.add(ttt.getTTTPanel());
+//                UIGameBoard ttt = new UIGameBoard("tic tac toe", "test", "test",this); // TODO: Fix later
+//                frame.add(ttt.getTTTPanel()); // TODO: Fix later
                 frame.revalidate();
                 frame.repaint();
             } else {

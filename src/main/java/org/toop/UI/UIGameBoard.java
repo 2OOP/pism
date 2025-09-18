@@ -1,79 +1,76 @@
 package org.toop.UI;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.toop.Main;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Objects;
 
-public class UIGameBoard extends JFrame {
-    private static final Logger logger = LogManager.getLogger(UIGameBoard.class);
+public class UIGameBoard {
+    private static final int TICTACTOE_SIZE = 3;
 
-    private final int TICTACTOE_SIZE = 3;
-    private final int REVERSI_SIZE = 8;
-    private JLabel name;
-    private JLabel ip;
-    private JLabel gameName;
-    private JPanel tttPanel;
-    private JPanel cellPanel;
+    private JPanel tttPanel;                  // Root panel for this game
     private JButton backToMainMenuButton;
-    private JButton[] buttons = new JButton[9];
     private JButton[] cells;
-    public UIGameBoard(String game,GameSelectorWindow gameSelectorWindow) {
+    private String currentPlayer = "X";
 
-        //cellPanel = new JPanel();
-        JPanel gamePanel = new JPanel();
-        if(game.toLowerCase().equals("tic tac toe")) {
-            gamePanel = createGridPanel(TICTACTOE_SIZE, TICTACTOE_SIZE);
-        }
-        if(game.toLowerCase().equals("reversi")) {
-            gamePanel = createGridPanel(REVERSI_SIZE, REVERSI_SIZE);
-        }
+    private String gameConnectionId;
+    private String serverId;
+    private String gameId;
 
-        cellPanel.removeAll();
-        cellPanel.add(gamePanel);
-        cellPanel.revalidate();
-        cellPanel.repaint();
-        //tttPanel.add(cellPanel);
-        backToMainMenuButton.addActionListener((
-                        ActionEvent e) -> {
-            gameSelectorWindow.returnToMainMenu();
-            System.out.println("gothere");
-        });
+    private LocalGameSelector parentSelector;
+
+    public UIGameBoard(String gameType, String gameConnectionId, String serverId, String gameId, LocalGameSelector parent) {
+        this.parentSelector = parent;
+
+        this .gameConnectionId = gameConnectionId;
+        this.serverId = serverId;
+        this.gameId = gameId;
+
+        // Root panel
+        tttPanel = new JPanel(new BorderLayout());
+
+        // Back button
+        backToMainMenuButton = new JButton("Back to Main Menu");
+        tttPanel.add(backToMainMenuButton, BorderLayout.SOUTH);
+        backToMainMenuButton.addActionListener(e ->
+                // TODO reset game and connections
+                parent.showMainMenu()
+        );
+
+        // Game grid
+        JPanel gameGrid = createGridPanel(TICTACTOE_SIZE, TICTACTOE_SIZE);
+        tttPanel.add(gameGrid, BorderLayout.CENTER);
     }
-    //Set the IP, game name and name
-    public void setIGN(String ip, String gameName, String name) {
-        this.ip.setText(ip);
-        this.gameName.setText(gameName);
-        this.name.setText(name);
-    }
-    public JPanel getTTTPanel() {
-        return tttPanel;
-    }
-    //Creates a grid of buttons and adds a global event bus event on click with the index of the button.
+
     private JPanel createGridPanel(int sizeX, int sizeY) {
-        JPanel cellPanel = new JPanel(new GridLayout(sizeX,sizeY));
-        cells = new JButton[sizeX*sizeY];
-        for(int i =0; i < sizeX*sizeY; i++){
+        JPanel panel = new JPanel(new GridLayout(sizeX, sizeY));
+        cells = new JButton[sizeX * sizeY];
+
+        for (int i = 0; i < sizeX * sizeY; i++) {
             cells[i] = new JButton(" ");
-            cells[i].setPreferredSize(new Dimension(1000/sizeX,1000/sizeY));
-            cells[i].setFont(new Font("Arial", Font.BOLD, 480/sizeX));
-            cells[i].setFocusPainted(false);
-            cellPanel.add(cells[i]);
+            cells[i].setFont(new Font("Arial", Font.BOLD, 100 / sizeX));
+            panel.add(cells[i]);
+
             final int index = i;
             cells[i].addActionListener((ActionEvent e) -> {
-                setCell(index,"X");//■                                      todo get current player
-                GlobalEventBus.post(new Events.ServerEvents.CellClicked(index));
-                logger.info("Grid button {} was clicked.", index);
+                cells[index].setText(currentPlayer);
+                if (Objects.equals(currentPlayer, "X")) { currentPlayer = "O"; }
+                else { currentPlayer = "X"; }
+                GlobalEventBus.post(new Events.ServerEvents.SendCommand(this.gameConnectionId,
+                        "gameid ", this.gameId,
+                        "player ", this.currentPlayer, // TODO: Actual player names
+                        "MOVE", "" + index));
+                System.out.println("Cell clicked: " + index);
             });
         }
-        return cellPanel;
+
+        return panel;
     }
-    public void setCell(int cell, String newValue){
-        cells[cell].setText(newValue);
+
+    public JPanel getTTTPanel() {
+        return tttPanel;
     }
 }

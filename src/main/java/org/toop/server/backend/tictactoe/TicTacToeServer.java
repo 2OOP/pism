@@ -112,8 +112,9 @@ public class TicTacToeServer extends TcpServer {
             String gameId = this.newGame((String) command.arguments.getFirst(), (String) command.arguments.get(1));
             this.sendQueue.offer("game created successfully|gameid " + gameId);
         } else if (command.command == TicTacToeServerCommand.START_GAME) {
-            this.runGame((String) command.arguments.getFirst());
-            this.sendQueue.offer("svr game is running successfully");
+            boolean success = this.runGame((String) command.arguments.getFirst());
+            if (success) {this.sendQueue.offer("svr game is running successfully");}
+            else {this.sendQueue.offer("svr running game failed");}
         } else if (command.command == TicTacToeServerCommand.END_GAME) {
             this.endGame((String) command.arguments.getFirst());
             this.sendQueue.offer("svr game ended successfully");
@@ -150,13 +151,15 @@ public class TicTacToeServer extends TcpServer {
         return gameId;
     }
 
-    public void runGame(String gameId) {
+    public boolean runGame(String gameId) {
         TicTacToe game = this.games.get(gameId);
         if (game != null) {
             game.run();
             logger.info("Running game: {}, players: {}", gameId, game.getPlayers());
+            return true;
         } else {
             logger.warn("Tried to run unknown game {}", gameId);
+            return false;
         }
     }
 
