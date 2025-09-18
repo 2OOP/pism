@@ -76,6 +76,33 @@ public class ParsedCommand {
         TicTacToeServerCommand commandEnum = TicTacToeServerCommand.getCommand(segments[0]);
 
         switch (commandEnum) {
+            case CREATE_GAME -> {
+                if (segments.length == 3 && !segments[1].isEmpty() && !segments[2].isEmpty()) {
+                    this.command = commandEnum;
+                    this.arguments = new ArrayList<>(2);
+                    this.arguments.add(segments[1]);
+                    this.arguments.add(segments[2]);
+                    this.returnMessage = TicTacToeServerMessage.OK;
+                    this.isValidCommand = true;
+                    this.isServerCommand = true;
+                    this.errorMessage = null;
+                    this.originalCommand = receivedCommand;
+                    return;
+                }
+            }
+            case END_GAME, START_GAME -> {
+                if (segments.length == 2 && !segments[1].isEmpty()) {
+                    this.command = commandEnum;
+                    this.arguments = new ArrayList<>(1);
+                    this.arguments.add(segments[1]);
+                    this.returnMessage = TicTacToeServerMessage.OK;
+                    this.isValidCommand = true;
+                    this.isServerCommand = true;
+                    this.errorMessage = null;
+                    this.originalCommand = receivedCommand;
+                    return;
+                }
+            }
             case MOVE -> {
                 if (segments.length == 2 && !segments[1].isEmpty()) {
                     this.command = commandEnum;

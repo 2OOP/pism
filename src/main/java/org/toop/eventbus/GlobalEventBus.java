@@ -54,9 +54,9 @@ public class GlobalEventBus {
         return new Object() {
             @Subscribe
             public void handle(Object event) {
-                if (type.isInstance(event)) {
-                    action.accept(type.cast(event));
-                }
+            if (type.isInstance(event)) {
+                action.accept(type.cast(event));
+            }
             }
         };
     }
@@ -72,9 +72,9 @@ public class GlobalEventBus {
         Object listener = new Object() {
             @Subscribe
             public void handle(Object event) {
-                if (type.isInstance(event)) {
-                    action.accept(type.cast(event));
-                }
+            if (type.isInstance(event)) {
+                action.accept(type.cast(event));
+            }
             }
         };
         var re = new EventMeta<>(type, listener);
@@ -124,4 +124,5 @@ public class GlobalEventBus {
         // post to Guava EventBus
         GlobalEventBus.get().post(event);
     }
+
 }

@@ -34,10 +34,10 @@ public class TcpServer implements Runnable {
     protected final ExecutorService connectionExecutor = Executors.newCachedThreadPool();
 
     // Shared queues for subclasses / consumers
-    public final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>(); // unbounded; you may choose bounded
+    public final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>();
     public final BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
 
-    // (Optional) if you want to associate sockets -> player ids
+    // Association for sockets -> player ids
     public final Map<Socket, String> knownPlayers = new ConcurrentHashMap<>();
     public final Map<String, String> playersGames = new ConcurrentHashMap<>();
 
@@ -157,7 +157,7 @@ public class TcpServer implements Runnable {
                 }
             };
 
-            // Submit tasks - they will run on the shared connectionExecutor
+            // Input and Output mappings
             connectionExecutor.submit(inputTask);
             connectionExecutor.submit(outputTask);
 

@@ -7,8 +7,13 @@
     <list default="true" id="997b32da-b4d4-48ac-ab51-52d65f364f81" name="Changes" comment="nog een kleine fix waarbij die depth van 8 gebruikte in plaats van game.movesleft">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/game/tictactoe/MinMaxTicTacToe.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/game/tictactoe/MinMaxTicTacToe.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/MinMaxTicTacToeTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/MinMaxTicTacToeTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/UI/GameSelectorWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/UI/UIGameBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/UI/UIGameBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/ServerManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/ServerManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/ParsedCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/ParsedCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServerCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/toop/server/backend/tictactoe/TicTacToeServerCommand.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,23 +36,29 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;BAFGdeJong&quot;
+  &quot;lastFilter&quot;: {}
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOPslbWM6pHd-p&quot;,
+        &quot;number&quot;: 25
+      },
+      &quot;lastSeen&quot;: 1758130713799
+    }
+  ]
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:2OOP/pism_ttt.git&quot;,
+    &quot;accountId&quot;: &quot;7694f583-f911-4763-8185-8ea3ed608804&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/2OOP/pism_ttt.git",
-    "accountId": "a9609b60-3227-4092-a6d9-591cac75179d"
-  }
-}]]></component>
-  <component name="MavenImportPreferences">
-    <option name="explicitlyEnabledProfiles" value="lwjgl-natives-macos-aarch64,lwjgl-natives-linux-amd64" />
-  </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
-  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 1
@@ -65,8 +76,10 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Michiel",
-    "kotlin-language-version-configured": "true",
+    "UI_DESIGNER_EDITOR_MODE.PaletteManager.STATE": "right",
+    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.STATE": "left",
+    "UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH": "421",
+    "git-widget-placeholder": "#25 on Ticho",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -103,6 +116,15 @@
       <updated>1758117514311</updated>
       <workItem from="1758117515668" duration="8923000" />
     </task>
+    <task id="LOCAL-00001">
+      <option name="closed" value="true" />
+      <created>1758131224799</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1758131224799</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -45,12 +45,12 @@ public class ServerManager {
                 server = new TicTacToeServer(Integer.parseInt(port));
             }
             else {
-                logger.error("Manager could not create a TcpServer for {}", gameType);
+                logger.error("Manager could not create a server for game type: {}", gameType);
                 return null;
             }
             this.servers.put(serverId, server);
             new Thread(server, "Server-" + serverId).start();
-            logger.info("Connected to server {} at {}", serverId, port);
+            logger.info("Created server with id: {}, port: {}", serverId, port);
             return serverId;
         } catch (Exception e) {
             logger.error("Failed to start server", e);
