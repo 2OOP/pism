@@ -43,7 +43,7 @@ public class TicTacToe extends GameBase implements Runnable {
 		commandQueue.add(command);
 	}
 
-    private void takeFromCommandQueue() {
+    private ParsedCommand takeFromCommandQueue() {
         try {
             ParsedCommand cmd = this.commandQueue.take();
         } catch (InterruptedException e) {
