@@ -68,18 +68,6 @@ public class TicTacToe extends GameBase implements Runnable {
 
 	private void gameThread() {
 		while (true) {
-//			  String command = getNewestCommand();
-//			  command = this.parseCommand(command).toString();
-//			  if (command == null) { continue; }
-            try {
-                ParsedCommand cmd = this.commandQueue.take();
-				logger.info("Game {}, took command: {}", this.gameId, cmd.originalCommand);
-				this.addSendToQueue("OK");
-            } catch (InterruptedException e) {
-				logger.error("Game {} has crashed.", this.gameId);
-                throw new RuntimeException(e);
-            }
-
             // TODO: Game use the commandQueue to get the commands.
 		}
 
