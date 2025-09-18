@@ -70,14 +70,15 @@ public class TicTacToe extends GameBase implements Runnable {
 		while (true) {
             ParsedCommand cmd = takeFromCommandQueue();
 
-            // Make sure command was received
+            // Get next command if there was no command
             if (cmd == null){
                 continue;
             }
 
+            // Do something based which command was given
             switch (cmd.command) {
                 case TicTacToeServerCommand.MOVE:{
-                    // TODO: Check if it is this player's turn, not required for local or AI play.
+                    // TODO: Check if it is this player's turn, not required for local play (I think?).
 
                     // Convert given argument to integer
                     Object arg = cmd.arguments.getFirst();
@@ -111,7 +112,6 @@ public class TicTacToe extends GameBase implements Runnable {
 
                 }
             }
-            // TODO: Game use the commandQueue to get the commands.
 		}
 
 	}
