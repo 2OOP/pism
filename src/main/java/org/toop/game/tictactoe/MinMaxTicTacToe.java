@@ -59,7 +59,7 @@ public class MinMaxTicTacToe {
         else {
             boolean empty = false;
             for (char cell : game.grid) { // else, look at draw conditions. we check per cell if it's empty or not
-                if (cell == ' ') {
+                if (cell == GameBase.EMPTY) {
                     empty = true; // if a thing is empty, set to true
                     break; // break the loop
                 }
