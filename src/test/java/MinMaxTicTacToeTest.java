@@ -52,7 +52,6 @@ public class MinMaxTicTacToeTest {
                 'X', GameBase.EMPTY, GameBase.EMPTY,
                 GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
         };
-        game.movesLeft = 4;
 
         int bestMove = ai.findBestMove(game);
 

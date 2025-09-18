@@ -17,6 +17,7 @@ public class MinMaxTicTacToe {
         int bestVal = -100; // set bestval to something impossible
         int bestMove = 10; // set bestmove to something impossible
 
+        int winningmove = -5;
 
         boolean empty = true;
         for (char cell : game.grid) {
@@ -32,6 +33,8 @@ public class MinMaxTicTacToe {
 
         // simulate all possible moves on the field
         for (int i = 0; i < game.grid.length; i++) {
+
+
             if (game.validateMove(i)) {  // check if the move is legal here
                 TicTacToe copyGame = game.copyBoard(); // make a copy of the game
                 GameBase.State result = copyGame.play(i); // play a move on the copy board
@@ -47,7 +50,7 @@ public class MinMaxTicTacToe {
                         TicTacToe opponentCopy = copyGame.copyBoard();
                         GameBase.State opponentResult = opponentCopy.play(index);
                         if (opponentResult == GameBase.State.WIN) {
-                            return index;
+                            winningmove = index;
                         }
                     }
                 }
@@ -58,6 +61,9 @@ public class MinMaxTicTacToe {
                     bestMove = i;
                 }
             }
+        }
+        if (winningmove > -5) {
+            return winningmove;
         }
         return bestMove; // return the best move when we've done everything
     }
