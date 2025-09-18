@@ -29,7 +29,7 @@ public class MinMaxTicTacToe {
                     return i; // just return right away if you can win on the next move
                 }
                 else {
-                    thisMoveValue = doMinimax(copyGame, 8, false); // else look at other moves
+                    thisMoveValue = doMinimax(copyGame, game.movesLeft, false); // else look at other moves
                 }
                 if (thisMoveValue > bestVal) { // if better move than the current best, change the move
                     bestVal = thisMoveValue;
