@@ -44,6 +44,18 @@ public class Main {
         Window.start("");
          */
 
+//        ConsoleGui console = new ConsoleGui();
+//
+//        do {
+//            console.print();
+//        } while (console.next());
+//
+//        console.print();
+
+        new Thread(() -> {
+            GameSelectorWindow gameSelectorWindow = new GameSelectorWindow();
+        }).start();
+
     }
 
     /**
