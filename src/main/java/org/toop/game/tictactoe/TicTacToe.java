@@ -96,18 +96,34 @@ public class TicTacToe extends GameBase implements Runnable {
                     // Attempt to play the move
                     State state = play(index);
 
+                    if (state != State.INVALID){
+                        // Tell all players who made a move and what move was made
+                        // TODO: What is the reaction of the game? WIN, DRAW etc?
+                        String player = getCurrentPlayer().name();
+                        addSendToQueue("SVR GAME MOVE {PLAYER: \"" +
+                                getCurrentPlayer().name() +
+                                "\", DETAILS: \"<reactie spel op zet>\",MOVE: \"" +
+                                index +
+                                "\"}\n");
+                    }
+
                     // Check move result
                     switch (state){
                         case State.WIN:{
                             // Win
                             running = false;
+                            addSendToQueue("VR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"" +
+                                    "<score speler2>\", COMMENT: \"<commentaar op resultaat>\"}\n");
                         }
                         case State.DRAW:{
                             // Draw
                             running = false;
+                            addSendToQueue("VR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"" +
+                                    "<score speler2>\", COMMENT: \"<commentaar op resultaat>\"}\n");
                         }
                         case State.NORMAL:{
-                            // Nothing wrong?
+                            // Valid move but not end of game
+                            addSendToQueue("SVR GAME YOURTURN");
                         }
                         case State.INVALID:{
                             // Invalid move
