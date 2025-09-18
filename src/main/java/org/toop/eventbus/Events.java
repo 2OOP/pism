@@ -1,7 +1,7 @@
 package org.toop.eventbus;
 
+import org.toop.core.Window;
 import org.toop.server.backend.tictactoe.TicTacToeServer;
-import org.toop.server.backend.tictactoe.TicTacToeServerCommand;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -183,7 +183,6 @@ public class Events implements IEvents {
          *
          * @param ip The IP address of the server to connect to.
          * @param port The port of the server to connect to.
-         * @param future The CompletableFuture that will complete when the connection is established.
          */
         public record ConnectionEstablished(Object connectionId, String ip, String port) {}
 
@@ -203,7 +202,7 @@ public class Events implements IEvents {
          * @param args The command arguments.
          * @param result The result returned from executing the command.
          */
-        public record OnCommand(TicTacToeServer command, String[] args, String result) {}
+        public record OnCommand(TicTacToeServer command, String[] args, String result) {} // TODO old
 
         /**
          * Triggers when the server client receives a message.
@@ -257,6 +256,10 @@ public class Events implements IEvents {
          */
         public record ClosedConnection() {}
 
+        /**
+         * Triggers when a cell is clicked in one of the game boards.
+         */
+        public record CellClicked(int cell) {}
     }
 
     public static class EventBusEvents {
@@ -264,7 +267,30 @@ public class Events implements IEvents {
     }
 
     public static class WindowEvents {
+		/**
+		* Triggers when the window wants to quit.
+		*/
+		public record OnQuitRequested() {}
 
+		/**
+		* Triggers when the window is resized.
+		*/
+		public record OnResize(Window.Size size) {}
+
+		/**
+		* Triggers when the mouse is moved within the window.
+		*/
+		public record OnMouseMove(int x, int y) {}
+
+		/**
+		* Triggers when the mouse is clicked within the window.
+		*/
+		public record OnMouseClick(int button) {}
+
+		/**
+		* Triggers when the mouse is released within the window.
+		*/
+		public record OnMouseRelease(int button) {}
     }
 
     public static class TttEvents {

@@ -3,6 +3,9 @@ package org.toop.server.backend.tictactoe;
 import java.util.EnumSet;
 
 public enum TicTacToeServerCommand {
+    CREATE_GAME,
+    START_GAME,
+    END_GAME,
     /**
      * Login, "username"
      */
