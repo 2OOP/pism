@@ -70,14 +70,14 @@ public class LocalGameSelector extends JFrame {
 
         if (playerTypes.equals("Player vs Player")) {
             logger.info("Player vs Player");
-            lttt = new LocalTicTacToe(true, "127.0.0.1", "5001");
+            lttt = LocalTicTacToe.createLocal(new boolean[] { false, false });
         } else {
             if (playerTypes.equals("Player vs AI")) {
                 logger.info("Player vs AI");
-                lttt = new LocalTicTacToe(true, "127.0.0.1", "5001", new boolean[] { false, true });
+                lttt = LocalTicTacToe.createLocal(new boolean[] { false, true });
             } else {
                 logger.info("AI vs Player");
-                lttt = new LocalTicTacToe(true, "127.0.0.1", "5001", new boolean[] { true, false });
+                lttt = LocalTicTacToe.createLocal(new boolean[] { true, false });
             }
         }
 

@@ -16,6 +16,7 @@ public class UIGameBoard {
     private JButton backToMainMenuButton;
     private JButton[] cells;
     private String currentPlayer = "X";
+    private int currentPlayerIndex = 0;
 
     private LocalGameSelector parentSelector;
     private LocalTicTacToe localTicTacToe;
@@ -52,11 +53,10 @@ public class UIGameBoard {
             final int index = i;
             cells[i].addActionListener((ActionEvent e) -> {
                 int cp = this.localTicTacToe.getCurrentPlayersTurn();
-                if      (cp == 1) { this.currentPlayer = "X"; }
-                else if (cp == 2) { this.currentPlayer = "O"; }
-                cells[index].setText(currentPlayer);
+                if      (cp == 1) { this.currentPlayer = "X"; currentPlayerIndex = 0; }
+                else if (cp == 2) { this.currentPlayer = "O"; currentPlayerIndex = 1; }
                 this.localTicTacToe.move(index);
-                System.out.println("Cell clicked: " + index);
+                cells[index].setText(currentPlayer);
             });
         }
 
