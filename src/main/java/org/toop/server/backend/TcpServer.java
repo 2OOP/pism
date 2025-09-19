@@ -26,7 +26,7 @@ import java.util.concurrent.*;
  * - Subclasses should consume receivedQueue (or call getNewestCommand()) and
  *   use sendQueue to send messages to all clients (or per-client, if implemented).
  */
-public class TcpServer implements Runnable {
+public abstract class TcpServer implements Runnable {
 
     protected static final Logger logger = LogManager.getLogger(TcpServer.class);
 

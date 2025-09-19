@@ -7,7 +7,10 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class TcpClient {
+/**
+ * A simple wrapper for creating TCP clients.
+ */
+public abstract class TcpClient {
 
     InetAddress serverAddress;
     int serverPort;

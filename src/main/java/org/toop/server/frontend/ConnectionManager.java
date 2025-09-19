@@ -6,6 +6,7 @@ import org.toop.eventbus.GlobalEventBus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,17 +30,21 @@ public class ConnectionManager {
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.StartConnection.class, this::handleStartConnection);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.SendCommand.class, this::handleCommand);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.Reconnect.class, this::handleReconnect);
-        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ChangeConnection.class, this::handleChangeConnection);
+//        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ChangeConnection.class, this::handleChangeConnection);
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ForceCloseAllConnections.class, _ -> shutdownAll());
         GlobalEventBus.subscribeAndRegister(Events.ServerEvents.RequestsAllConnections.class, this::getAllConnections);
     }
 
     private String startConnectionRequest(String ip, String port) {
         String connectionId = UUID.randomUUID().toString();
-        ServerConnection connection = new ServerConnection(connectionId, ip, port);
-        this.serverConnections.put(connectionId, connection);
-        new Thread(connection, "Connection-" + connectionId).start();
-        logger.info("Connected to server {} at {}:{}", connectionId, ip, port);
+        try {
+            ServerConnection connection = new ServerConnection(connectionId, ip, port);
+            this.serverConnections.put(connectionId, connection);
+            new Thread(connection, "Connection-" + connectionId).start();
+            logger.info("Connected to server {} at {}:{}", connectionId, ip, port);
+        } catch (IOException e) {
+            logger.error("{}", e);
+        }
         return connectionId;
     }
 
@@ -77,18 +82,18 @@ public class ConnectionManager {
         }
     }
 
-    private void handleChangeConnection(Events.ServerEvents.ChangeConnection event) {
-        ServerConnection serverConnection = this.serverConnections.get(event.connectionId());
-        if (serverConnection != null) {
-            try {
-                serverConnection.connect(event.ip(), event.port());
-                logger.info("Server {} changed connection to {}:{}", event.connectionId(), event.ip(), event.port());
-            } catch (Exception e) {
-                logger.error("Server {} failed to change connection", event.connectionId(), e);
-                GlobalEventBus.post(new Events.ServerEvents.CouldNotConnect(event.connectionId()));
-            }
-        }
-    }
+//    private void handleChangeConnection(Events.ServerEvents.ChangeConnection event) {
+//        ServerConnection serverConnection = this.serverConnections.get(event.connectionId());
+//        if (serverConnection != null) {
+//            try {
+//                serverConnection.connect(event.ip(), event.port());
+//                logger.info("Server {} changed connection to {}:{}", event.connectionId(), event.ip(), event.port());
+//            } catch (Exception e) {
+//                logger.error("Server {} failed to change connection", event.connectionId(), e);
+//                GlobalEventBus.post(new Events.ServerEvents.CouldNotConnect(event.connectionId()));
+//            }
+//        }
+//    } TODO
 
     private void getAllConnections(Events.ServerEvents.RequestsAllConnections request) {
         List<ServerConnection> a = new ArrayList<>(this.serverConnections.values());
