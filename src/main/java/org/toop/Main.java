@@ -1,14 +1,15 @@
 package org.toop;
 
-import org.toop.UI.LocalServerSelector;
+import org.toop.frontend.UI.LocalServerSelector;
 import org.toop.eventbus.EventRegistry;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
-import org.toop.server.backend.ServerManager;
+import org.toop.backend.ServerManager;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.toop.server.frontend.ConnectionManager;
+import org.toop.frontend.ConnectionManager;
+import org.toop.frontend.games.LocalTicTacToe;
 
 import java.util.concurrent.ExecutionException;
 
@@ -18,7 +19,7 @@ public class Main {
 
 	public static void main(String[] args) throws ExecutionException, InterruptedException {
 //        Logging.disableAllLogs();
-		Logging.disableLogsForClass(EventRegistry.class);
+//		Logging.enableAllLogsForClass(LocalTicTacToe.class);
 //        Logging.enableLogsForClass(ServerManager.class, Level.ALL);
 //        Logging.enableLogsForClass(TicTacToeServer.class, Level.ALL);
 //        Logging.enableLogsForClass(TcpClient.class, Level.ALL);
@@ -39,10 +40,6 @@ public class Main {
 //		}).start();
 
     }
-
-    /**
-     * Returns false if any event could not be initialized.
-     */
 
 	private static void registerEvents() {
 		GlobalEventBus.subscribeAndRegister(Events.WindowEvents.OnQuitRequested.class, event -> {

@@ -50,13 +50,13 @@ public class GlobalEventBus {
      * @param action The function, or lambda to run when fired.
      * @return Object to be used for registering an event.
      */
-    private static <T> Object subscribe(Class<T> type, Consumer<T> action) {
+    public static <T> Object subscribe(Class<T> type, Consumer<T> action) {
         return new Object() {
             @Subscribe
             public void handle(Object event) {
-            if (type.isInstance(event)) {
-                action.accept(type.cast(event));
-            }
+                if (type.isInstance(event)) {
+                    action.accept(type.cast(event));
+                }
             }
         };
     }
@@ -68,18 +68,10 @@ public class GlobalEventBus {
      * @param action The function, or lambda to run when fired.
      * @return Object to be used for registering an event.
      */
-    public static <T> EventMeta subscribeAndRegister(Class<T> type, Consumer<T> action) {
-        Object listener = new Object() {
-            @Subscribe
-            public void handle(Object event) {
-            if (type.isInstance(event)) {
-                action.accept(type.cast(event));
-            }
-            }
-        };
-        var re = new EventMeta<>(type, listener);
-        register(re);
-        return re;
+    public static <T> Object subscribeAndRegister(Class<T> type, Consumer<T> action) {
+        var listener = subscribe(type, action);
+        register(listener);
+        return listener;
     }
 
 
@@ -88,10 +80,8 @@ public class GlobalEventBus {
      *
      * @param event The ready event to add to register.
      */
-    public static <T> void register(EventMeta<T> event) {
-        GlobalEventBus.get().register(event.getEvent());
-        event.setReady(true);
-        EventRegistry.markReady(event.getType());
+    public static void register(Object listener) {
+        GlobalEventBus.get().register(listener);
     }
 
     /**
@@ -99,10 +89,8 @@ public class GlobalEventBus {
      *
      * @param event The ready event to unregister.
      */
-    public static <T> void unregister(EventMeta<T> event) {
-        EventRegistry.markNotReady(event.getType());
-        event.setReady(false);
-        GlobalEventBus.get().unregister(event.getEvent());
+    public static void unregister(Object listener) {
+        GlobalEventBus.get().unregister(listener);
     }
 
     /**

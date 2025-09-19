@@ -1,6 +1,6 @@
 package org.toop.core;
 
-import org.toop.platform.core.glfw.*;
+import org.toop.frontend.platform.core.glfw.GlfwWindow;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

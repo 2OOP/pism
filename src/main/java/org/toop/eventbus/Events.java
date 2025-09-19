@@ -1,7 +1,7 @@
 package org.toop.eventbus;
 
 import org.toop.core.Window;
-import org.toop.server.backend.tictactoe.TicTacToeServer;
+import org.toop.backend.tictactoe.TicTacToeServer;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
