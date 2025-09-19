@@ -7,6 +7,10 @@ import org.toop.eventbus.GlobalEventBus;
 
 import java.util.concurrent.*;
 
+/**
+ * A representation of a local tic-tac-toe game.
+ * Calls are made to a server for information about current game state.
+ */
 public class LocalTicTacToe { // TODO: Implement runnable
     private static final Logger logger = LogManager.getLogger(LocalTicTacToe.class);
 
@@ -23,6 +27,10 @@ public class LocalTicTacToe { // TODO: Implement runnable
      * Is either 1 or 2.
      */
     private int playersTurn = 1;
+
+    /**
+     * @return The current players turn.
+     */
     public int getCurrentPlayersTurn() { return this.playersTurn; }
 
 
@@ -37,6 +45,12 @@ public class LocalTicTacToe { // TODO: Implement runnable
 //        this.executor.submit(this::gameThread);
 //    } TODO: If remote server
 
+    /**
+     *
+     * @param isLocalServer If the server is hosted locally.
+     * @param ip The IP of the server to connect to.
+     * @param port The port of the server to connect to.
+     */
     public LocalTicTacToe(boolean isLocalServer, String ip, String port) {
         this.receivedMessageListener = GlobalEventBus.subscribe(Events.ServerEvents.ReceivedMessage.class, this::receiveMessageAction);
         GlobalEventBus.register(this.receivedMessageListener);
@@ -83,7 +97,10 @@ public class LocalTicTacToe { // TODO: Implement runnable
         this.sendCommand("start_game", this.gameId);
     }
 
-    void gameThread() {
+    /**
+     * The game thread.
+     */
+    private void gameThread() {
         logger.info("Starting local game thread, connection: {}, server: {}", this.connectionId, this.serverId);
 
         CountDownLatch latch = new CountDownLatch(1); // TODO: This is bad, fix later
@@ -135,10 +152,16 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     }
 
+    /**
+     * End the current game.
+     */
     public void endGame() {
         sendCommand("gameid", "end_game"); // TODO: Command is a bit wrong.
     }
 
+    /**
+     * @param index The move to make.
+     */
     public void move(int index) {
         sendCommand("gameid", this.gameId, "player", "test", "move", String.valueOf(index));
     }
@@ -148,7 +171,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
         this.endListeners();
     }
 
-    void receiveMessageAction(Events.ServerEvents.ReceivedMessage receivedMessage) {
+    private void receiveMessageAction(Events.ServerEvents.ReceivedMessage receivedMessage) {
         if (!receivedMessage.ConnectionUuid().equals(this.connectionId)) {
             return;
         }
@@ -161,11 +184,11 @@ public class LocalTicTacToe { // TODO: Implement runnable
         }
     }
 
-    void sendCommand(String... args) {
+    private void sendCommand(String... args) {
         GlobalEventBus.post(new Events.ServerEvents.SendCommand(this.connectionId, args));
     }
 
-    void endListeners() {
+    private void endListeners() {
         GlobalEventBus.unregister(this.receivedMessageListener);
     }
 
