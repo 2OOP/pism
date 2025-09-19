@@ -66,7 +66,20 @@ public class LocalGameSelector extends JFrame {
         String playerTypes = (String) playerTypeSelectionBox.getSelectedItem();
         String selectedGame = (String) gameSelectionComboBox.getSelectedItem();
 
-        LocalTicTacToe lttt = new LocalTicTacToe(true, "127.0.0.1", "5001");
+        LocalTicTacToe lttt = null;
+
+        if (playerTypes.equals("Player vs Player")) {
+            logger.info("Player vs Player");
+            lttt = new LocalTicTacToe(true, "127.0.0.1", "5001");
+        } else {
+            if (playerTypes.equals("Player vs AI")) {
+                logger.info("Player vs AI");
+                lttt = new LocalTicTacToe(true, "127.0.0.1", "5001", new boolean[] { false, true });
+            } else {
+                logger.info("AI vs Player");
+                lttt = new LocalTicTacToe(true, "127.0.0.1", "5001", new boolean[] { true, false });
+            }
+        }
 
         if ("Tic Tac Toe".equalsIgnoreCase(selectedGame)) {
             if (tttBoard == null) {

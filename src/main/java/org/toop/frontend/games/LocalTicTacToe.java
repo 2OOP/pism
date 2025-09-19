@@ -4,12 +4,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
+import org.toop.game.tictactoe.MinMaxTicTacToe;
+import org.toop.game.tictactoe.TicTacToe;
 
 import java.util.concurrent.*;
 
 /**
  * A representation of a local tic-tac-toe game.
  * Calls are made to a server for information about current game state.
+ * MOST OF THIS CODE IS TRASH, THROW IT OUT OF THE WINDOW AFTER DEMO.
  */
 public class LocalTicTacToe { // TODO: Implement runnable
     private static final Logger logger = LogManager.getLogger(LocalTicTacToe.class);
@@ -17,11 +20,26 @@ public class LocalTicTacToe { // TODO: Implement runnable
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>();
 
-    Object receivedMessageListener;
+    private final Object receivedMessageListener;
 
-    volatile String gameId;
-    volatile String connectionId;
-    volatile String serverId;
+    private volatile String gameId;
+    private final String connectionId;
+    private final String serverId;
+
+    private final TicTacToe ticTacToe = new TicTacToe("A", "B");
+
+    private boolean isGameWithAi = false;
+
+    /**
+     *
+     * @return Returns a boolean where True: a game with AI, false: A game without AI's
+     */
+    public boolean isGameWithAi() {
+        return this.isGameWithAi;
+    }
+
+
+    private MinMaxTicTacToe[] aiPlayers = new MinMaxTicTacToe[2];
 
     /**
      * Is either 1 or 2.
@@ -60,6 +78,32 @@ public class LocalTicTacToe { // TODO: Implement runnable
         else                { this.serverId = null; } // TODO: What if null?
         this.connectionId = this.createConnection(ip, port);
         this.createGame(ip, port);
+
+        this.executor.submit(this::gameThread);
+    }
+
+    /**
+     *
+     * @param isLocalServer If the server is hosted locally.
+     * @param ip The IP of the server to connect to.
+     * @param port The port of the server to connect to.
+     * @param aiPlayers boolean[firstPlayerIsAI, SecondPlayerIsAI]
+     */
+    public LocalTicTacToe(boolean isLocalServer, String ip, String port, boolean[] aiPlayers) {
+        this.receivedMessageListener = GlobalEventBus.subscribe(Events.ServerEvents.ReceivedMessage.class, this::receiveMessageAction);
+        GlobalEventBus.register(this.receivedMessageListener);
+
+        // TODO: Is blocking
+        if  (isLocalServer) { this.serverId = this.createServer(port); }
+        else                { this.serverId = null; } // TODO: What if null?
+        this.connectionId = this.createConnection(ip, port);
+        this.createGame(ip, port);
+
+        if (aiPlayers != null) {
+            this.isGameWithAi = true;
+            if (aiPlayers[0]) { this.aiPlayers[0] = new MinMaxTicTacToe(); }
+            if (aiPlayers[1]) { this.aiPlayers[1] = new MinMaxTicTacToe(); }
+        }
 
         this.executor.submit(this::gameThread);
     }
@@ -129,6 +173,16 @@ public class LocalTicTacToe { // TODO: Implement runnable
         boolean running = true;
         while (running) {
             try {
+                if (isGameWithAi) {
+                    if (aiPlayers[playersTurn - 1] != null) {
+                        logger.info("{}, AI's turn", playersTurn);
+                        int move = aiPlayers[playersTurn - 1].findBestMove(ticTacToe);
+                        logger.info("{}, move {}", playersTurn, move);
+                        ticTacToe.play(move);
+                        this.move(move);
+                    }
+                }
+
                 String rec = this.receivedQueue.take();
                 if (rec.equalsIgnoreCase("ok")) {continue;}
                 else if (rec.equalsIgnoreCase("svr game yourturn")) {
@@ -141,6 +195,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
                 }
                 else if (rec.equalsIgnoreCase("svr game win")) {
                     endListeners();
+                    running = false;
                 }
 
             } catch (InterruptedException e) {
@@ -150,6 +205,10 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
         this.endListeners();
 
+    }
+
+    public char[] getCurrentBoard() {
+        return ticTacToe.getGrid();
     }
 
     /**
@@ -163,6 +222,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
      * @param index The move to make.
      */
     public void move(int index) {
+        this.ticTacToe.play(index); // TODO Right now no server check if valid.
         sendCommand("gameid", this.gameId, "player", "test", "move", String.valueOf(index));
     }
 
