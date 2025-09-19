@@ -23,6 +23,8 @@ public class LocalTicTacToe { // TODO: Implement runnable
      * Is either 1 or 2.
      */
     private int playersTurn = 1;
+    public int getCurrentPlayersTurn() { return this.playersTurn; }
+
 
 //    LocalTicTacToe(String gameId, String connectionId, String serverId) {
 //        this.gameId = gameId;

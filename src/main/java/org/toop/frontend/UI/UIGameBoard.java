@@ -51,9 +51,10 @@ public class UIGameBoard {
 
             final int index = i;
             cells[i].addActionListener((ActionEvent e) -> {
+                int cp = this.localTicTacToe.getCurrentPlayersTurn();
+                if      (cp == 1) { this.currentPlayer = "X"; }
+                else if (cp == 2) { this.currentPlayer = "O"; }
                 cells[index].setText(currentPlayer);
-                if (Objects.equals(currentPlayer, "X")) { currentPlayer = "O"; }
-                else { currentPlayer = "X"; }
                 this.localTicTacToe.move(index);
                 System.out.println("Cell clicked: " + index);
             });
