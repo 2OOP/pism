@@ -1,19 +1,15 @@
 package org.toop.eventbus;
 
-import org.toop.core.Window;
-import org.toop.backend.tictactoe.TicTacToeServer;
-
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import org.toop.backend.tictactoe.TicTacToeServer;
+import org.toop.core.Window;
 
-/**
- * Events that are used in the GlobalEventBus class.
- */
+/** Events that are used in the GlobalEventBus class. */
 public class Events implements IEvents {
 
     /**
-     *
      * WIP, DO NOT USE!
      *
      * @param eventName
@@ -29,7 +25,6 @@ public class Events implements IEvents {
     }
 
     /**
-     *
      * WIP, DO NOT USE!
      *
      * @param eventCategory
@@ -38,15 +33,16 @@ public class Events implements IEvents {
      * @return
      * @throws Exception
      */
-    public static Object get(String eventCategory, String eventName, Object... args) throws Exception {
-        Class<?> clazz = Class.forName("org.toop.eventbus.Events$" + eventCategory + "$" + eventName);
+    public static Object get(String eventCategory, String eventName, Object... args)
+            throws Exception {
+        Class<?> clazz =
+                Class.forName("org.toop.eventbus.Events$" + eventCategory + "$" + eventName);
         Class<?>[] paramTypes = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
         Constructor<?> constructor = clazz.getConstructor(paramTypes);
         return constructor.newInstance(args);
     }
 
     /**
-     *
      * WIP, DO NOT USE!
      *
      * @param eventName
@@ -77,29 +73,25 @@ public class Events implements IEvents {
     public static class ServerEvents {
 
         /**
-         * BLOCKING
-         * Requests all active connections. The result is returned via the provided CompletableFuture.
+         * BLOCKING Requests all active connections. The result is returned via the provided
+         * CompletableFuture.
          *
          * @param future List of all connections in string form.
          */
         public record RequestsAllConnections(CompletableFuture<String> future) {}
 
         /**
-         * BLOCKING
-         * Requests all active servers. The result is returned via the provided CompletableFuture.
+         * BLOCKING Requests all active servers. The result is returned via the provided
+         * CompletableFuture.
          *
          * @param future List of all servers in string form.
          */
         public record RequestsAllServers(CompletableFuture<String> future) {}
 
-        /**
-         * Forces closing all active connections immediately.
-         */
+        /** Forces closing all active connections immediately. */
         public record ForceCloseAllConnections() {}
 
-        /**
-         * Forces closing all active servers immediately.
-         */
+        /** Forces closing all active servers immediately. */
         public record ForceCloseAllServers() {}
 
         /**
@@ -111,15 +103,15 @@ public class Events implements IEvents {
         public record StartServer(String port, String gameType) {}
 
         /**
-         * BLOCKING
-         * Requests starting a server with a specific port and game type, and returns a CompletableFuture
-         * that completes when the server has started.
+         * BLOCKING Requests starting a server with a specific port and game type, and returns a
+         * CompletableFuture that completes when the server has started.
          *
          * @param port The port to open the server.
          * @param gameType Either "tictactoe" or ...
          * @param future The uuid of the server.
          */
-        public record StartServerRequest(String port, String gameType, CompletableFuture<String> future) {}
+        public record StartServerRequest(
+                String port, String gameType, CompletableFuture<String> future) {}
 
         /**
          * Represents a server that has successfully started.
@@ -130,15 +122,18 @@ public class Events implements IEvents {
         public record ServerStarted(String uuid, String port) {}
 
         /**
-         * BLOCKING
-         * Requests creation of a TicTacToe game on a specific server.
+         * BLOCKING Requests creation of a TicTacToe game on a specific server.
          *
          * @param serverUuid The unique identifier of the server where the game will be created.
          * @param playerA The name of the first player.
          * @param playerB The name of the second player.
          * @param future The game UUID when the game is created.
          */
-        public record CreateTicTacToeGameRequest(String serverUuid, String playerA, String playerB, CompletableFuture<String> future) {}
+        public record CreateTicTacToeGameRequest(
+                String serverUuid,
+                String playerA,
+                String playerB,
+                CompletableFuture<String> future) {}
 
         /**
          * Requests running a TicTacToe game on a specific server.
@@ -157,7 +152,6 @@ public class Events implements IEvents {
         public record EndTicTacToeGame(String serverUuid, String gameUuid) {}
 
         /**
-         *
          * Triggers starting a server connection.
          *
          * @param ip The IP address of the server to connect to.
@@ -166,20 +160,20 @@ public class Events implements IEvents {
         public record StartConnection(String ip, String port) {}
 
         /**
-         * BLOCKING
-         * Triggers starting a server connection and returns a future.
+         * BLOCKING Triggers starting a server connection and returns a future.
          *
          * @param ip The IP address of the server to connect to.
          * @param port The port of the server to connect to.
          * @param future Returns the UUID of the connection, when connection is established.
          */
-        public record StartConnectionRequest(String ip, String port, CompletableFuture<String> future) {}
+        public record StartConnectionRequest(
+                String ip, String port, CompletableFuture<String> future) {}
 
-//        public record StartGameConnectionRequest(String ip, String port, CompletableFuture<String> future) {}
+        //        public record StartGameConnectionRequest(String ip, String port,
+        // CompletableFuture<String> future) {}
 
         /**
-         * BLOCKING
-         * Triggers starting a server connection and returns a future.
+         * BLOCKING Triggers starting a server connection and returns a future.
          *
          * @param ip The IP address of the server to connect to.
          * @param port The port of the server to connect to.
@@ -192,17 +186,17 @@ public class Events implements IEvents {
          * @param connectionId The UUID of the connection to send the command on.
          * @param args The command arguments.
          */
-        public record SendCommand(String connectionId, String... args) { }
+        public record SendCommand(String connectionId, String... args) {}
 
         /**
-         * WIP
-         * Triggers when a command is sent to a server.
+         * WIP Triggers when a command is sent to a server.
          *
          * @param command The TicTacToeServer instance that executed the command.
          * @param args The command arguments.
          * @param result The result returned from executing the command.
          */
-        public record OnCommand(TicTacToeServer command, String[] args, String result) {} // TODO old
+        public record OnCommand(
+                TicTacToeServer command, String[] args, String result) {} // TODO old
 
         /**
          * Triggers when the server client receives a message.
@@ -249,55 +243,33 @@ public class Events implements IEvents {
          */
         public record CouldNotConnect(Object connectionId) {}
 
-        /**
-         * WIP
-         * Triggers when a connection closes.
-         *
-         */
+        /** WIP Triggers when a connection closes. */
         public record ClosedConnection() {}
 
-        /**
-         * Triggers when a cell is clicked in one of the game boards.
-         */
+        /** Triggers when a cell is clicked in one of the game boards. */
         public record CellClicked(int cell) {}
     }
 
-    public static class EventBusEvents {
-
-    }
+    public static class EventBusEvents {}
 
     public static class WindowEvents {
-		/**
-		* Triggers when the window wants to quit.
-		*/
-		public record OnQuitRequested() {}
+        /** Triggers when the window wants to quit. */
+        public record OnQuitRequested() {}
 
-		/**
-		* Triggers when the window is resized.
-		*/
-		public record OnResize(Window.Size size) {}
+        /** Triggers when the window is resized. */
+        public record OnResize(Window.Size size) {}
 
-		/**
-		* Triggers when the mouse is moved within the window.
-		*/
-		public record OnMouseMove(int x, int y) {}
+        /** Triggers when the mouse is moved within the window. */
+        public record OnMouseMove(int x, int y) {}
 
-		/**
-		* Triggers when the mouse is clicked within the window.
-		*/
-		public record OnMouseClick(int button) {}
+        /** Triggers when the mouse is clicked within the window. */
+        public record OnMouseClick(int button) {}
 
-		/**
-		* Triggers when the mouse is released within the window.
-		*/
-		public record OnMouseRelease(int button) {}
+        /** Triggers when the mouse is released within the window. */
+        public record OnMouseRelease(int button) {}
     }
 
-    public static class TttEvents {
+    public static class TttEvents {}
 
-    }
-
-    public static class AiTttEvents {
-
-    }
+    public static class AiTttEvents {}
 }

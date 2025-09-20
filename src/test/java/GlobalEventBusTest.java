@@ -1,13 +1,12 @@
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.toop.eventbus.EventMeta;
 import org.toop.eventbus.EventRegistry;
 import org.toop.eventbus.GlobalEventBus;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class GlobalEventBusTest {
 
@@ -22,7 +21,6 @@ public class GlobalEventBusTest {
         public String getMessage() {
             return message;
         }
-
     }
 
     @BeforeEach
@@ -36,10 +34,13 @@ public class GlobalEventBusTest {
         AtomicReference<String> receivedMessage = new AtomicReference<>();
 
         // Subscribe and register listener
-        EventMeta<TestEvent> meta = GlobalEventBus.subscribeAndRegister(TestEvent.class, e -> {
-            called.set(true);
-            receivedMessage.set(e.getMessage());
-        });
+        EventMeta<TestEvent> meta =
+                GlobalEventBus.subscribeAndRegister(
+                        TestEvent.class,
+                        e -> {
+                            called.set(true);
+                            receivedMessage.set(e.getMessage());
+                        });
 
         assertTrue(EventRegistry.isReady(TestEvent.class));
         assertTrue(meta.isReady());
@@ -49,7 +50,10 @@ public class GlobalEventBusTest {
         GlobalEventBus.post(event);
 
         // Give Guava EventBus a moment (optional if single-threaded)
-        try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ignored) {
+        }
 
         assertTrue(called.get());
         assertEquals("Hello World", receivedMessage.get());
@@ -59,7 +63,8 @@ public class GlobalEventBusTest {
     public void testUnregister() {
         AtomicBoolean called = new AtomicBoolean(false);
 
-        EventMeta<TestEvent> meta = GlobalEventBus.subscribeAndRegister(TestEvent.class, e -> called.set(true));
+        EventMeta<TestEvent> meta =
+                GlobalEventBus.subscribeAndRegister(TestEvent.class, e -> called.set(true));
         assertTrue(meta.isReady());
         assertTrue(EventRegistry.isReady(TestEvent.class));
 
@@ -71,7 +76,10 @@ public class GlobalEventBusTest {
 
         // Post event — listener should NOT be called
         GlobalEventBus.post(new TestEvent("Test"));
-        try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ignored) {
+        }
 
         assertFalse(called.get());
     }
@@ -81,34 +89,43 @@ public class GlobalEventBusTest {
         AtomicBoolean listener1Called = new AtomicBoolean(false);
         AtomicBoolean listener2Called = new AtomicBoolean(false);
 
-        EventMeta<TestEvent> l1 = GlobalEventBus.subscribeAndRegister(TestEvent.class, e -> listener1Called.set(true));
-        EventMeta<TestEvent> l2 = GlobalEventBus.subscribeAndRegister(TestEvent.class, e -> listener2Called.set(true));
+        EventMeta<TestEvent> l1 =
+                GlobalEventBus.subscribeAndRegister(
+                        TestEvent.class, e -> listener1Called.set(true));
+        EventMeta<TestEvent> l2 =
+                GlobalEventBus.subscribeAndRegister(
+                        TestEvent.class, e -> listener2Called.set(true));
 
         GlobalEventBus.post(new TestEvent("Event"));
 
-        try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ignored) {
+        }
 
         assertTrue(listener1Called.get());
         assertTrue(listener2Called.get());
     }
 
     // TODO: Fix registry
-//    @Test
-//    public void testEventStoredInRegistry() {
-//        // Subscribe listener (marks type ready)
-//        EventMeta<TestEvent> meta = GlobalEventBus.subscribeAndRegister(TestEvent.class, e -> {});
-//
-//        // Post the event
-//        TestEvent event = new TestEvent("StoreTest");
-//        GlobalEventBus.post(event);
-//
-//        // Retrieve the last stored EventEntry
-//        EventRegistry.EventEntry<TestEvent> storedEntry = EventRegistry.getLastEvent(TestEvent.class);
-//
-//        assertNotNull(storedEntry);
-//
-//        // Compare the inner event
-//        TestEvent storedEvent = storedEntry.getEvent();
-//        assertEquals(event, storedEvent);
-//    }
+    //    @Test
+    //    public void testEventStoredInRegistry() {
+    //        // Subscribe listener (marks type ready)
+    //        EventMeta<TestEvent> meta = GlobalEventBus.subscribeAndRegister(TestEvent.class, e ->
+    // {});
+    //
+    //        // Post the event
+    //        TestEvent event = new TestEvent("StoreTest");
+    //        GlobalEventBus.post(event);
+    //
+    //        // Retrieve the last stored EventEntry
+    //        EventRegistry.EventEntry<TestEvent> storedEntry =
+    // EventRegistry.getLastEvent(TestEvent.class);
+    //
+    //        assertNotNull(storedEntry);
+    //
+    //        // Compare the inner event
+    //        TestEvent storedEvent = storedEntry.getEvent();
+    //        assertEquals(event, storedEvent);
+    //    }
 }

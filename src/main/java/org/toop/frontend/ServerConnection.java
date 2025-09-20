@@ -1,13 +1,12 @@
 package org.toop.frontend;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.concurrent.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.concurrent.*;
 
 public final class ServerConnection extends TcpClient implements Runnable {
 
@@ -28,21 +27,20 @@ public final class ServerConnection extends TcpClient implements Runnable {
     }
 
     /**
-     *
      * Sends a command to the server.
      *
      * @param args The arguments for the command.
      */
     public void sendCommandByString(String... args) {
-//        if (!TicTacToeServerCommand.isValid(command)) {
-//            logger.error("Invalid command: {}", command);
-//            return;
-//        } // TODO: DO I CARE?
+        //        if (!TicTacToeServerCommand.isValid(command)) {
+        //            logger.error("Invalid command: {}", command);
+        //            return;
+        //        } // TODO: DO I CARE?
 
-//        if (!this.running) {
-//            logger.warn("Server has been stopped");
-//            return;
-//        } // TODO: Server not running
+        //        if (!this.running) {
+        //            logger.warn("Server has been stopped");
+        //            return;
+        //        } // TODO: Server not running
 
         String command = String.join(" ", args);
 
@@ -69,11 +67,11 @@ public final class ServerConnection extends TcpClient implements Runnable {
     private void stopWorkers() {
         this.running = false;
         this.sendQueue.clear();
-            try {
-                this.closeSocket();
-            } catch (IOException e) {
-                logger.warn("Error closing client socket", e); // TODO: Better log
-            }
+        try {
+            this.closeSocket();
+        } catch (IOException e) {
+            logger.warn("Error closing client socket", e); // TODO: Better log
+        }
 
         this.executor.shutdownNow();
     }
@@ -86,7 +84,9 @@ public final class ServerConnection extends TcpClient implements Runnable {
                 if (received != null) {
                     logger.info("Connection: {} received: '{}'", this.uuid, received);
                     // this.addReceivedMessageToQueue(received); // TODO: Will never go empty
-                    GlobalEventBus.post(new Events.ServerEvents.ReceivedMessage(this.uuid, received)); // TODO: mb change
+                    GlobalEventBus.post(
+                            new Events.ServerEvents.ReceivedMessage(
+                                    this.uuid, received)); // TODO: mb change
                 } else {
                     break;
                 }
@@ -114,7 +114,6 @@ public final class ServerConnection extends TcpClient implements Runnable {
     }
 
     /**
-     *
      * Connect to a new server.
      *
      * @param ip The ip to connect to.
@@ -132,7 +131,6 @@ public final class ServerConnection extends TcpClient implements Runnable {
     }
 
     /**
-     *
      * Reconnects to previous address.
      *
      * @throws IOException wip
@@ -141,14 +139,14 @@ public final class ServerConnection extends TcpClient implements Runnable {
         this.connect(this.serverAddress, this.serverPort);
     }
 
-    /**
-     *
-     * Close connection to server.
-     *
-     */
+    /** Close connection to server. */
     public void closeConnection() {
         this.stopWorkers();
-        logger.info("Closed connection: {}, to server {}:{}", this.uuid, this.serverAddress, this.serverPort);
+        logger.info(
+                "Closed connection: {}, to server {}:{}",
+                this.uuid,
+                this.serverAddress,
+                this.serverPort);
     }
 
     @Override
@@ -164,9 +162,6 @@ public final class ServerConnection extends TcpClient implements Runnable {
     public String toString() {
         return String.format(
                 "Server {ip: \"%s\", port: \"%s\", running: %s}",
-                this.serverAddress, this.serverPort, this.running
-        );
+                this.serverAddress, this.serverPort, this.running);
     }
-
 }
-

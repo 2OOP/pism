@@ -1,66 +1,67 @@
 package org.toop.frontend.graphics.node;
 
+import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.*;
 import org.toop.frontend.graphics.Shader;
-
-import java.util.*;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 public class NodeManager {
     private static final Logger logger = LogManager.getLogger(NodeManager.class);
 
-	private static NodeManager instance = null;
-	
-	public static NodeManager setup() {
-		if (instance != null) {
-			logger.warn("NodeManager is already setup.");
-			return instance;
-		}
+    private static NodeManager instance = null;
 
-		instance = new NodeManager();
-		return instance;
-	}
+    public static NodeManager setup() {
+        if (instance != null) {
+            logger.warn("NodeManager is already setup.");
+            return instance;
+        }
 
-	private Shader shader;
-	private ArrayList<Node> nodes;
-	private Node active;
+        instance = new NodeManager();
+        return instance;
+    }
 
-	private NodeManager() {
-		shader = Shader.create(
-			"src/main/resources/shaders/gui_vertex.glsl",
-			"src/main/resources/shaders/gui_fragment.glsl");
+    private Shader shader;
+    private ArrayList<Node> nodes;
+    private Node active;
 
-		nodes = new ArrayList<Node>();
+    private NodeManager() {
+        shader =
+                Shader.create(
+                        "src/main/resources/shaders/gui_vertex.glsl",
+                        "src/main/resources/shaders/gui_fragment.glsl");
 
-		GlobalEventBus.subscribeAndRegister(Events.WindowEvents.OnMouseMove.class, event -> {
-			for (int i = 0; i < nodes.size(); i++) {
-				Node node = nodes.get(i);
+        nodes = new ArrayList<Node>();
 
-				if (node.check(event.x(), event.y())) {
-					active = node;
-					node.hover();
+        GlobalEventBus.subscribeAndRegister(
+                Events.WindowEvents.OnMouseMove.class,
+                event -> {
+                    for (int i = 0; i < nodes.size(); i++) {
+                        Node node = nodes.get(i);
 
-					break;
-				}
-			}
-		});
+                        if (node.check(event.x(), event.y())) {
+                            active = node;
+                            node.hover();
 
-		GlobalEventBus.subscribeAndRegister(Events.WindowEvents.OnMouseClick.class, event -> {
-			if (active != null) {
-				active.click();
-			}
-		});
-	}
+                            break;
+                        }
+                    }
+                });
 
-	public void cleanup() {
-	}
+        GlobalEventBus.subscribeAndRegister(
+                Events.WindowEvents.OnMouseClick.class,
+                event -> {
+                    if (active != null) {
+                        active.click();
+                    }
+                });
+    }
 
-	public void add(Node node) {
-		nodes.add(node);
-	}
+    public void cleanup() {}
 
-	public void render() {
-	}
+    public void add(Node node) {
+        nodes.add(node);
+    }
+
+    public void render() {}
 }

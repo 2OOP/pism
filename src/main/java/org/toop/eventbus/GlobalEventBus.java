@@ -2,17 +2,12 @@ package org.toop.eventbus;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import java.util.function.Consumer;
 
-/**
- * A singleton Event Bus to be used for creating, triggering and activating events.
- */
+/** A singleton Event Bus to be used for creating, triggering and activating events. */
 public class GlobalEventBus {
 
-    /**
-     * Singleton event bus.
-     */
+    /** Singleton event bus. */
     private static EventBus eventBus = new EventBus("global-bus");
 
     private GlobalEventBus() {}
@@ -35,16 +30,13 @@ public class GlobalEventBus {
         eventBus = newBus;
     }
 
-    /**
-     * Reset back to the default global EventBus.
-     */
+    /** Reset back to the default global EventBus. */
     public static void reset() {
         eventBus = new EventBus("global-bus");
     }
 
     /**
-     * Wraps a Consumer into a Guava @Subscribe-compatible listener.
-     * TODO
+     * Wraps a Consumer into a Guava @Subscribe-compatible listener. TODO
      *
      * @param type The event to be used. (e.g. Events.ServerCommand.class)
      * @param action The function, or lambda to run when fired.
@@ -74,7 +66,6 @@ public class GlobalEventBus {
         return listener;
     }
 
-
     /**
      * Wrapper for registering a listener.
      *
@@ -101,9 +92,10 @@ public class GlobalEventBus {
     public static <T> void post(T event) {
         Class<T> type = (Class<T>) event.getClass();
 
-//        if (!EventRegistry.isReady(type)) {
-//            throw new IllegalStateException("Event type not ready: " + type.getSimpleName());
-//        } TODO: Handling non ready events.
+        //        if (!EventRegistry.isReady(type)) {
+        //            throw new IllegalStateException("Event type not ready: " +
+        // type.getSimpleName());
+        //        } TODO: Handling non ready events.
 
         // store in registry
         EventMeta<T> eventMeta = new EventMeta<>(type, event);
@@ -112,5 +104,4 @@ public class GlobalEventBus {
         // post to Guava EventBus
         GlobalEventBus.get().post(event);
     }
-
 }

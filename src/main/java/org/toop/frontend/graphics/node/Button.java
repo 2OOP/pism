@@ -4,23 +4,30 @@ import org.toop.core.*;
 import org.toop.frontend.math.Color;
 
 public class Button extends Node {
-	ICallable<Boolean> onHover;
-	ICallable<Boolean> onClick;
+    ICallable<Boolean> onHover;
+    ICallable<Boolean> onClick;
 
-	public Button(int x, int y, int width, int height, Color color, ICallable<Boolean> onHover, ICallable<Boolean> onClick) {
-		super(x, y, width, height, color);
+    public Button(
+            int x,
+            int y,
+            int width,
+            int height,
+            Color color,
+            ICallable<Boolean> onHover,
+            ICallable<Boolean> onClick) {
+        super(x, y, width, height, color);
 
-		this.onHover = onHover;
-		this.onClick = onClick;
-	}
+        this.onHover = onHover;
+        this.onClick = onClick;
+    }
 
-	@Override
-	public void hover() {
-		onHover.call();
-	}
+    @Override
+    public void hover() {
+        onHover.call();
+    }
 
-	@Override
-	public void click() {
-		onClick.call();
-	}
+    @Override
+    public void click() {
+        onClick.call();
+    }
 }

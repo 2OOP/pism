@@ -1,11 +1,10 @@
 package org.toop.backend.tictactoe;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ParsedCommand {
     private static final Logger logger = LogManager.getLogger(ParsedCommand.class);
@@ -37,8 +36,10 @@ public class ParsedCommand {
         }
 
         // Case-insensitive regex to match: game_id {id} player {name}
-        Pattern pattern = Pattern.compile(
-                "(?i)\\bgame[_]?id\\s+(\\S+)\\s+player\\s+(\\S+)", Pattern.CASE_INSENSITIVE);
+        Pattern pattern =
+                Pattern.compile(
+                        "(?i)\\bgame[_]?id\\s+(\\S+)\\s+player\\s+(\\S+)",
+                        Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(receivedCommand);
 
         String tempGameId = null;
@@ -46,8 +47,8 @@ public class ParsedCommand {
         String tempPayload = receivedCommand;
 
         if (matcher.find()) {
-            tempGameId = matcher.group(1);  // first capture group → game_id
-            tempPlayer = matcher.group(2);  // second capture group → player
+            tempGameId = matcher.group(1); // first capture group → game_id
+            tempPlayer = matcher.group(2); // second capture group → player
             // Remove the matched part from the original command
             tempPayload = matcher.replaceFirst("").trim();
         }
@@ -129,8 +130,9 @@ public class ParsedCommand {
                 }
             }
             case CHALLENGE -> {
-                if (!segments[1].isEmpty() && segments[1].equals("accept") &&
-                        !segments[2].isEmpty()) {
+                if (!segments[1].isEmpty()
+                        && segments[1].equals("accept")
+                        && !segments[2].isEmpty()) {
                     this.command = commandEnum;
                     this.arguments = new ArrayList<>(2);
                     this.arguments.add(segments[1]);
@@ -174,9 +176,10 @@ public class ParsedCommand {
                     return;
                 }
             }
-//                case GET -> { // TODO: Get needs to accept different game types later. And get the players
-//
-//                }
+            //                case GET -> { // TODO: Get needs to accept different game types later.
+            // And get the players
+            //
+            //                }
             case BYE, DISCONNECT, LOGOUT, QUIT, EXIT, FORFEIT, SUBSCRIBE -> {
                 this.command = commandEnum;
                 this.arguments = null;
@@ -199,9 +202,9 @@ public class ParsedCommand {
             }
         }
     }
-//
-//    public ParsedCommand parseCommand(String command) {
-//        return null;
-//    }
+    //
+    //    public ParsedCommand parseCommand(String command) {
+    //        return null;
+    //    }
 
 }

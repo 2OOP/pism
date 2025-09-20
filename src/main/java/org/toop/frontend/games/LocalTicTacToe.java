@@ -1,5 +1,6 @@
 package org.toop.frontend.games;
 
+import java.util.concurrent.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.Events;
@@ -9,12 +10,9 @@ import org.toop.game.GameBase;
 import org.toop.game.tictactoe.MinMaxTicTacToe;
 import org.toop.game.tictactoe.TicTacToe;
 
-import java.util.concurrent.*;
-
 /**
- * A representation of a local tic-tac-toe game.
- * Calls are made to a server for information about current game state.
- * MOST OF THIS CODE IS TRASH, THROW IT OUT OF THE WINDOW AFTER DEMO.
+ * A representation of a local tic-tac-toe game. Calls are made to a server for information about
+ * current game state. MOST OF THIS CODE IS TRASH, THROW IT OUT OF THE WINDOW AFTER DEMO.
  */
 public class LocalTicTacToe { // TODO: Implement runnable
     private static final Logger logger = LogManager.getLogger(LocalTicTacToe.class);
@@ -36,38 +34,39 @@ public class LocalTicTacToe { // TODO: Implement runnable
     private TicTacToe ticTacToe;
     private UIGameBoard ui;
 
-
-    /**
-     * Is either 0 or 1.
-     */
+    /** Is either 0 or 1. */
     private int playersTurn = 0;
 
     /**
      * @return The current players turn.
      */
-    public int getCurrentPlayersTurn() { return this.playersTurn; }
+    public int getCurrentPlayersTurn() {
+        return this.playersTurn;
+    }
 
-
-//    LocalTicTacToe(String gameId, String connectionId, String serverId) {
-//        this.gameId = gameId;
-//        this.connectionId = connectionId;
-//        this.serverId = serverId;
-//        this.receivedMessageListener = GlobalEventBus.subscribe(Events.ServerEvents.ReceivedMessage.class, this::receiveMessageAction);
-//        GlobalEventBus.register(this.receivedMessageListener);
-//
-//
-//        this.executor.submit(this::gameThread);
-//    } TODO: If remote server
+    //    LocalTicTacToe(String gameId, String connectionId, String serverId) {
+    //        this.gameId = gameId;
+    //        this.connectionId = connectionId;
+    //        this.serverId = serverId;
+    //        this.receivedMessageListener =
+    // GlobalEventBus.subscribe(Events.ServerEvents.ReceivedMessage.class,
+    // this::receiveMessageAction);
+    //        GlobalEventBus.register(this.receivedMessageListener);
+    //
+    //
+    //        this.executor.submit(this::gameThread);
+    //    } TODO: If remote server
 
     /**
-     *
      * Starts a connection with a remote server.
      *
      * @param ip The IP of the server to connect to.
      * @param port The port of the server to connect to.
      */
     private LocalTicTacToe(String ip, String port) {
-        this.receivedMessageListener = GlobalEventBus.subscribe(Events.ServerEvents.ReceivedMessage.class, this::receiveMessageAction);
+        this.receivedMessageListener =
+                GlobalEventBus.subscribe(
+                        Events.ServerEvents.ReceivedMessage.class, this::receiveMessageAction);
         GlobalEventBus.register(this.receivedMessageListener);
         this.connectionId = this.createConnection(ip, port);
         this.createGame(ip, port);
@@ -100,7 +99,8 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private String createServer(String port) {
         CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
-        GlobalEventBus.post(new Events.ServerEvents.StartServerRequest(port, "tictactoe", serverIdFuture));
+        GlobalEventBus.post(
+                new Events.ServerEvents.StartServerRequest(port, "tictactoe", serverIdFuture));
         try {
             return serverIdFuture.get();
         } catch (Exception e) {
@@ -111,7 +111,11 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private String createConnection(String ip, String port) {
         CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
-        GlobalEventBus.post(new Events.ServerEvents.StartConnectionRequest(ip, port, connectionIdFuture)); // TODO: what if server couldn't be started with port.
+        GlobalEventBus.post(
+                new Events.ServerEvents.StartConnectionRequest(
+                        ip,
+                        port,
+                        connectionIdFuture)); // TODO: what if server couldn't be started with port.
         try {
             return connectionIdFuture.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -127,7 +131,9 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void startGame() {
-        if (this.gameId == null) { return; }
+        if (this.gameId == null) {
+            return;
+        }
         this.sendCommand("start_game", this.gameId);
     }
 
@@ -176,9 +182,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
         return ticTacToe.getGrid();
     }
 
-    /**
-     * End the current game.
-     */
+    /** End the current game. */
     public void endGame() {
         sendCommand("gameid", "end_game"); // TODO: Command is a bit wrong.
     }
@@ -187,14 +191,25 @@ public class LocalTicTacToe { // TODO: Implement runnable
      * @param moveIndex The index of the move to make.
      */
     public void move(int moveIndex) {
-        this.executor.submit(() -> {
-            try {
-                if      (this.playersTurn == 0 && !isAiPlayer[0]) { this.moveQueuePlayerA.put(moveIndex); logger.info("Adding player's {}, move: {}", this.playersTurn, moveIndex); }
-                else if (this.playersTurn == 1 && !isAiPlayer[1]) { this.moveQueuePlayerB.put(moveIndex); logger.info("Adding player's {}, move: {}", this.playersTurn, moveIndex); }
-            } catch (InterruptedException e) {
-                logger.error("Could not add player: {}'s, move {}", this.playersTurn, moveIndex); // TODO: Error handling instead of crash.
-            }
-        });
+        this.executor.submit(
+                () -> {
+                    try {
+                        if (this.playersTurn == 0 && !isAiPlayer[0]) {
+                            this.moveQueuePlayerA.put(moveIndex);
+                            logger.info(
+                                    "Adding player's {}, move: {}", this.playersTurn, moveIndex);
+                        } else if (this.playersTurn == 1 && !isAiPlayer[1]) {
+                            this.moveQueuePlayerB.put(moveIndex);
+                            logger.info(
+                                    "Adding player's {}, move: {}", this.playersTurn, moveIndex);
+                        }
+                    } catch (InterruptedException e) {
+                        logger.error(
+                                "Could not add player: {}'s, move {}",
+                                this.playersTurn,
+                                moveIndex); // TODO: Error handling instead of crash.
+                    }
+                });
     }
 
     private void endTheGame() {
@@ -208,7 +223,11 @@ public class LocalTicTacToe { // TODO: Implement runnable
         }
 
         try {
-            logger.info("Received message from " + this.connectionId + ": " + receivedMessage.message());
+            logger.info(
+                    "Received message from "
+                            + this.connectionId
+                            + ": "
+                            + receivedMessage.message());
             this.receivedQueue.put(receivedMessage.message());
         } catch (InterruptedException e) {
             logger.error("Error waiting for received Message", e);

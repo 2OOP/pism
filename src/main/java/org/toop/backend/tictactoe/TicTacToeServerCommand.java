@@ -6,13 +6,9 @@ public enum TicTacToeServerCommand {
     CREATE_GAME,
     START_GAME,
     END_GAME,
-    /**
-     * Login, "username"
-     */
+    /** Login, "username" */
     LOGIN,
-    /**
-     * Logout, "username"
-     */
+    /** Logout, "username" */
     LOGOUT,
     EXIT,
     QUIT,
@@ -26,13 +22,21 @@ public enum TicTacToeServerCommand {
     MESSAGE,
     HELP;
 
-    private static final EnumSet<TicTacToeServerCommand> VALID_COMMANDS = EnumSet.of(
-        TicTacToeServerCommand.LOGIN,     TicTacToeServerCommand.LOGOUT,     TicTacToeServerCommand.EXIT,
-        TicTacToeServerCommand.QUIT,      TicTacToeServerCommand.DISCONNECT, TicTacToeServerCommand.BYE,
-        TicTacToeServerCommand.GET,       TicTacToeServerCommand.SUBSCRIBE,  TicTacToeServerCommand.MOVE,
-        TicTacToeServerCommand.CHALLENGE, TicTacToeServerCommand.FORFEIT,
-        TicTacToeServerCommand.MESSAGE,   TicTacToeServerCommand.HELP
-    );
+    private static final EnumSet<TicTacToeServerCommand> VALID_COMMANDS =
+            EnumSet.of(
+                    TicTacToeServerCommand.LOGIN,
+                    TicTacToeServerCommand.LOGOUT,
+                    TicTacToeServerCommand.EXIT,
+                    TicTacToeServerCommand.QUIT,
+                    TicTacToeServerCommand.DISCONNECT,
+                    TicTacToeServerCommand.BYE,
+                    TicTacToeServerCommand.GET,
+                    TicTacToeServerCommand.SUBSCRIBE,
+                    TicTacToeServerCommand.MOVE,
+                    TicTacToeServerCommand.CHALLENGE,
+                    TicTacToeServerCommand.FORFEIT,
+                    TicTacToeServerCommand.MESSAGE,
+                    TicTacToeServerCommand.HELP);
 
     public static EnumSet<TicTacToeServerCommand> getValidCommands() {
         return VALID_COMMANDS;
@@ -65,5 +69,4 @@ public enum TicTacToeServerCommand {
         }
         return null;
     }
-
 }

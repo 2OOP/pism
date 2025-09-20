@@ -1,3 +1,4 @@
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -5,11 +6,7 @@ import org.toop.game.GameBase;
 import org.toop.game.tictactoe.MinMaxTicTacToe;
 import org.toop.game.tictactoe.TicTacToe;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * Unit tests for MinMaxTicTacToe AI.
- */
+/** Unit tests for MinMaxTicTacToe AI. */
 public class MinMaxTicTacToeTest {
 
     private MinMaxTicTacToe ai;
@@ -28,11 +25,18 @@ public class MinMaxTicTacToeTest {
         // X | X | .
         // O | O | .
         // . | . | .
-        game.grid = new char[]{
-                'X', 'X', GameBase.EMPTY,
-                'O', 'O', GameBase.EMPTY,
-                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
-        };
+        game.grid =
+                new char[] {
+                    'X',
+                    'X',
+                    GameBase.EMPTY,
+                    'O',
+                    'O',
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY
+                };
         game.movesLeft = 4;
 
         int bestMove = ai.findBestMove(game);
@@ -47,11 +51,18 @@ public class MinMaxTicTacToeTest {
         // O | O | .
         // X | . | .
         // . | . | .
-        game.grid = new char[]{
-                'O', 'O', GameBase.EMPTY,
-                'X', GameBase.EMPTY, GameBase.EMPTY,
-                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
-        };
+        game.grid =
+                new char[] {
+                    'O',
+                    'O',
+                    GameBase.EMPTY,
+                    'X',
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY
+                };
 
         int bestMove = ai.findBestMove(game);
 
@@ -71,11 +82,18 @@ public class MinMaxTicTacToeTest {
     void testDoMinimaxScoresWinPositive() {
         // Simulate a game state where AI has already won
         TicTacToe copy = game.copyBoard();
-        copy.grid = new char[]{
-                'X', 'X', 'X',
-                'O', 'O', GameBase.EMPTY,
-                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
-        };
+        copy.grid =
+                new char[] {
+                    'X',
+                    'X',
+                    'X',
+                    'O',
+                    'O',
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY
+                };
 
         int score = ai.doMinimax(copy, 5, false);
 
@@ -86,11 +104,18 @@ public class MinMaxTicTacToeTest {
     void testDoMinimaxScoresLossNegative() {
         // Simulate a game state where human has already won
         TicTacToe copy = game.copyBoard();
-        copy.grid = new char[]{
-                'O', 'O', 'O',
-                'X', 'X', GameBase.EMPTY,
-                GameBase.EMPTY, GameBase.EMPTY, GameBase.EMPTY
-        };
+        copy.grid =
+                new char[] {
+                    'O',
+                    'O',
+                    'O',
+                    'X',
+                    'X',
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY,
+                    GameBase.EMPTY
+                };
 
         int score = ai.doMinimax(copy, 5, true);
 
@@ -101,11 +126,12 @@ public class MinMaxTicTacToeTest {
     void testDoMinimaxDrawReturnsZero() {
         // Simulate a draw position
         TicTacToe copy = game.copyBoard();
-        copy.grid = new char[]{
-                'X', 'O', 'X',
-                'X', 'O', 'O',
-                'O', 'X', 'X'
-        };
+        copy.grid =
+                new char[] {
+                    'X', 'O', 'X',
+                    'X', 'O', 'O',
+                    'O', 'X', 'X'
+                };
 
         int score = ai.doMinimax(copy, 0, true);
 

@@ -1,9 +1,5 @@
 package org.toop.backend;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.toop.backend.tictactoe.ParsedCommand;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,18 +8,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.backend.tictactoe.ParsedCommand;
 
 /**
  * Lightweight, thread-pool based TCP server base class.
  *
- * Responsibilities:
- * - accept sockets
- * - hand off socket I/O to connectionExecutor (pooled threads)
- * - provide thread-safe queues (receivedQueue / sendQueue) to subclasses
+ * <p>Responsibilities: - accept sockets - hand off socket I/O to connectionExecutor (pooled
+ * threads) - provide thread-safe queues (receivedQueue / sendQueue) to subclasses
  *
- * Notes:
- * - Subclasses should consume receivedQueue (or call getNewestCommand()) and
- *   use sendQueue to send messages to all clients (or per-client, if implemented).
+ * <p>Notes: - Subclasses should consume receivedQueue (or call getNewestCommand()) and use
+ * sendQueue to send messages to all clients (or per-client, if implemented).
  */
 public abstract class TcpServer implements Runnable {
 
@@ -58,8 +54,8 @@ public abstract class TcpServer implements Runnable {
     }
 
     /**
-     * Default run: accept connections and hand off to connectionExecutor.
-     * Subclasses overriding run() should still call startWorkers(Socket) for each accepted socket.
+     * Default run: accept connections and hand off to connectionExecutor. Subclasses overriding
+     * run() should still call startWorkers(Socket) for each accepted socket.
      */
     @Override
     public void run() {
@@ -81,80 +77,112 @@ public abstract class TcpServer implements Runnable {
     }
 
     /**
-     * Listen/Write workers for an accepted client socket.
-     * This method submits two tasks to the connectionExecutor:
-     *  - inputLoop: reads lines and enqueues them to receivedQueue
-     *  - outputLoop: polls sendQueue and writes messages to the client
+     * Listen/Write workers for an accepted client socket. This method submits two tasks to the
+     * connectionExecutor: - inputLoop: reads lines and enqueues them to receivedQueue - outputLoop:
+     * polls sendQueue and writes messages to the client
      *
-     * Note: This is a simple model where sendQueue is global; if you need per-client
+     * <p>Note: This is a simple model where sendQueue is global; if you need per-client
      * send-queues, adapt this method to use one per socket.
      */
     protected void startWorkers(Socket clientSocket) {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            BufferedReader in =
+                    new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 
             // Input task: read lines and put them on receivedQueue
-            Runnable inputTask = () -> {
-                logger.info("Starting read loop for {}", clientSocket.getRemoteSocketAddress());
-                try {
-                    String line;
-                    while (running && (line = in.readLine()) != null) {
-                        if (line.isEmpty()) continue;
-                        logger.debug("Received from {}: {}", clientSocket.getRemoteSocketAddress(), line);
+            Runnable inputTask =
+                    () -> {
+                        logger.info(
+                                "Starting read loop for {}", clientSocket.getRemoteSocketAddress());
+                        try {
+                            String line;
+                            while (running && (line = in.readLine()) != null) {
+                                if (line.isEmpty()) continue;
+                                logger.debug(
+                                        "Received from {}: {}",
+                                        clientSocket.getRemoteSocketAddress(),
+                                        line);
 
-                        boolean offered = false;
-                        for (int i = 0; i < RETRY_ATTEMPTS && !offered; i++) {
-                            try {
-                                // Use offer to avoid blocking indefinitely; adapt timeout/policy as needed
-                                offered = this.receivedQueue.offer(line, 200, TimeUnit.MILLISECONDS);
-                            } catch (InterruptedException ie) {
-                                Thread.currentThread().interrupt();
-                                break;
+                                boolean offered = false;
+                                for (int i = 0; i < RETRY_ATTEMPTS && !offered; i++) {
+                                    try {
+                                        // Use offer to avoid blocking indefinitely; adapt
+                                        // timeout/policy as needed
+                                        offered =
+                                                this.receivedQueue.offer(
+                                                        line, 200, TimeUnit.MILLISECONDS);
+                                    } catch (InterruptedException ie) {
+                                        Thread.currentThread().interrupt();
+                                        break;
+                                    }
+                                }
+
+                                if (!offered) {
+                                    logger.warn(
+                                            "Backpressure: dropping line from {}: {}",
+                                            clientSocket.getRemoteSocketAddress(),
+                                            line);
+                                    // Policy choice: drop, notify, or close connection. We drop
+                                    // here.
+                                }
                             }
+                        } catch (IOException e) {
+                            logger.info(
+                                    "Connection closed by remote: {}",
+                                    clientSocket.getRemoteSocketAddress());
+                        } finally {
+                            try {
+                                clientSocket.close();
+                            } catch (IOException ignored) {
+                            }
+                            logger.info(
+                                    "Stopped read loop for {}",
+                                    clientSocket.getRemoteSocketAddress());
                         }
-
-                        if (!offered) {
-                            logger.warn("Backpressure: dropping line from {}: {}", clientSocket.getRemoteSocketAddress(), line);
-                            // Policy choice: drop, notify, or close connection. We drop here.
-                        }
-                    }
-                } catch (IOException e) {
-                    logger.info("Connection closed by remote: {}", clientSocket.getRemoteSocketAddress());
-                } finally {
-                    try {
-                        clientSocket.close();
-                    } catch (IOException ignored) {}
-                    logger.info("Stopped read loop for {}", clientSocket.getRemoteSocketAddress());
-                }
-            };
+                    };
 
             // Output task: poll global sendQueue and write to this specific client.
-            // NOTE: With a single global sendQueue, every message is sent to every connected client.
+            // NOTE: With a single global sendQueue, every message is sent to every connected
+            // client.
             // If you want per-client sends, change this to use per-client queue map.
-            Runnable outputTask = () -> {
-                logger.info("Starting write loop for {}", clientSocket.getRemoteSocketAddress());
-                try {
-                    while (running && !clientSocket.isClosed()) {
-                        String msg = sendQueue.poll(WAIT_TIME, TimeUnit.MILLISECONDS);
-                        if (msg != null) {
-                            out.println(msg);
-                            out.flush();
-                            logger.debug("Sent to {}: {}", clientSocket.getRemoteSocketAddress(), msg);
+            Runnable outputTask =
+                    () -> {
+                        logger.info(
+                                "Starting write loop for {}",
+                                clientSocket.getRemoteSocketAddress());
+                        try {
+                            while (running && !clientSocket.isClosed()) {
+                                String msg = sendQueue.poll(WAIT_TIME, TimeUnit.MILLISECONDS);
+                                if (msg != null) {
+                                    out.println(msg);
+                                    out.flush();
+                                    logger.debug(
+                                            "Sent to {}: {}",
+                                            clientSocket.getRemoteSocketAddress(),
+                                            msg);
+                                }
+                            }
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            logger.info(
+                                    "Writer interrupted for {}",
+                                    clientSocket.getRemoteSocketAddress());
+                        } catch (Exception e) {
+                            logger.error(
+                                    "Writer error for {}: {}",
+                                    clientSocket.getRemoteSocketAddress(),
+                                    e.toString());
+                        } finally {
+                            try {
+                                clientSocket.close();
+                            } catch (IOException ignored) {
+                            }
+                            logger.info(
+                                    "Stopped write loop for {}",
+                                    clientSocket.getRemoteSocketAddress());
                         }
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    logger.info("Writer interrupted for {}", clientSocket.getRemoteSocketAddress());
-                } catch (Exception e) {
-                    logger.error("Writer error for {}: {}", clientSocket.getRemoteSocketAddress(), e.toString());
-                } finally {
-                    try {
-                        clientSocket.close();
-                    } catch (IOException ignored) {}
-                    logger.info("Stopped write loop for {}", clientSocket.getRemoteSocketAddress());
-                }
-            };
+                    };
 
             // Input and Output mappings
             connectionExecutor.submit(inputTask);
@@ -164,13 +192,14 @@ public abstract class TcpServer implements Runnable {
             logger.error("Could not start workers for client: {}", e.toString());
             try {
                 clientSocket.close();
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
     }
 
     /**
-     * Convenience: wrapper to obtain the latest command (non-blocking poll).
-     * Subclasses can use this, but for blocking behavior consider using receivedQueue.take()
+     * Convenience: wrapper to obtain the latest command (non-blocking poll). Subclasses can use
+     * this, but for blocking behavior consider using receivedQueue.take()
      */
     protected ParsedCommand getNewestCommand() {
         try {
@@ -183,19 +212,20 @@ public abstract class TcpServer implements Runnable {
         return null;
     }
 
-    /**
-     * Stop server and cleanup executors/sockets.
-     */
+    /** Stop server and cleanup executors/sockets. */
     public void stop() {
         running = false;
 
         try {
             serverSocket.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         connectionExecutor.shutdownNow();
 
-        logger.info("TcpServer stopped. receivedQueue size={}, sendQueue size={}",
-                receivedQueue.size(), sendQueue.size());
+        logger.info(
+                "TcpServer stopped. receivedQueue size={}, sendQueue size={}",
+                receivedQueue.size(),
+                sendQueue.size());
     }
 }

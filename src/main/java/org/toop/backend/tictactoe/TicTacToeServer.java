@@ -1,21 +1,21 @@
 package org.toop.backend.tictactoe;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.toop.game.tictactoe.TicTacToe;
-import org.toop.backend.TcpServer;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.backend.TcpServer;
+import org.toop.game.tictactoe.TicTacToe;
 
 public class TicTacToeServer extends TcpServer {
 
     protected static final Logger logger = LogManager.getLogger(TicTacToeServer.class);
 
-    private final ExecutorService connectionExecutor = Executors.newCachedThreadPool(); // socket I/O
+    private final ExecutorService connectionExecutor =
+            Executors.newCachedThreadPool(); // socket I/O
     private final ExecutorService dispatcherExecutor;
     private final ExecutorService forwarderExecutor = Executors.newSingleThreadExecutor();
 
@@ -26,7 +26,9 @@ public class TicTacToeServer extends TcpServer {
         super(port);
 
         int dispatchers = Math.max(2, Runtime.getRuntime().availableProcessors());
-        this.dispatcherExecutor = Executors.newFixedThreadPool(dispatchers + 1); // TODO: Magic number for forwardMessages
+        this.dispatcherExecutor =
+                Executors.newFixedThreadPool(
+                        dispatchers + 1); // TODO: Magic number for forwardMessages
         this.incomingCommands = new LinkedBlockingQueue<>(5_000);
 
         forwarderExecutor.submit(this::forwardLoop);
@@ -52,9 +54,7 @@ public class TicTacToeServer extends TcpServer {
         }
     }
 
-    /**
-     * Forwards raw messages from TcpServer.receivedQueue into ParsedCommand objects.
-     */
+    /** Forwards raw messages from TcpServer.receivedQueue into ParsedCommand objects. */
     private void forwardLoop() {
         logger.info("Forwarder loop started");
         try {
@@ -74,9 +74,7 @@ public class TicTacToeServer extends TcpServer {
         }
     }
 
-    /**
-     * Dispatches parsed commands into the game logic.
-     */
+    /** Dispatches parsed commands into the game logic. */
     private void dispatchLoop() {
         logger.info("Dispatcher thread started");
         try {
@@ -91,9 +89,13 @@ public class TicTacToeServer extends TcpServer {
                 TicTacToe game = this.games.get(command.gameId);
                 if (game != null) {
                     game.addCommandToQueue(command);
-                    logger.info("Dispatched command {} to game {}", command.toString(), command.gameId);
+                    logger.info(
+                            "Dispatched command {} to game {}", command.toString(), command.gameId);
                 } else {
-                    logger.warn("No active game with ID {} for command {}", command.gameId, command.toString());
+                    logger.warn(
+                            "No active game with ID {} for command {}",
+                            command.gameId,
+                            command.toString());
                     // TODO: reply back
                 }
             }
@@ -109,12 +111,18 @@ public class TicTacToeServer extends TcpServer {
         }
 
         if (command.command == TicTacToeServerCommand.CREATE_GAME) {
-            String gameId = this.newGame((String) command.arguments.getFirst(), (String) command.arguments.get(1));
+            String gameId =
+                    this.newGame(
+                            (String) command.arguments.getFirst(),
+                            (String) command.arguments.get(1));
             this.sendQueue.offer("game created successfully|gameid " + gameId);
         } else if (command.command == TicTacToeServerCommand.START_GAME) {
             boolean success = this.runGame((String) command.arguments.getFirst());
-            if (success) {this.sendQueue.offer("svr game is running successfully");}
-            else {this.sendQueue.offer("svr running game failed");}
+            if (success) {
+                this.sendQueue.offer("svr game is running successfully");
+            } else {
+                this.sendQueue.offer("svr running game failed");
+            }
         } else if (command.command == TicTacToeServerCommand.END_GAME) {
             this.endGame((String) command.arguments.getFirst());
             this.sendQueue.offer("svr game ended successfully");
@@ -128,17 +136,21 @@ public class TicTacToeServer extends TcpServer {
     }
 
     public void forwardGameMessages(TicTacToe game) {
-        dispatcherExecutor.submit(() -> {
-            try {
-                while (isRunning()) {
-                    String msg = game.sendQueue.take(); // blocks until a message is added to the queue
-                    logger.info("Games: {}, Adding: {} to the send queue", game.gameId, msg);
-                    this.sendQueue.put(msg); // push to network layer
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+        dispatcherExecutor.submit(
+                () -> {
+                    try {
+                        while (isRunning()) {
+                            String msg =
+                                    game.sendQueue
+                                            .take(); // blocks until a message is added to the queue
+                            logger.info(
+                                    "Games: {}, Adding: {} to the send queue", game.gameId, msg);
+                            this.sendQueue.put(msg); // push to network layer
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                });
     }
 
     public String newGame(String playerA, String playerB) {

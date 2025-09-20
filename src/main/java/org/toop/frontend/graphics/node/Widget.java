@@ -1,49 +1,48 @@
 package org.toop.frontend.graphics.node;
 
+import java.util.*;
 import org.toop.frontend.math.Bounds;
 
-import java.util.*;
-
 public class Widget {
-	Bounds bounds;
-	private ArrayList<Node> nodes;
+    Bounds bounds;
+    private ArrayList<Node> nodes;
 
-	public Widget(Bounds bounds) {
-		this.bounds = bounds;
-		nodes = new ArrayList<Node>();
-	}
+    public Widget(Bounds bounds) {
+        this.bounds = bounds;
+        nodes = new ArrayList<Node>();
+    }
 
-	public boolean check(int x, int y) {
-		return bounds.check(x, y);
-	}
+    public boolean check(int x, int y) {
+        return bounds.check(x, y);
+    }
 
-	public void add(Node node) {
-		nodes.add(node);
-	}
+    public void add(Node node) {
+        nodes.add(node);
+    }
 
-	public boolean hover(int x, int y) {
-		for (int i = 0; i < nodes.size(); i++) {
-			Node node = nodes.get(i);
+    public boolean hover(int x, int y) {
+        for (int i = 0; i < nodes.size(); i++) {
+            Node node = nodes.get(i);
 
-			if (node.check(x, y)) {
-				node.hover();
-				return true;
-			}
-		}
+            if (node.check(x, y)) {
+                node.hover();
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public boolean click(int x, int y) {
-		for (int i = 0; i < nodes.size(); i++) {
-			Node node = nodes.get(i);
+    public boolean click(int x, int y) {
+        for (int i = 0; i < nodes.size(); i++) {
+            Node node = nodes.get(i);
 
-			if (node.check(x, y)) {
-				node.click();
-				return true;
-			}
-		}
+            if (node.check(x, y)) {
+                node.click();
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

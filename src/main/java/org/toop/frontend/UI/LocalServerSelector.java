@@ -18,7 +18,6 @@ public class LocalServerSelector {
 
         serverButton.addActionListener(e -> onServerClicked());
         localButton.addActionListener(e -> onLocalClicked());
-        
     }
 
     private void onServerClicked() {
@@ -30,5 +29,4 @@ public class LocalServerSelector {
         frame.dispose();
         new LocalGameSelector();
     }
-
 }

@@ -7,9 +7,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
-/**
- * A simple wrapper for creating TCP clients.
- */
+/** A simple wrapper for creating TCP clients. */
 public abstract class TcpClient {
 
     InetAddress serverAddress;
@@ -61,5 +59,4 @@ public abstract class TcpClient {
     public void close() throws IOException {
         this.socket.close();
     }
-
 }

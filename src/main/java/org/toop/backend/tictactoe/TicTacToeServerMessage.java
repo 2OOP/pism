@@ -7,9 +7,11 @@ public enum TicTacToeServerMessage {
     ERR,
     SVR;
 
-    private static final EnumSet<TicTacToeServerMessage> VALID_COMMANDS = EnumSet.of(
-        TicTacToeServerMessage.OK,     TicTacToeServerMessage.ERR,     TicTacToeServerMessage.SVR
-    );
+    private static final EnumSet<TicTacToeServerMessage> VALID_COMMANDS =
+            EnumSet.of(
+                    TicTacToeServerMessage.OK,
+                    TicTacToeServerMessage.ERR,
+                    TicTacToeServerMessage.SVR);
 
     public static EnumSet<TicTacToeServerMessage> getValidCommands() {
         return VALID_COMMANDS;
@@ -41,5 +43,4 @@ public enum TicTacToeServerMessage {
         }
         return null;
     }
-
 }

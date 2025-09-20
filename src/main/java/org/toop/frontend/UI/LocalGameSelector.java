@@ -1,16 +1,10 @@
 package org.toop.frontend.UI;
 
+import java.awt.*;
+import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.eventbus.Events;
-import org.toop.eventbus.GlobalEventBus;
 import org.toop.frontend.games.LocalTicTacToe;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 
 public class LocalGameSelector extends JFrame {
     private static final Logger logger = LogManager.getLogger(LocalGameSelector.class);
@@ -20,7 +14,7 @@ public class LocalGameSelector extends JFrame {
     private JButton startGame;
     private JComboBox playerTypeSelectionBox;
 
-    private JPanel cards;        // CardLayout panel
+    private JPanel cards; // CardLayout panel
     private CardLayout cardLayout;
 
     private UIGameBoard tttBoard;
@@ -70,14 +64,14 @@ public class LocalGameSelector extends JFrame {
 
         if (playerTypes.equals("Player vs Player")) {
             logger.info("Player vs Player");
-            lttt = LocalTicTacToe.createLocal(new boolean[] { false, false });
+            lttt = LocalTicTacToe.createLocal(new boolean[] {false, false});
         } else {
             if (playerTypes.equals("Player vs AI")) {
                 logger.info("Player vs AI");
-                lttt = LocalTicTacToe.createLocal(new boolean[] { false, true });
+                lttt = LocalTicTacToe.createLocal(new boolean[] {false, true});
             } else {
                 logger.info("AI vs Player");
-                lttt = LocalTicTacToe.createLocal(new boolean[] { true, false });
+                lttt = LocalTicTacToe.createLocal(new boolean[] {true, false});
             }
         }
 

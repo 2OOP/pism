@@ -135,9 +135,9 @@
 						<!-- apply a specific flavor of google-java-format and reflow long strings -->
 						<googleJavaFormat>
 							<version>1.28.0</version>
-							<style>AOSP</style>
+							<style>AOSP</style> <!-- GOOGLE (2 indents), AOSP (4 indents) -->
 							<reflowLongStrings>true</reflowLongStrings>
-							<formatJavadoc>false</formatJavadoc>
+							<formatJavadoc>true</formatJavadoc>
 						</googleJavaFormat>
 
 						<!-- make sure every file has the following copyright header.

@@ -1,18 +1,14 @@
 package org.toop.frontend.UI;
 
-import org.toop.eventbus.Events;
-import org.toop.eventbus.GlobalEventBus;
-import org.toop.frontend.games.LocalTicTacToe;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.Objects;
+import javax.swing.*;
+import org.toop.frontend.games.LocalTicTacToe;
 
 public class UIGameBoard {
     private static final int TICTACTOE_SIZE = 3;
 
-    private JPanel tttPanel;                  // Root panel for this game
+    private JPanel tttPanel; // Root panel for this game
     private JButton backToMainMenuButton;
     private JButton[] cells;
     private String currentPlayer = "X";
@@ -32,20 +28,20 @@ public class UIGameBoard {
         // Back button
         backToMainMenuButton = new JButton("Back to Main Menu");
         tttPanel.add(backToMainMenuButton, BorderLayout.SOUTH);
-        backToMainMenuButton.addActionListener(e ->
-                // TODO reset game and connections
-                parent.showMainMenu()
-        );
+        backToMainMenuButton.addActionListener(
+                _ ->
+                        // TODO reset game and connections
+                        parent.showMainMenu());
 
         // Game grid
         JPanel gameGrid = createGridPanel(TICTACTOE_SIZE, TICTACTOE_SIZE);
         tttPanel.add(gameGrid, BorderLayout.CENTER);
 
-//        localTicTacToe.setMoveListener((playerIndex, moveIndex, symbol) -> {
-//            SwingUtilities.invokeLater(() -> {
-//                cells[moveIndex].setText(String.valueOf(symbol));
-//            });
-//        });
+        //        localTicTacToe.setMoveListener((playerIndex, moveIndex, symbol) -> {
+        //            SwingUtilities.invokeLater(() -> {
+        //                cells[moveIndex].setText(String.valueOf(symbol));
+        //            });
+        //        });
 
     }
 
@@ -59,18 +55,25 @@ public class UIGameBoard {
             panel.add(cells[i]);
 
             final int index = i;
-            cells[i].addActionListener((ActionEvent e) -> {
-                int cp = this.localTicTacToe.getCurrentPlayersTurn();
-                if      (cp == 0) { this.currentPlayer = "X"; currentPlayerIndex = 0; }
-                else if (cp == 1) { this.currentPlayer = "O"; currentPlayerIndex = 1; }
-                this.localTicTacToe.move(index);
-                cells[index].setText(currentPlayer);
-            });
+            cells[i].addActionListener(
+                    (ActionEvent _) -> {
+                        int cp = this.localTicTacToe.getCurrentPlayersTurn();
+                        if (cp == 0) {
+                            this.currentPlayer = "X";
+                            currentPlayerIndex = 0;
+                        } else if (cp == 1) {
+                            this.currentPlayer = "O";
+                            currentPlayerIndex = 1;
+                        }
+                        this.localTicTacToe.move(index);
+                        cells[index].setText(currentPlayer);
+                    });
         }
 
         return panel;
     }
-    public void setCell(int index, String move){
+
+    public void setCell(int index, String move) {
         System.out.println(cells[index].getText());
         cells[index].setText(move);
     }
