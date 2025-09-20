@@ -13,6 +13,7 @@ public class LocalGameSelector extends JFrame {
     private JComboBox gameSelectionComboBox;
     private JButton startGame;
     private JComboBox playerTypeSelectionBox;
+    private JButton deleteSave;
 
     private JPanel cards; // CardLayout panel
     private CardLayout cardLayout;
@@ -47,6 +48,11 @@ public class LocalGameSelector extends JFrame {
 
         startGame = new JButton("Start Game");
         panel1.add(startGame);
+
+        deleteSave = new JButton("Delete Save");
+        panel1.add(deleteSave);
+        deleteSave.setEnabled(false);
+        deleteSave.addActionListener(e -> {tttBoard = null; deleteSave.setEnabled(false);});
 
         cards.add(panel1, "MainMenu");
 
@@ -86,5 +92,10 @@ public class LocalGameSelector extends JFrame {
 
     public void showMainMenu() {
         cardLayout.show(cards, "MainMenu");
+        gameSelectionComboBox.setSelectedIndex(0);
+        playerTypeSelectionBox.setSelectedIndex(0);
+        if (tttBoard  != null) {
+            deleteSave.setEnabled(true);
+        }
     }
 }

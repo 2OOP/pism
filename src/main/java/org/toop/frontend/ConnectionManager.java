@@ -40,6 +40,9 @@ public class ConnectionManager {
     private String startConnectionRequest(String ip, String port) {
         String connectionId = UUID.randomUUID().toString();
         try {
+            if (!port.matches("[0-9]+")) {
+                port = "0000";
+            }
             ServerConnection connection = new ServerConnection(connectionId, ip, port);
             this.serverConnections.put(connectionId, connection);
             new Thread(connection, "Connection-" + connectionId).start();

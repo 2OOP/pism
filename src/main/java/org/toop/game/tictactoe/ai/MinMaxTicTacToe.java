@@ -27,8 +27,14 @@ public class MinMaxTicTacToe {
             }
         }
 
-        if (empty && game.validateMove(4)) {
-            return 0;
+        if (empty) { //start in a random corner
+            return switch ((int) (Math.random() * 4)) {
+                case 0 -> 0;
+                case 1 -> 2;
+                case 2 -> 6;
+                case 3 -> 8;
+                default -> 0;
+            };
         }
 
         // simulate all possible moves on the field

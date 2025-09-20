@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
+import org.toop.frontend.games.LocalTicTacToe;
 
 public class RemoteGameSelector {
     private static final Logger logger = LogManager.getLogger(RemoteGameSelector.class);
@@ -24,6 +25,8 @@ public class RemoteGameSelector {
     private JPanel gameSelector;
     private JFrame frame;
     private JLabel fillAllFields;
+
+    private LocalTicTacToe localTicTacToe;
 
     public RemoteGameSelector() {
         gameSelectorBox.addItem("Tic Tac Toe");
@@ -122,9 +125,9 @@ public class RemoteGameSelector {
                         //                } // TODO: Better error handling to not crash the system.
 
                         frame.remove(mainMenu);
-                        //                UIGameBoard ttt = new UIGameBoard("tic tac toe", "test",
-                        // "test",this); // TODO: Fix later
-                        //                frame.add(ttt.getTTTPanel()); // TODO: Fix later
+                        localTicTacToe = LocalTicTacToe.createRemote(ipTextField.getText(), portTextField.getText());
+                        UIGameBoard ttt = new UIGameBoard(localTicTacToe, this); // TODO: Fix later
+                        frame.add(ttt.getTTTPanel()); // TODO: Fix later
                         frame.revalidate();
                         frame.repaint();
                     } else {
@@ -133,7 +136,7 @@ public class RemoteGameSelector {
                 });
     }
 
-    public void returnToMainMenu() {
+    public void showMainMenu() {
         frame.removeAll();
         frame.add(mainMenu);
         frame.revalidate();

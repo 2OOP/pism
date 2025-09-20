@@ -21,7 +21,7 @@ public final class ServerConnection extends TcpClient implements Runnable {
     volatile boolean running = false;
 
     public ServerConnection(String uuid, String ip, String port) throws IOException {
-        super(ip, Integer.parseInt(port)); // TODO: Verify if port is integer first, to avoid crash.
+        super(ip, Integer.parseInt(port));
         this.uuid = uuid;
         this.initEvents();
     }

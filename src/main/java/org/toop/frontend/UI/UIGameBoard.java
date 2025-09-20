@@ -20,10 +20,20 @@ public class UIGameBoard {
     private String currentPlayer = "X";
     private int currentPlayerIndex = 0;
 
-    private LocalGameSelector parentSelector;
+    private Object parentSelector;
+    private boolean parentLocal;
     private LocalTicTacToe localTicTacToe;
 
-    public UIGameBoard(LocalTicTacToe lttt, LocalGameSelector parent) {
+    private boolean gameOver = false;
+
+    public UIGameBoard(LocalTicTacToe lttt, Object parent) {
+        if (!(parent == null)) {
+            if  (parent instanceof LocalGameSelector) {
+                parentLocal = true;
+            } else if (parent instanceof RemoteGameSelector) {
+                parentLocal = false;
+            }
+        }
         this.parentSelector = parent;
         this.localTicTacToe = lttt;
         lttt.setUIReference(this);
@@ -35,9 +45,16 @@ public class UIGameBoard {
         backToMainMenuButton = new JButton("Back to Main Menu");
         tttPanel.add(backToMainMenuButton, BorderLayout.SOUTH);
         backToMainMenuButton.addActionListener(
-                _ ->
+                _ ->{
                         // TODO reset game and connections
-                        parent.showMainMenu());
+                        // Game now gets reset in local
+                        if(parentLocal) {
+                            ((LocalGameSelector)parent).showMainMenu();
+                        }
+                        else{
+                            ((RemoteGameSelector)parent).showMainMenu();
+                        }
+                });
 
         // Game grid
         JPanel gameGrid = createGridPanel(TICTACTOE_SIZE, TICTACTOE_SIZE);
@@ -63,20 +80,24 @@ public class UIGameBoard {
             final int index = i;
             cells[i].addActionListener(
                     (ActionEvent _) -> {
-                        if (cells[index].getText().equals(" ")) {
-                            int cp = this.localTicTacToe.getCurrentPlayersTurn();
-                            if (cp == 0) {
-                                this.currentPlayer = "X";
-                                currentPlayerIndex = 0;
-                            } else if (cp == 1) {
-                                this.currentPlayer = "O";
-                                currentPlayerIndex = 1;
+                        if(!gameOver) {
+                            if (cells[index].getText().equals(" ")) {
+                                int cp = this.localTicTacToe.getCurrentPlayersTurn();
+                                if (cp == 0) {
+                                    this.currentPlayer = "X";
+                                    currentPlayerIndex = 0;
+                                } else if (cp == 1) {
+                                    this.currentPlayer = "O";
+                                    currentPlayerIndex = 1;
+                                }
+                                this.localTicTacToe.move(index);
+                                cells[index].setText(currentPlayer);
                             }
-                            this.localTicTacToe.move(index);
-                            cells[index].setText(currentPlayer);
-                        }
-                        else{
-                            logger.info("Player " + currentPlayerIndex + " attempted invalid move at: " + cells[index].getText());
+                            else{
+                                logger.info("Player " + currentPlayerIndex + " attempted invalid move at: " + cells[index].getText());
+                            }
+                        }else {
+                            logger.info("Player " + currentPlayerIndex + " attempted to move after the game has ended.");
                         }
                     });
         }
@@ -96,11 +117,17 @@ public class UIGameBoard {
         else if (state == GameBase.State.WIN) {
             color = new Color(220,160,160);
         }
-        else{
+        else if (state == GameBase.State.DRAW){
             color = new Color(220,220,160);
+        }
+        else {
+            color = new Color(220,220,220);
         }
         for (JButton cell : cells) {
             cell.setBackground(color);
+        }
+        if (state == GameBase.State.DRAW || state == GameBase.State.WIN) {
+            gameOver = true;
         }
     }
 
