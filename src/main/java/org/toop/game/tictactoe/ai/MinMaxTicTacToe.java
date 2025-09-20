@@ -1,8 +1,9 @@
-package org.toop.game.tictactoe;
+package org.toop.game.tictactoe.ai;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.game.*;
+import org.toop.game.tictactoe.TicTacToe;
 
 public class MinMaxTicTacToe {
 
