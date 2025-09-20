@@ -142,22 +142,33 @@ public class LocalTicTacToe { // TODO: Implement runnable
         this.ticTacToe = new TicTacToe("X", "O");
         while (running) {
             try {
+                GameBase.State state;
                 if (!isAiPlayer[0]) {
-                    this.ticTacToe.play(this.moveQueuePlayerA.take());
+                    state = this.ticTacToe.play(this.moveQueuePlayerA.take());
                 } else {
                     int bestMove = aiPlayers[0].findBestMove(this.ticTacToe);
-                    if (this.ticTacToe.play(bestMove) != GameBase.State.INVALID) {
+                    state = this.ticTacToe.play(bestMove);
+                    if (state != GameBase.State.INVALID) {
                         ui.setCell(bestMove, "X");
                     }
                 }
+                if (state ==  GameBase.State.WIN || state ==  GameBase.State.DRAW) {
+                    ui.setState(state, "X");
+                    running = false;
+                }
                 this.setNextPlayersTurn();
                 if (!isAiPlayer[1]) {
-                    this.ticTacToe.play(this.moveQueuePlayerB.take());
+                    state = this.ticTacToe.play(this.moveQueuePlayerB.take());
                 } else {
                     int bestMove = aiPlayers[1].findBestMove(this.ticTacToe);
-                    if (this.ticTacToe.play(bestMove) != GameBase.State.INVALID) {
+                    state = this.ticTacToe.play(bestMove);
+                    if (state != GameBase.State.INVALID) {
                         ui.setCell(bestMove, "O");
                     }
+                }
+                if (state ==  GameBase.State.WIN || state ==  GameBase.State.DRAW) {
+                    ui.setState(state, "O");
+                    running = false;
                 }
                 this.setNextPlayersTurn();
             } catch (InterruptedException e) {

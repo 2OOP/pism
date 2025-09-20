@@ -3,10 +3,16 @@ package org.toop.frontend.UI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.frontend.games.LocalTicTacToe;
+import org.toop.game.tictactoe.GameBase;
 
 public class UIGameBoard {
     private static final int TICTACTOE_SIZE = 3;
+
+    private static final Logger logger = LogManager.getLogger(LocalGameSelector.class);
 
     private JPanel tttPanel; // Root panel for this game
     private JButton backToMainMenuButton;
@@ -57,16 +63,21 @@ public class UIGameBoard {
             final int index = i;
             cells[i].addActionListener(
                     (ActionEvent _) -> {
-                        int cp = this.localTicTacToe.getCurrentPlayersTurn();
-                        if (cp == 0) {
-                            this.currentPlayer = "X";
-                            currentPlayerIndex = 0;
-                        } else if (cp == 1) {
-                            this.currentPlayer = "O";
-                            currentPlayerIndex = 1;
+                        if (cells[index].getText().equals(" ")) {
+                            int cp = this.localTicTacToe.getCurrentPlayersTurn();
+                            if (cp == 0) {
+                                this.currentPlayer = "X";
+                                currentPlayerIndex = 0;
+                            } else if (cp == 1) {
+                                this.currentPlayer = "O";
+                                currentPlayerIndex = 1;
+                            }
+                            this.localTicTacToe.move(index);
+                            cells[index].setText(currentPlayer);
                         }
-                        this.localTicTacToe.move(index);
-                        cells[index].setText(currentPlayer);
+                        else{
+                            logger.info("Player " + currentPlayerIndex + " attempted invalid move at: " + cells[index].getText());
+                        }
                     });
         }
 
@@ -76,6 +87,21 @@ public class UIGameBoard {
     public void setCell(int index, String move) {
         System.out.println(cells[index].getText());
         cells[index].setText(move);
+    }
+    public void setState(GameBase.State state, String playerMove) {
+        Color color;
+        if (state == GameBase.State.WIN && playerMove.equals(currentPlayer)) {
+            color = new Color(160,220,160);
+        }
+        else if (state == GameBase.State.WIN) {
+            color = new Color(220,160,160);
+        }
+        else{
+            color = new Color(220,220,160);
+        }
+        for (JButton cell : cells) {
+            cell.setBackground(color);
+        }
     }
 
     public JPanel getTTTPanel() {

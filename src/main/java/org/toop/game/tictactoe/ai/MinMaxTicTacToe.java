@@ -28,7 +28,7 @@ public class MinMaxTicTacToe {
         }
 
         if (empty && game.validateMove(4)) {
-            return 4;
+            return 0;
         }
 
         // simulate all possible moves on the field
