@@ -40,11 +40,11 @@ public abstract class TcpClient {
         this.socket.close();
     }
 
-    private BufferedReader createIn() throws IOException {
+    BufferedReader createIn() throws IOException {
         return new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
     }
 
-    private PrintWriter createOut() throws IOException {
+    PrintWriter createOut() throws IOException {
         return new PrintWriter(this.socket.getOutputStream(), true);
     }
 

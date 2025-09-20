@@ -76,7 +76,7 @@ public final class ServerConnection extends TcpClient implements Runnable {
         this.executor.shutdownNow();
     }
 
-    private void inputLoop() {
+    void inputLoop() {
         logger.info("Starting {}:{} connection read", this.serverAddress, this.serverPort);
         try {
             while (running) {
@@ -96,7 +96,7 @@ public final class ServerConnection extends TcpClient implements Runnable {
         }
     }
 
-    private void outputLoop() {
+    void outputLoop() {
         logger.info("Starting {}:{} connection write", this.serverAddress, this.serverPort);
         try {
             while (this.running) {

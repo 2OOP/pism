@@ -202,6 +202,12 @@ public class ParsedCommand {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return this.originalCommand; // TODO: Maybe return more info.
+    }
+
     //
     //    public ParsedCommand parseCommand(String command) {
     //        return null;
