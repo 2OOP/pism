@@ -24,6 +24,7 @@ public class UIGameBoard {
     public UIGameBoard(LocalTicTacToe lttt, LocalGameSelector parent) {
         this.parentSelector = parent;
         this.localTicTacToe = lttt;
+        lttt.setUIReference(this);
 
         // Root panel
         tttPanel = new JPanel(new BorderLayout());
@@ -47,20 +48,24 @@ public class UIGameBoard {
 
         for (int i = 0; i < sizeX * sizeY; i++) {
             cells[i] = new JButton(" ");
-            cells[i].setFont(new Font("Arial", Font.BOLD, 100 / sizeX));
+            cells[i].setFont(new Font("Arial", Font.BOLD, 400 / sizeX));
             panel.add(cells[i]);
 
             final int index = i;
             cells[i].addActionListener((ActionEvent e) -> {
                 int cp = this.localTicTacToe.getCurrentPlayersTurn();
-                if      (cp == 1) { this.currentPlayer = "X"; currentPlayerIndex = 0; }
-                else if (cp == 2) { this.currentPlayer = "O"; currentPlayerIndex = 1; }
+                if      (cp == 0) { this.currentPlayer = "X"; currentPlayerIndex = 0; }
+                else if (cp == 1) { this.currentPlayer = "O"; currentPlayerIndex = 1; }
                 this.localTicTacToe.move(index);
                 cells[index].setText(currentPlayer);
             });
         }
 
         return panel;
+    }
+    public void setCell(int index, String move){
+        System.out.println(cells[index].getText());
+        cells[index].setText(move);
     }
 
     public JPanel getTTTPanel() {

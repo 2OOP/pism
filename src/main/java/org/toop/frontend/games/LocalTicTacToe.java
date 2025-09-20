@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
+import org.toop.frontend.UI.UIGameBoard;
+import org.toop.game.GameBase;
 import org.toop.game.tictactoe.MinMaxTicTacToe;
 import org.toop.game.tictactoe.TicTacToe;
 
@@ -32,6 +34,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
     private boolean isAiPlayer[] = new boolean[2];
     private MinMaxTicTacToe[] aiPlayers = new MinMaxTicTacToe[2];
     private TicTacToe ticTacToe;
+    private UIGameBoard ui;
 
 
     /**
@@ -136,13 +139,19 @@ public class LocalTicTacToe { // TODO: Implement runnable
                 if (!isAiPlayer[0]) {
                     this.ticTacToe.play(this.moveQueuePlayerA.take());
                 } else {
-                    this.ticTacToe.play(aiPlayers[0].findBestMove(this.ticTacToe));
+                    int bestMove = aiPlayers[0].findBestMove(this.ticTacToe);
+                    if (this.ticTacToe.play(bestMove) != GameBase.State.INVALID) {
+                        ui.setCell(bestMove, "X");
+                    }
                 }
                 this.setNextPlayersTurn();
                 if (!isAiPlayer[1]) {
                     this.ticTacToe.play(this.moveQueuePlayerB.take());
                 } else {
-                    this.ticTacToe.play(aiPlayers[1].findBestMove(this.ticTacToe));
+                    int bestMove = aiPlayers[1].findBestMove(this.ticTacToe);
+                    if (this.ticTacToe.play(bestMove) != GameBase.State.INVALID) {
+                        ui.setCell(bestMove, "O");
+                    }
                 }
                 this.setNextPlayersTurn();
             } catch (InterruptedException e) {
@@ -214,4 +223,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
         GlobalEventBus.unregister(this.receivedMessageListener);
     }
 
+    public void setUIReference(UIGameBoard uiGameBoard) {
+        this.ui = uiGameBoard;
+    }
 }
