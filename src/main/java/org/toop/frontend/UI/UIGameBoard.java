@@ -40,6 +40,13 @@ public class UIGameBoard {
         // Game grid
         JPanel gameGrid = createGridPanel(TICTACTOE_SIZE, TICTACTOE_SIZE);
         tttPanel.add(gameGrid, BorderLayout.CENTER);
+
+//        localTicTacToe.setMoveListener((playerIndex, moveIndex, symbol) -> {
+//            SwingUtilities.invokeLater(() -> {
+//                cells[moveIndex].setText(String.valueOf(symbol));
+//            });
+//        });
+
     }
 
     private JPanel createGridPanel(int sizeX, int sizeY) {
