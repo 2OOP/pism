@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.backend.tictactoe.ParsedCommand;
 import org.toop.backend.tictactoe.TicTacToeServerCommand;
-import org.toop.game.*;
 
 public class TicTacToe extends GameBase implements Runnable {
 
@@ -98,7 +97,7 @@ public class TicTacToe extends GameBase implements Runnable {
                         if (state != State.INVALID) {
                             // Tell all players who made a move and what move was made
                             // TODO: What is the reaction of the game? WIN, DRAW etc?
-                            String player = getCurrentPlayer().name();
+                            String player = getCurrentPlayer().getName();
                             addSendToQueue(
                                     "SVR GAME MOVE {PLAYER: \""
                                             + player
@@ -152,7 +151,7 @@ public class TicTacToe extends GameBase implements Runnable {
             return State.INVALID;
         }
 
-        grid[index] = getCurrentPlayer().move();
+        grid[index] = getCurrentPlayer().getSymbol();
         movesLeft--;
 
         if (checkWin()) {
@@ -214,7 +213,7 @@ public class TicTacToe extends GameBase implements Runnable {
 
     /** This method copies the board, mainly for AI use. */
     public TicTacToe copyBoard() {
-        TicTacToe clone = new TicTacToe(players[0].name(), players[1].name());
+        TicTacToe clone = new TicTacToe(players[0].getName(), players[1].getName());
         System.arraycopy(this.grid, 0, clone.grid, 0, this.grid.length);
         clone.movesLeft = this.movesLeft;
         clone.currentPlayer = this.currentPlayer;

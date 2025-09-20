@@ -1,4 +1,4 @@
-package org.toop.game;
+package org.toop.game.tictactoe;
 
 public abstract class GameBase {
     public enum State {

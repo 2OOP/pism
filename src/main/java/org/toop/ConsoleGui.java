@@ -5,11 +5,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.eventbus.*;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
-import org.toop.game.*;
 import org.toop.game.tictactoe.*;
+import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
 
 public class ConsoleGui {
 
@@ -147,12 +146,12 @@ public class ConsoleGui {
         Player current = game.getCurrentPlayer();
         int move = -1;
 
-        if (ai1 != null && current.name() == ai1 || ai2 != null && current.name() == ai2) {
+        if (ai1 != null && current.getName() == ai1 || ai2 != null && current.getName() == ai2) {
             move = ai.findBestMove(game);
         } else {
             System.out.printf(
                     "%s's (%c) turn. Please choose an empty cell between 0-8: ",
-                    current.name(), current.move());
+                    current.getName(), current.getSymbol());
             String input = scanner.nextLine();
 
             try {
@@ -180,7 +179,7 @@ public class ConsoleGui {
 
             case WIN:
                 {
-                    System.out.printf("%s has won the game.\n", current.name());
+                    System.out.printf("%s has won the game.\n", current.getName());
                     keepRunning = false;
                     break;
                 }
@@ -197,7 +196,7 @@ public class ConsoleGui {
                 new Events.ServerEvents.SendCommand(
                         connectionId,
                         "gameid " + ticTacToeGameId,
-                        "player " + current.name(),
+                        "player " + current.getName(),
                         "MOVE",
                         String.valueOf(move)));
 

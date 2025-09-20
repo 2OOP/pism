@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.game.GameBase;
+import org.toop.game.tictactoe.GameBase;
 import org.toop.game.tictactoe.TicTacToe;
 
 /** Unit tests for MinMaxTicTacToe AI. */
