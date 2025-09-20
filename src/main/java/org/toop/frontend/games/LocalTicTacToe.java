@@ -6,8 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.frontend.UI.UIGameBoard;
-import org.toop.game.GameBase;
-import org.toop.game.tictactoe.MinMaxTicTacToe;
+import org.toop.game.tictactoe.GameBase;
+import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
 import org.toop.game.tictactoe.TicTacToe;
 
 /**
