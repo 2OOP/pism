@@ -35,26 +35,26 @@ class BoundsTest {
     @Test
     void testCheckInsideBounds() {
         // Points inside the bounds
-        assertTrue(bounds.check(10, 20));      // top-left corner
-        assertTrue(bounds.check(110, 70));     // bottom-right corner
-        assertTrue(bounds.check(60, 45));      // inside
+        assertTrue(bounds.check(10, 20)); // top-left corner
+        assertTrue(bounds.check(110, 70)); // bottom-right corner
+        assertTrue(bounds.check(60, 45)); // inside
     }
 
     @Test
     void testCheckOutsideBounds() {
         // Points outside the bounds
-        assertFalse(bounds.check(9, 20));      // left
-        assertFalse(bounds.check(10, 19));     // above
-        assertFalse(bounds.check(111, 70));    // right
-        assertFalse(bounds.check(110, 71));    // below
+        assertFalse(bounds.check(9, 20)); // left
+        assertFalse(bounds.check(10, 19)); // above
+        assertFalse(bounds.check(111, 70)); // right
+        assertFalse(bounds.check(110, 71)); // below
     }
 
     @Test
     void testCheckOnEdgeBounds() {
         // Points on the edges should be considered inside
-        assertTrue(bounds.check(10, 20));      // top-left
-        assertTrue(bounds.check(110, 20));     // top-right
-        assertTrue(bounds.check(10, 70));      // bottom-left
-        assertTrue(bounds.check(110, 70));     // bottom-right
+        assertTrue(bounds.check(10, 20)); // top-left
+        assertTrue(bounds.check(110, 20)); // top-right
+        assertTrue(bounds.check(10, 70)); // bottom-left
+        assertTrue(bounds.check(110, 70)); // bottom-right
     }
 }

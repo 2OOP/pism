@@ -1,13 +1,11 @@
 package org.toop.backend;
 
-import org.junit.jupiter.api.*;
-import org.toop.backend.tictactoe.ParsedCommand;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
 
 class TcpServerTest {
 
@@ -39,7 +37,8 @@ class TcpServerTest {
         server.stop();
         try {
             serverThread.join(1000);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+        }
     }
 
     @Test
@@ -78,16 +77,16 @@ class TcpServerTest {
         client.close();
     }
 
-//    @Test
-//    void testGetNewestCommand() throws InterruptedException {
-//        String command = "move 1 2";
-//        server.receivedQueue.put(command);
-//
-//        ParsedCommand parsed = server.getNewestCommand();
-//        System.out.println(parsed);
-//        assertNotNull(parsed);
-//        assertEquals(command, parsed.returnMessage); TODO: Test later
-//    }
+    //    @Test
+    //    void testGetNewestCommand() throws InterruptedException {
+    //        String command = "move 1 2";
+    //        server.receivedQueue.put(command);
+    //
+    //        ParsedCommand parsed = server.getNewestCommand();
+    //        System.out.println(parsed);
+    //        assertNotNull(parsed);
+    //        assertEquals(command, parsed.returnMessage); TODO: Test later
+    //    }
 
     @Test
     void testMultipleClients() throws IOException, InterruptedException {

@@ -53,7 +53,8 @@ public class LoggingTest {
     void testDisableLogsForClass_addsLoggerWithOff() {
         Logging.disableLogsForClass(LoggingTest.class);
 
-        LoggerConfig loggerConfig = ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
+        LoggerConfig loggerConfig =
+                ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
         assertNotNull(loggerConfig);
         assertEquals(Level.OFF, loggerConfig.getLevel());
     }
@@ -62,7 +63,8 @@ public class LoggingTest {
     void testEnableLogsForClass_addsLoggerWithLevel() {
         Logging.enableLogsForClass(LoggingTest.class, Level.ERROR);
 
-        LoggerConfig loggerConfig = ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
+        LoggerConfig loggerConfig =
+                ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
         assertNotNull(loggerConfig);
         assertEquals(Level.ERROR, loggerConfig.getLevel());
     }
@@ -71,7 +73,8 @@ public class LoggingTest {
     void testEnableLogsForClass_withStringLevel() {
         Logging.enableLogsForClass(LoggingTest.class.getName(), "INFO");
 
-        LoggerConfig loggerConfig = ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
+        LoggerConfig loggerConfig =
+                ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
         assertNotNull(loggerConfig);
         assertEquals(Level.INFO, loggerConfig.getLevel());
     }
@@ -80,7 +83,8 @@ public class LoggingTest {
     void testEnableDebugLogsForClass_setsDebug() {
         Logging.enableDebugLogsForClass(LoggingTest.class);
 
-        LoggerConfig loggerConfig = ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
+        LoggerConfig loggerConfig =
+                ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
         assertNotNull(loggerConfig);
         assertEquals(Level.DEBUG, loggerConfig.getLevel());
     }
@@ -89,7 +93,8 @@ public class LoggingTest {
     void testEnableInfoLogsForClass_setsInfo() {
         Logging.enableInfoLogsForClass(LoggingTest.class);
 
-        LoggerConfig loggerConfig = ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
+        LoggerConfig loggerConfig =
+                ctx.getConfiguration().getLoggers().get(LoggingTest.class.getName());
         assertNotNull(loggerConfig);
         assertEquals(Level.INFO, loggerConfig.getLevel());
     }
@@ -98,7 +103,8 @@ public class LoggingTest {
     void testDisableLogsForNonexistentClass_doesNothing() {
         Logging.disableLogsForClass("org.toop.DoesNotExist");
 
-        LoggerConfig loggerConfig = ctx.getConfiguration().getLoggers().get("org.toop.DoesNotExist");
+        LoggerConfig loggerConfig =
+                ctx.getConfiguration().getLoggers().get("org.toop.DoesNotExist");
         assertNull(loggerConfig); // class doesn't exist, so no logger added
     }
 }

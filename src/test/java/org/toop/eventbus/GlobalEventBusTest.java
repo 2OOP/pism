@@ -3,9 +3,8 @@ package org.toop.eventbus;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.google.common.eventbus.EventBus;
-import org.junit.jupiter.api.*;
-
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.jupiter.api.*;
 
 class GlobalEventBusTest {
 
@@ -70,16 +69,16 @@ class GlobalEventBusTest {
         assertFalse(called.get(), "Consumer should not be called after unregister");
     }
 
-//    @Test
-//    void testPost_storesEventInRegistry() {
-//        // Simple EventMeta check
-//        class MyEvent {}
-//
-//        MyEvent event = new MyEvent();
-//        GlobalEventBus.post(event);
-//
-//        EventMeta<MyEvent> stored = EventRegistry.getStoredEvent(MyEvent.class);
-//        assertNotNull(stored, "EventMeta should be stored");
-//        assertEquals(event, stored.event(), "Stored event should match the posted one");
-//    }
+    //    @Test
+    //    void testPost_storesEventInRegistry() {
+    //        // Simple EventMeta check
+    //        class MyEvent {}
+    //
+    //        MyEvent event = new MyEvent();
+    //        GlobalEventBus.post(event);
+    //
+    //        EventMeta<MyEvent> stored = EventRegistry.getStoredEvent(MyEvent.class);
+    //        assertNotNull(stored, "EventMeta should be stored");
+    //        assertEquals(event, stored.event(), "Stored event should match the posted one");
+    //    }
 }
