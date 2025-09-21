@@ -2,12 +2,11 @@ package org.toop.game.tictactoe.ai;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.toop.game.tictactoe.GameBase;
 import org.toop.game.tictactoe.TicTacToe;
-
-import java.util.Set;
 
 /** Unit tests for MinMaxTicTacToe AI. */
 public class MinMaxTicTacToeTest {
@@ -78,7 +77,7 @@ public class MinMaxTicTacToeTest {
         // On empty board, center (index 4) is strongest
         int bestMove = ai.findBestMove(game);
 
-        assertTrue(Set.of(0,2,6,8).contains(bestMove));
+        assertTrue(Set.of(0, 2, 6, 8).contains(bestMove));
     }
 
     @Test

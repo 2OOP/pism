@@ -104,7 +104,7 @@ public class MinMaxTicTacToe {
             }
         }
 
-        int bestVal;// set the value to the highest possible
+        int bestVal; // set the value to the highest possible
         if (maximizing) { // it's the maximizing players turn, the AI
             bestVal = -100;
             for (int i = 0; i < game.grid.length; i++) { // loop through the grid
