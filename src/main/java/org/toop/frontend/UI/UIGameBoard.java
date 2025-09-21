@@ -3,7 +3,6 @@ package org.toop.frontend.UI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.frontend.games.LocalTicTacToe;
@@ -28,7 +27,7 @@ public class UIGameBoard {
 
     public UIGameBoard(LocalTicTacToe lttt, Object parent) {
         if (!(parent == null)) {
-            if  (parent instanceof LocalGameSelector) {
+            if (parent instanceof LocalGameSelector) {
                 parentLocal = true;
             } else if (parent instanceof RemoteGameSelector) {
                 parentLocal = false;
@@ -45,15 +44,14 @@ public class UIGameBoard {
         backToMainMenuButton = new JButton("Back to Main Menu");
         tttPanel.add(backToMainMenuButton, BorderLayout.SOUTH);
         backToMainMenuButton.addActionListener(
-                _ ->{
-                        // TODO reset game and connections
-                        // Game now gets reset in local
-                        if(parentLocal) {
-                            ((LocalGameSelector)parent).showMainMenu();
-                        }
-                        else{
-                            ((RemoteGameSelector)parent).showMainMenu();
-                        }
+                _ -> {
+                    // TODO reset game and connections
+                    // Game now gets reset in local
+                    if (parentLocal) {
+                        ((LocalGameSelector) parent).showMainMenu();
+                    } else {
+                        ((RemoteGameSelector) parent).showMainMenu();
+                    }
                 });
 
         // Game grid
@@ -80,7 +78,7 @@ public class UIGameBoard {
             final int index = i;
             cells[i].addActionListener(
                     (ActionEvent _) -> {
-                        if(!gameOver) {
+                        if (!gameOver) {
                             if (cells[index].getText().equals(" ")) {
                                 int cp = this.localTicTacToe.getCurrentPlayersTurn();
                                 if (cp == 0) {
@@ -92,12 +90,18 @@ public class UIGameBoard {
                                 }
                                 this.localTicTacToe.move(index);
                                 cells[index].setText(currentPlayer);
+                            } else {
+                                logger.info(
+                                        "Player "
+                                                + currentPlayerIndex
+                                                + " attempted invalid move at: "
+                                                + cells[index].getText());
                             }
-                            else{
-                                logger.info("Player " + currentPlayerIndex + " attempted invalid move at: " + cells[index].getText());
-                            }
-                        }else {
-                            logger.info("Player " + currentPlayerIndex + " attempted to move after the game has ended.");
+                        } else {
+                            logger.info(
+                                    "Player "
+                                            + currentPlayerIndex
+                                            + " attempted to move after the game has ended.");
                         }
                     });
         }
@@ -109,19 +113,17 @@ public class UIGameBoard {
         System.out.println(cells[index].getText());
         cells[index].setText(move);
     }
+
     public void setState(GameBase.State state, String playerMove) {
         Color color;
         if (state == GameBase.State.WIN && playerMove.equals(currentPlayer)) {
-            color = new Color(160,220,160);
-        }
-        else if (state == GameBase.State.WIN) {
-            color = new Color(220,160,160);
-        }
-        else if (state == GameBase.State.DRAW){
-            color = new Color(220,220,160);
-        }
-        else {
-            color = new Color(220,220,220);
+            color = new Color(160, 220, 160);
+        } else if (state == GameBase.State.WIN) {
+            color = new Color(220, 160, 160);
+        } else if (state == GameBase.State.DRAW) {
+            color = new Color(220, 220, 160);
+        } else {
+            color = new Color(220, 220, 220);
         }
         for (JButton cell : cells) {
             cell.setBackground(color);

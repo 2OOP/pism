@@ -7,8 +7,8 @@ import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.frontend.UI.UIGameBoard;
 import org.toop.game.tictactoe.GameBase;
-import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
 import org.toop.game.tictactoe.TicTacToe;
+import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
 
 /**
  * A representation of a local tic-tac-toe game. Calls are made to a server for information about
@@ -152,7 +152,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
                         ui.setCell(bestMove, "X");
                     }
                 }
-                if (state ==  GameBase.State.WIN || state ==  GameBase.State.DRAW) {
+                if (state == GameBase.State.WIN || state == GameBase.State.DRAW) {
                     ui.setState(state, "X");
                     running = false;
                 }
@@ -166,7 +166,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
                         ui.setCell(bestMove, "O");
                     }
                 }
-                if (state ==  GameBase.State.WIN || state ==  GameBase.State.DRAW) {
+                if (state == GameBase.State.WIN || state == GameBase.State.DRAW) {
                     ui.setState(state, "O");
                     running = false;
                 }
@@ -208,11 +208,15 @@ public class LocalTicTacToe { // TODO: Implement runnable
                         if (this.playersTurn == 0 && !isAiPlayer[0]) {
                             this.moveQueuePlayerA.put(moveIndex);
                             logger.info(
-                                    "Adding player's {}, move: {}", this.playersTurn, moveIndex);
+                                    "Adding player's {}, move: {} to queue A",
+                                    this.playersTurn,
+                                    moveIndex);
                         } else if (this.playersTurn == 1 && !isAiPlayer[1]) {
                             this.moveQueuePlayerB.put(moveIndex);
                             logger.info(
-                                    "Adding player's {}, move: {}", this.playersTurn, moveIndex);
+                                    "Adding player's {}, move: {} to queue B",
+                                    this.playersTurn,
+                                    moveIndex);
                         }
                     } catch (InterruptedException e) {
                         logger.error(
@@ -235,10 +239,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
         try {
             logger.info(
-                    "Received message from "
-                            + this.connectionId
-                            + ": "
-                            + receivedMessage.message());
+                    "Received message from {}: {}", this.connectionId, receivedMessage.message());
             this.receivedQueue.put(receivedMessage.message());
         } catch (InterruptedException e) {
             logger.error("Error waiting for received Message", e);

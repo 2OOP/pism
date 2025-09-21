@@ -27,7 +27,7 @@ public class MinMaxTicTacToe {
             }
         }
 
-        if (empty) { //start in a random corner
+        if (empty) { // start in a random corner
             return switch ((int) (Math.random() * 4)) {
                 case 0 -> 0;
                 case 1 -> 2;

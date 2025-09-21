@@ -52,7 +52,11 @@ public class LocalGameSelector extends JFrame {
         deleteSave = new JButton("Delete Save");
         panel1.add(deleteSave);
         deleteSave.setEnabled(false);
-        deleteSave.addActionListener(e -> {tttBoard = null; deleteSave.setEnabled(false);});
+        deleteSave.addActionListener(
+                e -> {
+                    tttBoard = null;
+                    deleteSave.setEnabled(false);
+                });
 
         cards.add(panel1, "MainMenu");
 
@@ -94,7 +98,7 @@ public class LocalGameSelector extends JFrame {
         cardLayout.show(cards, "MainMenu");
         gameSelectionComboBox.setSelectedIndex(0);
         playerTypeSelectionBox.setSelectedIndex(0);
-        if (tttBoard  != null) {
+        if (tttBoard != null) {
             deleteSave.setEnabled(true);
         }
     }
