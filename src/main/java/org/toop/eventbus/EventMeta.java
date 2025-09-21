@@ -1,8 +1,6 @@
 package org.toop.eventbus;
 
-/**
- * Wraps an event with its type and a ready flag.
- */
+/** Wraps an event with its type and a ready flag. */
 public class EventMeta<T> {
     private final Class<T> type;
     private final Object event;
@@ -32,10 +30,13 @@ public class EventMeta<T> {
 
     @Override
     public String toString() {
-        return "ReadyEvent{" +
-                "type=" + type.getSimpleName() +
-                ", event=" + event +
-                ", ready=" + ready +
-                '}';
+        return "ReadyEvent{"
+                + "type="
+                + type.getSimpleName()
+                + ", event="
+                + event
+                + ", ready="
+                + ready
+                + '}';
     }
 }

@@ -45,9 +45,46 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.junit</groupId>
+			<artifactId>junit-bom</artifactId>
+			<version>5.13.4</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>RELEASE</version>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>6.0.0-RC3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>6.0.0-RC3</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>3.5.4</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-failsafe-plugin -->
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-failsafe-plugin</artifactId>
+			<version>3.5.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.19.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>5.19.0</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -62,6 +99,12 @@
 			<version>2.25.1</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.diffplug.spotless/spotless-maven-plugin -->
+		<dependency>
+			<groupId>com.diffplug.spotless</groupId>
+			<artifactId>spotless-maven-plugin</artifactId>
+			<version>2.46.1</version>
+		</dependency>
 		<dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId></dependency>
 		<dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId></dependency>
 		<dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId></dependency>
@@ -71,9 +114,16 @@
 		<dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId><classifier>${lwjgl.natives}</classifier></dependency>
 		<dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId><classifier>${lwjgl.natives}</classifier></dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.5.4</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>3.5.4</version>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -96,6 +146,51 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>2.46.1</version>
+				<configuration>
+					<!-- optional: limit format enforcement to just the files changed by this feature branch -->
+					<ratchetFrom>origin/main</ratchetFrom>
+					<formats>
+						<!-- you can define as many formats as you want, each is independent -->
+						<format>
+							<!-- define the files to apply to -->
+							<includes>
+								<include>.gitattributes</include>
+								<include>.gitignore</include>
+							</includes>
+							<!-- define the steps to apply to those files -->
+							<trimTrailingWhitespace/>
+							<endWithNewline/>
+							<indent>
+								<tabs>true</tabs>
+								<spacesPerTab>4</spacesPerTab>
+							</indent>
+						</format>
+					</formats>
+					<!-- define a language-specific format -->
+					<java>
+						<!-- no need to specify files, inferred automatically, but you can if you want -->
+
+						<!-- apply a specific flavor of google-java-format and reflow long strings -->
+						<googleJavaFormat>
+							<version>1.28.0</version>
+							<style>AOSP</style> <!-- GOOGLE (2 indents), AOSP (4 indents) -->
+							<reflowLongStrings>true</reflowLongStrings>
+							<formatJavadoc>true</formatJavadoc>
+						</googleJavaFormat>
+
+						<!-- make sure every file has the following copyright header.
+                          optionally, Spotless can set copyright years by digging
+                          through git history (see "license" section below) -->
+<!--						<licenseHeader>-->
+<!--							<content>/* (C)$YEAR */</content>  &lt;!&ndash; or <file>${project.basedir}/license-header</file> &ndash;&gt;-->
+<!--						</licenseHeader>-->
+					</java>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

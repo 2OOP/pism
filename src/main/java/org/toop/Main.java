@@ -1,54 +1,66 @@
 package org.toop;
 
+import java.util.concurrent.ExecutionException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.backend.ServerManager;
 import org.toop.eventbus.Events;
 import org.toop.eventbus.GlobalEventBus;
-import org.toop.server.Server;
-import org.toop.server.backend.Testsss;
-import org.toop.server.backend.TcpServer;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.toop.frontend.ConnectionManager;
+import org.toop.frontend.UI.LocalServerSelector;
 
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
+    private static boolean running = false;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        //        Logging.disableAllLogs();
+        //		Logging.enableAllLogsForClass(LocalTicTacToe.class);
+        //        Logging.enableLogsForClass(ServerManager.class, Level.ALL);
+        //        Logging.enableLogsForClass(TicTacToeServer.class, Level.ALL);
+        //        Logging.enableLogsForClass(TcpClient.class, Level.ALL);
+        //        Logging.enableLogsForClass(ConnectionManager.class, Level.ALL);
+        initSystems();
+        registerEvents();
 
-        if (!initEvents()) {
-            throw new RuntimeException("A event could not be initialized");
-        }
+        //		JFrame frame = new JFrame("Server Settings");
+        //		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //		frame.setSize(800, 600);
+        //		frame.setLocationRelativeTo(null);
+        //		frame.setVisible(true);
 
-        TcpServer server = new TcpServer(5001);
-        Thread serverThread = new Thread(server);
-        serverThread.start();
-        Server.start("127.0.0.1", "5001");
-        // Testsss.start(""); // Used for testing server.
-        Window.start("");
+        javax.swing.SwingUtilities.invokeLater(LocalServerSelector::new);
+
+        //		new Thread(() -> {
+        //			LocalServerSelector window = new LocalServerSelector();
+        //		}).start();
 
     }
 
-    /**
-     * Returns false if any event could not be initialized.
-     */
-     private static boolean initEvents() {
-        try {
+    private static void registerEvents() {
+        GlobalEventBus.subscribeAndRegister(
+                Events.WindowEvents.OnQuitRequested.class,
+                event -> {
+                    quit();
+                });
 
-            GlobalEventBus.subscribeAndRegister(Events.ServerEvents.OnChangingServerIp.class,
-                    event ->
-                    logger.info("Changing server ip to {}", event.ip())
-            );
+        GlobalEventBus.subscribeAndRegister(Events.WindowEvents.OnMouseMove.class, event -> {});
+    }
 
-            GlobalEventBus.subscribeAndRegister(Events.ServerEvents.OnChangingServerPort.class,
-                    event ->
-                    logger.info("Changing server port to {}", event.port())
-            );
+    public static void initSystems() {
+        new ServerManager();
+        new ConnectionManager();
+    }
 
-            return true;
-        }
-        catch (Exception err) {
-            logger.info("{}", err.getMessage());
-            return false;
-        }
-     }
+    private static void quit() {
+        running = false;
+    }
 
+    public static boolean isRunning() {
+        return running;
+    }
+
+    public static void setRunning(boolean running) {
+        Main.running = running;
+    }
 }

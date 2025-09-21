@@ -2,45 +2,53 @@ package org.toop.eventbus;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
 import java.util.function.Consumer;
 
-/**
- * A singleton Event Bus to be used for creating, triggering and activating events.
- */
-public enum GlobalEventBus {
-    /**
-     * The instance of the Event Bus.
-     */
-    INSTANCE;
+/** A singleton Event Bus to be used for creating, triggering and activating events. */
+public class GlobalEventBus {
 
-    /**
-     * Singleton event bus.
-     */
-    private final EventBus eventBus = new EventBus("global-bus");
+    /** Singleton event bus. */
+    private static EventBus eventBus = new EventBus("global-bus");
+
+    private GlobalEventBus() {}
 
     /**
      * Wraps a Consumer into a Guava @Subscribe-compatible listener.
      *
      * @return Singleton Event Bus
      */
-    public EventBus get() {
+    public static EventBus get() {
         return eventBus;
     }
 
     /**
-     * Wraps a Consumer into a Guava @Subscribe-compatible listener.
-     * TODO
+     * ONLY USE FOR TESTING
+     *
+     * @param newBus
+     */
+    public static void set(EventBus newBus) {
+        eventBus = newBus;
+    }
+
+    /** Reset back to the default global EventBus. */
+    public static void reset() {
+        eventBus = new EventBus("global-bus");
+    }
+
+    /**
+     * Wraps a Consumer into a Guava @Subscribe-compatible listener. TODO
      *
      * @param type The event to be used. (e.g. Events.ServerCommand.class)
      * @param action The function, or lambda to run when fired.
      * @return Object to be used for registering an event.
      */
-    private static <T> Object subscribe(Class<T> type, Consumer<T> action) {
+    public static <T> Object subscribe(Class<T> type, Consumer<T> action) {
         return new Object() {
             @Subscribe
-            public void handle(T event) {
-                action.accept(event);
+            public void handle(Object event) {
+                if (type.isInstance(event)) {
+                    action.accept(type.cast(event));
+                }
             }
         };
     }
@@ -52,30 +60,19 @@ public enum GlobalEventBus {
      * @param action The function, or lambda to run when fired.
      * @return Object to be used for registering an event.
      */
-    public static <T> EventMeta subscribeAndRegister(Class<T> type, Consumer<T> action) {
-        Object listener = new Object() {
-            @Subscribe
-            public void handle(Object event) {
-                if (type.isInstance(event)) {
-                    action.accept(type.cast(event));
-                }
-            }
-        };
-        var re = new EventMeta<>(type, listener);
-        register(re);
-        return re;
+    public static <T> Object subscribeAndRegister(Class<T> type, Consumer<T> action) {
+        var listener = subscribe(type, action);
+        register(listener);
+        return listener;
     }
-
 
     /**
      * Wrapper for registering a listener.
      *
      * @param event The ready event to add to register.
      */
-    public static <T> void register(EventMeta<T> event) {
-        GlobalEventBus.INSTANCE.get().register(event.getEvent());
-        event.setReady(true);
-        EventRegistry.markReady(event.getType());
+    public static void register(Object listener) {
+        GlobalEventBus.get().register(listener);
     }
 
     /**
@@ -83,10 +80,8 @@ public enum GlobalEventBus {
      *
      * @param event The ready event to unregister.
      */
-    public static <T> void unregister(EventMeta<T> event) {
-        EventRegistry.markNotReady(event.getType());
-        event.setReady(false);
-        GlobalEventBus.INSTANCE.get().unregister(event.getEvent());
+    public static void unregister(Object listener) {
+        GlobalEventBus.get().unregister(listener);
     }
 
     /**
@@ -97,16 +92,16 @@ public enum GlobalEventBus {
     public static <T> void post(T event) {
         Class<T> type = (Class<T>) event.getClass();
 
-//        if (!EventRegistry.isReady(type)) {
-//            throw new IllegalStateException("Event type not ready: " + type.getSimpleName());
-//        } TODO: Handling non ready events.
+        //        if (!EventRegistry.isReady(type)) {
+        //            throw new IllegalStateException("Event type not ready: " +
+        // type.getSimpleName());
+        //        } TODO: Handling non ready events.
 
         // store in registry
         EventMeta<T> eventMeta = new EventMeta<>(type, event);
         EventRegistry.storeEvent(eventMeta);
 
         // post to Guava EventBus
-        GlobalEventBus.INSTANCE.get().post(event);
+        GlobalEventBus.get().post(event);
     }
-
 }
