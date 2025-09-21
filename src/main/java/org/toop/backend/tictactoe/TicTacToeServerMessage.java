@@ -38,7 +38,6 @@ public enum TicTacToeServerMessage {
      */
     public static TicTacToeServerMessage getCommand(String command) {
         if (isValid(command)) {
-            TicTacToeServerMessage.valueOf(command.toUpperCase());
             return TicTacToeServerMessage.valueOf(command.toUpperCase());
         }
         return null;
