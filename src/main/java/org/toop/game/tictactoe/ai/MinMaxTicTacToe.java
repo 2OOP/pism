@@ -1,23 +1,19 @@
 package org.toop.game.tictactoe.ai;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.toop.game.tictactoe.GameBase;
 import org.toop.game.tictactoe.TicTacToe;
 
 public class MinMaxTicTacToe {
-
-    private static final Logger logger = LogManager.getLogger(MinMaxTicTacToe.class);
 
     /**
      * This method tries to find the best move by seeing if it can set a winning move, if not, it
      * will do a minimax.
      */
     public int findBestMove(TicTacToe game) {
-        int bestVal = -100; // set bestval to something impossible
-        int bestMove = 10; // set bestmove to something impossible
+        int bestVal = -100; // set bestVal to something impossible
+        int bestMove = 10; // set bestMove to something impossible
 
-        int winningmove = -5;
+        int winningMove = -5;
 
         boolean empty = true;
         for (char cell : game.grid) {
@@ -29,7 +25,6 @@ public class MinMaxTicTacToe {
 
         if (empty) { // start in a random corner
             return switch ((int) (Math.random() * 4)) {
-                case 0 -> 0;
                 case 1 -> 2;
                 case 2 -> 6;
                 case 3 -> 8;
@@ -55,7 +50,7 @@ public class MinMaxTicTacToe {
                         TicTacToe opponentCopy = copyGame.copyBoard();
                         GameBase.State opponentResult = opponentCopy.play(index);
                         if (opponentResult == GameBase.State.WIN) {
-                            winningmove = index;
+                            winningMove = index;
                         }
                     }
                 }
@@ -69,8 +64,8 @@ public class MinMaxTicTacToe {
                 }
             }
         }
-        if (winningmove > -5) {
-            return winningmove;
+        if (winningMove > -5) {
+            return winningMove;
         }
         return bestMove; // return the best move when we've done everything
     }
@@ -109,8 +104,9 @@ public class MinMaxTicTacToe {
             }
         }
 
+        int bestVal;// set the value to the highest possible
         if (maximizing) { // it's the maximizing players turn, the AI
-            int bestVal = -100; // set the value to lowest as possible
+            bestVal = -100;
             for (int i = 0; i < game.grid.length; i++) { // loop through the grid
                 if (game.validateMove(i)) {
                     TicTacToe copyGame = game.copyBoard();
@@ -124,14 +120,13 @@ public class MinMaxTicTacToe {
                     // AI)
                 }
             }
-            return bestVal;
         } else { // it's the minimizing players turn, the player
-            int bestVal = 100; // set the value to the highest possible
+            bestVal = 100;
             for (int i = 0; i < game.grid.length; i++) { // loop through the grid
                 if (game.validateMove(i)) {
                     TicTacToe copyGame = game.copyBoard();
                     copyGame.play(i); // play the move on a copy board
-                    int value = doMinimax(copyGame, depth - 1, true); // keep minimaxing
+                    int value = doMinimax(copyGame, depth - 1, true); // keep miniMaxing
                     bestVal =
                             Math.min(
                                     bestVal,
@@ -139,7 +134,7 @@ public class MinMaxTicTacToe {
                     // they want to make it hard for us
                 }
             }
-            return bestVal;
         }
+        return bestVal;
     }
 }
