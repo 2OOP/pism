@@ -17,5 +17,4 @@ public class Player {
     public char getSymbol() {
         return this.symbol;
     }
-
 }

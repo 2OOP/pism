@@ -8,16 +8,13 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 /**
  * Utility class for configuring logging levels dynamically at runtime using Log4j 2.
- * <p>
- * Provides methods to enable or disable logs globally or per class, with support for
- * specifying log levels either via {@link Level} enums or string names.
- * </p>
+ *
+ * <p>Provides methods to enable or disable logs globally or per class, with support for specifying
+ * log levels either via {@link Level} enums or string names.
  */
 public final class Logging {
 
-    /**
-     * Disables all logging globally by setting the root logger level to {@link Level#OFF}.
-     */
+    /** Disables all logging globally by setting the root logger level to {@link Level#OFF}. */
     public static void disableAllLogs() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
@@ -26,9 +23,7 @@ public final class Logging {
         ctx.updateLoggers();
     }
 
-    /**
-     * Enables all logging globally by setting the root logger level to {@link Level#ALL}.
-     */
+    /** Enables all logging globally by setting the root logger level to {@link Level#ALL}. */
     public static void enableAllLogs() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         Configuration config = ctx.getConfiguration();
@@ -83,7 +78,7 @@ public final class Logging {
      * Disables logs for a specific class.
      *
      * @param class_ the class for which logs should be disabled
-     * @param <T>    type of the class
+     * @param <T> type of the class
      */
     public static <T> void disableLogsForClass(Class<T> class_) {
         disableLogsForClassInternal(class_.getName());
@@ -104,7 +99,7 @@ public final class Logging {
      * Internal helper to enable logs for a specific class at a specific level.
      *
      * @param className fully-qualified class name
-     * @param level     logging level to set
+     * @param level logging level to set
      */
     private static void enableLogsForClassInternal(String className, Level level) {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
@@ -122,9 +117,9 @@ public final class Logging {
     /**
      * Enables logging for a class at a specific level.
      *
-     * @param class_      class to configure
-     * @param levelToLog  the logging level to set
-     * @param <T>         type of the class
+     * @param class_ class to configure
+     * @param levelToLog the logging level to set
+     * @param <T> type of the class
      */
     public static <T> void enableLogsForClass(Class<T> class_, Level levelToLog) {
         enableLogsForClassInternal(class_.getName(), levelToLog);
@@ -133,8 +128,8 @@ public final class Logging {
     /**
      * Enables logging for a class specified by name at a specific level, if the class exists.
      *
-     * @param className   fully-qualified class name
-     * @param levelToLog  the logging level to set
+     * @param className fully-qualified class name
+     * @param levelToLog the logging level to set
      */
     public static void enableLogsForClass(String className, Level levelToLog) {
         if (verifyStringIsActualClass(className)) {
@@ -145,8 +140,8 @@ public final class Logging {
     /**
      * Enables logging for a class specified by name at a specific level using a string.
      *
-     * @param className   fully-qualified class name
-     * @param levelToLog  name of the logging level (e.g., "DEBUG", "INFO")
+     * @param className fully-qualified class name
+     * @param levelToLog name of the logging level (e.g., "DEBUG", "INFO")
      */
     public static void enableLogsForClass(String className, String levelToLog) {
         Level level = Level.valueOf(levelToLog.trim().toUpperCase());

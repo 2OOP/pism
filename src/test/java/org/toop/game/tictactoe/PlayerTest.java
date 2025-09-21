@@ -27,6 +27,4 @@ class PlayerTest {
         assertEquals('X', playerA.getSymbol());
         assertEquals('O', playerB.getSymbol());
     }
-
-
 }
