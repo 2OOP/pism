@@ -85,23 +85,23 @@ public class RemoteGameSelector {
                             throw new RuntimeException(ex);
                         } // TODO: Better error handling to not crash the system.
 
-                        GlobalEventBus.subscribeAndRegister(
-                                NetworkEvents.ReceivedMessage.class,
-                                event -> {
-                                    if (event.message().equalsIgnoreCase("ok")) {
-                                        logger.info("received ok from server.");
-                                    } else if (event.message().toLowerCase().startsWith("gameid")) {
-                                        String gameId =
-                                                event.message()
-                                                        .toLowerCase()
-                                                        .replace("gameid ", "");
-                                        GlobalEventBus.post(
-                                                new NetworkEvents.SendCommand(
-                                                        "start_game " + gameId));
-                                    } else {
-                                        logger.info("{}", event.message());
-                                    }
-                                });
+//                        GlobalEventBus.subscribeAndRegister(
+//                                NetworkEvents.ReceivedMessage.class,
+//                                event -> {
+//                                    if (event.message().equalsIgnoreCase("ok")) {
+//                                        logger.info("received ok from server.");
+//                                    } else if (event.message().toLowerCase().startsWith("gameid")) {
+//                                        String gameId =
+//                                                event.message()
+//                                                        .toLowerCase()
+//                                                        .replace("gameid ", "");
+//                                        GlobalEventBus.post(
+//                                                new NetworkEvents.SendCommand(
+//                                                        "start_game " + gameId));
+//                                    } else {
+//                                        logger.info("{}", event.message());
+//                                    }
+//                                });
 
                         GlobalEventBus.post(
                                 new NetworkEvents.SendCommand(

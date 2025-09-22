@@ -1,14 +1,11 @@
 package org.toop.eventbus;
 
-import com.google.common.eventbus.EventBus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.toop.eventbus.events.EventWithUuid;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +68,7 @@ class EventPublisherTest {
 
         EventPublisher<TestEvent> publisher = new EventPublisher<>(TestEvent.class, "event");
         publisher.onEventById(TestEvent.class, event -> triggered.set(true))
-                .unregisterAfterSuccess()
+                .unsubscribeAfterSuccess()
                 .postEvent();
 
         // Subscriber should have been removed after first trigger
@@ -106,6 +103,13 @@ class EventPublisherTest {
         publisher.onEventById(TestEvent.class, e -> firstTriggered.set(true))
                 .onEventById(TestEvent.class, e -> secondTriggered.set(true))
                 .postEvent();
+
+        assertTrue(firstTriggered.get());
+        assertTrue(secondTriggered.get());
+
+        publisher.onEventById(TestEvent.class, e -> firstTriggered.set(true))
+                .onEventById(TestEvent.class, e -> secondTriggered.set(true))
+                .asyncPostEvent();
 
         assertTrue(firstTriggered.get());
         assertTrue(secondTriggered.get());

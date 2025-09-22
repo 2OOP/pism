@@ -1,16 +1,12 @@
 package org.toop.frontend.networking;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.EventPublisher;
-import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.eventbus.events.NetworkEvents;
 
@@ -23,21 +19,17 @@ public class NetworkingClientManager {
 
     /** Starts a connection manager, to manage, connections. */
     public NetworkingClientManager() {
-        GlobalEventBus.subscribeAndRegister(this::handleStartClientRequest);
-        GlobalEventBus.subscribeAndRegister(this::handleStartClient);
-        GlobalEventBus.subscribeAndRegister(this::handleCommand);
-        GlobalEventBus.subscribeAndRegister(this::handleCloseClient);
-//        GlobalEventBus.subscribeAndRegister(
-//                Events.ServerEvents.Reconnect.class, this::handleReconnect);
-        //        GlobalEventBus.subscribeAndRegister(Events.ServerEvents.ChangeConnection.class,
-        // this::handleChangeConnection);
-        GlobalEventBus.subscribeAndRegister(this::shutdownAll);
-        GlobalEventBus.subscribeAndRegister(this::getAllConnections);
+        new EventPublisher<>(NetworkEvents.StartClientRequest.class, this::handleStartClientRequest);
+        new EventPublisher<>(NetworkEvents.StartClient.class, this::handleStartClient);
+        new EventPublisher<>(NetworkEvents.SendCommand.class, this::handleCommand);
+        new EventPublisher<>(NetworkEvents.CloseClient.class, this::handleCloseClient);
+        new EventPublisher<>(NetworkEvents.RequestsAllClients.class, this::getAllConnections);
+        new EventPublisher<>(NetworkEvents.ForceCloseAllClients.class, this::shutdownAll);
     }
 
-    private String startConnectionRequest(Supplier<? extends NetworkingGameClientHandler> handlerFactory,
-                                          String ip,
-                                          int port) {
+    private String startClientRequest(Supplier<? extends NetworkingGameClientHandler> handlerFactory,
+                                      String ip,
+                                      int port) {
         String connectionUuid = UUID.randomUUID().toString();
         try {
             NetworkingClient client = new NetworkingClient(
@@ -48,29 +40,24 @@ public class NetworkingClientManager {
         } catch (Exception e) {
             logger.error(e);
         }
+        logger.info("Client {} started", connectionUuid);
         return connectionUuid;
     }
 
     private void handleStartClientRequest(NetworkEvents.StartClientRequest request) {
         request.future()
                 .complete(
-                        this.startConnectionRequest(
+                        this.startClientRequest(
                                 request.handlerFactory(),
                                 request.ip(),
                                 request.port())); // TODO: Maybe post ConnectionEstablished event.
     }
 
     private void handleStartClient(NetworkEvents.StartClient event) {
-        GlobalEventBus.post(
-                new NetworkEvents.StartClientSuccess(
-                        this.startConnectionRequest(
-                                event.handlerFactory(),
-                                event.ip(),
-                                event.port()),
-                        event.ip(),
-                        event.port(),
-                        event.eventId()
-        ));
+        String uuid = this.startClientRequest(event.handlerFactory(), event.ip(), event.port());
+        new EventPublisher<>(NetworkEvents.StartClientSuccess.class,
+                uuid, event.eventId()
+        ).asyncPostEvent();
     }
 
     private void handleCommand(

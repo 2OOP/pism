@@ -5,31 +5,48 @@ import org.junit.jupiter.api.Test;
 import org.toop.eventbus.events.EventWithUuid;
 
 import java.math.BigInteger;
+import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EventPublisherStressTest {
 
+    /** Top-level record to ensure runtime type matches subscription */
     public record HeavyEvent(String payload, String eventId) implements EventWithUuid {
         @Override
         public java.util.Map<String, Object> result() {
             return java.util.Map.of("payload", payload, "eventId", eventId);
         }
+
+        @Override
+        public String eventId() {
+            return eventId;
+        }
     }
 
-    private static final int THREADS = 1;
-    private static final long EVENTS_PER_THREAD = 2_000_000_000;
+    public record HeavyEventSuccess(String payload, String eventId) implements EventWithUuid {
+        @Override
+        public java.util.Map<String, Object> result() {
+            return java.util.Map.of("payload", payload, "eventId", eventId);
+        }
+
+        @Override
+        public String eventId() {
+            return eventId;
+        }
+    }
+
+    private static final int THREADS = 16;
+    private static final long EVENTS_PER_THREAD = 1_000_000_000;
 
     @Tag("stress")
     @Test
-    void extremeConcurrencyTest_progressWithMemory() throws InterruptedException {
-        AtomicLong counter = new AtomicLong(0); // Big numbers safety
+    void extremeConcurrencySendTest_progressWithMemory() throws InterruptedException {
+        LongAdder counter = new LongAdder();
         ExecutorService executor = Executors.newFixedThreadPool(THREADS);
-
-        GlobalEventBus.subscribeAndRegister(HeavyEvent.class, _ -> counter.incrementAndGet());
 
         BigInteger totalEvents = BigInteger.valueOf(THREADS)
                 .multiply(BigInteger.valueOf(EVENTS_PER_THREAD));
@@ -39,25 +56,22 @@ class EventPublisherStressTest {
         // Monitor thread for EPS and memory
         Thread monitor = new Thread(() -> {
             long lastCount = 0;
-            long lastTime = startTime;
-
+            long lastTime = System.currentTimeMillis();
             Runtime runtime = Runtime.getRuntime();
 
-            while (counter.get() < totalEvents.longValue()) {
-                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+            while (counter.sum() < totalEvents.longValue()) {
+                try { Thread.sleep(200); } catch (InterruptedException ignored) {}
 
                 long now = System.currentTimeMillis();
-                long completed = counter.get();
-                long eventsThisSecond = completed - lastCount;
-                double eps = eventsThisSecond / ((now - lastTime) / 1000.0);
+                long completed = counter.sum();
+                long eventsThisPeriod = completed - lastCount;
+                double eps = eventsThisPeriod / ((now - lastTime) / 1000.0);
 
-                // Memory usage
                 long usedMemory = runtime.totalMemory() - runtime.freeMemory();
-                long maxMemory = runtime.maxMemory();
-                double usedPercent = usedMemory * 100.0 / maxMemory;
+                double usedPercent = usedMemory * 100.0 / runtime.maxMemory();
 
                 System.out.printf(
-                        "Progress: %d/%d (%.2f%%), EPS: %.0f, Memory Used: %.2f MB (%.2f%%)\n",
+                        "Progress: %d/%d (%.2f%%), EPS: %.0f, Memory Used: %.2f MB (%.2f%%)%n",
                         completed,
                         totalEvents.longValue(),
                         completed * 100.0 / totalEvents.doubleValue(),
@@ -73,17 +87,22 @@ class EventPublisherStressTest {
         monitor.setDaemon(true);
         monitor.start();
 
-        // Submit events
+        var listener = new EventPublisher<>(HeavyEvent.class, _ -> counter.increment());
+
+        // Submit events asynchronously
         for (int t = 0; t < THREADS; t++) {
             executor.submit(() -> {
                 for (int i = 0; i < EVENTS_PER_THREAD; i++) {
-                    new EventPublisher<>(HeavyEvent.class, "payload-" + i).postEvent();
+                    var _ = new EventPublisher<>(HeavyEvent.class, "payload-" + i)
+                            .asyncPostEvent();
                 }
             });
         }
 
         executor.shutdown();
-        executor.awaitTermination(20, TimeUnit.MINUTES); // allow extra time for huge tests
+        executor.awaitTermination(10, TimeUnit.MINUTES);
+
+        listener.getResult();
 
         long endTime = System.currentTimeMillis();
         double durationSeconds = (endTime - startTime) / 1000.0;
@@ -92,13 +111,87 @@ class EventPublisherStressTest {
         double averageEps = totalEvents.doubleValue() / durationSeconds;
         System.out.printf("Average EPS: %.0f%n", averageEps);
 
-        assertEquals(totalEvents.longValue(), counter.get());
+        assertEquals(totalEvents.longValue(), counter.sum());
     }
 
     @Tag("stress")
     @Test
+    void extremeConcurrencySendAndReturnTest_progressWithMemory() throws InterruptedException {
+        LongAdder counter = new LongAdder();
+        ExecutorService executor = Executors.newFixedThreadPool(THREADS);
+
+        BigInteger totalEvents = BigInteger.valueOf(THREADS)
+                .multiply(BigInteger.valueOf(EVENTS_PER_THREAD));
+
+        long startTime = System.currentTimeMillis();
+
+        // Monitor thread for EPS and memory
+        Thread monitor = new Thread(() -> {
+            long lastCount = 0;
+            long lastTime = System.currentTimeMillis();
+            Runtime runtime = Runtime.getRuntime();
+
+            while (counter.sum() < totalEvents.longValue()) {
+                try { Thread.sleep(200); } catch (InterruptedException ignored) {}
+
+                long now = System.currentTimeMillis();
+                long completed = counter.sum();
+                long eventsThisPeriod = completed - lastCount;
+                double eps = eventsThisPeriod / ((now - lastTime) / 1000.0);
+
+                long usedMemory = runtime.totalMemory() - runtime.freeMemory();
+                double usedPercent = usedMemory * 100.0 / runtime.maxMemory();
+
+                System.out.printf(
+                        "Progress: %d/%d (%.2f%%), EPS: %.0f, Memory Used: %.2f MB (%.2f%%)%n",
+                        completed,
+                        totalEvents.longValue(),
+                        completed * 100.0 / totalEvents.doubleValue(),
+                        eps,
+                        usedMemory / 1024.0 / 1024.0,
+                        usedPercent
+                );
+
+                lastCount = completed;
+                lastTime = now;
+            }
+        });
+        monitor.setDaemon(true);
+        monitor.start();
+
+        // Submit events asynchronously
+        for (int t = 0; t < THREADS; t++) {
+            executor.submit(() -> {
+                for (int i = 0; i < EVENTS_PER_THREAD; i++) {
+                    var a = new EventPublisher<>(HeavyEvent.class, "payload-" + i)
+                            .onEventById(HeavyEventSuccess.class, _ -> counter.increment())
+                            .unsubscribeAfterSuccess()
+                            .asyncPostEvent();
+
+                    new EventPublisher<>(HeavyEventSuccess.class, "payload-" + i, a.getEventId())
+                            .asyncPostEvent();
+                }
+            });
+        }
+
+        executor.shutdown();
+        executor.awaitTermination(10, TimeUnit.MINUTES);
+
+        long endTime = System.currentTimeMillis();
+        double durationSeconds = (endTime - startTime) / 1000.0;
+
+        System.out.println("Posted " + totalEvents + " events in " + durationSeconds + " seconds");
+        double averageEps = totalEvents.doubleValue() / durationSeconds;
+        System.out.printf("Average EPS: %.0f%n", averageEps);
+
+        assertEquals(totalEvents.longValue(), counter.sum());
+    }
+
+
+    @Tag("stress")
+    @Test
     void efficientExtremeConcurrencyTest() throws InterruptedException {
-        final int THREADS = Runtime.getRuntime().availableProcessors(); // threads ≈ CPU cores
+        final int THREADS = Runtime.getRuntime().availableProcessors();
         final int EVENTS_PER_THREAD = 5000;
 
         ExecutorService executor = Executors.newFixedThreadPool(THREADS);
@@ -128,11 +221,9 @@ class EventPublisherStressTest {
         System.out.printf("Posted %s events in %.3f seconds%n", totalEvents, durationSeconds);
         System.out.printf("Throughput: %.0f events/sec%n", eps);
 
-        // Memory snapshot
         Runtime rt = Runtime.getRuntime();
         System.out.printf("Used memory: %.2f MB%n", (rt.totalMemory() - rt.freeMemory()) / 1024.0 / 1024.0);
 
-        // Ensure all events were processed
         assertEquals(totalEvents.intValue(), processedEvents.size());
     }
 
@@ -142,14 +233,12 @@ class EventPublisherStressTest {
         int iterations = 1_000_000;
         long startReflect = System.nanoTime();
         for (int i = 0; i < iterations; i++) {
-            // Reflection every time
             HeavyEvent.class.getDeclaredConstructors()[0].newInstance("payload", "uuid-" + i);
         }
         long endReflect = System.nanoTime();
 
         long startHandle = System.nanoTime();
         for (int i = 0; i < iterations; i++) {
-            // Using cached MethodHandle
             EventPublisher<HeavyEvent> ep = new EventPublisher<>(HeavyEvent.class, "payload-" + i);
         }
         long endHandle = System.nanoTime();

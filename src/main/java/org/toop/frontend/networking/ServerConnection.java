@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.concurrent.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.eventbus.EventPublisher;
 import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.eventbus.events.NetworkEvents;
@@ -85,9 +86,7 @@ public final class ServerConnection extends TcpClient implements Runnable {
                 if (received != null) {
                     logger.info("Connection: {} received: '{}'", this.uuid, received);
                     // this.addReceivedMessageToQueue(received); // TODO: Will never go empty
-                    GlobalEventBus.post(
-                            new NetworkEvents.ReceivedMessage(
-                                    this.uuid, received)); // TODO: mb change
+                    new EventPublisher<>(NetworkEvents.ReceivedMessage.class, this.uuid, received).postEvent();
                 } else {
                     break;
                 }

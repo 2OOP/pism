@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.backend.tictactoe.TicTacToeServer;
+import org.toop.eventbus.EventPublisher;
 import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
 
@@ -22,19 +23,12 @@ public class ServerManager {
 
     /** Starts a server manager, to manage, servers. */
     public ServerManager() {
-        GlobalEventBus.subscribeAndRegister(
-                Events.ServerEvents.StartServerRequest.class, this::handleStartServerRequest);
-        GlobalEventBus.subscribeAndRegister(
-                Events.ServerEvents.StartServer.class, this::handleStartServer);
-        GlobalEventBus.subscribeAndRegister(
-                Events.ServerEvents.ForceCloseAllServers.class, _ -> shutdownAll());
-        GlobalEventBus.subscribeAndRegister(
-                Events.ServerEvents.CreateTicTacToeGameRequest.class,
-                this::handleStartTicTacToeGameOnAServer);
-        GlobalEventBus.subscribeAndRegister(
-                Events.ServerEvents.RunTicTacToeGame.class, this::handleRunTicTacToeGameOnAServer);
-        GlobalEventBus.subscribeAndRegister(
-                Events.ServerEvents.EndTicTacToeGame.class, this::handleEndTicTacToeGameOnAServer);
+        new EventPublisher<>(Events.ServerEvents.StartServerRequest.class, this::handleStartServerRequest);
+        new EventPublisher<>(Events.ServerEvents.StartServer.class, this::handleStartServer);
+        new EventPublisher<>(Events.ServerEvents.ForceCloseAllServers.class, _ -> shutdownAll());
+        new EventPublisher<>(Events.ServerEvents.CreateTicTacToeGameRequest.class, this::handleStartTicTacToeGameOnAServer);
+        new EventPublisher<>(Events.ServerEvents.RunTicTacToeGame.class, this::handleRunTicTacToeGameOnAServer);
+        new EventPublisher<>(Events.ServerEvents.EndTicTacToeGame.class, this::handleEndTicTacToeGameOnAServer);
     }
 
     private String startServer(int port, String gameType) {
@@ -67,9 +61,7 @@ public class ServerManager {
     }
 
     private void handleStartServer(Events.ServerEvents.StartServer event) {
-        GlobalEventBus.post(
-                new Events.ServerEvents.ServerStarted(
-                        this.startServer(event.port(), event.gameType()), event.port()));
+        new EventPublisher<>(Events.ServerEvents.ServerStarted.class, this.startServer(event.port(), event.gameType()), event.port());
     }
 
     private void handleStartTicTacToeGameOnAServer(

@@ -1,8 +1,11 @@
 package org.toop.frontend.games;
 
 import java.util.concurrent.*;
+
+import jdk.jfr.Event;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.eventbus.EventPublisher;
 import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.eventbus.events.NetworkEvents;
@@ -11,6 +14,7 @@ import org.toop.frontend.networking.NetworkingGameClientHandler;
 import org.toop.game.tictactoe.GameBase;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
+import java.util.function.Supplier;
 
 /**
  * A representation of a local tic-tac-toe game. Calls are made to a server for information about
@@ -66,9 +70,9 @@ public class LocalTicTacToe { // TODO: Implement runnable
      * @param port The port of the server to connect to.
      */
     private LocalTicTacToe(String ip, int port) {
-        this.receivedMessageListener =
-                GlobalEventBus.subscribe(this::receiveMessageAction);
-        GlobalEventBus.register(this.receivedMessageListener);
+//        this.receivedMessageListener =
+//                GlobalEventBus.subscribe(this::receiveMessageAction);
+//        GlobalEventBus.subscribe(this.receivedMessageListener);
         this.connectionId = this.createConnection(ip, port);
         this.createGame("X", "O");
         this.isLocal = false;
@@ -100,8 +104,8 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private String createServer(int port) {
         CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
-        GlobalEventBus.post(
-                new Events.ServerEvents.StartServerRequest(port, "tictactoe", serverIdFuture));
+        new EventPublisher<>(Events.ServerEvents.StartServerRequest.class, port, "tictactoe", serverIdFuture)
+                .postEvent();
         try {
             return serverIdFuture.get();
         } catch (Exception e) {
@@ -112,12 +116,9 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private String createConnection(String ip, int port) {
         CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
-        GlobalEventBus.post(
-                new NetworkEvents.StartClientRequest(
-                        NetworkingGameClientHandler::new,
-                        ip,
-                        port,
-                        connectionIdFuture)); // TODO: what if server couldn't be started with port.
+        new EventPublisher<>(NetworkEvents.StartClientRequest.class,
+                (Supplier<NetworkingGameClientHandler>) NetworkingGameClientHandler::new,
+                ip, port, connectionIdFuture).postEvent(); // TODO: what if server couldn't be started with port.
         try {
             return connectionIdFuture.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -231,7 +232,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private void endTheGame() {
         this.sendCommand("end_game", this.gameId);
-        this.endListeners();
+//        this.endListeners();
     }
 
     private void receiveMessageAction(NetworkEvents.ReceivedMessage receivedMessage) {
@@ -249,12 +250,12 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void sendCommand(String... args) {
-        GlobalEventBus.post(new NetworkEvents.SendCommand(this.connectionId, args));
+        new EventPublisher<>(NetworkEvents.SendCommand.class, this.connectionId, args).postEvent();
     }
 
-    private void endListeners() {
-        GlobalEventBus.unregister(this.receivedMessageListener);
-    }
+//    private void endListeners() {
+//        GlobalEventBus.unregister(this.receivedMessageListener);
+//    } TODO
 
     public void setUIReference(UIGameBoard uiGameBoard) {
         this.ui = uiGameBoard;

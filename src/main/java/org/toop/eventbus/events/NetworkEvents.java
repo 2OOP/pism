@@ -1,12 +1,12 @@
 package org.toop.eventbus.events;
 
-import com.google.common.base.Supplier;
 import org.toop.backend.tictactoe.TicTacToeServer;
 import org.toop.frontend.networking.NetworkingGameClientHandler;
 
 import java.lang.reflect.RecordComponent;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,14 +18,14 @@ public class NetworkEvents extends Events {
      *
      * @param future List of all connections in string form.
      */
-    public record RequestsAllClients(CompletableFuture<String> future) {}
+    public record RequestsAllClients(CompletableFuture<String> future) implements IEvent {}
 
     /** Forces closing all active connections immediately. */
-    public record ForceCloseAllClients() {}
+    public record ForceCloseAllClients() implements IEvent {}
 
     public record CloseClientRequest(CompletableFuture<String> future) {}
 
-    public record CloseClient(String connectionId) {}
+    public record CloseClient(String connectionId) implements IEvent {}
 
     /**
      * Event to start a new client connection to a server.
@@ -102,15 +102,14 @@ public class NetworkEvents extends Events {
      */
     public record StartClientRequest(
             Supplier<? extends NetworkingGameClientHandler> handlerFactory,
-            String ip, int port, CompletableFuture<String> future) {}
+            String ip, int port, CompletableFuture<String> future) implements IEvent {}
 
     /**
-     * BLOCKING Triggers starting a server connection and returns a future.
      *
-     * @param ip The IP address of the server to connect to.
-     * @param port The port of the server to connect to.
+     * @param clientId The ID of the client to be used in requests.
+     * @param eventId The eventID used in checking if event is for you.
      */
-    public record StartClientSuccess(Object connectionId, String ip, int port, String eventId)
+    public record StartClientSuccess(String clientId, String eventId)
             implements EventWithUuid {
         @Override
         public Map<String, Object> result() {
@@ -139,7 +138,7 @@ public class NetworkEvents extends Events {
      * @param connectionId The UUID of the connection to send the command on.
      * @param args The command arguments.
      */
-    public record SendCommand(String connectionId, String... args) {}
+    public record SendCommand(String connectionId, String... args) implements IEvent {}
 
     /**
      * WIP Triggers when a command is sent to a server.
@@ -165,7 +164,7 @@ public class NetworkEvents extends Events {
      * @param ConnectionUuid The UUID of the connection that received the message.
      * @param message The message received.
      */
-    public record ReceivedMessage(String ConnectionUuid, String message) {}
+    public record ReceivedMessage(String ConnectionUuid, String message) implements  IEvent {}
 
     /**
      * Triggers changing connection to a new address.

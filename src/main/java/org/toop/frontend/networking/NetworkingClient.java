@@ -1,6 +1,5 @@
 package org.toop.frontend.networking;
 
-import com.google.common.base.Supplier;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioIoHandler;
@@ -10,6 +9,8 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.function.Supplier;
 
 public class NetworkingClient {
     private static final Logger logger = LogManager.getLogger(NetworkingClient.class);

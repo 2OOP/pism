@@ -34,10 +34,10 @@ class EventPublisherPerformanceTest {
 
     @Test
     void testEventPostSpeed() {
-        int iterations = 10_000;
+        int iterations = 100_000;
         AtomicInteger counter = new AtomicInteger(0);
 
-        GlobalEventBus.subscribeAndRegister(PerfEvent.class, e -> counter.incrementAndGet());
+        GlobalEventBus.subscribe(PerfEvent.class, e -> counter.incrementAndGet());
 
         long start = System.nanoTime();
 
@@ -59,7 +59,7 @@ class EventPublisherPerformanceTest {
         int eventsPerThread = 5_000;
         AtomicInteger counter = new AtomicInteger(0);
 
-        GlobalEventBus.subscribeAndRegister(PerfEvent.class, e -> counter.incrementAndGet());
+        GlobalEventBus.subscribe(PerfEvent.class, e -> counter.incrementAndGet());
 
         Thread[] workers = new Thread[threads];
 

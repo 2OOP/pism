@@ -1,10 +1,10 @@
 package org.toop.eventbus.events;
 
+import org.apache.logging.log4j.core.jmx.Server;
+
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-
-import org.toop.core.Window;
 
 /** Events that are used in the GlobalEventBus class. */
 public class Events implements IEvent {
@@ -81,7 +81,7 @@ public class Events implements IEvent {
         public record RequestsAllServers(CompletableFuture<String> future) {}
 
         /** Forces closing all active servers immediately. */
-        public record ForceCloseAllServers() {}
+        public record ForceCloseAllServers() implements IEvent {}
 
         /**
          * Requests starting a server with a specific port and game type.
@@ -89,7 +89,7 @@ public class Events implements IEvent {
          * @param port The port to open the server.
          * @param gameType Either "tictactoe" or ...
          */
-        public record StartServer(int port, String gameType) {}
+        public record StartServer(int port, String gameType) implements IEvent {}
 
         /**
          * BLOCKING Requests starting a server with a specific port and game type, and returns a
@@ -100,7 +100,7 @@ public class Events implements IEvent {
          * @param future The uuid of the server.
          */
         public record StartServerRequest(
-                int port, String gameType, CompletableFuture<String> future) {}
+                int port, String gameType, CompletableFuture<String> future) implements IEvent{}
 
         /**
          * Represents a server that has successfully started.
@@ -108,7 +108,7 @@ public class Events implements IEvent {
          * @param uuid The unique identifier of the server.
          * @param port The port the server is listening on.
          */
-        public record ServerStarted(String uuid, int port) {}
+        public record ServerStarted(String uuid, int port) implements IEvent {}
 
         /**
          * BLOCKING Requests creation of a TicTacToe game on a specific server.
@@ -122,7 +122,7 @@ public class Events implements IEvent {
                 String serverUuid,
                 String playerA,
                 String playerB,
-                CompletableFuture<String> future) {}
+                CompletableFuture<String> future) implements IEvent {}
 
         /**
          * Requests running a TicTacToe game on a specific server.
@@ -130,7 +130,7 @@ public class Events implements IEvent {
          * @param serverUuid The unique identifier of the server.
          * @param gameUuid The UUID of the game to run.
          */
-        public record RunTicTacToeGame(String serverUuid, String gameUuid) {}
+        public record RunTicTacToeGame(String serverUuid, String gameUuid) implements IEvent {}
 
         /**
          * Requests ending a TicTacToe game on a specific server.
@@ -138,7 +138,7 @@ public class Events implements IEvent {
          * @param serverUuid The UUID of the server the game is running on.
          * @param gameUuid The UUID of the game to end.
          */
-        public record EndTicTacToeGame(String serverUuid, String gameUuid) {}
+        public record EndTicTacToeGame(String serverUuid, String gameUuid) implements IEvent {}
 
         //        public record StartGameConnectionRequest(String ip, String port,
         // CompletableFuture<String> future) {}
@@ -165,13 +165,13 @@ public class Events implements IEvent {
 
     public static class WindowEvents {
         /** Triggers when the window wants to quit. */
-        public record OnQuitRequested() {}
+        public record OnQuitRequested() implements IEvent {}
 
         /** Triggers when the window is resized. */
-        public record OnResize(Window.Size size) {}
+//        public record OnResize(Window.Size size) {}
 
         /** Triggers when the mouse is moved within the window. */
-        public record OnMouseMove(int x, int y) {}
+        public record OnMouseMove(int x, int y) implements IEvent {}
 
         /** Triggers when the mouse is clicked within the window. */
         public record OnMouseClick(int button) {}
