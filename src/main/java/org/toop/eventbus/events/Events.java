@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import org.toop.core.Window;
 
 /** Events that are used in the GlobalEventBus class. */
-public class Events implements IEvents {
+public class Events implements IEvent {
 
     /**
      * WIP, DO NOT USE!

@@ -38,34 +38,15 @@ public class Main {
                 new Events.ServerEvents.StartServerRequest(5001, "tictactoe", serverIdFuture));
         var serverId = serverIdFuture.get();
 
+        new MainTest();
+
+
 //        CompletableFuture<String> conIdFuture = new CompletableFuture<>();
 //        GlobalEventBus.post(
 //                new NetworkEvents.StartClientRequest(NetworkingGameClientHandler::new,
 //                        "127.0.0.1", 5001, conIdFuture));
 //        var conId = conIdFuture.get();
 
-        int numThreads = 100; // how many EventPublisher tests you want
-
-        ExecutorService executor = Executors.newFixedThreadPool(200); // 20 threads in pool
-
-        for (int i = 0; i < numThreads; i++) {
-            executor.submit(() -> {
-                new EventPublisher<>(
-                        NetworkEvents.StartClient.class,
-                        (Supplier<NetworkingGameClientHandler>) NetworkingGameClientHandler::new,
-                        "127.0.0.1",
-                        5001
-                ).onEventById(
-                        NetworkEvents.StartClientSuccess.class,
-                        event -> GlobalEventBus.post(
-                                new NetworkEvents.CloseClient((String) event.connectionId()))
-                ).unregisterAfterSuccess()
-                .postEvent();
-            });
-        }
-
-// Shutdown after tasks complete
-        executor.shutdown();
 
 //        GlobalEventBus.post(new NetworkEvents.SendCommand(conId, "move", "5"));
 //        GlobalEventBus.post(new NetworkEvents.ForceCloseAllClients());

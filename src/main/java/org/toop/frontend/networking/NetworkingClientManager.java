@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.google.common.base.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.eventbus.EventPublisher;
 import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
 import org.toop.eventbus.events.NetworkEvents;

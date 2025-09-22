@@ -20,8 +20,8 @@ class EventPublisherStressTest {
         }
     }
 
-    private static final int THREADS = 100;
-    private static final long EVENTS_PER_THREAD = 2_000_000;
+    private static final int THREADS = 1;
+    private static final long EVENTS_PER_THREAD = 2_000_000_000;
 
     @Tag("stress")
     @Test

@@ -26,7 +26,7 @@ import java.util.function.Consumer;
  *
  * @param <T> the type of event to publish, must extend EventWithUuid
  */
-public class EventPublisher<T extends EventWithUuid> {
+public class EventPublisher<T> {
 
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
     private static final Map<Class<?>, MethodHandle> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
@@ -58,9 +58,10 @@ public class EventPublisher<T extends EventWithUuid> {
         this.eventId = UUID.randomUUID().toString();
 
         try {
+            boolean isUuidEvent = EventWithUuid.class.isAssignableFrom(postEventClass);
+
             MethodHandle ctorHandle = CONSTRUCTOR_CACHE.computeIfAbsent(postEventClass, cls -> {
                 try {
-                    // Build signature dynamically (arg types + String for UUID)
                     Class<?>[] paramTypes = cls.getDeclaredConstructors()[0].getParameterTypes();
                     MethodType mt = MethodType.methodType(void.class, paramTypes);
                     return LOOKUP.findConstructor(cls, mt);
@@ -69,41 +70,16 @@ public class EventPublisher<T extends EventWithUuid> {
                 }
             });
 
-            // Append UUID to args
-            Object[] finalArgs = new Object[args.length + 1];
-            System.arraycopy(args, 0, finalArgs, 0, args.length);
-            finalArgs[args.length] = this.eventId;
-            // --------------------
-
-            @SuppressWarnings("unchecked")
-            T instance = (T) ctorHandle.invokeWithArguments(finalArgs);
-            this.event = instance;
-
-        } catch (Throwable e) {
-            throw new RuntimeException("Failed to instantiate event", e);
-        }
-    }
-
-    public EventPublisher(EventBus eventbus, Class<T> postEventClass, Object... args) {
-        this.eventId = UUID.randomUUID().toString();
-
-        try {
-            MethodHandle ctorHandle = CONSTRUCTOR_CACHE.computeIfAbsent(postEventClass, cls -> {
-                try {
-                    // Build signature dynamically (arg types + String for UUID)
-                    Class<?>[] paramTypes = cls.getDeclaredConstructors()[0].getParameterTypes();
-                    MethodType mt = MethodType.methodType(void.class, paramTypes);
-                    return LOOKUP.findConstructor(cls, mt);
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to find constructor handle for " + cls, e);
-                }
-            });
-
-            // Append UUID to args
-            Object[] finalArgs = new Object[args.length + 1];
-            System.arraycopy(args, 0, finalArgs, 0, args.length);
-            finalArgs[args.length] = this.eventId;
-            // --------------------
+            Object[] finalArgs;
+            if (isUuidEvent) {
+                // append UUID to args
+                finalArgs = new Object[args.length + 1];
+                System.arraycopy(args, 0, finalArgs, 0, args.length);
+                finalArgs[args.length] = this.eventId;
+            } else {
+                // just forward args
+                finalArgs = args;
+            }
 
             @SuppressWarnings("unchecked")
             T instance = (T) ctorHandle.invokeWithArguments(finalArgs);
@@ -142,6 +118,107 @@ public class EventPublisher<T extends EventWithUuid> {
     }
 
     /**
+     * Subscribes a listener for a specific event type, but only triggers the listener
+     * if the incoming event's UUID matches this EventPublisher's UUID.
+     *
+     * @param action     the action (function) to execute when a matching event is received
+     * @param <TT>       the type of the event to subscribe to; must extend EventWithUuid
+     * @return this EventPublisher instance, for chainable calls
+     */
+    @SuppressWarnings("unchecked")
+    public <TT extends EventWithUuid> EventPublisher<T> onEventById(
+            Consumer<TT> action) {
+
+        this.listener = GlobalEventBus.subscribeAndRegister(event -> {
+            // Only process events that are EventWithUuid
+            if (event instanceof EventWithUuid uuidEvent) {
+                if (uuidEvent.eventId().equals(this.eventId)) {
+                    try {
+                        TT typedEvent = (TT) uuidEvent; // unchecked cast
+                        action.accept(typedEvent);
+
+                        if (unregisterAfterSuccess && listener != null) {
+                            GlobalEventBus.unregister(listener);
+                        }
+
+                        this.result = typedEvent.result();
+                    } catch (ClassCastException ignored) {
+                        // TODO: Not the right type, ignore silently
+                    }
+                }
+            }
+        });
+
+        return this;
+    }
+
+    /**
+     * Subscribes a listener for a specific event type. The listener will be invoked
+     * whenever an event of the given class is posted to the global event bus.
+     *
+     * <p>This overload provides type safety by requiring the event class explicitly
+     * and casting the incoming event before passing it to the provided action.</p>
+     *
+     * <pre>{@code
+     * new EventPublisher<>(MyEvent.class)
+     *     .onEvent(MyEvent.class, e -> logger.info("Received: " + e))
+     *     .postEvent();
+     * }</pre>
+     *
+     * @param eventClass the class of the event to subscribe to
+     * @param action     the action to execute when an event of the given class is received
+     * @param <TT>       the type of the event to subscribe to
+     * @return this EventPublisher instance, for chainable calls
+     */
+    public <TT> EventPublisher<T> onEvent(Class<TT> eventClass, Consumer<TT> action) {
+        this.listener = GlobalEventBus.subscribeAndRegister(eventClass, event -> {
+            action.accept(eventClass.cast(event));
+
+            if (unregisterAfterSuccess && listener != null) {
+                GlobalEventBus.unregister(listener);
+            }
+        });
+        return this;
+    }
+
+    /**
+     * Subscribes a listener for events without requiring the event class explicitly.
+     * The listener will attempt to cast each posted event to the expected type.
+     * If the cast fails, the event is ignored silently.
+     *
+     * <p>This overload provides more concise syntax, but relies on an unchecked cast
+     * at runtime. Use {@link #onEvent(Class, Consumer)} if you prefer explicit
+     * type safety.</p>
+     *
+     * <pre>{@code
+     * new EventPublisher<>(MyEvent.class)
+     *     .onEvent((MyEvent e) -> logger.info("Received: " + e))
+     *     .postEvent();
+     * }</pre>
+     *
+     * @param action the action to execute when a matching event is received
+     * @param <TT>   the type of the event to subscribe to
+     * @return this EventPublisher instance, for chainable calls
+     */
+    @SuppressWarnings("unchecked")
+    public <TT> EventPublisher<T> onEvent(Consumer<TT> action) {
+        this.listener = GlobalEventBus.subscribeAndRegister(event -> {
+            try {
+                // unchecked cast – if wrong type, ClassCastException is caught
+                TT typedEvent = (TT) event;
+                action.accept(typedEvent);
+
+                if (unregisterAfterSuccess && listener != null) {
+                    GlobalEventBus.unregister(listener);
+                }
+            } catch (ClassCastException ignored) {
+                // Ignore events of unrelated types
+            }
+        });
+        return this;
+    }
+
+    /**
      * Posts the event to the global event bus. This should generally be the
      * final call in the chain.
      *
@@ -161,6 +238,13 @@ public class EventPublisher<T extends EventWithUuid> {
      */
     public EventPublisher<T> unregisterAfterSuccess() {
         this.unregisterAfterSuccess = true;
+        return this;
+    }
+
+    public EventPublisher<T> unregisterNow() {
+        if (unregisterAfterSuccess && listener != null) {
+            GlobalEventBus.unregister(listener);
+        }
         return this;
     }
 
