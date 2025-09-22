@@ -92,6 +92,7 @@ public class LocalGameSelector extends JFrame {
             }
             cardLayout.show(cards, "TicTacToe");
         }
+        lttt.startThreads();
     }
 
     public void showMainMenu() {

@@ -128,7 +128,8 @@ public class RemoteGameSelector {
                         localTicTacToe =
                                 LocalTicTacToe.createRemote(
                                         ipTextField.getText(), portTextField.getText());
-                        UIGameBoard ttt = new UIGameBoard(localTicTacToe, this); // TODO: Fix later
+                        UIGameBoard ttt = new UIGameBoard(localTicTacToe, this);
+                        localTicTacToe.startThreads();
                         frame.add(ttt.getTTTPanel()); // TODO: Fix later
                         frame.revalidate();
                         frame.repaint();

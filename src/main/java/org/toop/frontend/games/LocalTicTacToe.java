@@ -10,6 +10,8 @@ import org.toop.game.tictactoe.GameBase;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
 
+import static java.lang.Thread.sleep;
+
 /**
  * A representation of a local tic-tac-toe game. Calls are made to a server for information about
  * current game state. MOST OF THIS CODE IS TRASH, THROW IT OUT OF THE WINDOW AFTER DEMO.
@@ -71,7 +73,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
         this.connectionId = this.createConnection(ip, port);
         this.createGame(ip, port);
         this.isLocal = false;
-        this.executor.submit(this::remoteGameThread);
+        //this.executor.submit(this::remoteGameThread);
     }
 
     private LocalTicTacToe(boolean[] aiFlags) {
@@ -86,7 +88,14 @@ public class LocalTicTacToe { // TODO: Implement runnable
         }
 
         this.isLocal = true;
-        this.executor.submit(this::localGameThread);
+        //this.executor.submit(this::localGameThread);
+    }
+    public void startThreads(){
+        if (isLocal) {
+            this.executor.submit(this::localGameThread);
+        }else {
+            this.executor.submit(this::remoteGameThread);
+        }
     }
 
     public static LocalTicTacToe createLocal(boolean[] aiPlayers) {
