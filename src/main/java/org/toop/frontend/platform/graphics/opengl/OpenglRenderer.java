@@ -3,6 +3,7 @@ package org.toop.frontend.platform.graphics.opengl;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 import org.toop.eventbus.*;
+import org.toop.eventbus.events.Events;
 import org.toop.frontend.graphics.Renderer;
 import org.toop.frontend.graphics.Shader;
 

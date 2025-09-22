@@ -1,12 +1,13 @@
-package org.toop.frontend;
+package org.toop.frontend.networking;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.eventbus.Events;
+import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
+import org.toop.eventbus.events.NetworkEvents;
 
 public final class ServerConnection extends TcpClient implements Runnable {
 
@@ -85,7 +86,7 @@ public final class ServerConnection extends TcpClient implements Runnable {
                     logger.info("Connection: {} received: '{}'", this.uuid, received);
                     // this.addReceivedMessageToQueue(received); // TODO: Will never go empty
                     GlobalEventBus.post(
-                            new Events.ServerEvents.ReceivedMessage(
+                            new NetworkEvents.ReceivedMessage(
                                     this.uuid, received)); // TODO: mb change
                 } else {
                     break;

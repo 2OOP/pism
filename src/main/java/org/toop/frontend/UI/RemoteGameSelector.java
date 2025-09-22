@@ -7,9 +7,11 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.eventbus.Events;
+import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
+import org.toop.eventbus.events.NetworkEvents;
 import org.toop.frontend.games.LocalTicTacToe;
+import org.toop.frontend.networking.NetworkingGameClientHandler;
 
 public class RemoteGameSelector {
     private static final Logger logger = LogManager.getLogger(RemoteGameSelector.class);
@@ -56,7 +58,7 @@ public class RemoteGameSelector {
                         CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
                         GlobalEventBus.post(
                                 new Events.ServerEvents.StartServerRequest(
-                                        portTextField.getText(),
+                                        Integer.parseInt(portTextField.getText()), // TODO: Unsafe parse
                                         Objects.requireNonNull(gameSelectorBox.getSelectedItem())
                                                 .toString()
                                                 .toLowerCase()
@@ -71,9 +73,10 @@ public class RemoteGameSelector {
 
                         CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
                         GlobalEventBus.post(
-                                new Events.ServerEvents.StartConnectionRequest(
+                                new NetworkEvents.StartClientRequest(
+                                        NetworkingGameClientHandler::new,
                                         ipTextField.getText(),
-                                        portTextField.getText(),
+                                        Integer.parseInt(portTextField.getText()), // TODO: Not safe parsing
                                         connectionIdFuture));
                         String connectionId;
                         try {
@@ -83,7 +86,7 @@ public class RemoteGameSelector {
                         } // TODO: Better error handling to not crash the system.
 
                         GlobalEventBus.subscribeAndRegister(
-                                Events.ServerEvents.ReceivedMessage.class,
+                                NetworkEvents.ReceivedMessage.class,
                                 event -> {
                                     if (event.message().equalsIgnoreCase("ok")) {
                                         logger.info("received ok from server.");
@@ -93,7 +96,7 @@ public class RemoteGameSelector {
                                                         .toLowerCase()
                                                         .replace("gameid ", "");
                                         GlobalEventBus.post(
-                                                new Events.ServerEvents.SendCommand(
+                                                new NetworkEvents.SendCommand(
                                                         "start_game " + gameId));
                                     } else {
                                         logger.info("{}", event.message());
@@ -101,7 +104,7 @@ public class RemoteGameSelector {
                                 });
 
                         GlobalEventBus.post(
-                                new Events.ServerEvents.SendCommand(
+                                new NetworkEvents.SendCommand(
                                         connectionId,
                                         "create_game",
                                         nameTextField.getText(),
@@ -127,7 +130,7 @@ public class RemoteGameSelector {
                         frame.remove(mainMenu);
                         localTicTacToe =
                                 LocalTicTacToe.createRemote(
-                                        ipTextField.getText(), portTextField.getText());
+                                        ipTextField.getText(), Integer.parseInt(portTextField.getText())); // TODO: Unsafe parse
                         UIGameBoard ttt = new UIGameBoard(localTicTacToe, this); // TODO: Fix later
                         frame.add(ttt.getTTTPanel()); // TODO: Fix later
                         frame.revalidate();

@@ -1,9 +1,9 @@
-package org.toop.eventbus;
+package org.toop.eventbus.events;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import org.toop.backend.tictactoe.TicTacToeServer;
+
 import org.toop.core.Window;
 
 /** Events that are used in the GlobalEventBus class. */
@@ -18,7 +18,7 @@ public class Events implements IEvents {
      * @throws Exception
      */
     public static Object get(String eventName, Object... args) throws Exception {
-        Class<?> clazz = Class.forName("org.toop.eventbus.Events$ServerEvents$" + eventName);
+        Class<?> clazz = Class.forName("org.toop.eventbus.events.Events$ServerEvents$" + eventName);
         Class<?>[] paramTypes = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
         Constructor<?> constructor = clazz.getConstructor(paramTypes);
         return constructor.newInstance(args);
@@ -36,7 +36,7 @@ public class Events implements IEvents {
     public static Object get(String eventCategory, String eventName, Object... args)
             throws Exception {
         Class<?> clazz =
-                Class.forName("org.toop.eventbus.Events$" + eventCategory + "$" + eventName);
+                Class.forName("org.toop.eventbus.events.Events$" + eventCategory + "$" + eventName);
         Class<?>[] paramTypes = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
         Constructor<?> constructor = clazz.getConstructor(paramTypes);
         return constructor.newInstance(args);
@@ -73,23 +73,12 @@ public class Events implements IEvents {
     public static class ServerEvents {
 
         /**
-         * BLOCKING Requests all active connections. The result is returned via the provided
-         * CompletableFuture.
-         *
-         * @param future List of all connections in string form.
-         */
-        public record RequestsAllConnections(CompletableFuture<String> future) {}
-
-        /**
          * BLOCKING Requests all active servers. The result is returned via the provided
          * CompletableFuture.
          *
          * @param future List of all servers in string form.
          */
         public record RequestsAllServers(CompletableFuture<String> future) {}
-
-        /** Forces closing all active connections immediately. */
-        public record ForceCloseAllConnections() {}
 
         /** Forces closing all active servers immediately. */
         public record ForceCloseAllServers() {}
@@ -100,7 +89,7 @@ public class Events implements IEvents {
          * @param port The port to open the server.
          * @param gameType Either "tictactoe" or ...
          */
-        public record StartServer(String port, String gameType) {}
+        public record StartServer(int port, String gameType) {}
 
         /**
          * BLOCKING Requests starting a server with a specific port and game type, and returns a
@@ -111,7 +100,7 @@ public class Events implements IEvents {
          * @param future The uuid of the server.
          */
         public record StartServerRequest(
-                String port, String gameType, CompletableFuture<String> future) {}
+                int port, String gameType, CompletableFuture<String> future) {}
 
         /**
          * Represents a server that has successfully started.
@@ -119,7 +108,7 @@ public class Events implements IEvents {
          * @param uuid The unique identifier of the server.
          * @param port The port the server is listening on.
          */
-        public record ServerStarted(String uuid, String port) {}
+        public record ServerStarted(String uuid, int port) {}
 
         /**
          * BLOCKING Requests creation of a TicTacToe game on a specific server.
@@ -151,60 +140,8 @@ public class Events implements IEvents {
          */
         public record EndTicTacToeGame(String serverUuid, String gameUuid) {}
 
-        /**
-         * Triggers starting a server connection.
-         *
-         * @param ip The IP address of the server to connect to.
-         * @param port The port of the server to connect to.
-         */
-        public record StartConnection(String ip, String port) {}
-
-        /**
-         * BLOCKING Triggers starting a server connection and returns a future.
-         *
-         * @param ip The IP address of the server to connect to.
-         * @param port The port of the server to connect to.
-         * @param future Returns the UUID of the connection, when connection is established.
-         */
-        public record StartConnectionRequest(
-                String ip, String port, CompletableFuture<String> future) {}
-
         //        public record StartGameConnectionRequest(String ip, String port,
         // CompletableFuture<String> future) {}
-
-        /**
-         * BLOCKING Triggers starting a server connection and returns a future.
-         *
-         * @param ip The IP address of the server to connect to.
-         * @param port The port of the server to connect to.
-         */
-        public record ConnectionEstablished(Object connectionId, String ip, String port) {}
-
-        /**
-         * Triggers sending a command to a server.
-         *
-         * @param connectionId The UUID of the connection to send the command on.
-         * @param args The command arguments.
-         */
-        public record SendCommand(String connectionId, String... args) {}
-
-        /**
-         * WIP Triggers when a command is sent to a server.
-         *
-         * @param command The TicTacToeServer instance that executed the command.
-         * @param args The command arguments.
-         * @param result The result returned from executing the command.
-         */
-        public record OnCommand(
-                TicTacToeServer command, String[] args, String result) {} // TODO old
-
-        /**
-         * Triggers when the server client receives a message.
-         *
-         * @param ConnectionUuid The UUID of the connection that received the message.
-         * @param message The message received.
-         */
-        public record ReceivedMessage(String ConnectionUuid, String message) {}
 
         /**
          * Triggers on changing the server IP.
@@ -218,33 +155,7 @@ public class Events implements IEvents {
          *
          * @param port The new port.
          */
-        public record OnChangingServerPort(String port) {}
-
-        /**
-         * Triggers reconnecting to a previous address.
-         *
-         * @param connectionId The identifier of the connection being reconnected.
-         */
-        public record Reconnect(Object connectionId) {}
-
-        /**
-         * Triggers changing connection to a new address.
-         *
-         * @param connectionId The identifier of the connection being changed.
-         * @param ip The new IP address.
-         * @param port The new port.
-         */
-        public record ChangeConnection(Object connectionId, String ip, String port) {}
-
-        /**
-         * Triggers when the server couldn't connect to the desired address.
-         *
-         * @param connectionId The identifier of the connection that failed.
-         */
-        public record CouldNotConnect(Object connectionId) {}
-
-        /** WIP Triggers when a connection closes. */
-        public record ClosedConnection() {}
+        public record OnChangingServerPort(int port) {}
 
         /** Triggers when a cell is clicked in one of the game boards. */
         public record CellClicked(int cell) {}

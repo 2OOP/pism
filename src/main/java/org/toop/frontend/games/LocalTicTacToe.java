@@ -3,9 +3,11 @@ package org.toop.frontend.games;
 import java.util.concurrent.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.eventbus.Events;
+import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
+import org.toop.eventbus.events.NetworkEvents;
 import org.toop.frontend.UI.UIGameBoard;
+import org.toop.frontend.networking.NetworkingGameClientHandler;
 import org.toop.game.tictactoe.GameBase;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
@@ -63,13 +65,12 @@ public class LocalTicTacToe { // TODO: Implement runnable
      * @param ip The IP of the server to connect to.
      * @param port The port of the server to connect to.
      */
-    private LocalTicTacToe(String ip, String port) {
+    private LocalTicTacToe(String ip, int port) {
         this.receivedMessageListener =
-                GlobalEventBus.subscribe(
-                        Events.ServerEvents.ReceivedMessage.class, this::receiveMessageAction);
+                GlobalEventBus.subscribe(this::receiveMessageAction);
         GlobalEventBus.register(this.receivedMessageListener);
         this.connectionId = this.createConnection(ip, port);
-        this.createGame(ip, port);
+        this.createGame("X", "O");
         this.isLocal = false;
         this.executor.submit(this::remoteGameThread);
     }
@@ -93,11 +94,11 @@ public class LocalTicTacToe { // TODO: Implement runnable
         return new LocalTicTacToe(aiPlayers);
     }
 
-    public static LocalTicTacToe createRemote(String ip, String port) {
+    public static LocalTicTacToe createRemote(String ip, int port) {
         return new LocalTicTacToe(ip, port);
     }
 
-    private String createServer(String port) {
+    private String createServer(int port) {
         CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
         GlobalEventBus.post(
                 new Events.ServerEvents.StartServerRequest(port, "tictactoe", serverIdFuture));
@@ -109,10 +110,11 @@ public class LocalTicTacToe { // TODO: Implement runnable
         return null;
     }
 
-    private String createConnection(String ip, String port) {
+    private String createConnection(String ip, int port) {
         CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
         GlobalEventBus.post(
-                new Events.ServerEvents.StartConnectionRequest(
+                new NetworkEvents.StartClientRequest(
+                        NetworkingGameClientHandler::new,
                         ip,
                         port,
                         connectionIdFuture)); // TODO: what if server couldn't be started with port.
@@ -232,7 +234,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
         this.endListeners();
     }
 
-    private void receiveMessageAction(Events.ServerEvents.ReceivedMessage receivedMessage) {
+    private void receiveMessageAction(NetworkEvents.ReceivedMessage receivedMessage) {
         if (!receivedMessage.ConnectionUuid().equals(this.connectionId)) {
             return;
         }
@@ -247,7 +249,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void sendCommand(String... args) {
-        GlobalEventBus.post(new Events.ServerEvents.SendCommand(this.connectionId, args));
+        GlobalEventBus.post(new NetworkEvents.SendCommand(this.connectionId, args));
     }
 
     private void endListeners() {

@@ -1,4 +1,4 @@
-package org.toop.frontend;
+package org.toop.frontend.networking;
 
 import java.io.BufferedReader;
 import java.io.IOException;

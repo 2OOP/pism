@@ -2,6 +2,7 @@ package org.toop.eventbus;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
 import java.util.function.Consumer;
 
 /** A singleton Event Bus to be used for creating, triggering and activating events. */
@@ -53,6 +54,18 @@ public class GlobalEventBus {
         };
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> Object subscribe(Consumer<T> action) {
+        return new Object() {
+            @Subscribe
+            public void handle(Object event) {
+                try {
+                    action.accept((T) event); // unchecked cast
+                } catch (ClassCastException ignored) {}
+            }
+        };
+    }
+
     /**
      * Wraps a Consumer into a Guava @Subscribe-compatible listener and registers it.
      *
@@ -66,10 +79,16 @@ public class GlobalEventBus {
         return listener;
     }
 
+    public static <T> Object subscribeAndRegister(Consumer<T> action) {
+        var listener = subscribe(action);
+        register(listener);
+        return listener;
+    }
+
     /**
      * Wrapper for registering a listener.
      *
-     * @param event The ready event to add to register.
+     * @param listener The listener to register.
      */
     public static void register(Object listener) {
         GlobalEventBus.get().register(listener);
@@ -78,7 +97,7 @@ public class GlobalEventBus {
     /**
      * Wrapper for unregistering a listener.
      *
-     * @param event The ready event to unregister.
+     * @param listener The listener to unregister.
      */
     public static void unregister(Object listener) {
         GlobalEventBus.get().unregister(listener);
@@ -90,18 +109,6 @@ public class GlobalEventBus {
      * @param event The event to post.
      */
     public static <T> void post(T event) {
-        Class<T> type = (Class<T>) event.getClass();
-
-        //        if (!EventRegistry.isReady(type)) {
-        //            throw new IllegalStateException("Event type not ready: " +
-        // type.getSimpleName());
-        //        } TODO: Handling non ready events.
-
-        // store in registry
-        EventMeta<T> eventMeta = new EventMeta<>(type, event);
-        EventRegistry.storeEvent(eventMeta);
-
-        // post to Guava EventBus
         GlobalEventBus.get().post(event);
     }
 }

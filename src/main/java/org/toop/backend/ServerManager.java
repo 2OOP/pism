@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.backend.tictactoe.TicTacToeServer;
-import org.toop.eventbus.Events;
+import org.toop.eventbus.events.Events;
 import org.toop.eventbus.GlobalEventBus;
 
 // TODO more methods.
@@ -37,13 +37,13 @@ public class ServerManager {
                 Events.ServerEvents.EndTicTacToeGame.class, this::handleEndTicTacToeGameOnAServer);
     }
 
-    private String startServer(String port, String gameType) {
+    private String startServer(int port, String gameType) {
         String serverId = UUID.randomUUID().toString();
         gameType = gameType.toLowerCase();
         try {
             TcpServer server = null;
             if (Objects.equals(gameType, "tictactoe")) {
-                server = new TicTacToeServer(Integer.parseInt(port));
+                server = new TicTacToeServer(port);
             } else {
                 logger.error("Manager could not create a server for game type: {}", gameType);
                 return null;

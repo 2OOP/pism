@@ -2,6 +2,8 @@
   <dictionary name="project">
     <words>
       <w>aosp</w>
+      <w>gamelist</w>
+      <w>playerlist</w>
       <w>vmoptions</w>
     </words>
   </dictionary>

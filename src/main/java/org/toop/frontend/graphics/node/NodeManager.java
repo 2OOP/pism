@@ -4,6 +4,7 @@ import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.eventbus.*;
+import org.toop.eventbus.events.Events;
 import org.toop.frontend.graphics.Shader;
 
 public class NodeManager {

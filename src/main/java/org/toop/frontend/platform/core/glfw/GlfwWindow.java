@@ -4,6 +4,7 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.system.*;
 import org.toop.core.*;
 import org.toop.eventbus.*;
+import org.toop.eventbus.events.Events;
 
 public class GlfwWindow extends Window {
     private long window;
