@@ -104,7 +104,7 @@ public class RemoteGameSelector {
 //                                });
 
                         GlobalEventBus.post(
-                                new NetworkEvents.SendCommand(
+                                new Events.ServerEvents.SendCommand(
                                         connectionId,
                                         "create_game",
                                         nameTextField.getText(),
@@ -130,8 +130,9 @@ public class RemoteGameSelector {
                         frame.remove(mainMenu);
                         localTicTacToe =
                                 LocalTicTacToe.createRemote(
-                                        ipTextField.getText(), Integer.parseInt(portTextField.getText())); // TODO: Unsafe parse
-                        UIGameBoard ttt = new UIGameBoard(localTicTacToe, this); // TODO: Fix later
+                                        ipTextField.getText(), portTextField.getText());
+                        UIGameBoard ttt = new UIGameBoard(localTicTacToe, this);
+                        localTicTacToe.startThreads();
                         frame.add(ttt.getTTTPanel()); // TODO: Fix later
                         frame.revalidate();
                         frame.repaint();
