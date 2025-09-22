@@ -74,6 +74,7 @@ public class UIGameBoard {
             cells[i] = new JButton(" ");
             cells[i].setFont(new Font("Arial", Font.BOLD, 400 / sizeX));
             panel.add(cells[i]);
+            cells[i].setFocusable(false);
 
             final int index = i;
             cells[i].addActionListener(
