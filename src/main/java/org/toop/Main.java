@@ -48,8 +48,8 @@ public class Main {
     }
 
     private static void registerEvents() {
-        new EventPublisher<>(Events.WindowEvents.OnQuitRequested.class, _ -> quit());
-        new EventPublisher<>(Events.WindowEvents.OnMouseMove.class, _ -> {});
+        new EventPublisher().onEvent(Events.WindowEvents.OnQuitRequested.class).perform(_ -> quit());
+        new EventPublisher().onEvent(Events.WindowEvents.OnMouseMove.class).perform(_ -> {});
     }
 
     private static void quit() {
