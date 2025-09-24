@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.concurrent.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.backend.TcpServer;
 import org.toop.game.tictactoe.TicTacToe;
 
 public class TicTacToeServer extends TcpServer {

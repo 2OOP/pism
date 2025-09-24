@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
+import org.toop.backend.tictactoe.TcpServer;
 
 class TcpServerTest {
 

@@ -1,4 +1,4 @@
-package org.toop.backend;
+package org.toop.backend.tictactoe;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -7,10 +7,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.backend.tictactoe.TicTacToeServer;
 import org.toop.eventbus.EventPublisher;
 import org.toop.eventbus.events.Events;
-import org.toop.eventbus.GlobalEventBus;
 
 // TODO more methods.
 
