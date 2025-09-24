@@ -2,7 +2,7 @@ package org.toop.framework.eventbus;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.toop.framework.eventbus.events.EventWithUuid;
+import org.toop.framework.eventbus.events.EventWithSnowflake;
 
 import java.math.BigInteger;
 import java.util.concurrent.*;
@@ -13,32 +13,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class EventPublisherStressTest {
 
     /** Top-level record to ensure runtime type matches subscription */
-    public record HeavyEvent(String payload, String eventId) implements EventWithUuid {
+    public record HeavyEvent(String payload, long eventSnowflake) implements EventWithSnowflake {
         @Override
         public java.util.Map<String, Object> result() {
-            return java.util.Map.of("payload", payload, "eventId", eventId);
+            return java.util.Map.of("payload", payload, "eventId", eventSnowflake);
         }
 
         @Override
-        public String eventId() {
-            return eventId;
+        public long eventSnowflake() {
+            return this.eventSnowflake;
         }
     }
 
-    public record HeavyEventSuccess(String payload, String eventId) implements EventWithUuid {
+    public record HeavyEventSuccess(String payload, long eventSnowflake) implements EventWithSnowflake {
         @Override
         public java.util.Map<String, Object> result() {
-            return java.util.Map.of("payload", payload, "eventId", eventId);
+            return java.util.Map.of("payload", payload, "eventId", eventSnowflake);
         }
 
         @Override
-        public String eventId() {
-            return eventId;
+        public long eventSnowflake() {
+            return eventSnowflake;
         }
     }
 
-    private static final int THREADS = 16;
-    private static final long EVENTS_PER_THREAD = 1_000_000_000;
+    private static final int THREADS = 32;
+    private static final long EVENTS_PER_THREAD = 10_000_000;
 
     @Tag("stress")
     @Test
@@ -85,13 +85,13 @@ class EventPublisherStressTest {
         monitor.setDaemon(true);
         monitor.start();
 
-        var listener = new EventPublisher<>(HeavyEvent.class, _ -> counter.increment());
+        var listener = new EventFlow().listen(HeavyEvent.class, _ -> counter.increment());
 
         // Submit events asynchronously
         for (int t = 0; t < THREADS; t++) {
             executor.submit(() -> {
                 for (int i = 0; i < EVENTS_PER_THREAD; i++) {
-                    var _ = new EventPublisher<>(HeavyEvent.class, "payload-" + i)
+                    var _ = new EventFlow().addPostEvent(HeavyEvent.class, "payload-" + i)
                             .asyncPostEvent();
                 }
             });
@@ -161,13 +161,13 @@ class EventPublisherStressTest {
         for (int t = 0; t < THREADS; t++) {
             executor.submit(() -> {
                 for (int i = 0; i < EVENTS_PER_THREAD; i++) {
-                    var a = new EventPublisher<>(HeavyEvent.class, "payload-" + i)
-                            .onEventById(HeavyEventSuccess.class, _ -> counter.increment())
+                    var a = new EventFlow().addPostEvent(HeavyEvent.class, "payload-" + i)
+                            .onResponse(HeavyEventSuccess.class, _ -> counter.increment())
                             .unsubscribeAfterSuccess()
-                            .asyncPostEvent();
+                            .postEvent();
 
-                    new EventPublisher<>(HeavyEventSuccess.class, "payload-" + i, a.getEventId())
-                            .asyncPostEvent();
+                    new EventFlow().addPostEvent(HeavyEventSuccess.class, "payload-" + i, a.getEventId())
+                            .postEvent();
                 }
             });
         }
@@ -200,8 +200,8 @@ class EventPublisherStressTest {
         for (int t = 0; t < THREADS; t++) {
             executor.submit(() -> {
                 for (int i = 0; i < EVENTS_PER_THREAD; i++) {
-                    new EventPublisher<>(HeavyEvent.class, "payload-" + i)
-                            .onEventById(HeavyEvent.class, processedEvents::add)
+                    new EventFlow().addPostEvent(HeavyEvent.class, "payload-" + i)
+                            .onResponse(HeavyEvent.class, processedEvents::add)
                             .postEvent();
                 }
             });
@@ -237,7 +237,7 @@ class EventPublisherStressTest {
 
         long startHandle = System.nanoTime();
         for (int i = 0; i < iterations; i++) {
-            EventPublisher<HeavyEvent> ep = new EventPublisher<>(HeavyEvent.class, "payload-" + i);
+            EventFlow a = new EventFlow().addPostEvent(HeavyEvent.class, "payload-" + i);
         }
         long endHandle = System.nanoTime();
 

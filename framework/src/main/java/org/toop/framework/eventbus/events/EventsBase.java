@@ -2,10 +2,9 @@ package org.toop.framework.eventbus.events;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 
 /** Events that are used in the GlobalEventBus class. */
-public class Events {
+public class EventsBase {
 
     /**
      * WIP, DO NOT USE!

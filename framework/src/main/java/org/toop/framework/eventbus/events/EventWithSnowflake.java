@@ -2,7 +2,7 @@ package org.toop.framework.eventbus.events;
 
 import java.util.Map;
 
-public interface EventWithUuid extends EventType {
+public interface EventWithSnowflake extends EventType {
     Map<String, Object> result();
-    String eventId();
+    long eventSnowflake();
 }

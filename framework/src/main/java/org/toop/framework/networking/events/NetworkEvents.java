@@ -1,5 +1,8 @@
-package org.toop.framework.eventbus.events;
+package org.toop.framework.networking.events;
 
+import org.toop.framework.eventbus.events.EventWithSnowflake;
+import org.toop.framework.eventbus.events.EventWithoutSnowflake;
+import org.toop.framework.eventbus.events.EventsBase;
 import org.toop.framework.networking.NetworkingGameClientHandler;
 
 import java.lang.reflect.RecordComponent;
@@ -9,7 +12,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NetworkEvents extends Events {
+public class NetworkEvents extends EventsBase {
 
     /**
      * BLOCKING Requests all active connections. The result is returned via the provided
@@ -17,14 +20,14 @@ public class NetworkEvents extends Events {
      *
      * @param future List of all connections in string form.
      */
-    public record RequestsAllClients(CompletableFuture<String> future) implements EventWithoutUuid {}
+    public record RequestsAllClients(CompletableFuture<String> future) implements EventWithoutSnowflake {}
 
     /** Forces closing all active connections immediately. */
-    public record ForceCloseAllClients() implements EventWithoutUuid {}
+    public record ForceCloseAllClients() implements EventWithoutSnowflake {}
 
-    public record CloseClientRequest(CompletableFuture<String> future) implements EventWithoutUuid {}
+    public record CloseClientRequest(CompletableFuture<String> future) implements EventWithoutSnowflake {}
 
-    public record CloseClient(String connectionId) implements EventWithoutUuid {}
+    public record CloseClient(String connectionId) implements EventWithoutSnowflake {}
 
     /**
      * Event to start a new client connection to a server.
@@ -40,7 +43,7 @@ public class NetworkEvents extends Events {
      * </p>
      *
      * <p>
-     * The {@link #eventId()} allows callers to correlate the {@code StartClient} event
+     * The {@link #eventSnowflake()} allows callers to correlate the {@code StartClient} event
      * with subsequent success/failure events. For example, a {@code StartClientSuccess}
      * or {@code StartClientFailure} event may carry the same {@code eventId}.
      * </p>
@@ -48,15 +51,15 @@ public class NetworkEvents extends Events {
      * @param handlerFactory Factory for constructing a {@link NetworkingGameClientHandler}.
      * @param ip             The IP address of the server to connect to.
      * @param port           The port number of the server to connect to.
-     * @param eventId        A unique identifier for this event, typically injected
+     * @param eventSnowflake        A unique identifier for this event, typically injected
      *                       automatically by the {@link org.toop.framework.eventbus.EventFlow}.
      */
     public record StartClient(
             Supplier<? extends NetworkingGameClientHandler> handlerFactory,
             String ip,
             int port,
-            String eventId
-    ) implements EventWithUuid {
+            long eventSnowflake
+    ) implements EventWithSnowflake {
 
         /**
          * Returns a map representation of this event, where keys are record component names
@@ -86,8 +89,8 @@ public class NetworkEvents extends Events {
          * @return the event ID string
          */
         @Override
-        public String eventId() {
-            return this.eventId;
+        public long eventSnowflake() {
+            return this.eventSnowflake;
         }
     }
 
@@ -101,15 +104,15 @@ public class NetworkEvents extends Events {
      */
     public record StartClientRequest(
             Supplier<? extends NetworkingGameClientHandler> handlerFactory,
-            String ip, int port, CompletableFuture<String> future) implements EventWithoutUuid {}
+            String ip, int port, CompletableFuture<String> future) implements EventWithoutSnowflake {}
 
     /**
      *
      * @param clientId The ID of the client to be used in requests.
-     * @param eventId The eventID used in checking if event is for you.
+     * @param eventSnowflake The eventID used in checking if event is for you.
      */
-    public record StartClientSuccess(String clientId, String eventId)
-            implements EventWithUuid {
+    public record StartClientSuccess(String clientId, long eventSnowflake)
+            implements EventWithSnowflake {
         @Override
         public Map<String, Object> result() {
             return Stream.of(this.getClass().getRecordComponents())
@@ -126,8 +129,8 @@ public class NetworkEvents extends Events {
         }
 
         @Override
-        public String eventId() {
-            return this.eventId;
+        public long eventSnowflake() {
+            return this.eventSnowflake;
         }
     }
 
@@ -137,13 +140,13 @@ public class NetworkEvents extends Events {
      * @param connectionId The UUID of the connection to send the command on.
      * @param args The command arguments.
      */
-    public record SendCommand(String connectionId, String... args) implements EventWithoutUuid {}
+    public record SendCommand(String connectionId, String... args) implements EventWithoutSnowflake {}
     /**
      * Triggers reconnecting to a previous address.
      *
      * @param connectionId The identifier of the connection being reconnected.
      */
-    public record Reconnect(Object connectionId) implements EventWithoutUuid {}
+    public record Reconnect(Object connectionId) implements EventWithoutSnowflake {}
 
 
     /**
@@ -152,7 +155,7 @@ public class NetworkEvents extends Events {
      * @param ConnectionUuid The UUID of the connection that received the message.
      * @param message The message received.
      */
-    public record ReceivedMessage(String ConnectionUuid, String message) implements EventWithoutUuid {}
+    public record ReceivedMessage(String ConnectionUuid, String message) implements EventWithoutSnowflake {}
 
     /**
      * Triggers changing connection to a new address.
@@ -161,7 +164,7 @@ public class NetworkEvents extends Events {
      * @param ip The new IP address.
      * @param port The new port.
      */
-    public record ChangeClient(Object connectionId, String ip, int port) implements EventWithoutUuid {}
+    public record ChangeClient(Object connectionId, String ip, int port) implements EventWithoutSnowflake {}
 
 
     /**
@@ -169,9 +172,9 @@ public class NetworkEvents extends Events {
      *
      * @param connectionId The identifier of the connection that failed.
      */
-    public record CouldNotConnect(Object connectionId) implements EventWithoutUuid {}
+    public record CouldNotConnect(Object connectionId) implements EventWithoutSnowflake {}
 
     /** WIP Triggers when a connection closes. */
-    public record ClosedConnection() implements EventWithoutUuid {}
+    public record ClosedConnection() implements EventWithoutSnowflake {}
 
 }

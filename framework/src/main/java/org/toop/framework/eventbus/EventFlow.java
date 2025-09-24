@@ -1,13 +1,13 @@
 package org.toop.framework.eventbus;
 
 import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.events.EventWithUuid;
+import org.toop.framework.eventbus.events.EventWithSnowflake;
+import org.toop.framework.eventbus.SnowflakeGenerator;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * EventFlow is a utility class for creating, posting, and optionally subscribing to events
  * in a type-safe and chainable manner. It is designed to work with the {@link GlobalEventBus}.
  *
- * <p>This class supports automatic UUID assignment for {@link EventWithUuid} events,
+ * <p>This class supports automatic UUID assignment for {@link EventWithSnowflake} events,
  * and allows filtering subscribers so they only respond to events with a specific UUID.
  * All subscription methods are chainable, and you can configure automatic unsubscription
  * after an event has been successfully handled.</p>
@@ -28,8 +28,8 @@ public class EventFlow {
     /** Cache of constructor handles for event classes to avoid repeated reflection lookups. */
     private static final Map<Class<?>, MethodHandle> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
 
-    /** Automatically assigned UUID for {@link EventWithUuid} events. */
-    private String eventId = null;
+    /** Automatically assigned UUID for {@link EventWithSnowflake} events. */
+    private long eventSnowflake = -1;
 
     /** The event instance created by this publisher. */
     private EventType event = null;
@@ -51,7 +51,7 @@ public class EventFlow {
      */
     public <T extends EventType> EventFlow addPostEvent(Class<T> eventClass, Object... args) {
         try {
-            boolean isUuidEvent = EventWithUuid.class.isAssignableFrom(eventClass);
+            boolean isUuidEvent = EventWithSnowflake.class.isAssignableFrom(eventClass);
 
             MethodHandle ctorHandle = CONSTRUCTOR_CACHE.computeIfAbsent(eventClass, cls -> {
                 try {
@@ -67,12 +67,12 @@ public class EventFlow {
             int expectedParamCount = ctorHandle.type().parameterCount();
 
             if (isUuidEvent && args.length < expectedParamCount) {
-                this.eventId = UUID.randomUUID().toString();
+                this.eventSnowflake = new SnowflakeGenerator(1).nextId();
                 finalArgs = new Object[args.length + 1];
                 System.arraycopy(args, 0, finalArgs, 0, args.length);
-                finalArgs[args.length] = this.eventId;
+                finalArgs[args.length] = this.eventSnowflake;
             } else if (isUuidEvent) {
-                this.eventId = (String) args[args.length - 1];
+                this.eventSnowflake = (Long) args[args.length - 1];
                 finalArgs = args;
             } else {
                 finalArgs = args;
@@ -117,9 +117,9 @@ public class EventFlow {
     /**
      * Subscribe by ID: only fires if UUID matches this publisher's eventId.
      */
-    public <TT extends EventWithUuid> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action) {
+    public <TT extends EventWithSnowflake> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action) {
         this.listener = GlobalEventBus.subscribe(eventClass, event -> {
-            if (event.eventId().equals(this.eventId)) {
+            if (event.eventSnowflake() == this.eventSnowflake) {
                 action.accept(event);
                 if (unsubscribeAfterSuccess && listener != null) {
                     GlobalEventBus.unsubscribe(listener);
@@ -134,10 +134,10 @@ public class EventFlow {
      * Subscribe by ID without explicit class.
      */
     @SuppressWarnings("unchecked")
-    public <TT extends EventWithUuid> EventFlow onResponse(Consumer<TT> action) {
+    public <TT extends EventWithSnowflake> EventFlow onResponse(Consumer<TT> action) {
         this.listener = GlobalEventBus.subscribe(event -> {
-            if (event instanceof EventWithUuid uuidEvent) {
-                if (uuidEvent.eventId().equals(this.eventId)) {
+            if (event instanceof EventWithSnowflake uuidEvent) {
+                if (uuidEvent.eventSnowflake() == this.eventSnowflake) {
                     try {
                         TT typedEvent = (TT) uuidEvent;
                         action.accept(typedEvent);
@@ -215,7 +215,7 @@ public class EventFlow {
         return event;
     }
 
-    public String getEventId() {
-        return eventId;
+    public long getEventId() {
+        return eventSnowflake;
     }
 }

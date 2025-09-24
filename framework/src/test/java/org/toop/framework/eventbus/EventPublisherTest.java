@@ -1,126 +1,80 @@
 package org.toop.framework.eventbus;
 
 import org.junit.jupiter.api.Test;
-import org.toop.framework.eventbus.events.EventWithUuid;
+import org.toop.framework.eventbus.events.EventWithSnowflake;
 
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EventPublisherTest {
+class EventFlowTest {
 
-    // Simple test event implementing EventWithUuid
-    public record TestEvent(String name, String eventId) implements EventWithUuid {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of("name", name, "eventId", eventId);
+    @Test
+    void testSnowflakeStructure() {
+        long id = new SnowflakeGenerator(1).nextId();
+
+        long timestampPart = id >>> 22;
+        long randomPart = id & ((1L << 22) - 1);
+
+        assertTrue(timestampPart > 0, "Timestamp part should be non-zero");
+        assertTrue(randomPart >= 0 && randomPart < (1L << 22), "Random part should be within 22 bits");
+    }
+
+    @Test
+    void testSnowflakeMonotonicity() throws InterruptedException {
+        SnowflakeGenerator sf = new SnowflakeGenerator(1);
+        long id1 = sf.nextId();
+        Thread.sleep(1); // ensure timestamp increases
+        long id2 = sf.nextId();
+
+        assertTrue(id2 > id1, "Later snowflake should be greater than earlier one");
+    }
+
+    @Test
+    void testSnowflakeUniqueness() {
+        SnowflakeGenerator sf = new SnowflakeGenerator(1);
+        Set<Long> ids = new HashSet<>();
+        for (int i = 0; i < 100_000; i++) {
+            long id = sf.nextId();
+            assertTrue(ids.add(id), "Snowflake IDs should be unique, but duplicate found");
         }
     }
 
-    public record TestResponseEvent(String msg, String eventId) implements EventWithUuid {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of("msg", msg, "eventId", eventId);
-        }
+    // --- Dummy Event classes for testing ---
+    static class DummySnowflakeEvent implements EventWithSnowflake {
+        private final long snowflake;
+        DummySnowflakeEvent(long snowflake) { this.snowflake = snowflake; }
+        @Override public long eventSnowflake() { return snowflake; }
+        @Override public java.util.Map<String, Object> result() { return java.util.Collections.emptyMap(); }
     }
 
     @Test
-    void testEventPublisherGeneratesUuid() {
-        EventPublisher<TestEvent> publisher = new EventPublisher<>(TestEvent.class, "myTest");
-        assertNotNull(publisher.getEventId());
-        assertEquals(publisher.getEventId(), publisher.getEvent().eventId());
+    void testSnowflakeIsInjectedIntoEvent() {
+        EventFlow flow = new EventFlow();
+        flow.addPostEvent(DummySnowflakeEvent.class); // no args, should auto-generate
+
+        long id = flow.getEventId();
+        assertNotEquals(-1, id, "Snowflake should be auto-generated");
+        assertTrue(flow.getEvent() instanceof DummySnowflakeEvent);
+        assertEquals(id, ((DummySnowflakeEvent) flow.getEvent()).eventSnowflake());
     }
 
     @Test
-    void testPostEvent() {
-        AtomicBoolean triggered = new AtomicBoolean(false);
+    void testOnResponseFiltersBySnowflake() {
+        EventFlow flow = new EventFlow();
+        flow.addPostEvent(DummySnowflakeEvent.class);
 
-        EventPublisher<TestEvent> publisher = new EventPublisher<>(TestEvent.class, "myTest");
-        publisher.onEventById(TestEvent.class, event -> triggered.set(true))
-                .postEvent();
+        AtomicBoolean handlerCalled = new AtomicBoolean(false);
+        flow.onResponse(DummySnowflakeEvent.class, event -> handlerCalled.set(true));
 
-        assertTrue(triggered.get(), "Subscriber should have been triggered by postEvent");
-    }
+        // Post with non-matching snowflake
+        GlobalEventBus.post(new DummySnowflakeEvent(12345L));
+        assertFalse(handlerCalled.get(), "Handler should not fire for mismatched snowflake");
 
-    @Test
-    void testOnEventByIdMatchesUuid() {
-        AtomicBoolean triggered = new AtomicBoolean(false);
-
-        EventPublisher<TestEvent> publisher1 = new EventPublisher<>(TestEvent.class, "event1");
-        EventPublisher<TestEvent> publisher2 = new EventPublisher<>(TestEvent.class, "event2");
-
-        publisher1.onEventById(TestEvent.class, event -> triggered.set(true));
-        publisher2.postEvent();
-
-        // Only publisher1's subscriber should trigger for its UUID
-        assertFalse(triggered.get(), "Subscriber should not trigger for a different UUID");
-
-        publisher1.postEvent();
-        assertTrue(triggered.get(), "Subscriber should trigger for matching UUID");
-    }
-
-    @Test
-    void testUnregisterAfterSuccess() {
-        AtomicBoolean triggered = new AtomicBoolean(false);
-        AtomicReference<Object> listenerRef = new AtomicReference<>();
-
-        EventPublisher<TestEvent> publisher = new EventPublisher<>(TestEvent.class, "event");
-        publisher.onEventById(TestEvent.class, event -> triggered.set(true))
-                .unsubscribeAfterSuccess()
-                .postEvent();
-
-        // Subscriber should have been removed after first trigger
-        assertTrue(triggered.get(), "Subscriber should trigger first time");
-
-        triggered.set(false);
-        publisher.postEvent();
-        assertFalse(triggered.get(), "Subscriber should not trigger after unregister");
-    }
-
-    @Test
-    void testResultMapPopulated() {
-        AtomicReference<Map<String, Object>> resultRef = new AtomicReference<>();
-
-        EventPublisher<TestEvent> publisher = new EventPublisher<>(TestEvent.class, "myName");
-        publisher.onEventById(TestEvent.class, event -> resultRef.set(event.result()))
-                .postEvent();
-
-        Map<String, Object> result = resultRef.get();
-        assertNotNull(result);
-        assertEquals("myName", result.get("name"));
-        assertEquals(publisher.getEventId(), result.get("eventId"));
-    }
-
-    @Test
-    void testMultipleSubscribers() {
-        AtomicBoolean firstTriggered = new AtomicBoolean(false);
-        AtomicBoolean secondTriggered = new AtomicBoolean(false);
-
-        EventPublisher<TestEvent> publisher = new EventPublisher<>(TestEvent.class, "multi");
-
-        publisher.onEventById(TestEvent.class, e -> firstTriggered.set(true))
-                .onEventById(TestEvent.class, e -> secondTriggered.set(true))
-                .postEvent();
-
-        assertTrue(firstTriggered.get());
-        assertTrue(secondTriggered.get());
-
-        publisher.onEventById(TestEvent.class, e -> firstTriggered.set(true))
-                .onEventById(TestEvent.class, e -> secondTriggered.set(true))
-                .asyncPostEvent();
-
-        assertTrue(firstTriggered.get());
-        assertTrue(secondTriggered.get());
-    }
-
-    @Test
-    void testEventInstanceCreatedCorrectly() {
-        EventPublisher<TestEvent> publisher = new EventPublisher<>(TestEvent.class, "hello");
-        TestEvent event = publisher.getEvent();
-        assertNotNull(event);
-        assertEquals("hello", event.name());
-        assertEquals(publisher.getEventId(), event.eventId());
+        // Post with matching snowflake
+        GlobalEventBus.post(new DummySnowflakeEvent(flow.getEventId()));
+        assertTrue(handlerCalled.get(), "Handler should fire for matching snowflake");
     }
 }

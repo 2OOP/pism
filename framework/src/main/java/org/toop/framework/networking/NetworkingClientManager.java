@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.eventbus.events.NetworkEvents;
+import org.toop.framework.networking.events.NetworkEvents;
 
 public class NetworkingClientManager {
 
@@ -60,7 +60,7 @@ public class NetworkingClientManager {
     private void handleStartClient(NetworkEvents.StartClient event) {
         String uuid = this.startClientRequest(event.handlerFactory(), event.ip(), event.port());
         new EventFlow().addPostEvent(NetworkEvents.StartClientSuccess.class,
-                uuid, event.eventId()
+                uuid, event.eventSnowflake()
         ).asyncPostEvent();
     }
 
