@@ -90,6 +90,12 @@
 			<artifactId>spotless-maven-plugin</artifactId>
 			<version>2.46.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.errorprone/error_prone_annotations -->
+		<dependency>
+			<groupId>com.google.errorprone</groupId>
+			<artifactId>error_prone_annotations</artifactId>
+			<version>2.42.0</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
 		<dependency>
@@ -160,9 +166,6 @@
 					</formats>
 					<!-- define a language-specific format -->
 					<java>
-						<!-- no need to specify files, inferred automatically, but you can if you want -->
-
-						<!-- apply a specific flavor of google-java-format and reflow long strings -->
 						<googleJavaFormat>
 							<version>1.28.0</version>
 							<style>AOSP</style> <!-- GOOGLE (2 indents), AOSP (4 indents) -->
