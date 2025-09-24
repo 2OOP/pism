@@ -8,6 +8,14 @@
 	<properties>
 		<main-class>org.toop.Main</main-class>
 	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.toop</groupId>
+			<artifactId>pism_framework</artifactId>
+			<version>0.1</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 
