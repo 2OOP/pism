@@ -98,7 +98,7 @@
 
 	<modules>
 		<module>framework</module>
-		<module>games</module>
+		<module>game</module>
 		<module>app</module>
 	</modules>
 </project>

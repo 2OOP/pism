@@ -1,11 +1,11 @@
-package org.toop.games.tictactoe;
+package org.toop.tictactoe;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.games.GameBase;
-import org.toop.games.Player;
+import org.toop.game.GameBase;
+import org.toop.game.Player;
 import org.toop.backend.tictactoe.ParsedCommand;
 import org.toop.backend.tictactoe.TicTacToeServerCommand;
 

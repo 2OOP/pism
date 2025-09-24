@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.events.Events;
 import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.eventbus.events.NetworkEvents;
-import org.toop.app.tictactoe.LocalTicTacToe;
+import org.toop.tictactoe.LocalTicTacToe;
 import org.toop.framework.networking.NetworkingGameClientHandler;
-import org.toop.app.tictactoe.gui.UIGameBoard;
+import org.toop.tictactoe.gui.UIGameBoard;
 
 public class RemoteGameSelector {
     private static final Logger logger = LogManager.getLogger(RemoteGameSelector.class);

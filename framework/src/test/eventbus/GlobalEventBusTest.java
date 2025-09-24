@@ -1,9 +1,9 @@
-//package org.toop.eventbus;
+//package org.toop.framework.eventbus;
 //
 //import net.engio.mbassy.bus.publication.SyncAsyncPostCommand;
 //import org.junit.jupiter.api.AfterEach;
 //import org.junit.jupiter.api.Test;
-//import org.toop.eventbus.events.IEvent;
+//import org.toop.framework.eventbus.events.IEvent;
 //
 //import java.util.concurrent.atomic.AtomicBoolean;
 //import java.util.concurrent.atomic.AtomicReference;

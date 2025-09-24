@@ -1,4 +1,4 @@
-package org.toop.app.tictactoe.gui;
+package org.toop.tictactoe.gui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,8 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.app.gui.LocalGameSelector;
 import org.toop.app.gui.RemoteGameSelector;
-import org.toop.app.tictactoe.LocalTicTacToe;
-import org.toop.games.GameBase;
+import org.toop.tictactoe.LocalTicTacToe;
+import org.toop.game.GameBase;
 
 public class UIGameBoard {
     private static final int TICTACTOE_SIZE = 3;

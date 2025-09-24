@@ -1,17 +1,16 @@
-package org.toop.app.tictactoe;
+package org.toop.tictactoe;
 
 import java.util.concurrent.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.eventbus.EventPublisher;
+import org.toop.framework.eventbus.EventPublisher;
 import org.toop.framework.eventbus.events.Events;
 import org.toop.framework.eventbus.events.NetworkEvents;
-import org.toop.app.tictactoe.gui.UIGameBoard;
+import org.toop.tictactoe.gui.UIGameBoard;
 import org.toop.framework.networking.NetworkingGameClientHandler;
-import org.toop.games.GameBase;
+import org.toop.game.GameBase;
 import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
-import org.toop.games.tictactoe.TicTacToe;
 
 import java.util.function.Supplier;
 

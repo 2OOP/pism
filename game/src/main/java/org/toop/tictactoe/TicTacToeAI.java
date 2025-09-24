@@ -1,6 +1,6 @@
-package org.toop.games.tictactoe;
+package org.toop.tictactoe;
 
-import org.toop.games.GameBase;
+import org.toop.game.GameBase;
 
 // Todo: refactor
 public class TicTacToeAI {

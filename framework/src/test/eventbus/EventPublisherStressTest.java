@@ -1,4 +1,4 @@
-package org.toop.eventbus;
+package org.toop.framework.eventbus;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

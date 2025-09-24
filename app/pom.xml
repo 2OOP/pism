@@ -6,7 +6,7 @@
 	<version>1.0-SNAPSHOT</version>
 
 	<properties>
-		<main-class>org.toop.Main</main-class>
+		<main-class>org.toop.app.Main</main-class>
 	</properties>
 
 	<build>

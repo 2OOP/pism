@@ -2,8 +2,8 @@ package org.toop.game.tictactoe;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.games.GameBase;
-import org.toop.games.Player;
+import org.toop.game.GameBase;
+import org.toop.game.Player;
 
 class GameBaseTest {
 

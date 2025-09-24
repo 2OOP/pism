@@ -1,7 +1,6 @@
-package org.toop.eventbus;
+package org.toop.framework.eventbus;
 
 import org.junit.jupiter.api.Test;
-import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.eventbus.events.EventWithUuid;
 
 import java.util.concurrent.atomic.AtomicInteger;

@@ -16,7 +16,7 @@ public class Events implements IEvent {
      * @throws Exception
      */
     public static Object get(String eventName, Object... args) throws Exception {
-        Class<?> clazz = Class.forName("org.toop.eventbus.events.Events$ServerEvents$" + eventName);
+        Class<?> clazz = Class.forName("org.toop.framework.eventbus.events.Events$ServerEvents$" + eventName);
         Class<?>[] paramTypes = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
         Constructor<?> constructor = clazz.getConstructor(paramTypes);
         return constructor.newInstance(args);
@@ -34,7 +34,7 @@ public class Events implements IEvent {
     public static Object get(String eventCategory, String eventName, Object... args)
             throws Exception {
         Class<?> clazz =
-                Class.forName("org.toop.eventbus.events.Events$" + eventCategory + "$" + eventName);
+                Class.forName("org.toop.framework.eventbus.events.Events$" + eventCategory + "$" + eventName);
         Class<?>[] paramTypes = Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
         Constructor<?> constructor = clazz.getConstructor(paramTypes);
         return constructor.newInstance(args);

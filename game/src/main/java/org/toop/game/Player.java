@@ -1,4 +1,4 @@
-package org.toop.games;
+package org.toop.game;
 
 // Todo: refactor
 public class Player {

@@ -4,8 +4,8 @@ import java.awt.*;
 import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.app.tictactoe.LocalTicTacToe;
-import org.toop.app.tictactoe.gui.UIGameBoard;
+import org.toop.tictactoe.LocalTicTacToe;
+import org.toop.tictactoe.gui.UIGameBoard;
 
 public class LocalGameSelector extends JFrame {
     private static final Logger logger = LogManager.getLogger(LocalGameSelector.class);

@@ -50,7 +50,7 @@ public class NetworkEvents extends Events {
      * @param ip             The IP address of the server to connect to.
      * @param port           The port number of the server to connect to.
      * @param eventId        A unique identifier for this event, typically injected
-     *                       automatically by the {@link org.toop.eventbus.EventPublisher}.
+     *                       automatically by the {@link org.toop.framework.eventbus.EventPublisher}.
      */
     public record StartClient(
             Supplier<? extends NetworkingGameClientHandler> handlerFactory,
