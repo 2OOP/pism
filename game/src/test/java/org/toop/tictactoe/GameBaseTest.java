@@ -1,4 +1,4 @@
-package org.toop.game.tictactoe;
+package java.org.toop.tictactoe;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
