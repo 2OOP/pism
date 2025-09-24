@@ -18,6 +18,8 @@ import java.util.function.Supplier;
 
 import static java.lang.Thread.sleep;
 
+import static java.lang.Thread.sleep;
+
 /**
  * A representation of a local tic-tac-toe game. Calls are made to a server for information about
  * current game state. MOST OF THIS CODE IS TRASH, THROW IT OUT OF THE WINDOW AFTER DEMO.
