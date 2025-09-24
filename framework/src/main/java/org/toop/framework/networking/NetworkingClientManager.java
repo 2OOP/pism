@@ -17,13 +17,18 @@ public class NetworkingClientManager {
     private final Map<String, NetworkingClient> networkClients = new ConcurrentHashMap<>();
 
     /** Starts a connection manager, to manage, connections. */
-    public NetworkingClientManager() {
-        new EventFlow().listen(NetworkEvents.StartClientRequest.class, this::handleStartClientRequest);
-        new EventFlow().listen(NetworkEvents.StartClient.class, this::handleStartClient);
-        new EventFlow().listen(NetworkEvents.SendCommand.class, this::handleCommand);
-        new EventFlow().listen(NetworkEvents.CloseClient.class, this::handleCloseClient);
-        new EventFlow().listen(NetworkEvents.RequestsAllClients.class, this::getAllConnections);
-        new EventFlow().listen(NetworkEvents.ForceCloseAllClients.class, this::shutdownAll);
+    public NetworkingClientManager() throws NetworkingInitializationException {
+        try {
+            new EventFlow().listen(NetworkEvents.StartClientRequest.class, this::handleStartClientRequest);
+            new EventFlow().listen(NetworkEvents.StartClient.class, this::handleStartClient);
+            new EventFlow().listen(NetworkEvents.SendCommand.class, this::handleCommand);
+            new EventFlow().listen(NetworkEvents.CloseClient.class, this::handleCloseClient);
+            new EventFlow().listen(NetworkEvents.RequestsAllClients.class, this::getAllConnections);
+            new EventFlow().listen(NetworkEvents.ForceCloseAllClients.class, this::shutdownAll);
+        }  catch (Exception e) {
+            logger.error("Failed to initialize the client manager", e);
+            throw e;
+        }
     }
 
     private String startClientRequest(Supplier<? extends NetworkingGameClientHandler> handlerFactory,

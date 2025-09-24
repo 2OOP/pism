@@ -6,18 +6,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.game.GameBase;
 import org.toop.game.Player;
-import org.toop.backend.tictactoe.ParsedCommand;
-import org.toop.backend.tictactoe.TicTacToeServerCommand;
 
 // Todo: refactor
-public class TicTacToe extends GameBase implements Runnable {
+public class TicTacToe extends GameBase {
 
     protected static final Logger logger = LogManager.getLogger(TicTacToe.class);
 
     public Thread gameThread;
     public String gameId;
-    public BlockingQueue<ParsedCommand> commandQueue = new LinkedBlockingQueue<>();
-    public BlockingQueue<String> sendQueue = new LinkedBlockingQueue<>();
 
     public int movesLeft;
 
@@ -37,115 +33,6 @@ public class TicTacToe extends GameBase implements Runnable {
         super(3, new Player(player1, 'X'), new Player(player2, 'O'));
         this.gameId = gameId;
         movesLeft = size * size;
-    }
-
-    public void addCommandToQueue(ParsedCommand command) {
-        commandQueue.add(command);
-    }
-
-    private ParsedCommand takeFromCommandQueue() {
-        try {
-            return this.commandQueue.take();
-        } catch (InterruptedException e) {
-            logger.error("Taking from queue interrupted, in game with id: {}", this.gameId);
-            return null;
-        }
-    }
-
-    private void addSendToQueue(String send) {
-        try {
-            sendQueue.put(send);
-        } catch (InterruptedException e) {
-            logger.error("Sending to queue interrupted, in game with id: {}", this.gameId);
-        }
-    }
-
-    @Override
-    public void run() {
-        this.gameThread = new Thread(this::gameThread);
-        this.gameThread.start();
-    }
-
-    private void gameThread() {
-        boolean running = true;
-
-        while (running) {
-            ParsedCommand cmd = takeFromCommandQueue();
-
-            // Get next command if there was no command
-            if (cmd == null) {
-                continue;
-            }
-
-            // Do something based which command was given
-            switch (cmd.command) {
-                case TicTacToeServerCommand.MOVE:
-                    {
-                        // TODO: Check if it is this player's turn, not required for local play (I
-                        // think?).
-
-                        // Convert given argument to integer
-                        Object arg = cmd.arguments.getFirst();
-                        int index;
-                        try {
-                            index = Integer.parseInt((String) arg);
-                        } catch (Exception e) {
-                            logger.error("Error parsing argument to String or Integer");
-                            continue;
-                        }
-
-                        // Attempt to play the move
-                        State state = play(index);
-
-                        if (state != State.INVALID) {
-                            // Tell all players who made a move and what move was made
-                            // TODO: What is the reaction of the game? WIN, DRAW etc?
-                            String player = getCurrentPlayer().getName();
-                            addSendToQueue(
-                                    "SVR GAME MOVE {PLAYER: \""
-                                            + player
-                                            + "\", DETAILS: \"<reactie spel op zet>\",MOVE: \""
-                                            + index
-                                            + "\"}\n");
-                        }
-
-                        // Check move result
-                        switch (state) {
-                            case State.WIN:
-                                {
-                                    // Win
-                                    running = false;
-                                    addSendToQueue(
-                                            "SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\","
-                                                + " PLAYERTWOSCORE: \"<score speler2>\", COMMENT:"
-                                                + " \"<commentaar op resultaat>\"}\n");
-                                    break;
-                                }
-                            case State.DRAW:
-                                {
-                                    // Draw
-                                    running = false;
-                                    addSendToQueue(
-                                            "SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\","
-                                                + " PLAYERTWOSCORE: \"<score speler2>\", COMMENT:"
-                                                + " \"<commentaar op resultaat>\"}\n");
-                                    break;
-                                }
-                            case State.NORMAL:
-                                {
-                                    // Valid move but not end of game
-                                    addSendToQueue("SVR GAME YOURTURN");
-                                    break;
-                                }
-                            case State.INVALID:
-                                {
-                                    // Invalid move
-                                    break;
-                                }
-                        }
-                    }
-            }
-        }
     }
 
     @Override

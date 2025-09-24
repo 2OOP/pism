@@ -1,7 +1,7 @@
 package org.toop.framework.eventbus;
 
 import org.toop.framework.eventbus.events.EventWithUuid;
-import org.toop.framework.eventbus.events.IEvent;
+import org.toop.framework.eventbus.events.EventType;
 
 import java.util.Map;
 import java.util.concurrent.*;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  *
  * <p><b>Performance note:</b> Directly using {@link GlobalEventBus} is possible,
  * but for safer type handling, automatic UUID management, and easier unsubscription,
- * it is recommended to use {@link EventPublisher} whenever possible.</p>
+ * it is recommended to use {@link EventFlow} whenever possible.</p>
  *
  * <p>The bus maintains a fixed pool of worker threads that continuously process queued events.</p>
  */
@@ -30,10 +30,10 @@ public final class GlobalEventBus {
     private static final int WORKERS = Runtime.getRuntime().availableProcessors();
 
     /** Queue for asynchronous event processing. */
-    private static final BlockingQueue<IEvent> EVENT_QUEUE = new LinkedBlockingQueue<>(WORKERS * 1024);
+    private static final BlockingQueue<EventType> EVENT_QUEUE = new LinkedBlockingQueue<>(WORKERS * 1024);
 
     /** Map of event class to type-specific listeners. */
-    private static final Map<Class<?>, CopyOnWriteArrayList<Consumer<? super IEvent>>> LISTENERS = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, CopyOnWriteArrayList<Consumer<? super EventType>>> LISTENERS = new ConcurrentHashMap<>();
 
     /** Map of event class to UUID-specific listeners. */
     private static final Map<Class<?>, ConcurrentHashMap<String, Consumer<? extends EventWithUuid>>> UUID_LISTENERS = new ConcurrentHashMap<>();
@@ -59,7 +59,7 @@ public final class GlobalEventBus {
     private static void workerLoop() {
         try {
             while (true) {
-                IEvent event = EVENT_QUEUE.take();
+                EventType event = EVENT_QUEUE.take();
                 dispatchEvent(event);
             }
         } catch (InterruptedException e) {
@@ -75,8 +75,8 @@ public final class GlobalEventBus {
      * @param <T>        the event type
      * @return the provided listener for possible unsubscription
      */
-    public static <T extends IEvent> Consumer<T> subscribe(Class<T> eventClass, Consumer<T> listener) {
-        CopyOnWriteArrayList<Consumer<? super IEvent>> list =
+    public static <T extends EventType> Consumer<T> subscribe(Class<T> eventClass, Consumer<T> listener) {
+        CopyOnWriteArrayList<Consumer<? super EventType>> list =
                 LISTENERS.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>());
         list.add(event -> listener.accept(eventClass.cast(event)));
         return listener;
@@ -135,7 +135,7 @@ public final class GlobalEventBus {
      * @param event the event instance to post
      * @param <T>   the event type
      */
-    public static <T extends IEvent> void post(T event) {
+    public static <T extends EventType> void post(T event) {
         dispatchEvent(event);
     }
 
@@ -146,7 +146,7 @@ public final class GlobalEventBus {
      * @param event the event instance to post
      * @param <T>   the event type
      */
-    public static <T extends IEvent> void postAsync(T event) {
+    public static <T extends EventType> void postAsync(T event) {
         if (!EVENT_QUEUE.offer(event)) {
             dispatchEvent(event);
         }
@@ -154,19 +154,19 @@ public final class GlobalEventBus {
 
     /** Dispatches an event to all type-specific, generic, and UUID-specific listeners. */
     @SuppressWarnings("unchecked")
-    private static void dispatchEvent(IEvent event) {
+    private static void dispatchEvent(EventType event) {
         Class<?> clazz = event.getClass();
 
-        CopyOnWriteArrayList<Consumer<? super IEvent>> classListeners = LISTENERS.get(clazz);
+        CopyOnWriteArrayList<Consumer<? super EventType>> classListeners = LISTENERS.get(clazz);
         if (classListeners != null) {
-            for (Consumer<? super IEvent> listener : classListeners) {
+            for (Consumer<? super EventType> listener : classListeners) {
                 try { listener.accept(event); } catch (Throwable ignored) {}
             }
         }
 
-        CopyOnWriteArrayList<Consumer<? super IEvent>> genericListeners = LISTENERS.get(Object.class);
+        CopyOnWriteArrayList<Consumer<? super EventType>> genericListeners = LISTENERS.get(Object.class);
         if (genericListeners != null) {
-            for (Consumer<? super IEvent> listener : genericListeners) {
+            for (Consumer<? super EventType> listener : genericListeners) {
                 try { listener.accept(event); } catch (Throwable ignored) {}
             }
         }

@@ -1,14 +1,12 @@
 package org.toop.app.gui;
 
 import java.awt.event.ActionEvent;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.eventbus.events.Events;
-import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.events.NetworkEvents;
 import org.toop.tictactoe.LocalTicTacToe;
 import org.toop.framework.networking.NetworkingGameClientHandler;
@@ -56,35 +54,18 @@ public class RemoteGameSelector {
                             && !ipTextField.getText().isEmpty()
                             && !portTextField.getText().isEmpty()) {
 
-                        CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
-                        GlobalEventBus.post(
-                                new Events.ServerEvents.StartServerRequest(
-                                        Integer.parseInt(portTextField.getText()), // TODO: Unsafe parse
-                                        Objects.requireNonNull(gameSelectorBox.getSelectedItem())
-                                                .toString()
-                                                .toLowerCase()
-                                                .replace(" ", ""),
-                                        serverIdFuture));
-                        String serverId;
-                        try {
-                            serverId = serverIdFuture.get();
-                        } catch (InterruptedException | ExecutionException ex) {
-                            throw new RuntimeException(ex);
-                        } // TODO: Better error handling to not crash the system.
-
-                        CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
-                        GlobalEventBus.post(
-                                new NetworkEvents.StartClientRequest(
-                                        NetworkingGameClientHandler::new,
-                                        ipTextField.getText(),
-                                        Integer.parseInt(portTextField.getText()), // TODO: Not safe parsing
-                                        connectionIdFuture));
-                        String connectionId;
-                        try {
-                            connectionId = connectionIdFuture.get();
-                        } catch (InterruptedException | ExecutionException ex) {
-                            throw new RuntimeException(ex);
-                        } // TODO: Better error handling to not crash the system.
+                        AtomicReference<String> clientId = new AtomicReference<>();
+                        new EventFlow().addPostEvent(
+                                NetworkEvents.StartClient.class,
+                                (Supplier<NetworkingGameClientHandler>) NetworkingGameClientHandler::new,
+                                "127.0.0.1",
+                                5001
+                            ).onResponse(
+                                NetworkEvents.StartClientSuccess.class,
+                                (response) -> {
+                                    clientId.set(response.clientId());
+                                }
+                            ).asyncPostEvent();
 
 //                        GlobalEventBus.subscribeAndRegister(
 //                                NetworkEvents.ReceivedMessage.class,
@@ -103,35 +84,7 @@ public class RemoteGameSelector {
 //                                        logger.info("{}", event.message());
 //                                    }
 //                                });
-
-                        GlobalEventBus.post(
-                                new Events.ServerEvents.SendCommand(
-                                        connectionId,
-                                        "create_game",
-                                        nameTextField.getText(),
-                                        name2TextField.getText()));
-
-                        //                CompletableFuture<String> ticTacToeGame = new
-                        // CompletableFuture<>();
-                        //                GlobalEventBus.post(new
-                        // Events.ServerEvents.CreateTicTacToeGameRequest( // TODO: Make this happen
-                        // through commands send through the connection, instead of an event.
-                        //                        serverId,
-                        //                        nameTextField.getText(),
-                        //                        name2TextField.getText(),
-                        //                        ticTacToeGame
-                        //                ));
-                        //                String ticTacToeGameId;
-                        //                try {
-                        //                    ticTacToeGameId = ticTacToeGame.get();
-                        //                } catch (InterruptedException | ExecutionException ex) {
-                        //                    throw new RuntimeException(ex);
-                        //                } // TODO: Better error handling to not crash the system.
-
                         frame.remove(mainMenu);
-                        localTicTacToe =
-                                LocalTicTacToe.createRemote(
-                                        ipTextField.getText(), portTextField.getText());
                         UIGameBoard ttt = new UIGameBoard(localTicTacToe, this);
                         localTicTacToe.startThreads();
                         frame.add(ttt.getTTTPanel()); // TODO: Fix later

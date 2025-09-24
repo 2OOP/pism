@@ -1,7 +1,7 @@
 package org.toop.framework.eventbus;
 
+import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.events.EventWithUuid;
-import org.toop.framework.eventbus.events.IEvent;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -32,7 +32,7 @@ public class EventFlow {
     private String eventId = null;
 
     /** The event instance created by this publisher. */
-    private IEvent event = null;
+    private EventType event = null;
 
     /** The listener returned by GlobalEventBus subscription. Used for unsubscription. */
     private Object listener;
@@ -43,13 +43,13 @@ public class EventFlow {
     /** Holds the results returned from the subscribed event, if any. */
     private Map<String, Object> result = null;
 
-    /** Empty constructor (event must be added via {@link #addPostEvent}). */
+    /** Empty constructor (event must be added via {@link #addPostEvent(Class, Object...)}). */
     public EventFlow() {}
 
     /**
      * Instantiate an event of the given class and store it in this publisher.
      */
-    public <T extends IEvent> EventFlow addPostEvent(Class<T> eventClass, Object... args) {
+    public <T extends EventType> EventFlow addPostEvent(Class<T> eventClass, Object... args) {
         try {
             boolean isUuidEvent = EventWithUuid.class.isAssignableFrom(eventClass);
 
@@ -78,7 +78,7 @@ public class EventFlow {
                 finalArgs = args;
             }
 
-            this.event = (IEvent) ctorHandle.invokeWithArguments(finalArgs);
+            this.event = (EventType) ctorHandle.invokeWithArguments(finalArgs);
             return this;
 
         } catch (Throwable e) {
@@ -89,11 +89,11 @@ public class EventFlow {
     /**
      * Start listening for a response event type, chainable with perform().
      */
-    public <TT extends IEvent> ResponseBuilder<TT> onResponse(Class<TT> eventClass) {
+    public <TT extends EventType> ResponseBuilder<TT> onResponse(Class<TT> eventClass) {
         return new ResponseBuilder<>(this, eventClass);
     }
 
-    public static class ResponseBuilder<R extends IEvent> {
+    public static class ResponseBuilder<R extends EventType> {
         private final EventFlow parent;
         private final Class<R> responseClass;
 
@@ -153,17 +153,17 @@ public class EventFlow {
     }
 
     // choose event type
-    public <TT extends IEvent> EventSubscriberBuilder<TT> onEvent(Class<TT> eventClass) {
+    public <TT extends EventType> EventSubscriberBuilder<TT> onEvent(Class<TT> eventClass) {
         return new EventSubscriberBuilder<>(this, eventClass);
     }
 
     // One-liner shorthand
-    public <TT extends IEvent> EventFlow listen(Class<TT> eventClass, Consumer<TT> action) {
+    public <TT extends EventType> EventFlow listen(Class<TT> eventClass, Consumer<TT> action) {
         return this.onEvent(eventClass).perform(action);
     }
 
     // Builder for chaining .onEvent(...).perform(...)
-    public static class EventSubscriberBuilder<TT extends IEvent> {
+    public static class EventSubscriberBuilder<TT extends EventType> {
         private final EventFlow publisher;
         private final Class<TT> eventClass;
 
@@ -211,7 +211,7 @@ public class EventFlow {
         return this.result;
     }
 
-    public IEvent getEvent() {
+    public EventType getEvent() {
         return event;
     }
 

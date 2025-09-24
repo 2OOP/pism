@@ -67,12 +67,4 @@ public class Events {
         // Create a new instance
         return constructor.newInstance(args);
     }
-
-    public static class EventBusEvents {}
-
-
-
-    public static class TttEvents {}
-
-    public static class AiTttEvents {}
 }

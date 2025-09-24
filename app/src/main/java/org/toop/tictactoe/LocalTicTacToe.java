@@ -4,13 +4,13 @@ import java.util.concurrent.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.eventbus.EventPublisher;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.events.Events;
 import org.toop.framework.eventbus.events.NetworkEvents;
+import org.toop.game.GameBase;
 import org.toop.tictactoe.gui.UIGameBoard;
 import org.toop.framework.networking.NetworkingGameClientHandler;
-import org.toop.game.GameBase;
-import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
+import org.toop.tictactoe.TicTacToeAI;
 
 import java.util.function.Supplier;
 
@@ -37,7 +37,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
     private String serverId = null;
 
     private boolean isAiPlayer[] = new boolean[2];
-    private MinMaxTicTacToe[] aiPlayers = new MinMaxTicTacToe[2];
+    private TicTacToeAI[] aiPlayers = new TicTacToeAI[2];
     private TicTacToe ticTacToe;
     private UIGameBoard ui;
 
@@ -85,7 +85,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
         for (int i = 0; i < aiFlags.length && i < this.aiPlayers.length; i++) {
             if (aiFlags[i]) {
-                this.aiPlayers[i] = new MinMaxTicTacToe(); // create AI for that player
+                this.aiPlayers[i] = new TicTacToeAI(); // create AI for that player
             } else {
                 this.aiPlayers[i] = null; // not an AI player
             }
@@ -110,23 +110,11 @@ public class LocalTicTacToe { // TODO: Implement runnable
         return new LocalTicTacToe(ip, port);
     }
 
-    private String createServer(int port) {
-        CompletableFuture<String> serverIdFuture = new CompletableFuture<>();
-        new EventPublisher<>(Events.ServerEvents.StartServerRequest.class, port, "tictactoe", serverIdFuture)
-                .postEvent();
-        try {
-            return serverIdFuture.get();
-        } catch (Exception e) {
-            logger.error("Error getting server ID", e);
-        }
-        return null;
-    }
-
     private String createConnection(String ip, int port) {
         CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
-        new EventPublisher<>(NetworkEvents.StartClientRequest.class,
+        new EventFlow().addPostEvent(NetworkEvents.StartClientRequest.class,
                 (Supplier<NetworkingGameClientHandler>) NetworkingGameClientHandler::new,
-                ip, port, connectionIdFuture).postEvent(); // TODO: what if server couldn't be started with port.
+                ip, port, connectionIdFuture).asyncPostEvent(); // TODO: what if server couldn't be started with port.
         try {
             return connectionIdFuture.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -258,7 +246,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void sendCommand(String... args) {
-        new EventPublisher<>(NetworkEvents.SendCommand.class, this.connectionId, args).postEvent();
+        new EventFlow().addPostEvent(NetworkEvents.SendCommand.class, this.connectionId, args).asyncPostEvent();
     }
 
 //    private void endListeners() {
