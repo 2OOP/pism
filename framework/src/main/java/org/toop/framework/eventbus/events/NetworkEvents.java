@@ -143,7 +143,7 @@ public class NetworkEvents extends Events {
      *
      * @param connectionId The identifier of the connection being reconnected.
      */
-    public record Reconnect(Object connectionId) {}
+    public record Reconnect(Object connectionId) implements EventWithoutUuid {}
 
 
     /**
@@ -161,7 +161,7 @@ public class NetworkEvents extends Events {
      * @param ip The new IP address.
      * @param port The new port.
      */
-    public record ChangeClient(Object connectionId, String ip, int port) {}
+    public record ChangeClient(Object connectionId, String ip, int port) implements EventWithoutUuid {}
 
 
     /**
@@ -169,9 +169,9 @@ public class NetworkEvents extends Events {
      *
      * @param connectionId The identifier of the connection that failed.
      */
-    public record CouldNotConnect(Object connectionId) {}
+    public record CouldNotConnect(Object connectionId) implements EventWithoutUuid {}
 
     /** WIP Triggers when a connection closes. */
-    public record ClosedConnection() {}
+    public record ClosedConnection() implements EventWithoutUuid {}
 
 }
