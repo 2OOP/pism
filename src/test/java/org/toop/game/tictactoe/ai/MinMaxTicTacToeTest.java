@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.app.GameBase;
-import org.toop.app.tictactoe.TicTacToe;
+import org.toop.games.GameBase;
+import org.toop.games.tictactoe.TicTacToe;
 
 /** Unit tests for MinMaxTicTacToe AI. */
 public class MinMaxTicTacToeTest {

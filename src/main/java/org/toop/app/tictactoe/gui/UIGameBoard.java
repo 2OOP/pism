@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.toop.app.gui.LocalGameSelector;
 import org.toop.app.gui.RemoteGameSelector;
 import org.toop.app.tictactoe.LocalTicTacToe;
-import org.toop.app.GameBase;
+import org.toop.games.GameBase;
 
 public class UIGameBoard {
     private static final int TICTACTOE_SIZE = 3;

@@ -1,4 +1,4 @@
-package org.toop;
+package org.toop.app;
 
 public class Main {
 	public static void main(String[] args) {

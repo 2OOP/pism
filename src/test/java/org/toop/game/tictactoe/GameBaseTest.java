@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.app.GameBase;
-import org.toop.app.Player;
+import org.toop.games.GameBase;
+import org.toop.games.Player;
 
 class GameBaseTest {
 

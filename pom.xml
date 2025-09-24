@@ -14,7 +14,7 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<main-class>org.toop.Main</main-class>
+		<main-class>org.toop.app.Main</main-class>
 	</properties>
 
 	<dependencies>

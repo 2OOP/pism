@@ -9,8 +9,10 @@ import org.toop.framework.eventbus.events.Events;
 import org.toop.framework.eventbus.events.NetworkEvents;
 import org.toop.app.tictactoe.gui.UIGameBoard;
 import org.toop.framework.networking.NetworkingGameClientHandler;
-import org.toop.app.GameBase;
+import org.toop.games.GameBase;
 import org.toop.game.tictactoe.ai.MinMaxTicTacToe;
+import org.toop.games.tictactoe.TicTacToe;
+
 import java.util.function.Supplier;
 
 import static java.lang.Thread.sleep;
