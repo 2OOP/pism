@@ -6,8 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="pism" />
+        <module name="pism_framework" />
         <module name="pis" />
+        <module name="pism_game" />
+        <module name="pism_app" />
       </profile>
     </annotationProcessing>
   </component>
