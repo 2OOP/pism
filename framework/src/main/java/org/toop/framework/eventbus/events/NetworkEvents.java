@@ -1,6 +1,5 @@
 package org.toop.framework.eventbus.events;
 
-import org.toop.backend.tictactoe.TicTacToeServer;
 import org.toop.framework.networking.NetworkingGameClientHandler;
 
 import java.lang.reflect.RecordComponent;
@@ -18,14 +17,14 @@ public class NetworkEvents extends Events {
      *
      * @param future List of all connections in string form.
      */
-    public record RequestsAllClients(CompletableFuture<String> future) implements IEvent {}
+    public record RequestsAllClients(CompletableFuture<String> future) implements EventWithoutUuid {}
 
     /** Forces closing all active connections immediately. */
-    public record ForceCloseAllClients() implements IEvent {}
+    public record ForceCloseAllClients() implements EventWithoutUuid {}
 
-    public record CloseClientRequest(CompletableFuture<String> future) {}
+    public record CloseClientRequest(CompletableFuture<String> future) implements EventWithoutUuid {}
 
-    public record CloseClient(String connectionId) implements IEvent {}
+    public record CloseClient(String connectionId) implements EventWithoutUuid {}
 
     /**
      * Event to start a new client connection to a server.
@@ -50,7 +49,7 @@ public class NetworkEvents extends Events {
      * @param ip             The IP address of the server to connect to.
      * @param port           The port number of the server to connect to.
      * @param eventId        A unique identifier for this event, typically injected
-     *                       automatically by the {@link org.toop.framework.eventbus.EventPublisher}.
+     *                       automatically by the {@link org.toop.framework.eventbus.EventFlow}.
      */
     public record StartClient(
             Supplier<? extends NetworkingGameClientHandler> handlerFactory,
@@ -102,7 +101,7 @@ public class NetworkEvents extends Events {
      */
     public record StartClientRequest(
             Supplier<? extends NetworkingGameClientHandler> handlerFactory,
-            String ip, int port, CompletableFuture<String> future) implements IEvent {}
+            String ip, int port, CompletableFuture<String> future) implements EventWithoutUuid {}
 
     /**
      *
@@ -138,18 +137,7 @@ public class NetworkEvents extends Events {
      * @param connectionId The UUID of the connection to send the command on.
      * @param args The command arguments.
      */
-    public record SendCommand(String connectionId, String... args) implements IEvent {}
-
-    /**
-     * WIP Triggers when a command is sent to a server.
-     *
-     * @param command The TicTacToeServer instance that executed the command.
-     * @param args The command arguments.
-     * @param result The result returned from executing the command.
-     */
-    public record OnCommand(
-            TicTacToeServer command, String[] args, String result) {} // TODO old
-
+    public record SendCommand(String connectionId, String... args) implements EventWithoutUuid {}
     /**
      * Triggers reconnecting to a previous address.
      *
@@ -164,7 +152,7 @@ public class NetworkEvents extends Events {
      * @param ConnectionUuid The UUID of the connection that received the message.
      * @param message The message received.
      */
-    public record ReceivedMessage(String ConnectionUuid, String message) implements  IEvent {}
+    public record ReceivedMessage(String ConnectionUuid, String message) implements EventWithoutUuid {}
 
     /**
      * Triggers changing connection to a new address.

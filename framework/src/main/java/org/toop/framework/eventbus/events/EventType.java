@@ -1,3 +1,3 @@
 package org.toop.framework.eventbus.events;
 
-public interface IEvent {}
+public interface EventType {}

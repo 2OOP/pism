@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.eventbus.EventPublisher;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.events.NetworkEvents;
 
 public class NetworkingClientManager {
@@ -18,12 +18,12 @@ public class NetworkingClientManager {
 
     /** Starts a connection manager, to manage, connections. */
     public NetworkingClientManager() {
-        new EventPublisher<>(NetworkEvents.StartClientRequest.class, this::handleStartClientRequest);
-        new EventPublisher<>(NetworkEvents.StartClient.class, this::handleStartClient);
-        new EventPublisher<>(NetworkEvents.SendCommand.class, this::handleCommand);
-        new EventPublisher<>(NetworkEvents.CloseClient.class, this::handleCloseClient);
-        new EventPublisher<>(NetworkEvents.RequestsAllClients.class, this::getAllConnections);
-        new EventPublisher<>(NetworkEvents.ForceCloseAllClients.class, this::shutdownAll);
+        new EventFlow().listen(NetworkEvents.StartClientRequest.class, this::handleStartClientRequest);
+        new EventFlow().listen(NetworkEvents.StartClient.class, this::handleStartClient);
+        new EventFlow().listen(NetworkEvents.SendCommand.class, this::handleCommand);
+        new EventFlow().listen(NetworkEvents.CloseClient.class, this::handleCloseClient);
+        new EventFlow().listen(NetworkEvents.RequestsAllClients.class, this::getAllConnections);
+        new EventFlow().listen(NetworkEvents.ForceCloseAllClients.class, this::shutdownAll);
     }
 
     private String startClientRequest(Supplier<? extends NetworkingGameClientHandler> handlerFactory,
@@ -54,7 +54,7 @@ public class NetworkingClientManager {
 
     private void handleStartClient(NetworkEvents.StartClient event) {
         String uuid = this.startClientRequest(event.handlerFactory(), event.ip(), event.port());
-        new EventPublisher<>(NetworkEvents.StartClientSuccess.class,
+        new EventFlow().addPostEvent(NetworkEvents.StartClientSuccess.class,
                 uuid, event.eventId()
         ).asyncPostEvent();
     }
