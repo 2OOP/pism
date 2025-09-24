@@ -2,12 +2,10 @@ package org.toop.eventbus;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.toop.eventbus.events.EventWithUuid;
+import org.toop.framework.eventbus.events.EventWithUuid;
 
 import java.math.BigInteger;
-import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,7 +1,7 @@
 package org.toop.eventbus;
 
 import org.junit.jupiter.api.Test;
-import org.toop.eventbus.events.EventWithUuid;
+import org.toop.framework.eventbus.events.EventWithUuid;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
