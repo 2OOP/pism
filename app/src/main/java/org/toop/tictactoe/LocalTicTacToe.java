@@ -6,7 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.GameBase;
+import org.toop.game.Game;
+import org.toop.game.tictactoe.TicTacToe;
+import org.toop.game.tictactoe.TicTacToeAI;
 import org.toop.tictactoe.gui.UIGameBoard;
 import org.toop.framework.networking.NetworkingGameClientHandler;
 
@@ -24,8 +26,8 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
     private final BlockingQueue<String> receivedQueue = new LinkedBlockingQueue<>();
-    private final BlockingQueue<Integer> moveQueuePlayerA = new LinkedBlockingQueue<>();
-    private final BlockingQueue<Integer> moveQueuePlayerB = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Game.Move> moveQueuePlayerA = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Game.Move> moveQueuePlayerB = new LinkedBlockingQueue<>();
 
     private Object receivedMessageListener = null;
 
@@ -34,8 +36,8 @@ public class LocalTicTacToe { // TODO: Implement runnable
     private String connectionId = null;
     private String serverId = null;
 
-    private boolean isAiPlayer[] = new boolean[2];
-    private TicTacToeAI[] aiPlayers = new TicTacToeAI[2];
+    private boolean[] isAiPlayer = new boolean[2];
+    private TicTacToeAI ai = new TicTacToeAI();
     private TicTacToe ticTacToe;
     private UIGameBoard ui;
 
@@ -80,15 +82,6 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private LocalTicTacToe(boolean[] aiFlags) {
         this.isAiPlayer = aiFlags; // store who is AI
-
-        for (int i = 0; i < aiFlags.length && i < this.aiPlayers.length; i++) {
-            if (aiFlags[i]) {
-                this.aiPlayers[i] = new TicTacToeAI(); // create AI for that player
-            } else {
-                this.aiPlayers[i] = null; // not an AI player
-            }
-        }
-
         this.isLocal = true;
         //this.executor.submit(this::localGameThread);
     }
@@ -139,17 +132,17 @@ public class LocalTicTacToe { // TODO: Implement runnable
         this.ticTacToe = new TicTacToe("X", "O");
         while (running) {
             try {
-                GameBase.State state;
+                Game.State state;
                 if (!isAiPlayer[0]) {
                     state = this.ticTacToe.play(this.moveQueuePlayerA.take());
                 } else {
-                    int bestMove = aiPlayers[0].findBestMove(this.ticTacToe);
-                    state = this.ticTacToe.play(bestMove);
-                    if (state != GameBase.State.INVALID) {
-                        ui.setCell(bestMove, "X");
-                    }
+                    Game.Move bestMove = ai.findBestMove(this.ticTacToe, 9);
+	                assert bestMove != null;
+
+	                state = this.ticTacToe.play(bestMove);
+	                ui.setCell(bestMove.position(), "X");
                 }
-                if (state == GameBase.State.WIN || state == GameBase.State.DRAW) {
+                if (state == Game.State.WIN || state == Game.State.DRAW) {
                     ui.setState(state, "X");
                     running = false;
                 }
@@ -157,13 +150,12 @@ public class LocalTicTacToe { // TODO: Implement runnable
                 if (!isAiPlayer[1]) {
                     state = this.ticTacToe.play(this.moveQueuePlayerB.take());
                 } else {
-                    int bestMove = aiPlayers[1].findBestMove(this.ticTacToe);
-                    state = this.ticTacToe.play(bestMove);
-                    if (state != GameBase.State.INVALID) {
-                        ui.setCell(bestMove, "O");
-                    }
+                    Game.Move bestMove = ai.findBestMove(this.ticTacToe, 9);
+	                assert bestMove != null;
+	                state = this.ticTacToe.play(bestMove);
+	                ui.setCell(bestMove.position(), "O");
                 }
-                if (state == GameBase.State.WIN || state == GameBase.State.DRAW) {
+                if (state == Game.State.WIN || state == Game.State.DRAW) {
                     ui.setState(state, "O");
                     running = false;
                 }
@@ -187,7 +179,8 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     public char[] getCurrentBoard() {
-        return ticTacToe.getGrid();
+        //return ticTacToe.getGrid();
+	    return new char[2];
     }
 
     /** End the current game. */
@@ -203,13 +196,13 @@ public class LocalTicTacToe { // TODO: Implement runnable
                 () -> {
                     try {
                         if (this.playersTurn == 0 && !isAiPlayer[0]) {
-                            this.moveQueuePlayerA.put(moveIndex);
+                            this.moveQueuePlayerA.put(new Game.Move(moveIndex, 'X'));
                             logger.info(
                                     "Adding player's {}, move: {} to queue A",
                                     this.playersTurn,
                                     moveIndex);
                         } else if (this.playersTurn == 1 && !isAiPlayer[1]) {
-                            this.moveQueuePlayerB.put(moveIndex);
+                            this.moveQueuePlayerB.put(new Game.Move(moveIndex, 'O'));
                             logger.info(
                                     "Adding player's {}, move: {} to queue B",
                                     this.playersTurn,

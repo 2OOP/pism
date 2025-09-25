@@ -2,13 +2,14 @@ package org.toop.tictactoe.gui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Locale;
 import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.app.gui.LocalGameSelector;
 import org.toop.app.gui.RemoteGameSelector;
+import org.toop.game.Game;
 import org.toop.tictactoe.LocalTicTacToe;
-import org.toop.game.GameBase;
 
 public class UIGameBoard {
     private static final int TICTACTOE_SIZE = 3;
@@ -44,6 +45,7 @@ public class UIGameBoard {
 
         // Back button
         backToMainMenuButton = new JButton("Back to Main Menu");
+
         tttPanel.add(backToMainMenuButton, BorderLayout.SOUTH);
         backToMainMenuButton.addActionListener(
                 _ -> {
@@ -117,13 +119,13 @@ public class UIGameBoard {
         cells[index].setText(move);
     }
 
-    public void setState(GameBase.State state, String playerMove) {
+    public void setState(Game.State state, String playerMove) {
         Color color;
-        if (state == GameBase.State.WIN && playerMove.equals(currentPlayer)) {
+        if (state == Game.State.WIN && playerMove.equals(currentPlayer)) {
             color = new Color(160, 220, 160);
-        } else if (state == GameBase.State.WIN) {
+        } else if (state == Game.State.WIN) {
             color = new Color(220, 160, 160);
-        } else if (state == GameBase.State.DRAW) {
+        } else if (state == Game.State.DRAW) {
             color = new Color(220, 220, 160);
         } else {
             color = new Color(220, 220, 220);
@@ -131,7 +133,7 @@ public class UIGameBoard {
         for (JButton cell : cells) {
             cell.setBackground(color);
         }
-        if (state == GameBase.State.DRAW || state == GameBase.State.WIN) {
+        if (state == Game.State.DRAW || state == Game.State.WIN) {
             gameOver = true;
         }
     }
