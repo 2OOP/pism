@@ -22,4 +22,7 @@ public class WindowEvents extends EventsBase {
 
     /** Triggers when the mouse is released within the window. */
     public record OnMouseRelease(int button) implements EventWithoutSnowflake {}
+
+    /** Triggers when the language is changed. */
+    public record LanguageChanged() implements EventWithoutSnowflake {}
 }

@@ -2,11 +2,16 @@ package org.toop.tictactoe.gui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.app.gui.LocalGameSelector;
 import org.toop.app.gui.RemoteGameSelector;
+import org.toop.events.WindowEvents;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.local.AppContext;
 import org.toop.tictactoe.LocalTicTacToe;
 import org.toop.game.GameBase;
 
@@ -26,6 +31,8 @@ public class UIGameBoard {
     private LocalTicTacToe localTicTacToe;
 
     private boolean gameOver = false;
+    Locale locale = AppContext.getLocale();
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("Localization", locale);
 
     public UIGameBoard(LocalTicTacToe lttt, Object parent) {
         if (!(parent == null)) {
@@ -43,7 +50,7 @@ public class UIGameBoard {
         tttPanel = new JPanel(new BorderLayout());
 
         // Back button
-        backToMainMenuButton = new JButton("Back to Main Menu");
+        backToMainMenuButton = new JButton(resourceBundle.getString("buttonBackToMainMenu"));
         tttPanel.add(backToMainMenuButton, BorderLayout.SOUTH);
         backToMainMenuButton.addActionListener(
                 _ -> {
@@ -65,7 +72,11 @@ public class UIGameBoard {
         //                cells[moveIndex].setText(String.valueOf(symbol));
         //            });
         //        });
-
+        new EventFlow().listen(WindowEvents.LanguageChanged.class, this::changeLanguage);
+    }
+    private void changeLanguage(WindowEvents.LanguageChanged event) {
+        locale = AppContext.getLocale();
+        resourceBundle = ResourceBundle.getBundle("Localization", locale);
     }
 
     private JPanel createGridPanel(int sizeX, int sizeY) {
