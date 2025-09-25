@@ -159,7 +159,6 @@ public class LocalTicTacToe { // TODO: Implement runnable
                 if (result) {
                     state = GameBase.State.DRAW;
                     ui.setState(state, "O");
-                    running = false;
                 }
 
                 if (!isAiPlayer[0]) {

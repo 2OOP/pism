@@ -94,22 +94,22 @@ public class TicTacToe extends GameBase implements Runnable {
                         // Attempt to play the move
                         State state = play(index);
 
-                        if (state != State.INVALID) {
-                            Player[] players = getPlayers();
-                            Player player1 = players[0];
-                            Player player2 = players[1];
-
-                            char symbol1 = player1.getSymbol();
-                            char symbol2 = player2.getSymbol();
-
-                            char[] grid = getGrid();
-
-                            boolean result = checkDraw(symbol1, symbol2, grid);
-
-                            if (result) {
-                                state = State.DRAW;
-                            }
-                        }
+//                        if (state != State.INVALID) {
+//                            Player[] players = getPlayers();
+//                            Player player1 = players[0];
+//                            Player player2 = players[1];
+//
+//                            char symbol1 = player1.getSymbol();
+//                            char symbol2 = player2.getSymbol();
+//
+//                            char[] grid = getGrid();
+//
+//                            boolean result = checkDraw(symbol1, symbol2, grid);
+//
+//                            if (result) {
+//                                state = State.DRAW;
+//                            }
+//                        }
 
                         if (state != State.INVALID) {
                             // Tell all players who made a move and what move was made
