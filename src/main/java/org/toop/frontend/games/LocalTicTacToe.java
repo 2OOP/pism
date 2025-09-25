@@ -149,9 +149,19 @@ public class LocalTicTacToe { // TODO: Implement runnable
     private void localGameThread() {
         boolean running = true;
         this.ticTacToe = new TicTacToe("X", "O");
+
         while (running) {
             try {
                 GameBase.State state;
+
+                char[] grid = getCurrentBoard();
+                boolean result = ticTacToe.checkDraw('X', 'O', grid);
+                if (result) {
+                    state = GameBase.State.DRAW;
+                    ui.setState(state, "O");
+                    running = false;
+                }
+
                 if (!isAiPlayer[0]) {
                     state = this.ticTacToe.play(this.moveQueuePlayerA.take());
                 } else {

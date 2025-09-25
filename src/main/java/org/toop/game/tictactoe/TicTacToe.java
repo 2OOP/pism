@@ -95,6 +95,23 @@ public class TicTacToe extends GameBase implements Runnable {
                         State state = play(index);
 
                         if (state != State.INVALID) {
+                            Player[] players = getPlayers();
+                            Player player1 = players[0];
+                            Player player2 = players[1];
+
+                            char symbol1 = player1.getSymbol();
+                            char symbol2 = player2.getSymbol();
+
+                            char[] grid = getGrid();
+
+                            boolean result = checkDraw(symbol1, symbol2, grid);
+
+                            if (result) {
+                                state = State.DRAW;
+                            }
+                        }
+
+                        if (state != State.INVALID) {
                             // Tell all players who made a move and what move was made
                             // TODO: What is the reaction of the game? WIN, DRAW etc?
                             String player = getCurrentPlayer().getName();
@@ -218,5 +235,141 @@ public class TicTacToe extends GameBase implements Runnable {
         clone.movesLeft = this.movesLeft;
         clone.currentPlayer = this.currentPlayer;
         return clone;
+    }
+
+    /** This method checks if there is a guaranteed draw through draw conditions. The code speaks for itself, even if it is a bit long. */
+
+    public boolean checkDraw(char symbol1, char symbol2, char[] grid) {
+
+
+        if (movesLeft > 2) { // always winnable up to 7 moves played
+            return false;
+        }
+
+        // Horizontal check if the line is winnable
+
+        for (int i = 0; i < 3; i++) {
+            final int index = i * 3;
+
+
+            if (grid[index] != EMPTY && grid[index + 1] != EMPTY && grid[index + 2] == EMPTY) {
+                char horizontalIndex1 = grid[index];
+                char horizontalIndex2 = grid[index + 1];
+
+                if (horizontalIndex1 == horizontalIndex2) {
+                    return false;
+                }
+            }
+
+            if (grid[index] != EMPTY && grid[index + 1] == EMPTY && grid[index + 2] != EMPTY) {
+                char horizontalIndex1 = grid[index];
+                char horizontalIndex2 = grid[index + 2];
+
+                if (horizontalIndex1 == horizontalIndex2) {
+                    return false;
+                }
+            }
+
+            if (grid[index] == EMPTY && grid[index + 1] != EMPTY && grid[index + 2] != EMPTY) {
+                char horizontalIndex1 = grid[index + 1];
+                char horizontalIndex2 = grid[index + 2];
+
+                if (horizontalIndex1 == horizontalIndex2) {
+                    return false;
+                }
+            }
+        }
+        // Vertical check if the line is winnable
+        for (int i = 0; i < 3; i++) {
+            int index = i;
+
+
+            if (grid[index] != EMPTY && grid[index + 3] != EMPTY && grid[index + 6] == EMPTY) {
+                char verticalIndex1 = grid[index];
+                char verticalIndex2 = grid[index + 3];
+
+                if (verticalIndex1 == verticalIndex2) {
+                    return false;
+                }
+            }
+
+            if (grid[index] != EMPTY && grid[index + 3] == EMPTY && grid[index + 6] != EMPTY) {
+                char verticalIndex1 = grid[index];
+                char verticalIndex2 = grid[index + 6];
+
+                if (verticalIndex1 == verticalIndex2) {
+                    return false;
+                }
+            }
+
+            if (grid[index] == EMPTY && grid[index + 3] != EMPTY && grid[index + 6] != EMPTY) {
+                char verticalIndex1 = grid[index + 3];
+                char verticalIndex2 = grid[index + 6];
+
+                if (verticalIndex1 == verticalIndex2) {
+                    return false;
+                }
+            }
+        }
+        // B-Slash check if the line is winnable (0, 4, 8)
+
+
+        if (grid[0] != EMPTY && grid[4] != EMPTY && grid[8] == EMPTY) {
+            char diagonalIndex1 = grid[0];
+            char diagonalIndex2 = grid[4];
+
+            if (diagonalIndex1 == diagonalIndex2) {
+                return false;
+            }
+        }
+
+        if (grid[0] != EMPTY && grid[4] == EMPTY && grid[8] != EMPTY) {
+            char diagonalIndex1 = grid[0];
+            char diagonalIndex2 = grid[8];
+
+            if (diagonalIndex1 == diagonalIndex2) {
+                return false;
+            }
+        }
+
+        if (grid[0] == EMPTY && grid[4] != EMPTY && grid[8] != EMPTY) {
+            char diagonalIndex1 = grid[4];
+            char diagonalIndex2 = grid[8];
+
+            if (diagonalIndex1 == diagonalIndex2) {
+                return false;
+            }
+        }
+
+        // F-Slash check if the line is winnable (2, 4, 6)
+
+
+        if (grid[2] != EMPTY && grid[4] != EMPTY && grid[6] == EMPTY) {
+            char diagonalIndex1 = grid[2];
+            char diagonalIndex2 = grid[4];
+
+            if (diagonalIndex1 == diagonalIndex2) {
+                return false;
+            }
+        }
+
+        if (grid[2] != EMPTY && grid[4] == EMPTY && grid[6] != EMPTY) {
+            char diagonalIndex1 = grid[2];
+            char diagonalIndex2 = grid[6];
+
+            if (diagonalIndex1 == diagonalIndex2) {
+                return false;
+            }
+        }
+
+        if (grid[2] == EMPTY && grid[4] != EMPTY && grid[6] != EMPTY) {
+            char diagonalIndex1 = grid[4];
+            char diagonalIndex2 = grid[6];
+
+            if (diagonalIndex1 == diagonalIndex2) {
+                return false;
+            }
+        }
+        return true;
     }
 }
