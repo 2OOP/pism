@@ -7,6 +7,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,33 +17,35 @@ import java.util.function.Supplier;
 public class NetworkingClient {
     private static final Logger logger = LogManager.getLogger(NetworkingClient.class);
 
-    final Bootstrap bootstrap = new Bootstrap();
-    final EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-
-    private String connectionUuid;
+    private long connectionId;
     private Channel channel;
     private NetworkingGameClientHandler handler;
 
     public NetworkingClient(
-            Supplier<? extends NetworkingGameClientHandler> handlerFactory,
+            Supplier<NetworkingGameClientHandler> handlerFactory,
             String host,
-            int port) {
+            int port,
+            long connectionId) {
+        this.connectionId = connectionId;
         try {
-            this.bootstrap.group(this.workerGroup);
-            this.bootstrap.channel(NioSocketChannel.class);
-            this.bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-            this.bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+            Bootstrap bootstrap = new Bootstrap();
+            EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
+            bootstrap.group(workerGroup);
+            bootstrap.channel(NioSocketChannel.class);
+            bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+            bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch) {
                     handler = handlerFactory.get();
 
                     ChannelPipeline pipeline = ch.pipeline();
                     pipeline.addLast(new LineBasedFrameDecoder(1024)); // split at \n
-                    pipeline.addLast(new StringDecoder());                      // bytes -> String
+                    pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));     // bytes -> String
+                    pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
                     pipeline.addLast(handler);
                 }
             });
-            ChannelFuture channelFuture = this.bootstrap.connect(host, port).sync();
+            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             this.channel = channelFuture.channel();
         } catch (Exception e) {
             logger.error("Failed to create networking client instance", e);
@@ -52,8 +56,8 @@ public class NetworkingClient {
         return handler;
     }
 
-    public void setConnectionUuid(String connectionUuid) {
-        this.connectionUuid = connectionUuid;
+    public void setConnectionId(long connectionId) {
+        this.connectionId = connectionId;
     }
 
     public boolean isChannelActive() {
@@ -64,18 +68,18 @@ public class NetworkingClient {
         String literalMsg = msg.replace("\n", "\\n").replace("\r", "\\r");
         if (isChannelActive()) {
             this.channel.writeAndFlush(msg);
-            logger.info("Connection {} sent message: {}", this.channel.remoteAddress(), literalMsg);
+            logger.info("Connection {} sent message: '{}'", this.channel.remoteAddress(), literalMsg);
         } else {
-            logger.warn("Cannot send message: {}, connection inactive.", literalMsg);
+            logger.warn("Cannot send message: '{}', connection inactive.", literalMsg);
         }
     }
 
     public void writeAndFlushnl(String msg) {
         if (isChannelActive()) {
-            this.channel.writeAndFlush(msg + "\n");
-            logger.info("Connection {} sent message: {}", this.channel.remoteAddress(), msg);
+            this.channel.writeAndFlush(msg + "\r\n");
+            logger.info("Connection {} sent message: '{}'", this.channel.remoteAddress(), msg);
         } else {
-            logger.warn("Cannot send message: {}, connection inactive.", msg);
+            logger.warn("Cannot send message: '{}', connection inactive.", msg);
         }
     }
 
@@ -135,6 +139,10 @@ public class NetworkingClient {
                 }
             });
         }
+    }
+
+    public long getId() {
+        return this.connectionId;
     }
 
 }

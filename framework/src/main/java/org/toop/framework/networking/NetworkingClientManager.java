@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.networking.events.NetworkEvents;
 
 public class NetworkingClientManager {
@@ -14,67 +15,62 @@ public class NetworkingClientManager {
     private static final Logger logger = LogManager.getLogger(NetworkingClientManager.class);
 
     /** Map of serverId -> Server instances */
-    private final Map<String, NetworkingClient> networkClients = new ConcurrentHashMap<>();
+    private final Map<Long, NetworkingClient> networkClients = new ConcurrentHashMap<>();
 
     /** Starts a connection manager, to manage, connections. */
     public NetworkingClientManager() throws NetworkingInitializationException {
         try {
-            new EventFlow().listen(NetworkEvents.StartClientRequest.class, this::handleStartClientRequest);
-            new EventFlow().listen(NetworkEvents.StartClient.class, this::handleStartClient);
-            new EventFlow().listen(NetworkEvents.SendCommand.class, this::handleCommand);
-            new EventFlow().listen(NetworkEvents.CloseClient.class, this::handleCloseClient);
-            new EventFlow().listen(NetworkEvents.RequestsAllClients.class, this::getAllConnections);
-            new EventFlow().listen(NetworkEvents.ForceCloseAllClients.class, this::shutdownAll);
+            new EventFlow()
+                    .listen(this::handleStartClient)
+                    .listen(this::handleCommand)
+                    .listen(this::handleCloseClient)
+                    .listen(this::getAllConnections)
+                    .listen(this::shutdownAll);
+            logger.info("NetworkingClientManager initialized");
         }  catch (Exception e) {
             logger.error("Failed to initialize the client manager", e);
             throw e;
         }
     }
 
-    private String startClientRequest(Supplier<? extends NetworkingGameClientHandler> handlerFactory,
-                                      String ip,
-                                      int port) {
-        String connectionUuid = UUID.randomUUID().toString();
-        try {
+    private long startClientRequest(String ip, int port) {
+        long connectionId = new SnowflakeGenerator().nextId(); // TODO: Maybe use the one generated
+        try {                                                            //       With EventFlow
             NetworkingClient client = new NetworkingClient(
-                    handlerFactory,
+                    () -> new NetworkingGameClientHandler(connectionId),
                     ip,
-                    port);
-            this.networkClients.put(connectionUuid, client);
+                    port,
+                    connectionId);
+            client.setConnectionId(connectionId);
+            this.networkClients.put(connectionId, client);
         } catch (Exception e) {
             logger.error(e);
         }
-        logger.info("Client {} started", connectionUuid);
-        return connectionUuid;
-    }
-
-    private void handleStartClientRequest(NetworkEvents.StartClientRequest request) {
-        request.future()
-                .complete(
-                        this.startClientRequest(
-                                request.handlerFactory(),
-                                request.ip(),
-                                request.port())); // TODO: Maybe post ConnectionEstablished event.
+        logger.info("Client {} started", connectionId);
+        return connectionId;
     }
 
     private void handleStartClient(NetworkEvents.StartClient event) {
-        String uuid = this.startClientRequest(event.handlerFactory(), event.ip(), event.port());
-        new EventFlow().addPostEvent(NetworkEvents.StartClientSuccess.class,
-                uuid, event.eventSnowflake()
-        ).asyncPostEvent();
+        long id = this.startClientRequest(event.ip(), event.port());
+        new Thread(() -> {
+            try {
+                Thread.sleep(100); // TODO: Is this a good idea?
+                new EventFlow().addPostEvent(NetworkEvents.StartClientResponse.class,
+                        id, event.eventSnowflake()
+                ).asyncPostEvent();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
 
     private void handleCommand(
             NetworkEvents.SendCommand
                     event) { // TODO: Move this to ServerConnection class, keep it internal.
         NetworkingClient client = this.networkClients.get(event.connectionId());
-        logger.info("Preparing to send command: {} to server: {}", event.args(), client);
-        if (client != null) {
-            String args = String.join(" ", event.args()) + "\n";
-            client.writeAndFlush(args);
-        } else {
-            logger.warn("Server {} not found for command '{}'", event.connectionId(), event.args());
-        }
+        logger.info("Preparing to send command: {} to server: {}", event.args(), client.getId());
+        String args = String.join(" ", event.args());
+        client.writeAndFlushnl(args);
     }
 
     private void handleCloseClient(NetworkEvents.CloseClient event) {
@@ -115,7 +111,7 @@ public class NetworkingClientManager {
 
     private void getAllConnections(NetworkEvents.RequestsAllClients request) {
         List<NetworkingClient> a = new ArrayList<>(this.networkClients.values());
-        request.future().complete(a.toString());
+        request.future().complete(a);
     }
 
     public void shutdownAll(NetworkEvents.ForceCloseAllClients request) {

@@ -33,7 +33,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private boolean isLocal;
     private String gameId;
-    private String connectionId = null;
+    private long connectionId = -1;
     private String serverId = null;
 
     private boolean[] isAiPlayer = new boolean[2];
@@ -74,7 +74,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
 //        this.receivedMessageListener =
 //                GlobalEventBus.subscribe(this::receiveMessageAction);
 //        GlobalEventBus.subscribe(this.receivedMessageListener);
-        this.connectionId = this.createConnection(ip, port);
+//        this.connectionId = this.createConnection(ip, port); TODO: Refactor this
         this.createGame("X", "O");
         this.isLocal = false;
         //this.executor.submit(this::remoteGameThread);
@@ -99,19 +99,6 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     public static LocalTicTacToe createRemote(String ip, int port) {
         return new LocalTicTacToe(ip, port);
-    }
-
-    private String createConnection(String ip, int port) {
-        CompletableFuture<String> connectionIdFuture = new CompletableFuture<>();
-        new EventFlow().addPostEvent(NetworkEvents.StartClientRequest.class,
-                (Supplier<NetworkingGameClientHandler>) NetworkingGameClientHandler::new,
-                ip, port, connectionIdFuture).asyncPostEvent(); // TODO: what if server couldn't be started with port.
-        try {
-            return connectionIdFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error getting connection ID", e);
-        }
-        return null;
     }
 
     private void createGame(String nameA, String nameB) {
@@ -223,7 +210,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void receiveMessageAction(NetworkEvents.ReceivedMessage receivedMessage) {
-        if (!receivedMessage.ConnectionUuid().equals(this.connectionId)) {
+        if (receivedMessage.ConnectionId() != this.connectionId) {
             return;
         }
 

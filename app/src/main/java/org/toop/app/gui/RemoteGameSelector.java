@@ -54,14 +54,15 @@ public class RemoteGameSelector {
                             && !ipTextField.getText().isEmpty()
                             && !portTextField.getText().isEmpty()) {
 
-                        AtomicReference<String> clientId = new AtomicReference<>();
+                        AtomicReference<Long> clientId = new AtomicReference<>();
                         new EventFlow().addPostEvent(
                                 NetworkEvents.StartClient.class,
-                                (Supplier<NetworkingGameClientHandler>) NetworkingGameClientHandler::new,
+                                (Supplier<NetworkingGameClientHandler>)
+                                        new NetworkingGameClientHandler(clientId.get()),
                                 "127.0.0.1",
                                 5001
                             ).onResponse(
-                                NetworkEvents.StartClientSuccess.class,
+                                NetworkEvents.StartClientResponse.class,
                                 (response) -> {
                                     clientId.set(response.clientId());
                                 }

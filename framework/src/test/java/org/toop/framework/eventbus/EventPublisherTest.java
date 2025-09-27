@@ -1,6 +1,7 @@
 package org.toop.framework.eventbus;
 
 import org.junit.jupiter.api.Test;
+import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.events.EventWithSnowflake;
 
 import java.util.HashSet;
@@ -13,7 +14,7 @@ class EventFlowTest {
 
     @Test
     void testSnowflakeStructure() {
-        long id = new SnowflakeGenerator(1).nextId();
+        long id = new SnowflakeGenerator().nextId();
 
         long timestampPart = id >>> 22;
         long randomPart = id & ((1L << 22) - 1);
@@ -55,7 +56,7 @@ class EventFlowTest {
         EventFlow flow = new EventFlow();
         flow.addPostEvent(DummySnowflakeEvent.class); // no args, should auto-generate
 
-        long id = flow.getEventId();
+        long id = flow.getEventSnowflake();
         assertNotEquals(-1, id, "Snowflake should be auto-generated");
         assertTrue(flow.getEvent() instanceof DummySnowflakeEvent);
         assertEquals(id, ((DummySnowflakeEvent) flow.getEvent()).eventSnowflake());
@@ -74,7 +75,7 @@ class EventFlowTest {
         assertFalse(handlerCalled.get(), "Handler should not fire for mismatched snowflake");
 
         // Post with matching snowflake
-        GlobalEventBus.post(new DummySnowflakeEvent(flow.getEventId()));
+        GlobalEventBus.post(new DummySnowflakeEvent(flow.getEventSnowflake()));
         assertTrue(handlerCalled.get(), "Handler should fire for matching snowflake");
     }
 }

@@ -3,6 +3,7 @@ package org.toop.framework.networking.events;
 import org.toop.framework.eventbus.events.EventWithSnowflake;
 import org.toop.framework.eventbus.events.EventWithoutSnowflake;
 import org.toop.framework.eventbus.events.EventsBase;
+import org.toop.framework.networking.NetworkingClient;
 import org.toop.framework.networking.NetworkingGameClientHandler;
 
 import java.lang.reflect.RecordComponent;
@@ -20,14 +21,14 @@ public class NetworkEvents extends EventsBase {
      *
      * @param future List of all connections in string form.
      */
-    public record RequestsAllClients(CompletableFuture<String> future) implements EventWithoutSnowflake {}
+    public record RequestsAllClients(CompletableFuture<List<NetworkingClient>> future) implements EventWithoutSnowflake {}
 
     /** Forces closing all active connections immediately. */
     public record ForceCloseAllClients() implements EventWithoutSnowflake {}
 
-    public record CloseClientRequest(CompletableFuture<String> future) implements EventWithoutSnowflake {}
+    public record PlayerListResponse(long clientId, String[] playerlist) implements EventWithoutSnowflake {}
 
-    public record CloseClient(String connectionId) implements EventWithoutSnowflake {}
+    public record CloseClient(long connectionId) implements EventWithoutSnowflake {}
 
     /**
      * Event to start a new client connection to a server.
@@ -48,14 +49,12 @@ public class NetworkEvents extends EventsBase {
      * or {@code StartClientFailure} event may carry the same {@code eventId}.
      * </p>
      *
-     * @param handlerFactory Factory for constructing a {@link NetworkingGameClientHandler}.
      * @param ip             The IP address of the server to connect to.
      * @param port           The port number of the server to connect to.
      * @param eventSnowflake        A unique identifier for this event, typically injected
      *                       automatically by the {@link org.toop.framework.eventbus.EventFlow}.
      */
     public record StartClient(
-            Supplier<? extends NetworkingGameClientHandler> handlerFactory,
             String ip,
             int port,
             long eventSnowflake
@@ -95,23 +94,11 @@ public class NetworkEvents extends EventsBase {
     }
 
     /**
-     * TODO: Update docs new input.
-     * BLOCKING Triggers starting a server connection and returns a future.
-     *
-     * @param ip The IP address of the server to connect to.
-     * @param port The port of the server to connect to.
-     * @param future Returns the UUID of the connection, when connection is established.
-     */
-    public record StartClientRequest(
-            Supplier<? extends NetworkingGameClientHandler> handlerFactory,
-            String ip, int port, CompletableFuture<String> future) implements EventWithoutSnowflake {}
-
-    /**
      *
      * @param clientId The ID of the client to be used in requests.
      * @param eventSnowflake The eventID used in checking if event is for you.
      */
-    public record StartClientSuccess(String clientId, long eventSnowflake)
+    public record StartClientResponse(long clientId, long eventSnowflake)
             implements EventWithSnowflake {
         @Override
         public Map<String, Object> result() {
@@ -135,27 +122,33 @@ public class NetworkEvents extends EventsBase {
     }
 
     /**
+     *
+     * @param clientId The ID of the client that received the response.
+     */
+    public record ServerResponse(long clientId) implements EventWithoutSnowflake {}
+
+    /**
      * Triggers sending a command to a server.
      *
      * @param connectionId The UUID of the connection to send the command on.
      * @param args The command arguments.
      */
-    public record SendCommand(String connectionId, String... args) implements EventWithoutSnowflake {}
+    public record SendCommand(long connectionId, String... args) implements EventWithoutSnowflake {}
     /**
      * Triggers reconnecting to a previous address.
      *
      * @param connectionId The identifier of the connection being reconnected.
      */
-    public record Reconnect(Object connectionId) implements EventWithoutSnowflake {}
+    public record Reconnect(long connectionId) implements EventWithoutSnowflake {}
 
 
     /**
      * Triggers when the server client receives a message.
      *
-     * @param ConnectionUuid The UUID of the connection that received the message.
+     * @param ConnectionId The snowflake id of the connection that received the message.
      * @param message The message received.
      */
-    public record ReceivedMessage(String ConnectionUuid, String message) implements EventWithoutSnowflake {}
+    public record ReceivedMessage(long ConnectionId, String message) implements EventWithoutSnowflake {}
 
     /**
      * Triggers changing connection to a new address.
@@ -164,7 +157,7 @@ public class NetworkEvents extends EventsBase {
      * @param ip The new IP address.
      * @param port The new port.
      */
-    public record ChangeClient(Object connectionId, String ip, int port) implements EventWithoutSnowflake {}
+    public record ChangeClient(long connectionId, String ip, int port) implements EventWithoutSnowflake {}
 
 
     /**
@@ -172,7 +165,7 @@ public class NetworkEvents extends EventsBase {
      *
      * @param connectionId The identifier of the connection that failed.
      */
-    public record CouldNotConnect(Object connectionId) implements EventWithoutSnowflake {}
+    public record CouldNotConnect(long connectionId) implements EventWithoutSnowflake {}
 
     /** WIP Triggers when a connection closes. */
     public record ClosedConnection() implements EventWithoutSnowflake {}
