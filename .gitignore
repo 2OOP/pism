@@ -94,3 +94,10 @@ nb-configuration.xml
 
 # Ignore Gradle build output directory
 build
+
+##############################
+## Hanze
+##############################
+newgamesver-release-V1.jar
+server.properties
+gameserver.log

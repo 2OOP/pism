@@ -163,10 +163,9 @@ class EventPublisherStressTest {
                 for (int i = 0; i < EVENTS_PER_THREAD; i++) {
                     var a = new EventFlow().addPostEvent(HeavyEvent.class, "payload-" + i)
                             .onResponse(HeavyEventSuccess.class, _ -> counter.increment())
-                            .unsubscribeAfterSuccess()
                             .postEvent();
 
-                    new EventFlow().addPostEvent(HeavyEventSuccess.class, "payload-" + i, a.getEventId())
+                    new EventFlow().addPostEvent(HeavyEventSuccess.class, "payload-" + i, a.getEventSnowflake())
                             .postEvent();
                 }
             });

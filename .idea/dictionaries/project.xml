@@ -2,6 +2,7 @@
   <dictionary name="project">
     <words>
       <w>aosp</w>
+      <w>clid</w>
       <w>dcompile</w>
       <w>errorprone</w>
       <w>gamelist</w>
