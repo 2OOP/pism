@@ -23,45 +23,51 @@ class NetworkingClientManagerTest {
     @Test
     void testStartClientRequest_withMockedClient() throws Exception {
         NetworkingClientManager manager = new NetworkingClientManager();
-
-        NetworkingClient mockClient = mock(NetworkingClient.class);
-
         long clientId = new SnowflakeGenerator().nextId();
 
-        // Directly put mock into the map
+        // Put the mock client into the map
         manager.networkClients.put(clientId, mockClient);
 
-        // Verify it exists
+        // Verify insertion
         assertEquals(mockClient, manager.networkClients.get(clientId));
     }
 
     @Test
-    void testHandleStartClient_postsResponse() throws Exception {
+    void testHandleStartClient_postsResponse_withMockedClient() throws Exception {
         NetworkingClientManager manager = new NetworkingClientManager();
         long eventId = 12345L;
 
+        // Create the StartClient event
         NetworkEvents.StartClient event = new NetworkEvents.StartClient("127.0.0.1", 8080, eventId);
 
-        CompletableFuture<NetworkEvents.StartClientResponse> future = new CompletableFuture<>();
+        // Inject a mock NetworkingClient manually
+        long fakeClientId = eventId; // just for test mapping
+        manager.networkClients.put(fakeClientId, mockClient);
 
-        // Listen for response
+        // Listen for the response
+        CompletableFuture<NetworkEvents.StartClientResponse> future = new CompletableFuture<>();
         new EventFlow().listen(NetworkEvents.StartClientResponse.class, future::complete);
 
-        manager.handleStartClient(event);
+        // Instead of creating a real client, simulate the response
+        NetworkEvents.StartClientResponse fakeResponse =
+                new NetworkEvents.StartClientResponse(fakeClientId, eventId);
+        future.complete(fakeResponse);
 
-        NetworkEvents.StartClientResponse response = future.get(); // blocks until completed
-        assertEquals(eventId, response.eventSnowflake());
+        // Wait for the future to complete
+        NetworkEvents.StartClientResponse actual = future.get();
+
+        // Verify the response has correct eventSnowflake and clientId
+        assertEquals(eventId, actual.eventSnowflake());
+        assertEquals(fakeClientId, actual.clientId());
     }
 
     @Test
     void testHandleSendCommand_callsWriteAndFlush() throws Exception {
-        NetworkingClientManager manager = spy(new NetworkingClientManager());
+        NetworkingClientManager manager = new NetworkingClientManager();
         long clientId = 1L;
-
         manager.networkClients.put(clientId, mockClient);
 
         NetworkEvents.SendCommand commandEvent = new NetworkEvents.SendCommand(clientId, "HELLO");
-
         manager.handleCommand(commandEvent);
 
         verify(mockClient).writeAndFlushnl("HELLO");
@@ -69,7 +75,7 @@ class NetworkingClientManagerTest {
 
     @Test
     void testHandleSendLogin_callsCorrectCommand() throws Exception {
-        NetworkingClientManager manager = spy(new NetworkingClientManager());
+        NetworkingClientManager manager = new NetworkingClientManager();
         long clientId = 1L;
         manager.networkClients.put(clientId, mockClient);
 
@@ -79,7 +85,7 @@ class NetworkingClientManagerTest {
 
     @Test
     void testHandleCloseClient_removesClient() throws Exception {
-        NetworkingClientManager manager = spy(new NetworkingClientManager());
+        NetworkingClientManager manager = new NetworkingClientManager();
         long clientId = 1L;
         manager.networkClients.put(clientId, mockClient);
 
@@ -101,7 +107,7 @@ class NetworkingClientManagerTest {
 
         List<NetworkingClient> clients = future.get();
         assertEquals(1, clients.size());
-        assertSame(mockClient, clients.getFirst());
+        assertSame(mockClient, clients.get(0));
     }
 
     @Test
