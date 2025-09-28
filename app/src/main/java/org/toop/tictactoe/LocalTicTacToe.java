@@ -33,7 +33,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private boolean isLocal;
     private String gameId;
-    private long connectionId = -1;
+    private long clientId = -1;
     private String serverId = null;
 
     private boolean[] isAiPlayer = new boolean[2];
@@ -210,13 +210,13 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void receiveMessageAction(NetworkEvents.ReceivedMessage receivedMessage) {
-        if (receivedMessage.ConnectionId() != this.connectionId) {
+        if (receivedMessage.clientId() != this.clientId) {
             return;
         }
 
         try {
             logger.info(
-                    "Received message from {}: {}", this.connectionId, receivedMessage.message());
+                    "Received message from {}: {}", this.clientId, receivedMessage.message());
             this.receivedQueue.put(receivedMessage.message());
         } catch (InterruptedException e) {
             logger.error("Error waiting for received Message", e);
@@ -224,7 +224,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void sendCommand(String... args) {
-        new EventFlow().addPostEvent(NetworkEvents.SendCommand.class, this.connectionId, args).asyncPostEvent();
+        new EventFlow().addPostEvent(NetworkEvents.SendCommand.class, this.clientId, args).asyncPostEvent();
     }
 
 //    private void endListeners() {

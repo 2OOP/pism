@@ -11,6 +11,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.events.NetworkEvents;
 
 import java.util.function.Supplier;
 
@@ -18,6 +20,8 @@ public class NetworkingClient {
     private static final Logger logger = LogManager.getLogger(NetworkingClient.class);
 
     private long connectionId;
+    private String host;
+    private int port;
     private Channel channel;
     private NetworkingGameClientHandler handler;
 
@@ -47,13 +51,23 @@ public class NetworkingClient {
             });
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             this.channel = channelFuture.channel();
+            this.host = host;
+            this.port = port;
         } catch (Exception e) {
             logger.error("Failed to create networking client instance", e);
         }
     }
 
     public NetworkingGameClientHandler getHandler() {
-        return handler;
+        return this.handler;
+    }
+
+    public String getHost() {
+        return this.host;
+    }
+
+    public int getPort() {
+        return this.port;
     }
 
     public void setConnectionId(long connectionId) {
@@ -83,55 +97,14 @@ public class NetworkingClient {
         }
     }
 
-    public void login(String username) {
-        this.writeAndFlush("login " + username + "\n");
-    }
-
-    public void logout() {
-        this.writeAndFlush("logout\n");
-    }
-
-    public void sendMove(int move) {
-        this.writeAndFlush("move " + move + "\n"); // append \n so server receives a full line
-    }
-
-    public void getGamelist() {
-        this.writeAndFlush("get gamelist\n");
-    }
-
-    public void getPlayerlist() {
-        this.writeAndFlush("get playerlist\n");
-    }
-
-    public void subscribe(String gameType) {
-        this.writeAndFlush("subscribe " + gameType + "\n");
-    }
-
-    public void forfeit() {
-        this.writeAndFlush("forfeit\n");
-    }
-
-    public void challenge(String playerName, String gameType) {
-        this.writeAndFlush("challenge " + playerName + " " + gameType + "\n");
-    }
-
-    public void acceptChallenge(String challengeNumber) {
-        this.writeAndFlush("challenge accept " + challengeNumber + "\n");
-    }
-
-    public void sendChatMessage(String message) {
-        this.writeAndFlush("message " + "\"" + message + "\"" + "\n");
-    }
-
-    public void help(String command) {
-        this.writeAndFlush("help " + command + "\n");
-    }
-
     public void closeConnection() {
         if (this.channel != null && this.channel.isActive()) {
             this.channel.close().addListener(future -> {
                 if (future.isSuccess()) {
                     logger.info("Connection {} closed successfully",  this.channel.remoteAddress());
+                    new EventFlow()
+                            .addPostEvent(new NetworkEvents.ClosedConnection(this.connectionId))
+                            .asyncPostEvent();
                 } else {
                     logger.error("Error closing connection {}. Error: {}",
                             this.channel.remoteAddress(),
