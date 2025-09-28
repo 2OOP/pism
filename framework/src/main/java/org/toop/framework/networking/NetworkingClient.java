@@ -9,12 +9,11 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
+import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
-
-import java.util.function.Supplier;
 
 public class NetworkingClient {
     private static final Logger logger = LogManager.getLogger(NetworkingClient.class);
@@ -37,18 +36,20 @@ public class NetworkingClient {
             bootstrap.group(workerGroup);
             bootstrap.channel(NioSocketChannel.class);
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-            bootstrap.handler(new ChannelInitializer<SocketChannel>() {
-                @Override
-                public void initChannel(SocketChannel ch) {
-                    handler = handlerFactory.get();
+            bootstrap.handler(
+                    new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        public void initChannel(SocketChannel ch) {
+                            handler = handlerFactory.get();
 
-                    ChannelPipeline pipeline = ch.pipeline();
-                    pipeline.addLast(new LineBasedFrameDecoder(1024)); // split at \n
-                    pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));     // bytes -> String
-                    pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
-                    pipeline.addLast(handler);
-                }
-            });
+                            ChannelPipeline pipeline = ch.pipeline();
+                            pipeline.addLast(new LineBasedFrameDecoder(1024)); // split at \n
+                            pipeline.addLast(
+                                    new StringDecoder(CharsetUtil.UTF_8)); // bytes -> String
+                            pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
+                            pipeline.addLast(handler);
+                        }
+                    });
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             this.channel = channelFuture.channel();
             this.host = host;
@@ -82,7 +83,8 @@ public class NetworkingClient {
         String literalMsg = msg.replace("\n", "\\n").replace("\r", "\\r");
         if (isChannelActive()) {
             this.channel.writeAndFlush(msg);
-            logger.info("Connection {} sent message: '{}'", this.channel.remoteAddress(), literalMsg);
+            logger.info(
+                    "Connection {} sent message: '{}'", this.channel.remoteAddress(), literalMsg);
         } else {
             logger.warn("Cannot send message: '{}', connection inactive.", literalMsg);
         }
@@ -99,23 +101,30 @@ public class NetworkingClient {
 
     public void closeConnection() {
         if (this.channel != null && this.channel.isActive()) {
-            this.channel.close().addListener(future -> {
-                if (future.isSuccess()) {
-                    logger.info("Connection {} closed successfully",  this.channel.remoteAddress());
-                    new EventFlow()
-                            .addPostEvent(new NetworkEvents.ClosedConnection(this.connectionId))
-                            .asyncPostEvent();
-                } else {
-                    logger.error("Error closing connection {}. Error: {}",
-                            this.channel.remoteAddress(),
-                            future.cause().getMessage());
-                }
-            });
+            this.channel
+                    .close()
+                    .addListener(
+                            future -> {
+                                if (future.isSuccess()) {
+                                    logger.info(
+                                            "Connection {} closed successfully",
+                                            this.channel.remoteAddress());
+                                    new EventFlow()
+                                            .addPostEvent(
+                                                    new NetworkEvents.ClosedConnection(
+                                                            this.connectionId))
+                                            .asyncPostEvent();
+                                } else {
+                                    logger.error(
+                                            "Error closing connection {}. Error: {}",
+                                            this.channel.remoteAddress(),
+                                            future.cause().getMessage());
+                                }
+                            });
         }
     }
 
     public long getId() {
         return this.connectionId;
     }
-
 }

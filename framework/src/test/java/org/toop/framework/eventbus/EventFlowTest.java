@@ -1,14 +1,13 @@
 package org.toop.framework.eventbus;
 
-import org.junit.jupiter.api.Test;
-import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.eventbus.events.EventWithSnowflake;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.toop.framework.SnowflakeGenerator;
+import org.toop.framework.eventbus.events.EventWithSnowflake;
 
 class EventFlowTest {
 
@@ -20,12 +19,13 @@ class EventFlowTest {
         long randomPart = id & ((1L << 22) - 1);
 
         assertTrue(timestampPart > 0, "Timestamp part should be non-zero");
-        assertTrue(randomPart >= 0 && randomPart < (1L << 22), "Random part should be within 22 bits");
+        assertTrue(
+                randomPart >= 0 && randomPart < (1L << 22), "Random part should be within 22 bits");
     }
 
     @Test
     void testSnowflakeMonotonicity() throws InterruptedException {
-        SnowflakeGenerator sf = new SnowflakeGenerator(1);
+        SnowflakeGenerator sf = new SnowflakeGenerator();
         long id1 = sf.nextId();
         Thread.sleep(1); // ensure timestamp increases
         long id2 = sf.nextId();
@@ -35,7 +35,7 @@ class EventFlowTest {
 
     @Test
     void testSnowflakeUniqueness() {
-        SnowflakeGenerator sf = new SnowflakeGenerator(1);
+        SnowflakeGenerator sf = new SnowflakeGenerator();
         Set<Long> ids = new HashSet<>();
         for (int i = 0; i < 100_000; i++) {
             long id = sf.nextId();
@@ -46,9 +46,20 @@ class EventFlowTest {
     // --- Dummy Event classes for testing ---
     static class DummySnowflakeEvent implements EventWithSnowflake {
         private final long snowflake;
-        DummySnowflakeEvent(long snowflake) { this.snowflake = snowflake; }
-        @Override public long eventSnowflake() { return snowflake; }
-        @Override public java.util.Map<String, Object> result() { return java.util.Collections.emptyMap(); }
+
+        DummySnowflakeEvent(long snowflake) {
+            this.snowflake = snowflake;
+        }
+
+        @Override
+        public long eventSnowflake() {
+            return snowflake;
+        }
+
+        @Override
+        public java.util.Map<String, Object> result() {
+            return java.util.Collections.emptyMap();
+        }
     }
 
     @Test

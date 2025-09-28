@@ -1,4 +1,4 @@
-package org.toop;
+package org.toop.framework;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,7 +9,6 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.framework.Logging;
 
 public class LoggingTest {
 
@@ -106,6 +105,6 @@ public class LoggingTest {
 
         LoggerConfig loggerConfig =
                 ctx.getConfiguration().getLoggers().get("org.toop.DoesNotExist");
-        assertNull(loggerConfig); // class doesn't exist, so no logger added
+        assertNull(loggerConfig);
     }
 }

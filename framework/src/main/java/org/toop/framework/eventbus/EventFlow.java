@@ -1,9 +1,5 @@
 package org.toop.framework.eventbus;
 
-import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.events.EventWithSnowflake;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -13,19 +9,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import org.toop.framework.SnowflakeGenerator;
+import org.toop.framework.eventbus.events.EventType;
+import org.toop.framework.eventbus.events.EventWithSnowflake;
 
 /**
- * EventFlow is a utility class for creating, posting, and optionally subscribing to events
- * in a type-safe and chainable manner. It is designed to work with the {@link GlobalEventBus}.
+ * EventFlow is a utility class for creating, posting, and optionally subscribing to events in a
+ * type-safe and chainable manner. It is designed to work with the {@link GlobalEventBus}.
  *
- * <p>This class supports automatic UUID assignment for {@link EventWithSnowflake} events,
- * and allows filtering subscribers so they only respond to events with a specific UUID.
- * All subscription methods are chainable, and you can configure automatic unsubscription
- * after an event has been successfully handled.</p>
+ * <p>This class supports automatic UUID assignment for {@link EventWithSnowflake} events, and
+ * allows filtering subscribers so they only respond to events with a specific UUID. All
+ * subscription methods are chainable, and you can configure automatic unsubscription after an event
+ * has been successfully handled.
  */
 public class EventFlow {
-
-
 
     /** Lookup object used for dynamically invoking constructors via MethodHandles. */
     private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
@@ -65,15 +62,20 @@ public class EventFlow {
         try {
             boolean isUuidEvent = EventWithSnowflake.class.isAssignableFrom(eventClass);
 
-            MethodHandle ctorHandle = CONSTRUCTOR_CACHE.computeIfAbsent(eventClass, cls -> {
-                try {
-                    Class<?>[] paramTypes = cls.getDeclaredConstructors()[0].getParameterTypes();
-                    MethodType mt = MethodType.methodType(void.class, paramTypes);
-                    return LOOKUP.findConstructor(cls, mt);
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to find constructor handle for " + cls, e);
-                }
-            });
+            MethodHandle ctorHandle =
+                    CONSTRUCTOR_CACHE.computeIfAbsent(
+                            eventClass,
+                            cls -> {
+                                try {
+                                    Class<?>[] paramTypes =
+                                            cls.getDeclaredConstructors()[0].getParameterTypes();
+                                    MethodType mt = MethodType.methodType(void.class, paramTypes);
+                                    return LOOKUP.findConstructor(cls, mt);
+                                } catch (Exception e) {
+                                    throw new RuntimeException(
+                                            "Failed to find constructor handle for " + cls, e);
+                                }
+                            });
 
             Object[] finalArgs;
             int expectedParamCount = ctorHandle.type().parameterCount();
@@ -98,67 +100,69 @@ public class EventFlow {
         }
     }
 
-//    public EventFlow addSnowflake() {
-//        this.eventSnowflake = new SnowflakeGenerator(1).nextId();
-//        return this;
-//    }
+    //    public EventFlow addSnowflake() {
+    //        this.eventSnowflake = new SnowflakeGenerator(1).nextId();
+    //        return this;
+    //    }
 
-    /**
-     * Subscribe by ID: only fires if UUID matches this publisher's eventId.
-     */
-    public <TT extends EventWithSnowflake> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action,
-                                                                boolean unsubscribeAfterSuccess) {
+    /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
+    public <TT extends EventWithSnowflake> EventFlow onResponse(
+            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
         ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] = new ListenerHandler(
-                GlobalEventBus.subscribe(eventClass, event -> {
-                    if (event.eventSnowflake() != this.eventSnowflake) return;
+        listenerHolder[0] =
+                new ListenerHandler(
+                        GlobalEventBus.subscribe(
+                                eventClass,
+                                event -> {
+                                    if (event.eventSnowflake() != this.eventSnowflake) return;
 
-                    action.accept(event);
+                                    action.accept(event);
 
-                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                        GlobalEventBus.unsubscribe(listenerHolder[0]);
-                        this.listeners.remove(listenerHolder[0]);
-                    }
+                                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
+                                        GlobalEventBus.unsubscribe(listenerHolder[0]);
+                                        this.listeners.remove(listenerHolder[0]);
+                                    }
 
-                    this.result = event.result();
-                })
-        );
+                                    this.result = event.result();
+                                }));
         this.listeners.add(listenerHolder[0]);
         return this;
     }
 
-    /**
-     * Subscribe by ID: only fires if UUID matches this publisher's eventId.
-     */
-    public <TT extends EventWithSnowflake> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action) {
+    /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
+    public <TT extends EventWithSnowflake> EventFlow onResponse(
+            Class<TT> eventClass, Consumer<TT> action) {
         return this.onResponse(eventClass, action, true);
     }
 
-    /**
-     * Subscribe by ID without explicit class.
-     */
+    /** Subscribe by ID without explicit class. */
     @SuppressWarnings("unchecked")
-    public <TT extends EventWithSnowflake> EventFlow onResponse(Consumer<TT> action, boolean unsubscribeAfterSuccess) {
+    public <TT extends EventWithSnowflake> EventFlow onResponse(
+            Consumer<TT> action, boolean unsubscribeAfterSuccess) {
         ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] = new ListenerHandler(
-            GlobalEventBus.subscribe(event -> {
-                if (!(event instanceof EventWithSnowflake uuidEvent)) return;
-                if (uuidEvent.eventSnowflake() == this.eventSnowflake) {
-                    try {
-                        TT typedEvent = (TT) uuidEvent;
-                        action.accept(typedEvent);
-                        if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                            GlobalEventBus.unsubscribe(listenerHolder[0]);
-                            this.listeners.remove(listenerHolder[0]);
-                        }
-                        this.result = typedEvent.result();
-                    } catch (ClassCastException _) {
-                        throw new ClassCastException("Cannot cast " + event.getClass().getName() +
-                                " to EventWithSnowflake");
-                    }
-                }
-            })
-        );
+        listenerHolder[0] =
+                new ListenerHandler(
+                        GlobalEventBus.subscribe(
+                                event -> {
+                                    if (!(event instanceof EventWithSnowflake uuidEvent)) return;
+                                    if (uuidEvent.eventSnowflake() == this.eventSnowflake) {
+                                        try {
+                                            TT typedEvent = (TT) uuidEvent;
+                                            action.accept(typedEvent);
+                                            if (unsubscribeAfterSuccess
+                                                    && listenerHolder[0] != null) {
+                                                GlobalEventBus.unsubscribe(listenerHolder[0]);
+                                                this.listeners.remove(listenerHolder[0]);
+                                            }
+                                            this.result = typedEvent.result();
+                                        } catch (ClassCastException _) {
+                                            throw new ClassCastException(
+                                                    "Cannot cast "
+                                                            + event.getClass().getName()
+                                                            + " to EventWithSnowflake");
+                                        }
+                                    }
+                                }));
         this.listeners.add(listenerHolder[0]);
         return this;
     }
@@ -167,19 +171,21 @@ public class EventFlow {
         return this.onResponse(action, true);
     }
 
-    public <TT extends EventType> EventFlow listen(Class<TT> eventClass, Consumer<TT> action,
-                                                               boolean unsubscribeAfterSuccess) {
+    public <TT extends EventType> EventFlow listen(
+            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
         ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] = new ListenerHandler(
-                GlobalEventBus.subscribe(eventClass, event -> {
-                    action.accept(event);
+        listenerHolder[0] =
+                new ListenerHandler(
+                        GlobalEventBus.subscribe(
+                                eventClass,
+                                event -> {
+                                    action.accept(event);
 
-                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                        GlobalEventBus.unsubscribe(listenerHolder[0]);
-                        this.listeners.remove(listenerHolder[0]);
-                    }
-                })
-        );
+                                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
+                                        GlobalEventBus.unsubscribe(listenerHolder[0]);
+                                        this.listeners.remove(listenerHolder[0]);
+                                    }
+                                }));
         this.listeners.add(listenerHolder[0]);
         return this;
     }
@@ -189,24 +195,28 @@ public class EventFlow {
     }
 
     @SuppressWarnings("unchecked")
-    public <TT extends EventType> EventFlow listen(Consumer<TT> action, boolean unsubscribeAfterSuccess) {
+    public <TT extends EventType> EventFlow listen(
+            Consumer<TT> action, boolean unsubscribeAfterSuccess) {
         ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] = new ListenerHandler(
-                GlobalEventBus.subscribe(event -> {
-                    if (!(event instanceof EventType nonUuidEvent)) return;
-                    try {
-                        TT typedEvent = (TT) nonUuidEvent;
-                        action.accept(typedEvent);
-                        if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                            GlobalEventBus.unsubscribe(listenerHolder[0]);
-                            this.listeners.remove(listenerHolder[0]);
-                        }
-                    } catch (ClassCastException _) {
-                        throw new ClassCastException("Cannot cast " + event.getClass().getName() +
-                                " to EventWithSnowflake");
-                    }
-                })
-        );
+        listenerHolder[0] =
+                new ListenerHandler(
+                        GlobalEventBus.subscribe(
+                                event -> {
+                                    if (!(event instanceof EventType nonUuidEvent)) return;
+                                    try {
+                                        TT typedEvent = (TT) nonUuidEvent;
+                                        action.accept(typedEvent);
+                                        if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
+                                            GlobalEventBus.unsubscribe(listenerHolder[0]);
+                                            this.listeners.remove(listenerHolder[0]);
+                                        }
+                                    } catch (ClassCastException _) {
+                                        throw new ClassCastException(
+                                                "Cannot cast "
+                                                        + event.getClass().getName()
+                                                        + " to EventWithSnowflake");
+                                    }
+                                }));
         this.listeners.add(listenerHolder[0]);
         return this;
     }

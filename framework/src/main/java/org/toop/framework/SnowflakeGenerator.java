@@ -42,9 +42,14 @@ public class SnowflakeGenerator {
         }
     }
 
+    void setTime(long l) {
+        this.lastTimestamp.set(l);
+    }
+
     public SnowflakeGenerator() {
         if (machineId < 0 || machineId > MAX_MACHINE_ID) {
-            throw new IllegalArgumentException("Machine ID must be between 0 and " + MAX_MACHINE_ID);
+            throw new IllegalArgumentException(
+                    "Machine ID must be between 0 and " + MAX_MACHINE_ID);
         }
     }
 
