@@ -100,4 +100,5 @@ build
 ##############################
 newgamesver-release-V1.jar
 server.properties
+gameserver.log.*
 gameserver.log
