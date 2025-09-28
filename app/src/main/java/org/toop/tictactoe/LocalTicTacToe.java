@@ -1,7 +1,6 @@
 package org.toop.tictactoe;
 
 import java.util.concurrent.*;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.EventFlow;
@@ -10,11 +9,6 @@ import org.toop.game.Game;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
 import org.toop.tictactoe.gui.UIGameBoard;
-import org.toop.framework.networking.NetworkingGameClientHandler;
-
-import java.util.function.Supplier;
-
-import static java.lang.Thread.sleep;
 
 /**
  * A representation of a local tic-tac-toe game. Calls are made to a server for information about
@@ -71,24 +65,25 @@ public class LocalTicTacToe { // TODO: Implement runnable
      * @param port The port of the server to connect to.
      */
     private LocalTicTacToe(String ip, int port) {
-//        this.receivedMessageListener =
-//                GlobalEventBus.subscribe(this::receiveMessageAction);
-//        GlobalEventBus.subscribe(this.receivedMessageListener);
-//        this.connectionId = this.createConnection(ip, port); TODO: Refactor this
+        //        this.receivedMessageListener =
+        //                GlobalEventBus.subscribe(this::receiveMessageAction);
+        //        GlobalEventBus.subscribe(this.receivedMessageListener);
+        //        this.connectionId = this.createConnection(ip, port); TODO: Refactor this
         this.createGame("X", "O");
         this.isLocal = false;
-        //this.executor.submit(this::remoteGameThread);
+        // this.executor.submit(this::remoteGameThread);
     }
 
     private LocalTicTacToe(boolean[] aiFlags) {
         this.isAiPlayer = aiFlags; // store who is AI
         this.isLocal = true;
-        //this.executor.submit(this::localGameThread);
+        // this.executor.submit(this::localGameThread);
     }
-    public void startThreads(){
+
+    public void startThreads() {
         if (isLocal) {
             this.executor.submit(this::localGameThread);
-        }else {
+        } else {
             this.executor.submit(this::remoteGameThread);
         }
     }
@@ -124,10 +119,10 @@ public class LocalTicTacToe { // TODO: Implement runnable
                     state = this.ticTacToe.play(this.moveQueuePlayerA.take());
                 } else {
                     Game.Move bestMove = ai.findBestMove(this.ticTacToe, 9);
-	                assert bestMove != null;
+                    assert bestMove != null;
 
-	                state = this.ticTacToe.play(bestMove);
-	                ui.setCell(bestMove.position(), "X");
+                    state = this.ticTacToe.play(bestMove);
+                    ui.setCell(bestMove.position(), "X");
                 }
                 if (state == Game.State.WIN || state == Game.State.DRAW) {
                     ui.setState(state, "X");
@@ -138,9 +133,9 @@ public class LocalTicTacToe { // TODO: Implement runnable
                     state = this.ticTacToe.play(this.moveQueuePlayerB.take());
                 } else {
                     Game.Move bestMove = ai.findBestMove(this.ticTacToe, 9);
-	                assert bestMove != null;
-	                state = this.ticTacToe.play(bestMove);
-	                ui.setCell(bestMove.position(), "O");
+                    assert bestMove != null;
+                    state = this.ticTacToe.play(bestMove);
+                    ui.setCell(bestMove.position(), "O");
                 }
                 if (state == Game.State.WIN || state == Game.State.DRAW) {
                     ui.setState(state, "O");
@@ -166,8 +161,8 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     public char[] getCurrentBoard() {
-        //return ticTacToe.getGrid();
-	    return new char[2];
+        // return ticTacToe.getGrid();
+        return new char[2];
     }
 
     /** End the current game. */
@@ -206,7 +201,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
 
     private void endTheGame() {
         this.sendCommand("end_game", this.gameId);
-//        this.endListeners();
+        //        this.endListeners();
     }
 
     private void receiveMessageAction(NetworkEvents.ReceivedMessage receivedMessage) {
@@ -215,8 +210,7 @@ public class LocalTicTacToe { // TODO: Implement runnable
         }
 
         try {
-            logger.info(
-                    "Received message from {}: {}", this.clientId, receivedMessage.message());
+            logger.info("Received message from {}: {}", this.clientId, receivedMessage.message());
             this.receivedQueue.put(receivedMessage.message());
         } catch (InterruptedException e) {
             logger.error("Error waiting for received Message", e);
@@ -224,12 +218,14 @@ public class LocalTicTacToe { // TODO: Implement runnable
     }
 
     private void sendCommand(String... args) {
-        new EventFlow().addPostEvent(NetworkEvents.SendCommand.class, this.clientId, args).asyncPostEvent();
+        new EventFlow()
+                .addPostEvent(NetworkEvents.SendCommand.class, this.clientId, args)
+                .asyncPostEvent();
     }
 
-//    private void endListeners() {
-//        GlobalEventBus.unregister(this.receivedMessageListener);
-//    } TODO
+    //    private void endListeners() {
+    //        GlobalEventBus.unregister(this.receivedMessageListener);
+    //    } TODO
 
     public void setUIReference(UIGameBoard uiGameBoard) {
         this.ui = uiGameBoard;

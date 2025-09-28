@@ -7,9 +7,9 @@ import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.NetworkingGameClientHandler;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.tictactoe.LocalTicTacToe;
-import org.toop.framework.networking.NetworkingGameClientHandler;
 import org.toop.tictactoe.gui.UIGameBoard;
 
 public class RemoteGameSelector {
@@ -55,36 +55,44 @@ public class RemoteGameSelector {
                             && !portTextField.getText().isEmpty()) {
 
                         AtomicReference<Long> clientId = new AtomicReference<>();
-                        new EventFlow().addPostEvent(
-                                NetworkEvents.StartClient.class,
-                                (Supplier<NetworkingGameClientHandler>)
-                                        new NetworkingGameClientHandler(clientId.get()),
-                                "127.0.0.1",
-                                5001
-                            ).onResponse(
-                                NetworkEvents.StartClientResponse.class,
-                                (response) -> {
-                                    clientId.set(response.clientId());
-                                }
-                            ).asyncPostEvent();
+                        new EventFlow()
+                                .addPostEvent(
+                                        NetworkEvents.StartClient.class,
+                                        (Supplier<NetworkingGameClientHandler>)
+                                                new NetworkingGameClientHandler(clientId.get()),
+                                        "127.0.0.1",
+                                        5001)
+                                .onResponse(
+                                        NetworkEvents.StartClientResponse.class,
+                                        (response) -> {
+                                            clientId.set(response.clientId());
+                                        })
+                                .asyncPostEvent();
 
-//                        GlobalEventBus.subscribeAndRegister(
-//                                NetworkEvents.ReceivedMessage.class,
-//                                event -> {
-//                                    if (event.message().equalsIgnoreCase("ok")) {
-//                                        logger.info("received ok from server.");
-//                                    } else if (event.message().toLowerCase().startsWith("gameid")) {
-//                                        String gameId =
-//                                                event.message()
-//                                                        .toLowerCase()
-//                                                        .replace("gameid ", "");
-//                                        GlobalEventBus.post(
-//                                                new NetworkEvents.SendCommand(
-//                                                        "start_game " + gameId));
-//                                    } else {
-//                                        logger.info("{}", event.message());
-//                                    }
-//                                });
+                        //                        GlobalEventBus.subscribeAndRegister(
+                        //                                NetworkEvents.ReceivedMessage.class,
+                        //                                event -> {
+                        //                                    if
+                        // (event.message().equalsIgnoreCase("ok")) {
+                        //                                        logger.info("received ok from
+                        // server.");
+                        //                                    } else if
+                        // (event.message().toLowerCase().startsWith("gameid")) {
+                        //                                        String gameId =
+                        //                                                event.message()
+                        //                                                        .toLowerCase()
+                        //                                                        .replace("gameid
+                        // ", "");
+                        //                                        GlobalEventBus.post(
+                        //                                                new
+                        // NetworkEvents.SendCommand(
+                        //                                                        "start_game " +
+                        // gameId));
+                        //                                    } else {
+                        //                                        logger.info("{}",
+                        // event.message());
+                        //                                    }
+                        //                                });
                         frame.remove(mainMenu);
                         UIGameBoard ttt = new UIGameBoard(localTicTacToe, this);
                         localTicTacToe.startThreads();
