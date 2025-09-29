@@ -6,79 +6,103 @@ import org.toop.game.Player;
 import java.util.ArrayList;
 
 public final class TicTacToe extends Game {
-	private int movesLeft;
+    private int movesLeft;
 
-	public TicTacToe(String player1, String player2) {
-		super(3, 3, new Player(player1, 'X'), new Player(player2, 'O'));
-		movesLeft = board.length;
-	}
+    public TicTacToe(String player1, String player2) {
+        super(3, 3, new Player(player1, 'X'), new Player(player2, 'O'));
+        movesLeft = board.length;
+    }
 
-	public TicTacToe(TicTacToe other) {
-		super(other);
-		movesLeft = other.movesLeft;
-	}
+    public TicTacToe(TicTacToe other) {
+        super(other);
+        movesLeft = other.movesLeft;
+    }
 
-	@Override
-	public Move[] getLegalMoves() {
-		final ArrayList<Move> legalMoves = new ArrayList<>();
+    @Override
+    public Move[] getLegalMoves() {
+        final ArrayList<Move> legalMoves = new ArrayList<>();
 
-		for (int i = 0; i < board.length; i++) {
-			if (board[i] == EMPTY) {
-				legalMoves.add(new Move(i, getCurrentPlayer().values()[0]));
-			}
-		}
+        for (int i = 0; i < board.length; i++) {
+            if (board[i] == EMPTY) {
+                legalMoves.add(new Move(i, getCurrentPlayer().values()[0]));
+            }
+        }
 
-		return legalMoves.toArray(new Move[0]);
-	}
+        return legalMoves.toArray(new Move[0]);
+    }
 
-	@Override
-	public State play(Move move) {
-		assert move != null;
-		assert move.position() >= 0 && move.position() < board.length;
-		assert move.value() == getCurrentPlayer().values()[0];
+    @Override
+    public State play(Move move) {
+        assert move != null;
+        assert move.position() >= 0 && move.position() < board.length;
+        assert move.value() == getCurrentPlayer().values()[0];
 
-		board[move.position()] = move.value();
-		movesLeft--;
+        board[move.position()] = move.value();
+        movesLeft--;
 
-		if (checkForWin()) {
-			return State.WIN;
-		}
+        if (checkForWin()) {
+            return State.WIN;
+        }
 
-		if (movesLeft <= 0) {
-			return State.DRAW;
-		}
+        if (movesLeft <= 0) {
+            return State.DRAW;
+        }
 
-		nextPlayer();
-		return State.NORMAL;
-	}
+        if (checkDraw()) {
+            return State.DRAW;
+        }
 
-	private boolean checkForWin() {
-		// Horizontal
-		for (int i = 0; i < 3; i++) {
-			final int index = i * 3;
+        nextPlayer();
+        return State.NORMAL;
+    }
 
-			if (board[index] != EMPTY
-					&& board[index] == board[index + 1]
-					&& board[index] == board[index + 2]) {
-				return true;
-			}
-		}
+    private boolean checkForWin() {
+        // Horizontal
+        for (int i = 0; i < 3; i++) {
+            final int index = i * 3;
 
-		// Vertical
-		for (int i = 0; i < 3; i++) {
-			if (board[i] != EMPTY
-					&& board[i] == board[i + 3]
-					&& board[i] == board[i + 6]) {
-				return true;
-			}
-		}
+            if (board[index] != EMPTY
+                    && board[index] == board[index + 1]
+                    && board[index] == board[index + 2]) {
+                return true;
+            }
+        }
 
-		// B-Slash
-		if (board[0] != EMPTY && board[0] == board[4] && board[0] == board[8]) {
-			return true;
-		}
+        // Vertical
+        for (int i = 0; i < 3; i++) {
+            if (board[i] != EMPTY
+                    && board[i] == board[i + 3]
+                    && board[i] == board[i + 6]) {
+                return true;
+            }
+        }
 
-		// F-Slash
-		return board[2] != EMPTY && board[2] == board[4] && board[2] == board[6];
-	}
+        // B-Slash
+        if (board[0] != EMPTY && board[0] == board[4] && board[0] == board[8]) {
+            return true;
+        }
+
+        // F-Slash
+        return board[2] != EMPTY && board[2] == board[4] && board[2] == board[6];
+    }
+
+
+    public boolean checkDraw() {
+        // try every move on a legal copy
+        for (Move move : getLegalMoves()) {
+            TicTacToe copy = new TicTacToe(this); // make copy
+            State result = copy.play(move); // play on copy
+
+            if (result == State.WIN) {
+                // There exists a possible winning line
+                return false;
+            }
+
+            if (!copy.checkDraw()) {
+                // at least one branch is not a draw so return false
+                return false;
+            }
+        }
+        return true; // no win possible
+    }
 }
