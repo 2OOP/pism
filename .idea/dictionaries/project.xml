@@ -2,7 +2,16 @@
   <dictionary name="project">
     <words>
       <w>aosp</w>
+      <w>clid</w>
+      <w>dcompile</w>
+      <w>errorprone</w>
+      <w>flushnl</w>
+      <w>gamelist</w>
+      <w>playerlist</w>
+      <w>tictactoe</w>
+      <w>toop</w>
       <w>vmoptions</w>
+      <w>xplugin</w>
     </words>
   </dictionary>
 </component>
