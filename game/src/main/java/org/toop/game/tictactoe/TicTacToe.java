@@ -51,10 +51,6 @@ public final class TicTacToe extends Game {
                 return State.DRAW;
             }
         }
-
-        if (movesLeft <= 0) {
-            return State.DRAW;
-        }
         return State.NORMAL;
     }
 
