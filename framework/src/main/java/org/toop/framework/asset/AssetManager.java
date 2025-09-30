@@ -2,11 +2,13 @@ package org.toop.framework.asset;
 
 import org.toop.framework.asset.resources.*;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class AssetManager {
-    private static AssetLoader loader = null;
     private static final AssetManager INSTANCE = new AssetManager();
     private static final Map<String, Asset<? extends BaseResource>> assets = new HashMap<>();
 
@@ -16,9 +18,9 @@ public class AssetManager {
         return INSTANCE;
     }
 
-    public static void initializeLoader(File rootFolder) {
-        if (loader == null) {
-            loader = new AssetLoader(rootFolder);
+    public static void loadAssets(AssetLoader loader) {
+        for (var asset : loader.getAssets()) {
+            assets.put(asset.getName(), asset);
         }
     }
 

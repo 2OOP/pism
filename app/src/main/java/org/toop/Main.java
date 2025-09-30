@@ -10,14 +10,13 @@ import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.NotDirectoryException;
 
 public class Main {
     static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
 
-        AssetManager.initializeLoader(new File("app/src/main/resources/assets"));
+        AssetManager.loadAssets(new AssetLoader("app/src/main/resources/assets"));
         var b = new NetworkingClientManager();
         var c = new SoundManager();
 

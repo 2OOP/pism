@@ -18,6 +18,11 @@ public class AssetLoader {
         fileSearcher(rootFolder);
     }
 
+    public AssetLoader(String rootFolder) {
+        this.rootFolder = new File(rootFolder);
+        fileSearcher(this.rootFolder);
+    }
+
     public File getRootFolder() {
         return this.rootFolder;
     }
