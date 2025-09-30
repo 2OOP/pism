@@ -21,7 +21,7 @@ public class AudioResource extends Resource {
     @Override
     public Resource load() {
         try {
-            this.audioInputStream = AudioSystem.getAudioInputStream(this.stream);
+            this.audioInputStream = AudioSystem.getAudioInputStream(this.getStream());
             Clip clip = AudioSystem.getClip();
             clip.open(this.audioInputStream);
             this.clip = clip;
