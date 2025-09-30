@@ -5,7 +5,7 @@ import org.toop.framework.SnowflakeGenerator;
 import java.nio.file.Path;
 
 public class Asset {
-    private Long id;
+    private Long id; // IS this needed?
     private String name;
     private Path assetPath;
     private String asset;
