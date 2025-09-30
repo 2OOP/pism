@@ -16,7 +16,9 @@ import java.nio.file.NotDirectoryException;
 public class Main {
     static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
 
-        AssetManager.loadAssets(new AssetLoader("app/src/main/resources/assets"));
+        AssetLoader.initialize("app/src/main/resources/assets");
+        AssetManager.loadAssets(AssetLoader.getInstance());
+
         var b = new NetworkingClientManager();
         var c = new SoundManager();
 

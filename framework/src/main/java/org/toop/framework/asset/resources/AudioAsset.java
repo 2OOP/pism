@@ -3,6 +3,7 @@ package org.toop.framework.asset.resources;
 import javax.sound.sampled.*;
 import java.io.*;
 
+@FileExtension({"wav"})
 public class AudioAsset extends BaseResource implements LoadableResource {
 
     private AudioInputStream audioInputStream = null;
