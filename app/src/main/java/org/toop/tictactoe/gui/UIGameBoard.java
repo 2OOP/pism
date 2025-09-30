@@ -8,6 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.app.gui.LocalGameSelector;
 import org.toop.app.gui.RemoteGameSelector;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.game.Game;
 import org.toop.tictactoe.LocalTicTacToe;
 
@@ -95,6 +97,9 @@ public class UIGameBoard {
                                 }
                                 this.localTicTacToe.move(index);
                                 cells[index].setText(currentPlayer);
+                                new EventFlow().addPostEvent(
+                                        new AudioEvents.PlayAudio("hitsound0", false)
+                                ).asyncPostEvent();
                             } else {
                                 logger.info(
                                         "Player "
@@ -123,10 +128,19 @@ public class UIGameBoard {
         Color color;
         if (state == Game.State.WIN && playerMove.equals(currentPlayer)) {
             color = new Color(160, 220, 160);
+            new EventFlow().addPostEvent(
+                    new AudioEvents.PlayAudio("winsound", false)
+            ).asyncPostEvent();
         } else if (state == Game.State.WIN) {
             color = new Color(220, 160, 160);
+            new EventFlow().addPostEvent(
+                    new AudioEvents.PlayAudio("sadtrombone", false)
+            ).asyncPostEvent();
         } else if (state == Game.State.DRAW) {
             color = new Color(220, 220, 160);
+            new EventFlow().addPostEvent(
+                    new AudioEvents.PlayAudio("dramatic", false)
+            ).asyncPostEvent();
         } else {
             color = new Color(220, 220, 220);
         }

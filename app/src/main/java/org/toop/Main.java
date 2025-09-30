@@ -1,27 +1,26 @@
 package org.toop;
 
 import org.toop.app.gui.LocalServerSelector;
+import org.toop.framework.audio.AudioFiles;
+import org.toop.framework.audio.SoundManager;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
-import org.toop.framework.audio.AudioFilesManager;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.NotDirectoryException;
 
 public class Main {
     static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
-        AudioFilesManager audioFiles = new AudioFilesManager("app/src/main/resources/audio/");
-        String aFile = audioFiles.getAudioFile("hdchirp_88k_log.wav");
-        AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File(aFile));
-        Clip clip = AudioSystem.getClip();
-        clip.open(audioStream);
-        clip.start();
         initSystems();
+        new EventFlow().addPostEvent(new AudioEvents.PlayAudio("mainmenu", true)).asyncPostEvent();
         javax.swing.SwingUtilities.invokeLater(LocalServerSelector::new);
     }
 
-    private static void initSystems() throws NetworkingInitializationException {
+    private static void initSystems() throws NetworkingInitializationException, NotDirectoryException {
         new NetworkingClientManager();
+        new SoundManager(new AudioFiles("app/src/main/resources/audio/"));
     }
 }
