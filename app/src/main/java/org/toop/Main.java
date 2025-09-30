@@ -14,14 +14,17 @@ import java.io.IOException;
 import java.nio.file.NotDirectoryException;
 
 public class Main {
-    static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
+    static void main(String[] args) throws IOException, UnsupportedAudioFileException, LineUnavailableException, InterruptedException {
         var a = new AssetManager(new File("app/src/main/resources/assets"));
         var b = new NetworkingClientManager();
         var c = new SoundManager(a);
 
-//        IO.println(a.getAssets());
-        IO.println(c.getClips());
-
+        new EventFlow().addPostEvent(new AudioEvents.PlayAudio("mainmenu.wav", true)).asyncPostEvent();
+        new EventFlow().addPostEvent(new AudioEvents.PlayAudio("sadtrombone.wav", true)).asyncPostEvent();
+        Thread.sleep(200);
+        new EventFlow().addPostEvent(new AudioEvents.PlayAudio("mainmenu.wav", true)).asyncPostEvent();
+        new EventFlow().addPostEvent(new AudioEvents.PlayAudio("sadtrombone.wav", true)).asyncPostEvent();
+        Thread.sleep(200);
         new EventFlow().addPostEvent(new AudioEvents.PlayAudio("mainmenu.wav", true)).asyncPostEvent();
         new EventFlow().addPostEvent(new AudioEvents.PlayAudio("sadtrombone.wav", true)).asyncPostEvent();
 

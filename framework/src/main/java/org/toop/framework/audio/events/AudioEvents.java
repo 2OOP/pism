@@ -8,5 +8,5 @@ public class AudioEvents extends EventsBase {
     public record PlayAudio(String fileNameNoExtensionAndNoDirectory, boolean loop)
             implements EventWithoutSnowflake {}
 
-    public record StopAudio(String fileNameNoExtensionAndNoDirectory) implements EventWithoutSnowflake {}
+    public record StopAudio(long clipId) implements EventWithoutSnowflake {}
 }
