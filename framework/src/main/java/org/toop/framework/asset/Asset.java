@@ -1,10 +1,10 @@
-package org.toop.framework.assets;
+package org.toop.framework.asset;
 
 import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.assets.resources.Resource;
+import org.toop.framework.asset.resources.BaseResource;
 
-public class Asset <T extends Resource> {
-    private final Long id; // IS this needed?
+public class Asset <T extends BaseResource> {
+    private final Long id;
     private final String name;
     private final T resource;
 

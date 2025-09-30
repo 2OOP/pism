@@ -1,17 +1,21 @@
-package org.toop.framework.assets.resources;
+package org.toop.framework.asset.resources;
 
 import javax.sound.sampled.*;
 import java.io.*;
 
-public class AudioResource extends Resource {
+@FileExtension({"wav"})
+public class AudioAsset extends BaseResource implements LoadableResource {
 
-    // Constructor
-    public AudioResource(File audioFile) {
+    public AudioAsset(final File audioFile) {
         super(audioFile);
     }
 
     // Gets a new clip to play
     public Clip getNewClip() throws LineUnavailableException, UnsupportedAudioFileException, IOException {
+        if(!this.isLoaded()){
+            this.load();
+        }
+
         // Get a new clip from audio system
         Clip clip = AudioSystem.getClip();
 
@@ -22,6 +26,6 @@ public class AudioResource extends Resource {
 
     // Generates a new audio stream from byte array
     private AudioInputStream getAudioStream() throws UnsupportedAudioFileException, IOException {
-        return AudioSystem.getAudioInputStream(this.getStream());
+        return AudioSystem.getAudioInputStream(this.getInputStream());
     }
 }
