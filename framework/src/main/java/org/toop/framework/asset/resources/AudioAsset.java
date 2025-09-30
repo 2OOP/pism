@@ -5,51 +5,23 @@ import java.io.*;
 
 public class AudioAsset extends BaseResource implements LoadableResource {
 
-    private AudioInputStream audioInputStream = null;
-    private Clip clip = null;
-    private boolean isLoaded = false;
-
-
     public AudioAsset(final File audioFile) {
         super(audioFile);
     }
 
-    public AudioInputStream getAudioStream() {
-        return this.audioInputStream;
+    // Gets a new clip to play
+    public Clip getNewClip() throws LineUnavailableException, UnsupportedAudioFileException, IOException {
+
+        // Get a new clip from audio system
+        Clip clip = AudioSystem.getClip();
+
+        // Insert a new audio stream into the clip
+        clip.open(this.getAudioStream());
+        return clip;
     }
 
-    @Override
-    public void load() {
-        try {
-            this.audioInputStream = AudioSystem.getAudioInputStream(this.stream);
-            Clip clip = AudioSystem.getClip();
-            clip.open(this.audioInputStream);
-            this.clip = clip;
-            this.isLoaded = true;
-        } catch (UnsupportedAudioFileException | LineUnavailableException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) { // TODO: Error handling
-            throw new RuntimeException(e);
-        }
+    // Generates a new audio stream from byte array
+    private AudioInputStream getAudioStream() throws UnsupportedAudioFileException, IOException {
+        return AudioSystem.getAudioInputStream(this.getInputStream());
     }
-
-    @Override
-    public void unload() {
-        this.clip.stop();
-        this.clip.flush();
-        this.clip.close();
-        this.clip = null;
-        this.isLoaded = false;
-    }
-
-    @Override
-    public boolean isLoaded() {
-        return this.isLoaded;
-    }
-
-    public Clip getClip() {
-        if (!this.isLoaded) this.load();
-        return this.clip;
-    }
-
 }

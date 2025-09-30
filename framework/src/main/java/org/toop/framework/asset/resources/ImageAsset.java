@@ -13,9 +13,9 @@ public class ImageAsset extends BaseResource implements LoadableResource {
     }
 
     @Override
-    public void load() {
+    public void load() throws FileNotFoundException {
         if (!this.isLoaded) {
-            this.image = new Image(this.stream);
+            this.image = new Image(this.getInputStream());
             this.isLoaded = true;
         }
     }
@@ -32,7 +32,11 @@ public class ImageAsset extends BaseResource implements LoadableResource {
     }
 
     public Image getImage() {
-        if (!this.isLoaded) load();
+        if (!this.isLoaded) try {
+            load();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         return image;
     }
 }

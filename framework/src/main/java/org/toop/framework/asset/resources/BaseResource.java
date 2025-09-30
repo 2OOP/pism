@@ -1,27 +1,48 @@
 package org.toop.framework.asset.resources;
 
 import java.io.*;
+import java.nio.file.Files;
 
 public abstract class BaseResource {
-
-    final InputStream stream;
+    private byte[] rawData;
     final File file;
+    private boolean isLoaded = false;
 
     BaseResource(final File file) {
         this.file = file;
+    }
+
+    public boolean isLoaded() {
+        return this.isLoaded;
+    }
+
+    public void load() throws FileNotFoundException{
         try {
-            this.stream = new BufferedInputStream(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
+            this.rawData = Files.readAllBytes(file.toPath());
+            isLoaded = true;
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public InputStream getInputStream() {
-        return this.stream;
+    public void unload() {
+        this.rawData = null;
+        this.isLoaded = false;
     }
 
     public File getFile() {
         return this.file;
     }
 
+    public InputStream getInputStream() {
+        if (!isLoaded){
+            try {
+                this.load();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return new BufferedInputStream(new ByteArrayInputStream(this.rawData));
+
+    }
 }
