@@ -49,13 +49,15 @@ public class SoundManager {
         try {
             AudioResource resource = audioResources.get(audioFileName);
 
+            // Return -1 which indicates resource wasn't available
             if (resource == null){
                 return -1;
             }
 
+            // Get a new clip from resource
             Clip clip = resource.getNewClip();
 
-            // If loop make it loop, else just start it once
+            // If supposed to loop make it loop, else just start it once
             if (loop){
                 clip.loop(Clip.LOOP_CONTINUOUSLY);
             }
@@ -77,6 +79,7 @@ public class SoundManager {
                 }
             });
 
+            // Return id so it can be stopped
             return clipId;
         } catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
             throw new RuntimeException(e);
