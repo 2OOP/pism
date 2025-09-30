@@ -1,0 +1,33 @@
+.main-button {
+	-fx-background-color: transparent;
+	-fx-background-image: url("card-default.jpg"); /* fallback image */
+	-fx-background-size: cover;
+	-fx-background-position: center;
+	-fx-pref-width: 250px;
+	-fx-pref-height: 180px;
+	-fx-border-radius: 15;
+	-fx-background-radius: 15;
+	-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0.4, 0, 4);
+	-fx-cursor: hand;
+	-fx-padding: 0;
+}
+
+.card-label {
+	-fx-background-color: rgba(0, 0, 0, 0.5);
+	-fx-font-size: 20px;
+	-fx-font-weight: bold;
+	-fx-text-fill: white;
+	-fx-padding: 10px;
+	-fx-alignment: top-center;
+	-fx-background-radius: 15 15 0 0;
+	-fx-opacity: 0;
+	-fx-transition: all 0.3s ease;
+}
+
+.main-button:hover {
+	-fx-effect: dropshadow(gaussian, #00ffff, 15, 0.5, 0, 0);
+}
+
+.main-button:hover .card-label {
+	-fx-opacity: 1;
+}
