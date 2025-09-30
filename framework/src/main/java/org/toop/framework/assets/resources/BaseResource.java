@@ -2,12 +2,12 @@ package org.toop.framework.assets.resources;
 
 import java.io.*;
 
-public abstract class Resource {
+public abstract class BaseResource {
 
     final InputStream stream;
     final File file;
 
-    Resource(final File file) {
+    BaseResource(final File file) {
         this.file = file;
         try {
             this.stream = new BufferedInputStream(new FileInputStream(file));

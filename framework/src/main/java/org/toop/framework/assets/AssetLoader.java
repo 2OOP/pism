@@ -1,9 +1,8 @@
 package org.toop.framework.assets;
 
-import org.toop.framework.assets.resources.AudioResource;
-import org.toop.framework.assets.resources.FontResource;
-import org.toop.framework.assets.resources.ImageResource;
-import org.toop.framework.assets.resources.Resource;
+import org.toop.framework.assets.resources.AudioAsset;
+import org.toop.framework.assets.resources.BaseResource;
+import org.toop.framework.assets.resources.ImageAsset;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,7 +11,7 @@ import java.util.Objects;
 
 public class AssetLoader {
     private final File rootFolder;
-    private final ArrayList<Asset<Resource>> assets = new ArrayList<>();
+    private final ArrayList<Asset<? extends BaseResource>> assets = new ArrayList<>();
 
     public AssetLoader(File rootFolder) {
         this.rootFolder = rootFolder;
@@ -23,16 +22,21 @@ public class AssetLoader {
         return this.rootFolder;
     }
 
-    public ArrayList<Asset<Resource>> getAssets() {
+    public ArrayList<Asset<? extends BaseResource>> getAssets() {
         return this.assets;
     }
 
-    private Resource resourceMapper(File file) throws FileNotFoundException {
-        return switch (getExtension(file.getName())) {
-            case "wav" -> new AudioResource(file).load();
-            case "png" -> new ImageResource(file).load();
+    private <T extends BaseResource> T resourceMapper(Class<T> type, File file) throws FileNotFoundException {
+        BaseResource resource = switch (getExtension(file.getName())) {
+            case "wav" -> new AudioAsset(file);
+            case "png" -> new ImageAsset(file);
             default -> null;
         };
+
+        if (resource == null) return null;
+        if (!type.isInstance(resource))
+            throw new IllegalArgumentException("File " + file.getName() + " is not of type " + type);
+        return type.cast(resource);
     }
 
     public static String getExtension(String name) {
@@ -51,9 +55,10 @@ public class AssetLoader {
                 fileSearcher(fileEntry);
             } else {
                 try {
-                    this.assets.add(
-                            new Asset<>(fileEntry.getName(), this.resourceMapper(fileEntry))
-                    );
+                    BaseResource resource = resourceMapper(BaseResource.class, fileEntry); // generic token
+                    if (resource != null) {
+                        this.assets.add(new Asset<>(fileEntry.getName(), resource));
+                    }
                 } catch (FileNotFoundException e) {
                     throw new RuntimeException(e);
                 }

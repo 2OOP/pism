@@ -1,38 +1,38 @@
 package org.toop.framework.assets;
 
-import org.apache.maven.surefire.shared.io.function.IOBaseStream;
-import org.toop.framework.assets.resources.Resource;
+import org.toop.framework.assets.resources.*;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.*;
 
 public class AssetManager {
+    private static final AssetManager INSTANCE = new AssetManager();
+    private static final Map<String, Asset<? extends BaseResource>> assets = new HashMap<>();
 
-    private final HashMap<String, Asset<Resource>> assets = new HashMap<>();
+    private AssetManager() {}
 
-    public AssetManager(File rootFolder) {
-        for (Asset<Resource> x : new AssetLoader(rootFolder).getAssets()) {
-            this.assets.put(x.getName(), x);
-        }
+    public static AssetManager getInstance() {
+        return INSTANCE;
     }
 
-    public <T extends Resource> HashMap<String, Asset<T>> getAllResourceOfType(Class<T> resourceClass) {
-        HashMap<String, Asset<T>> a = new HashMap<>();
-        for (Asset<Resource> b : this.assets.values()) {
-            if (resourceClass.isInstance(b.getResource())) {
-                a.put(b.getName(), (Asset<T>) b);
+    public <T extends BaseResource> ArrayList<Asset<T>> getAllOfType(Class<T> type) {
+        ArrayList<Asset<T>> list = new ArrayList<>();
+        for (Asset<? extends BaseResource> asset : assets.values()) {  // <-- use .values()
+            if (type.isInstance(asset.getResource())) {
+                @SuppressWarnings("unchecked")
+                Asset<T> typed = (Asset<T>) asset;
+                list.add(typed);
             }
         }
-        return a;
-    }
-    
-    public HashMap<String, Asset<Resource>> getAssets() {
-        return this.assets;
+        return list;
     }
 
-    public Asset<Resource> getAsset(String assetName) {
-        return assets.get(assetName);
+    public static Asset<? extends BaseResource> getById(String guid) {
+        return assets.get(guid);
     }
-    
+
+    public static Optional<Asset<? extends BaseResource>> findByName(String name) {
+        return assets.values().stream()
+                .filter(a -> a.getName().equals(name))
+                .findFirst();
+    }
 }
