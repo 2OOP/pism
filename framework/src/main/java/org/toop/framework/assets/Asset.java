@@ -1,24 +1,29 @@
 package org.toop.framework.assets;
 
 import org.toop.framework.SnowflakeGenerator;
+import org.toop.framework.assets.resources.Resource;
 
-import java.nio.file.Path;
+public class Asset <T extends Resource> {
+    private final Long id; // IS this needed?
+    private final String name;
+    private final T resource;
 
-public class Asset {
-    private Long id; // IS this needed?
-    private String name;
-    private Path assetPath;
-    private String asset;
-
-    public Asset(String name, Path assetPath) {
+    public Asset(String name, T resource) {
         this.id = new SnowflakeGenerator().nextId();
         this.name = name;
-        this.assetPath = assetPath;
+        this.resource = resource;
     }
 
-    private void loadAsset() {
-        java.nio.file.Path
-        this.asset = this.assetPath;
+    public Long getId() {
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public T getResource() {
+        return this.resource;
     }
 
 }

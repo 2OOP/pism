@@ -1,5 +1,9 @@
 package org.toop.framework.audio;
 
+import org.toop.framework.assets.Asset;
+import org.toop.framework.assets.AssetManager;
+import org.toop.framework.assets.resources.AudioResource;
+import org.toop.framework.assets.resources.Resource;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 
@@ -12,22 +16,22 @@ public class SoundManager {
 
     private final Map<String, Clip> activeClips = new HashMap<>();
     private HashMap<String, Integer> clips = new HashMap<>();
-    private AudioFiles audioFiles;
+    private AssetManager assetManager;
     private Vector afs;
     private Vector sizes;
     private Vector infos;
     private Vector audios;
     private int num=0;
 
-    public SoundManager(AudioFiles audioFiles) {
+    public SoundManager(AssetManager ass) {
         afs=new Vector();
         sizes=new Vector();
         infos=new Vector();
         audios=new Vector();
-        this.audioFiles = audioFiles;
-        for (var file : audioFiles.getAudioFiles()) {
+        this.assetManager = ass;
+        for (Asset<AudioResource> resource : ass.getAllResourceOfType(AudioResource.class).values()) {
             try {
-                addClip(audioFiles.getAudioDirectory() + file);
+                addClip(resource);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } catch (UnsupportedAudioFileException e) {
@@ -42,33 +46,27 @@ public class SoundManager {
     }
 
     private void handlePlaySound(AudioEvents.PlayAudio event) {
-        try {
-            this.playSound(event.fileNameNoExtensionAndNoDirectory(), event.loop());
-        } catch (UnsupportedAudioFileException e) {
-            throw new RuntimeException(e);
-        } catch (LineUnavailableException e) {
-            throw new RuntimeException(e);
-        }
+        this.playSound(event.fileNameNoExtensionAndNoDirectory(), event.loop());
     }
 
     private void handleStopSound(AudioEvents.StopAudio event) {
         this.stopSound(event.fileNameNoExtensionAndNoDirectory());
     }
 
-    private void addClip(String s)
+    private void addClip(Asset<AudioResource> audiol)
             throws IOException, UnsupportedAudioFileException, LineUnavailableException {
-        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(s));
-        AudioFormat af = audioInputStream.getFormat();
-        int size = (int) (af.getFrameSize() * audioInputStream.getFrameLength());
+        AudioResource ad = audiol.getResource();
+        AudioFormat af = ad.getAudioStream().getFormat();
+        int size = (int) (af.getFrameSize() * ad.getAudioStream().getFrameLength());
         byte[] audio = new byte[size];
         DataLine.Info info = new DataLine.Info(Clip.class, af, size);
-        audioInputStream.read(audio, 0, size);
+        ad.getInputStream().read(audio, 0, size);
 
         afs.add(af);
         sizes.add(new Integer(size));
         infos.add(info);
         audios.add(audio);
-        this.clips.put(AudioFiles.removeAllKeepOnlyName(s), this.audios.size()-1);
+        this.clips.put(audiol.getName(), this.audios.size()-1);
 
         num++;
     }
@@ -87,30 +85,39 @@ public class SoundManager {
         return new ByteArrayInputStream(data);
     }
 
-    private void playSound(String audioFileName, boolean loop)
-            throws UnsupportedAudioFileException, LineUnavailableException {
-        int x = clips.get(audioFileName);
-        if (x > num) {
-            System.out.println("playSound: sample nr[" + x + "] is not available");
-        } else {
-            Clip clip = (Clip) AudioSystem.getLine((DataLine.Info) infos.elementAt(x));
-            clip.open((AudioFormat) afs.elementAt(x), (byte[]) audios.elementAt(x),
-                    0, ((Integer) sizes.elementAt(x)).intValue());
+    private void playSound(String audioFileName, boolean loop) {
+        var b = this.assetManager.getAllResourceOfType(AudioResource.class);
+        b.get(audioFileName).getResource().getClip().start();
+    }
 
-            clip.start();
-            if (loop) clip.loop(Clip.LOOP_CONTINUOUSLY);
+//    private void playSound(String audioFileName, boolean loop)
+//            throws UnsupportedAudioFileException, LineUnavailableException {
+//        int x = clips.get(audioFileName);
+//        if (x > num) {
+//            System.out.println("playSound: sample nr[" + x + "] is not available");
+//        } else {
+//            Clip clip = (Clip) AudioSystem.getLine((DataLine.Info) infos.elementAt(x));
+////            clip.open((AudioFormat) afs.elementAt(x), (byte[]) audios.elementAt(x),
+////                    0, ((Integer) sizes.elementAt(x)).intValue());
+//
+//            clip.start();
+//            if (loop) clip.loop(Clip.LOOP_CONTINUOUSLY);
+//
+//            // store it so we can stop it later
+//            activeClips.put(audioFileName, clip); // TODO: Do on snowflake for specific sound to stop
+//
+//            // remove when finished (only for non-looping sounds)
+//            clip.addLineListener(event -> {
+//                if (event.getType() == LineEvent.Type.STOP && !clip.isRunning()) {
+//                    activeClips.remove(audioFileName);
+//                    clip.close();
+//                }
+//            });
+//        }
+//    }
 
-            // store it so we can stop it later
-            activeClips.put(audioFileName, clip); // TODO: Do on snowflake for specific sound to stop
-
-            // remove when finished (only for non-looping sounds)
-            clip.addLineListener(event -> {
-                if (event.getType() == LineEvent.Type.STOP && !clip.isRunning()) {
-                    activeClips.remove(audioFileName);
-                    clip.close();
-                }
-            });
-        }
+    public HashMap<String, Integer> getClips() {
+        return this.clips;
     }
 
     public void stopSound(String audioFileName) {
