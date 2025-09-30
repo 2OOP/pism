@@ -1,16 +1,17 @@
 package org.toop.framework.assets.resources;
 
 import java.io.*;
+import java.nio.file.Files;
 
 public abstract class Resource {
-    final InputStream stream;
-    final File file;
+    final private byte[] rawData;
+    final private File file;
 
-    Resource(final File file) {
+    Resource(final File file) throws RuntimeException {
         this.file = file;
         try {
-            this.stream = new BufferedInputStream(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
+            this.rawData = Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -19,8 +20,8 @@ public abstract class Resource {
         return this;
     }
 
-    public InputStream getInputStream() {
-        return this.stream;
+    public InputStream getStream() {
+        return new BufferedInputStream(new ByteArrayInputStream(this.rawData));
     }
 
     public File getFile() {

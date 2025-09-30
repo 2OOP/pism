@@ -20,7 +20,7 @@ public class ImageResource extends Resource {
 
     @Override
     public Resource load() {
-        this.image = new Image(this.stream);
+        this.image = new Image(this.getStream());
         return this;
     }
 }
