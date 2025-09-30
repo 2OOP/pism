@@ -75,6 +75,8 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+misc.xml
+compiler.xml
 
 ##############################
 ## Visual Studio Code
