@@ -1,8 +1,8 @@
-package org.toop.framework.assets;
+package org.toop.framework.asset;
 
-import org.toop.framework.assets.resources.AudioAsset;
-import org.toop.framework.assets.resources.BaseResource;
-import org.toop.framework.assets.resources.ImageAsset;
+import org.toop.framework.asset.resources.AudioAsset;
+import org.toop.framework.asset.resources.BaseResource;
+import org.toop.framework.asset.resources.ImageAsset;
 
 import java.io.File;
 import java.io.FileNotFoundException;

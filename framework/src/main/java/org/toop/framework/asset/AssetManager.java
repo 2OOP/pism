@@ -1,10 +1,12 @@
-package org.toop.framework.assets;
+package org.toop.framework.asset;
 
-import org.toop.framework.assets.resources.*;
+import org.toop.framework.asset.resources.*;
 
+import java.io.File;
 import java.util.*;
 
 public class AssetManager {
+    private static AssetLoader loader = null;
     private static final AssetManager INSTANCE = new AssetManager();
     private static final Map<String, Asset<? extends BaseResource>> assets = new HashMap<>();
 
@@ -12,6 +14,12 @@ public class AssetManager {
 
     public static AssetManager getInstance() {
         return INSTANCE;
+    }
+
+    public static void initializeLoader(File rootFolder) {
+        if (loader == null) {
+            loader = new AssetLoader(rootFolder);
+        }
     }
 
     public <T extends BaseResource> ArrayList<Asset<T>> getAllOfType(Class<T> type) {

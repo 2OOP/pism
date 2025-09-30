@@ -1,19 +1,17 @@
-package org.toop.framework.assets.resources;
+package org.toop.framework.asset.resources;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class FontAsset extends BaseResource implements LoadableResource {
+public class TextAsset extends BaseResource implements LoadableResource {
 
-    private boolean isLoaded = false;
-
-    public FontAsset(final File fontFile) {
-        super(fontFile);
+    TextAsset(final File file) {
+        super(file);
     }
-
 
     @Override
     public void load() throws FileNotFoundException {
+
     }
 
     @Override

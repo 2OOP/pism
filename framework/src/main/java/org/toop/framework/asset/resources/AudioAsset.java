@@ -1,4 +1,4 @@
-package org.toop.framework.assets.resources;
+package org.toop.framework.asset.resources;
 
 import javax.sound.sampled.*;
 import java.io.*;
