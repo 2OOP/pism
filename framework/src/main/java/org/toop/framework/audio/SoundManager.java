@@ -12,14 +12,13 @@ import java.util.*;
 import javax.sound.sampled.*;
 
 public class SoundManager {
-    private final AssetManager asm = AssetManager.getInstance();
     private final Map<Long, Clip> activeClips = new HashMap<>();
     private final HashMap<String, AudioAsset> audioResources = new HashMap<>();
     private final SnowflakeGenerator idGenerator = new SnowflakeGenerator(); // TODO: Don't create a new generator
 
     public SoundManager() {
         // Get all Audio Resources and add them to a list.
-        for (Asset<AudioAsset> asset : asm.getAllOfType(AudioAsset.class)) {
+        for (Asset<AudioAsset> asset : AssetManager.getAllOfType(AudioAsset.class)) {
             try {
                 this.addAudioResource(asset);
             } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
