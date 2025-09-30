@@ -2,15 +2,12 @@ package org.toop.framework.asset;
 
 import org.toop.framework.asset.resources.*;
 
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AssetManager {
     private static final AssetManager INSTANCE = new AssetManager();
-    private static final Map<String, Asset<? extends BaseResource>> assets = new HashMap<>();
+    private static final Map<String, Asset<? extends BaseResource>> assets = new ConcurrentHashMap<>();
 
     private AssetManager() {}
 
@@ -18,13 +15,13 @@ public class AssetManager {
         return INSTANCE;
     }
 
-    public static void loadAssets(AssetLoader loader) {
+    public synchronized static void loadAssets(AssetLoader loader) {
         for (var asset : loader.getAssets()) {
             assets.put(asset.getName(), asset);
         }
     }
 
-    public <T extends BaseResource> ArrayList<Asset<T>> getAllOfType(Class<T> type) {
+    public static <T extends BaseResource> ArrayList<Asset<T>> getAllOfType(Class<T> type) {
         ArrayList<Asset<T>> list = new ArrayList<>();
         for (Asset<? extends BaseResource> asset : assets.values()) {  // <-- use .values()
             if (type.isInstance(asset.getResource())) {
@@ -36,13 +33,25 @@ public class AssetManager {
         return list;
     }
 
-    public static Asset<? extends BaseResource> getById(String guid) {
-        return assets.get(guid);
+    public Asset<? extends BaseResource> getById(String id) {
+        for (Asset<? extends BaseResource> asset : assets.values()) {
+            if (asset.getId().toString().equals(id)) {
+                return asset;
+            }
+        }
+        return null;
     }
 
-    public static Optional<Asset<? extends BaseResource>> findByName(String name) {
-        return assets.values().stream()
-                .filter(a -> a.getName().equals(name))
-                .findFirst();
+    public Asset<? extends BaseResource> getByName(String name) {
+        return assets.get(name);
     }
+
+    public Optional<Asset<? extends BaseResource>> findByName(String name) {
+        return Optional.ofNullable(assets.get(name));
+    }
+
+    public void addAsset(Asset<? extends BaseResource> asset) {
+        assets.put(asset.getName(), asset);
+    }
+
 }
