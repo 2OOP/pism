@@ -3,6 +3,7 @@ package org.toop.framework.assets.resources;
 import java.io.*;
 
 public abstract class Resource {
+
     final InputStream stream;
     final File file;
 
@@ -15,10 +16,6 @@ public abstract class Resource {
         }
     }
 
-    public Resource load() {
-        return this;
-    }
-
     public InputStream getInputStream() {
         return this.stream;
     }
@@ -26,4 +23,5 @@ public abstract class Resource {
     public File getFile() {
         return this.file;
     }
+
 }

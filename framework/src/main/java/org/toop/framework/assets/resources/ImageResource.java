@@ -2,11 +2,8 @@ package org.toop.framework.assets.resources;
 
 import javafx.scene.image.Image;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
-public class ImageResource extends Resource {
+public class ImageResource extends Resource implements ResourceType<ImageResource> {
 
     private Image image = null;
 
@@ -18,8 +15,7 @@ public class ImageResource extends Resource {
         return this.image;
     }
 
-    @Override
-    public Resource load() {
+    public ImageResource load() {
         this.image = new Image(this.stream);
         return this;
     }

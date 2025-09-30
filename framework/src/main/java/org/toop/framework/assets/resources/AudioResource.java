@@ -3,9 +3,12 @@ package org.toop.framework.assets.resources;
 import javax.sound.sampled.*;
 import java.io.*;
 
-public class AudioResource extends Resource {
+public class AudioResource extends Resource implements ResourceType<AudioResource> {
+
     private AudioInputStream audioInputStream = null;
     private Clip clip = null;
+
+
     public AudioResource(File audioFile) {
         super(audioFile);
     }
@@ -18,8 +21,7 @@ public class AudioResource extends Resource {
         return this.clip;
     }
 
-    @Override
-    public Resource load() {
+    public AudioResource load() {
         try {
             this.audioInputStream = AudioSystem.getAudioInputStream(this.stream);
             Clip clip = AudioSystem.getClip();
