@@ -39,13 +39,14 @@ public final class TicTacToe extends Game {
 
         board[move.position()] = move.value();
         movesLeft--;
-        nextPlayer();
 
         if (checkForWin()) {
             return State.WIN;
         }
 
-        if(movesLeft <= 2) {
+        nextPlayer();
+
+        if (movesLeft <= 2) {
             if (checkDraw(new TicTacToe(this))) {
                 return State.DRAW;
             }
