@@ -39,21 +39,21 @@ public final class TicTacToe extends Game {
 
         board[move.position()] = move.value();
         movesLeft--;
+        nextPlayer();
 
         if (checkForWin()) {
             return State.WIN;
         }
 
+        if(movesLeft <= 2) {
+            if (checkDraw(new TicTacToe(this))) {
+                return State.DRAW;
+            }
+        }
 
         if (movesLeft <= 0) {
             return State.DRAW;
         }
-
-        if (checkDraw(new TicTacToe(this))) {
-            return State.DRAW;
-        }
-
-        nextPlayer();
         return State.NORMAL;
     }
 
@@ -87,26 +87,25 @@ public final class TicTacToe extends Game {
         return board[2] != EMPTY && board[2] == board[4] && board[2] == board[6];
     }
 
-
-    public boolean checkDraw(TicTacToe copy) {
-
-        if (copy.movesLeft == 0) {
+    public boolean checkDraw(TicTacToe game) {
+        if (game.checkForWin()) {
+            return false;
+        }
+        if (game.movesLeft == 0) {
             return true;
         }
         // try every move on a legal copy
-        for (Move move : copy.getLegalMoves()) {// make copy
-            State result = copy.play(move); // play on copy
+        for (Move move : game.getLegalMoves()) {
+            TicTacToe copy = new TicTacToe(game);
+            State result = copy.play(move);
 
             if (result == State.WIN) {
-                // There exists a possible winning line
                 return false;
             }
-
-            if (!copy.checkDraw(copy)) {
-                // at least one branch is not a draw so return false
+            if (!checkDraw(copy)) {
                 return false;
             }
         }
-        return true; // no win possible
+        return true;
     }
 }
