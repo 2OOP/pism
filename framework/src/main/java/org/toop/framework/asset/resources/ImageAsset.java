@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 
 public class ImageAsset extends BaseResource implements LoadableResource {
     private Image image;
-    private boolean isLoaded = false;
 
     public ImageAsset(final File file) throws FileNotFoundException {
         super(file);
@@ -14,25 +13,20 @@ public class ImageAsset extends BaseResource implements LoadableResource {
 
     @Override
     public void load() throws FileNotFoundException {
-        if (!this.isLoaded) {
+        if (!this.isLoaded()) {
+            super.load(); // Make sure that base class (byte[]) is loaded
             this.image = new Image(this.getInputStream());
-            this.isLoaded = true;
         }
     }
 
     @Override
     public void unload() {
         this.image = null;
-        this.isLoaded = false;
-    }
-
-    @Override
-    public boolean isLoaded() {
-        return this.isLoaded;
+        super.unload();
     }
 
     public Image getImage() {
-        if (!this.isLoaded) try {
+        if (!this.isLoaded()) try {
             load();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);

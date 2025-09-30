@@ -16,33 +16,38 @@ public abstract class BaseResource {
         return this.isLoaded;
     }
 
-    public void load() throws FileNotFoundException{
+    public void load() throws FileNotFoundException {
+        this.loadRawData();
+        isLoaded = true;
+    }
+
+    private void loadRawData() throws FileNotFoundException{
         try {
             this.rawData = Files.readAllBytes(file.toPath());
-            isLoaded = true;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void unload() {
+    public void unload(){
+        this.unloadRawData();
+        isLoaded = false;
+    }
+
+    private void unloadRawData() {
         this.rawData = null;
-        this.isLoaded = false;
     }
 
     public File getFile() {
         return this.file;
     }
 
-    public InputStream getInputStream() {
+    public InputStream getInputStream() throws FileNotFoundException {
         if (!isLoaded){
-            try {
-                this.load();
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+            // Manually load the data, makes sure it doesn't call subclass load()
+            loadRawData();
+            isLoaded = true;
         }
         return new BufferedInputStream(new ByteArrayInputStream(this.rawData));
-
     }
 }
