@@ -11,6 +11,9 @@ public class AudioAsset extends BaseResource implements LoadableResource {
 
     // Gets a new clip to play
     public Clip getNewClip() throws LineUnavailableException, UnsupportedAudioFileException, IOException {
+        if(!this.isLoaded()){
+            this.load();
+        }
 
         // Get a new clip from audio system
         Clip clip = AudioSystem.getClip();
