@@ -31,7 +31,11 @@ public class SoundManager {
     }
 
     private void handlePlaySound(AudioEvents.PlayAudio event) {
-        this.playSound(event.fileNameNoExtensionAndNoDirectory(), event.loop());
+        try {
+            this.playSound(event.fileNameNoExtensionAndNoDirectory(), event.loop());
+        } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void handleStopSound(AudioEvents.StopAudio event) {
@@ -44,7 +48,7 @@ public class SoundManager {
         this.audioResources.put(audioAsset.getName(), audioAsset.getResource());
     }
 
-    private long playSound(String audioFileName, boolean loop) {
+    private long playSound(String audioFileName, boolean loop) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         AudioAsset asset = audioResources.get(audioFileName);
 
         // Return -1 which indicates resource wasn't available
@@ -53,7 +57,7 @@ public class SoundManager {
         }
 
         // Get a new clip from resource
-        Clip clip = asset.getClip();
+        Clip clip = asset.getNewClip();
 
         // If supposed to loop make it loop, else just start it once
         if (loop) {
