@@ -1,0 +1,20 @@
+.root {
+	-fx-background-color: #2d2d2d;
+
+	-fx-font-size: 28px;
+	-fx-font-weight: 600;
+	-fx-font-family: "Segoe UI", sans-serif;
+}
+
+.button {
+	-fx-background-color: transparent;
+	-fx-text-fill: white;
+	-fx-border-color: transparent;
+	-fx-padding: 10 20;
+	-fx-cursor: hand;
+	-fx-effect: null;
+}
+
+.button:hover {
+	-fx-effect: dropshadow(gaussian, #00ffff, 10, 0.3, 0, 0);
+}
