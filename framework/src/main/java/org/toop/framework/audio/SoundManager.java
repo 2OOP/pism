@@ -1,6 +1,5 @@
 package org.toop.framework.audio;
 
-import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.assets.Asset;
 import org.toop.framework.assets.AssetManager;
 import org.toop.framework.assets.resources.AudioResource;
@@ -13,12 +12,12 @@ import java.util.*;
 import javax.sound.sampled.*;
 
 public class SoundManager {
-    private final Map<Long, Clip> activeClips = new HashMap<>();
-    private final HashMap<String, AudioInputStream> audioStreams = new HashMap<>();
-    private final SnowflakeGenerator idGenerator;
+    private final Map<String, Clip> activeClips = new HashMap<>();
+    private final HashMap<String, Clip> clips = new HashMap<>();
+    private final AssetManager assetManager;
 
     public SoundManager(AssetManager asm) {
-        this.idGenerator = new SnowflakeGenerator(); // TODO: don't create a new snowflake generator.
+        this.assetManager = asm;
         // Get all Audio Resources and add them to a list.
         for (Asset<AudioResource> resource : asm.getAllResourceOfType(AudioResource.class).values()) {
             try {
@@ -33,11 +32,7 @@ public class SoundManager {
     }
 
     private void handlePlaySound(AudioEvents.PlayAudio event) {
-        try {
-            this.playSound(event.fileNameNoExtensionAndNoDirectory(), event.loop());
-        } catch (LineUnavailableException | IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.playSound(event.fileNameNoExtensionAndNoDirectory(), event.loop());
     }
 
     private void handleStopSound(AudioEvents.StopAudio event) {
@@ -47,22 +42,20 @@ public class SoundManager {
     private void addClip(Asset<AudioResource> audioAsset)
             throws IOException, UnsupportedAudioFileException, LineUnavailableException {
         AudioResource audioResource = audioAsset.getResource();
-        this.audioStreams.put(audioAsset.getName(), audioResource.getAudioStream());
+
+        this.clips.put(audioAsset.getName(), audioResource.getClip());
     }
 
-    private long playSound(String audioFileName, boolean loop) throws LineUnavailableException, IOException {
-        // Get audioStream
-        AudioInputStream audioStream = audioStreams.get(audioFileName);
+    private void playSound(String audioFileName, boolean loop) {
+        // Get clip
+        Clip clip = clips.get(audioFileName);
 
-        // Return -1 if audiStream doesn't exist
-        if (audioStream == null) {
-            return -1;
+        if (clip == null) {
+            return;
         }
 
-        // Get a clip and open the audioStream
-        final Clip clip = AudioSystem.getClip();
-        clip.open(audioStream);
-
+        // Reset clip
+        clip.setFramePosition(0);
 
         // If loop make it loop, else just start it once
         if (loop){
@@ -72,25 +65,20 @@ public class SoundManager {
             clip.start();
         }
 
-        // Generate ID
-        long clipId = idGenerator.nextId();
-
         // store it so we can stop it later
-        activeClips.put(clipId, clip); // TODO: Do on snowflake for specific sound to stop
+        activeClips.put(audioFileName, clip); // TODO: Do on snowflake for specific sound to stop
 
         // remove when finished (only for non-looping sounds)
         clip.addLineListener(event -> {
             if (event.getType() == LineEvent.Type.STOP && !clip.isRunning()) {
-                activeClips.remove(clipId);
+                activeClips.remove(audioFileName);
                 clip.close();
             }
         });
-
-        return clipId;
     }
 
-    public HashMap<String, AudioInputStream> getAudioStreams() {
-        return this.audioStreams;
+    public HashMap<String, Clip> getClips() {
+        return this.clips;
     }
 
     public void stopSound(String audioFileName) {

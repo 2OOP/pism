@@ -19,6 +19,9 @@ public class Main {
         var b = new NetworkingClientManager();
         var c = new SoundManager(a);
 
+//        IO.println(a.getAssets());
+        IO.println(c.getClips());
+
         new EventFlow().addPostEvent(new AudioEvents.PlayAudio("mainmenu.wav", true)).asyncPostEvent();
         new EventFlow().addPostEvent(new AudioEvents.PlayAudio("sadtrombone.wav", true)).asyncPostEvent();
 
