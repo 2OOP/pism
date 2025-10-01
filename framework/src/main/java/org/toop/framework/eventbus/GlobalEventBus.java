@@ -3,26 +3,26 @@ package org.toop.framework.eventbus;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.events.EventWithSnowflake;
-
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import org.toop.framework.eventbus.events.EventType;
+import org.toop.framework.eventbus.events.EventWithSnowflake;
 
 /**
- * GlobalEventBus backed by the LMAX Disruptor for ultra-low latency,
- * high-throughput event publishing.
+ * GlobalEventBus backed by the LMAX Disruptor for ultra-low latency, high-throughput event
+ * publishing.
  */
 public final class GlobalEventBus {
 
     /** Map of event class to type-specific listeners. */
-    private static final Map<Class<?>, CopyOnWriteArrayList<Consumer<? super EventType>>> LISTENERS =
-            new ConcurrentHashMap<>();
+    private static final Map<Class<?>, CopyOnWriteArrayList<Consumer<? super EventType>>>
+            LISTENERS = new ConcurrentHashMap<>();
 
     /** Map of event class to Snowflake-ID-specific listeners. */
-    private static final Map<Class<?>, ConcurrentHashMap<Long, Consumer<? extends EventWithSnowflake>>> UUID_LISTENERS =
-            new ConcurrentHashMap<>();
+    private static final Map<
+                    Class<?>, ConcurrentHashMap<Long, Consumer<? extends EventWithSnowflake>>>
+            UUID_LISTENERS = new ConcurrentHashMap<>();
 
     /** Disruptor ring buffer size (must be power of two). */
     private static final int RING_BUFFER_SIZE = 1024 * 64;
@@ -34,27 +34,29 @@ public final class GlobalEventBus {
     private static final RingBuffer<EventHolder> RING_BUFFER;
 
     static {
-        ThreadFactory threadFactory = r -> {
-            Thread t = new Thread(r, "EventBus-Disruptor");
-            t.setDaemon(true);
-            return t;
-        };
+        ThreadFactory threadFactory =
+                r -> {
+                    Thread t = new Thread(r, "EventBus-Disruptor");
+                    t.setDaemon(true);
+                    return t;
+                };
 
-        DISRUPTOR = new Disruptor<>(
-                EventHolder::new,
-                RING_BUFFER_SIZE,
-                threadFactory,
-                ProducerType.MULTI,
-                new BusySpinWaitStrategy()
-        );
+        DISRUPTOR =
+                new Disruptor<>(
+                        EventHolder::new,
+                        RING_BUFFER_SIZE,
+                        threadFactory,
+                        ProducerType.MULTI,
+                        new BusySpinWaitStrategy());
 
         // Single consumer that dispatches to subscribers
-        DISRUPTOR.handleEventsWith((holder, seq, endOfBatch) -> {
-            if (holder.event != null) {
-                dispatchEvent(holder.event);
-                holder.event = null;
-            }
-        });
+        DISRUPTOR.handleEventsWith(
+                (holder, seq, endOfBatch) -> {
+                    if (holder.event != null) {
+                        dispatchEvent(holder.event);
+                        holder.event = null;
+                    }
+                });
 
         DISRUPTOR.start();
         RING_BUFFER = DISRUPTOR.getRingBuffer();
@@ -71,17 +73,21 @@ public final class GlobalEventBus {
     // ------------------------------------------------------------------------
     // Subscription
     // ------------------------------------------------------------------------
-    public static <T extends EventType> Consumer<T> subscribe(Class<T> eventClass, Consumer<T> listener) {
+    public static <T extends EventType> Consumer<? super EventType> subscribe(
+            Class<T> eventClass, Consumer<T> listener) {
+
         CopyOnWriteArrayList<Consumer<? super EventType>> list =
                 LISTENERS.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>());
-        list.add(event -> listener.accept(eventClass.cast(event)));
-        return listener;
+
+        Consumer<? super EventType> wrapper = event -> listener.accept(eventClass.cast(event));
+        list.add(wrapper);
+        return wrapper;
     }
 
-    public static Consumer<Object> subscribe(Consumer<Object> listener) {
-        LISTENERS.computeIfAbsent(Object.class, _ -> new CopyOnWriteArrayList<>())
-                .add(listener);
-        return listener;
+    public static Consumer<? super EventType> subscribe(Consumer<Object> listener) {
+        Consumer<? super EventType> wrapper = event -> listener.accept(event);
+        LISTENERS.computeIfAbsent(Object.class, _ -> new CopyOnWriteArrayList<>()).add(wrapper);
+        return wrapper;
     }
 
     public static <T extends EventWithSnowflake> void subscribeById(
@@ -95,7 +101,8 @@ public final class GlobalEventBus {
         LISTENERS.values().forEach(list -> list.remove(listener));
     }
 
-    public static <T extends EventWithSnowflake> void unsubscribeById(Class<T> eventClass, long eventId) {
+    public static <T extends EventWithSnowflake> void unsubscribeById(
+            Class<T> eventClass, long eventId) {
         Map<Long, Consumer<? extends EventWithSnowflake>> map = UUID_LISTENERS.get(eventClass);
         if (map != null) map.remove(eventId);
     }
@@ -125,15 +132,22 @@ public final class GlobalEventBus {
         CopyOnWriteArrayList<Consumer<? super EventType>> classListeners = LISTENERS.get(clazz);
         if (classListeners != null) {
             for (Consumer<? super EventType> listener : classListeners) {
-                try { listener.accept(event); } catch (Throwable ignored) {}
+                try {
+                    listener.accept(event);
+                } catch (Throwable ignored) {
+                }
             }
         }
 
         // generic listeners
-        CopyOnWriteArrayList<Consumer<? super EventType>> genericListeners = LISTENERS.get(Object.class);
+        CopyOnWriteArrayList<Consumer<? super EventType>> genericListeners =
+                LISTENERS.get(Object.class);
         if (genericListeners != null) {
             for (Consumer<? super EventType> listener : genericListeners) {
-                try { listener.accept(event); } catch (Throwable ignored) {}
+                try {
+                    listener.accept(event);
+                } catch (Throwable ignored) {
+                }
             }
         }
 
@@ -144,7 +158,10 @@ public final class GlobalEventBus {
                 Consumer<EventWithSnowflake> listener =
                         (Consumer<EventWithSnowflake>) map.remove(snowflakeEvent.eventSnowflake());
                 if (listener != null) {
-                    try { listener.accept(snowflakeEvent); } catch (Throwable ignored) {}
+                    try {
+                        listener.accept(snowflakeEvent);
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
         }
