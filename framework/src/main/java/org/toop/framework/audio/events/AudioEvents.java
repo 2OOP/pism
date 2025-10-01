@@ -5,7 +5,7 @@ import org.toop.framework.eventbus.events.EventsBase;
 
 public class AudioEvents extends EventsBase {
     /** Starts playing a sound. */
-    public record PlayAudio(String fileNameNoExtensionAndNoDirectory, boolean loop)
+    public record PlayAudio(String fileName, boolean loop)
             implements EventWithoutSnowflake {}
 
     public record StopAudio(long clipId) implements EventWithoutSnowflake {}

@@ -32,7 +32,7 @@ public class SoundManager {
 
     private void handlePlaySound(AudioEvents.PlayAudio event) {
         try {
-            this.playSound(event.fileNameNoExtensionAndNoDirectory(), event.loop());
+            this.playSound(event.fileName(), event.loop());
         } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
             throw new RuntimeException(e);
         }

@@ -61,6 +61,7 @@ public class AssetLoader {
         fileSearcher(rootFolder, foundFiles);
         this.totalCount = foundFiles.size();
         loader(foundFiles);
+        logger.info("Total files loaded: " + this.totalCount);
     }
 
     /**
