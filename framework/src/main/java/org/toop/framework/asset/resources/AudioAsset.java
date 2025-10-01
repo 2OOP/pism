@@ -26,6 +26,26 @@ public class AudioAsset extends BaseResource implements LoadableResource {
 
     // Generates a new audio stream from byte array
     private AudioInputStream getAudioStream() throws UnsupportedAudioFileException, IOException {
-        return AudioSystem.getAudioInputStream(this.getInputStream());
+        return AudioSystem.getAudioInputStream(this.file);
+    }
+
+    @Override
+    public void load() {
+        try {
+            this.getAudioStream();
+            this.isLoaded = true;
+        } catch (UnsupportedAudioFileException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void unload() {
+        this.isLoaded = false; // TODO?
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return this.isLoaded;
     }
 }

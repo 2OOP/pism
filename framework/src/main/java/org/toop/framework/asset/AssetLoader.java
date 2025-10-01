@@ -13,29 +13,16 @@ import org.toop.framework.asset.resources.FileExtension;
 
 public class AssetLoader {
 
-    private static AssetLoader INSTANCE;
-
-    private final File rootFolder;
     private final List<Asset<? extends BaseResource>> assets = new CopyOnWriteArrayList<>();
     private final Map<String, Function<File, ? extends BaseResource>> registry = new ConcurrentHashMap<>();
 
-    private AssetLoader(File rootFolder) {
-        this.rootFolder = rootFolder;
+    public AssetLoader(File rootFolder) {
         autoRegisterResources();
         fileSearcher(rootFolder);
     }
 
-    public static synchronized void initialize(String rootFolderPath) {
-        if (INSTANCE == null) {
-            INSTANCE = new AssetLoader(new File(rootFolderPath));
-        }
-    }
-
-    public static AssetLoader getInstance() {
-        if (INSTANCE == null) {
-            throw new IllegalStateException("AssetLoader not initialized. Call initialize() first.");
-        }
-        return INSTANCE;
+    public AssetLoader(String rootFolder) {
+        this(new File(rootFolder));
     }
 
     public List<Asset<? extends BaseResource>> getAssets() {

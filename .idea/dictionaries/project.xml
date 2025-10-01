@@ -6,6 +6,7 @@
       <w>dcompile</w>
       <w>errorprone</w>
       <w>flushnl</w>
+      <w>gaaf</w>
       <w>gamelist</w>
       <w>playerlist</w>
       <w>tictactoe</w>
