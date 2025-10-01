@@ -1,33 +1,8 @@
-.quit-background {
+.quit_background {
 	-fx-background-color: rgba(0, 0, 0, 0.6);
 }
 
-.quit-box {
-	-fx-background-color: rgba(30, 30, 30, 0.95);
+.quit_box {
+	-fx-background-color: rgba(30, 30, 30, 0.5);
 	-fx-background-radius: 15;
-	-fx-padding: 30;
-	-fx-effect: dropshadow(gaussian, black, 20, 0.6, 0, 4);
-}
-
-.quit-text {
-	-fx-fill: white;
-	-fx-font-size: 28px;
-	-fx-font-weight: 600;
-	-fx-font-family: "Segoe UI", sans-serif;
-}
-
-.quit-button {
-	-fx-font-size: 16px;
-	-fx-text-fill: white;
-	-fx-background-color: transparent;
-	-fx-border-color: white;
-	-fx-border-radius: 5;
-	-fx-padding: 8 20;
-	-fx-cursor: hand;
-}
-
-.quit-button:hover {
-	-fx-text-fill: #00ffff;
-	-fx-border-color: #00ffff;
-	-fx-effect: dropshadow(gaussian, #00ffff, 8, 0.5, 0, 0);
 }
