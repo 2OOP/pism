@@ -8,11 +8,18 @@ import javafx.application.Application;
 import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.toop.local.AppContext;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class App extends Application {
 	private static Stage stage;
 	private static Scene scene;
 	private static StackPane root;
+
+    private Locale currentLocale = AppContext.getLocale();
+    private ResourceBundle resourceBundle = ResourceBundle.getBundle("Localization", currentLocale);
 
 	public static void run(String[] args) {
 		launch(args);
@@ -23,7 +30,7 @@ public class App extends Application {
 		final StackPane root = new StackPane(new MainMenu().getPane());
 		final Scene scene = new Scene(root);
 
-		stage.setTitle("pism");
+		stage.setTitle(resourceBundle.getString("windowTitle"));
 		stage.setMinWidth(1080);
 		stage.setMinHeight(720);
 
