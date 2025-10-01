@@ -10,10 +10,12 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.toop.framework.asset.AssetManager;
 import org.toop.framework.asset.resources.LocalizationAsset;
+import org.toop.framework.audio.SoundManager;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class App extends Application {
 	private static Stage stage;
@@ -49,6 +51,9 @@ public class App extends Application {
 		App.stage = stage;
 		App.scene = scene;
 		App.root = root;
+
+		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).postEvent();
+		new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(0.3)).postEvent();
 	}
 
 	public static void activate(Menu menu) {
