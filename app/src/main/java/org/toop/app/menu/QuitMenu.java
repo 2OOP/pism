@@ -8,6 +8,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.toop.app.App;
+import org.toop.framework.asset.AssetManager;
+import org.toop.framework.asset.resources.CssAsset;
 
 public final class QuitMenu extends Menu {
 	public QuitMenu() {
@@ -43,6 +45,7 @@ public final class QuitMenu extends Menu {
 		StackPane.setAlignment(box, Pos.CENTER);
 
 		pane = modalContainer;
-		pane.getStylesheets().add(getClass().getResource("/style/quit.css").toExternalForm());
+		CssAsset css = (CssAsset) AssetManager.getByName("quit.css").getResource();
+		pane.getStylesheets().add(css.getUrl());
 	}
 }
