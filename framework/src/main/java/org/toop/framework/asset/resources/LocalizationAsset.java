@@ -5,9 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @FileExtension({"properties"})
-public class LocalizationAsset extends BaseResource implements LoadableResource {
+public class LocalizationAsset extends BaseResource implements LoadableResource, BundledResource {
     private final Map<Locale, ResourceBundle> bundles = new HashMap<>();
     private boolean isLoaded = false;
+    private final Locale fallback = Locale.forLanguageTag("");
 
     public LocalizationAsset(File file) {
         super(file);
@@ -15,53 +16,57 @@ public class LocalizationAsset extends BaseResource implements LoadableResource 
 
     @Override
     public void load() {
-        // Convention: file names like messages_en.properties, ui_de.properties, etc.
-        String baseName = getBaseName(getFile().getName());
-
-        // Scan the parent folder for all matching *.properties with same basename
-        File folder = getFile().getParentFile();
-        File[] files = folder.listFiles((dir, name) ->
-                name.startsWith(baseName) && name.endsWith(".properties"));
-
-        if (files != null) {
-            for (File f : files) {
-                Locale locale = extractLocale(f.getName(), baseName);
-                try (InputStreamReader reader =
-                             new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)) {
-                    this.bundles.put(locale, new PropertyResourceBundle(reader));
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to load localization file: " + f, e);
-                }
-            }
-        }
-
-        this.isLoaded = true;
+        loadFile(getFile());
+        isLoaded = true;
     }
 
     @Override
     public void unload() {
-        this.bundles.clear();
-        this.isLoaded = false;
+        bundles.clear();
+        isLoaded = false;
     }
 
     @Override
     public boolean isLoaded() {
-        return this.isLoaded;
+        return isLoaded;
     }
 
     public String getString(String key, Locale locale) {
-        ResourceBundle bundle = this.bundles.get(locale);
+        Locale target = findBestLocale(locale);
+        ResourceBundle bundle = bundles.get(target);
         if (bundle == null) throw new MissingResourceException(
-                "No bundle for locale: " + locale, getClass().getName(), key);
+                "No bundle for locale: " + target, getClass().getName(), key);
         return bundle.getString(key);
     }
 
-    public boolean hasLocale(Locale locale) {
-        return this.bundles.containsKey(locale);
+    private Locale findBestLocale(Locale locale) {
+        if (bundles.containsKey(locale)) return locale;
+        for (Locale l : bundles.keySet()) {
+            if (l.getLanguage().equals(locale.getLanguage())) return l;
+        }
+        return fallback;
     }
 
     public Set<Locale> getAvailableLocales() {
-        return Collections.unmodifiableSet(this.bundles.keySet());
+        return Collections.unmodifiableSet(bundles.keySet());
+    }
+
+    @Override
+    public void loadFile(File file) {
+        String baseName = getBaseName(file.getName());
+        try (InputStreamReader reader =
+                     new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+            Locale locale = extractLocale(file.getName(), baseName);
+            bundles.put(locale, new PropertyResourceBundle(reader));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load localization file: " + file, e);
+        }
+        isLoaded = true;
+    }
+
+    @Override
+    public String getBaseName() {
+        return getBaseName(getFile().getName());
     }
 
     private String getBaseName(String fileName) {
@@ -80,6 +85,6 @@ public class LocalizationAsset extends BaseResource implements LoadableResource 
             String localePart = fileName.substring(underscoreIndex + 1, dotIndex);
             return Locale.forLanguageTag(localePart.replace('_', '-'));
         }
-        return Locale.getDefault(); // fallback
+        return fallback;
     }
 }

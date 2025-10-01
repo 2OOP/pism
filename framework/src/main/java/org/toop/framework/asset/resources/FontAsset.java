@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @FileExtension({"ttf", "otf"})
-public class FontAsset extends BaseResource implements LoadableResource {
+public class FontAsset extends BaseResource implements PreloadResource {
     private String family;
 
     public FontAsset(final File fontFile) {

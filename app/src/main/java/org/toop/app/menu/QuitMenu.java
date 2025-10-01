@@ -10,29 +10,30 @@ import javafx.scene.text.Text;
 import org.toop.app.App;
 import org.toop.framework.asset.AssetManager;
 import org.toop.framework.asset.resources.CssAsset;
+import org.toop.framework.asset.resources.LocalizationAsset;
 import org.toop.local.AppContext;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 public final class QuitMenu extends Menu {
-    private Locale currentLocale = AppContext.getLocale();
-    private ResourceBundle resourceBundle = ResourceBundle.getBundle("Localization", currentLocale);
+	private Locale currentLocale = AppContext.getLocale();
+	private LocalizationAsset loc = AssetManager.get("localization.properties");
     public QuitMenu() {
 		final Region background = new Region();
 		background.getStyleClass().add("quit-background");
 		background.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-		final Text sure = new Text(resourceBundle.getString("quitMenuTextSure"));
+		final Text sure = new Text(loc.getString("quitMenuTextSure", currentLocale));
 		sure.getStyleClass().add("quit-text");
 
-		final Button yes = new Button(resourceBundle.getString("quitMenuButtonYes"));
+		final Button yes = new Button(loc.getString("quitMenuButtonYes", currentLocale));
 		yes.getStyleClass().add("quit-button");
 		yes.setOnAction(_ -> {
 			App.quit();
 		});
 
-		final Button no = new Button(resourceBundle.getString("quitMenuButtonNo"));
+		final Button no = new Button(loc.getString("quitMenuButtonNo", currentLocale));
 		no.getStyleClass().add("quit-button");
 		no.setOnAction(_ -> {
 			App.pop();
@@ -51,7 +52,7 @@ public final class QuitMenu extends Menu {
 		StackPane.setAlignment(box, Pos.CENTER);
 
 		pane = modalContainer;
-		CssAsset css = (CssAsset) AssetManager.getByName("quit.css").getResource();
+		CssAsset css = AssetManager.get("quit.css");
 		pane.getStylesheets().add(css.getUrl());
 	}
 }

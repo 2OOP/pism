@@ -6,16 +6,19 @@ import javafx.animation.FadeTransition;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
+import org.toop.framework.asset.Asset;
+import org.toop.framework.asset.AssetManager;
+import org.toop.framework.asset.resources.LocalizationAsset;
 import org.toop.local.AppContext;
 
+import java.util.ArrayList;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 public abstract class Menu {
 	protected Pane pane;
 	public Pane getPane() { return pane; }
-    private Locale currentLocale = AppContext.getLocale();
-    private ResourceBundle resourceBundle = ResourceBundle.getBundle("Localization", currentLocale);
+	private Locale currentLocale = AppContext.getLocale();
+	private LocalizationAsset loc = AssetManager.get("localization.properties");
 
 	public void fadeBackgroundImage(String imagePath, float from, float to, float milliseconds) {
 		final FadeTransition fade = new FadeTransition(Duration.millis(milliseconds), App.getRoot());

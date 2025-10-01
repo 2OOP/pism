@@ -1,6 +1,5 @@
 .main-button {
 	-fx-background-color: transparent;
-	-fx-background-image: url("card-default.jpg"); /* fallback image */
 	-fx-background-size: cover;
 	-fx-background-position: center;
 	-fx-pref-width: 250px;
