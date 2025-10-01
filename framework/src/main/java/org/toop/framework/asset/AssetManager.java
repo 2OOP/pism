@@ -21,6 +21,13 @@ public class AssetManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends BaseResource> T get(String name) {
+        Asset<T> asset = (Asset<T>) assets.get(name);
+        if (asset == null) return null;
+        return asset.getResource();
+    }
+
     public static <T extends BaseResource> ArrayList<Asset<T>> getAllOfType(Class<T> type) {
         ArrayList<Asset<T>> list = new ArrayList<>();
         for (Asset<? extends BaseResource> asset : assets.values()) {  // <-- use .values()

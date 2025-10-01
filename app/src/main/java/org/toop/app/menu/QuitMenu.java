@@ -51,7 +51,7 @@ public final class QuitMenu extends Menu {
 		StackPane.setAlignment(box, Pos.CENTER);
 
 		pane = modalContainer;
-		CssAsset css = (CssAsset) AssetManager.getByName("quit.css").getResource();
+		CssAsset css = AssetManager.get("quit.css");
 		pane.getStylesheets().add(css.getUrl());
 	}
 }

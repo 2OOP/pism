@@ -43,7 +43,7 @@ public final class MainMenu extends Menu {
 		background.fitHeightProperty().bind(grid.heightProperty());
 
 		pane = new StackPane(background, grid);
-		CssAsset css = (CssAsset) AssetManager.getByName("main.css").getResource();
+		CssAsset css = AssetManager.get("main.css");
 		pane.getStylesheets().add(css.getUrl());
 	}
 }
