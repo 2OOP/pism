@@ -4,31 +4,30 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import org.toop.local.AppContext;
+import org.toop.framework.asset.resources.LocalizationAsset;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
 import org.toop.framework.asset.AssetManager;
 import org.toop.framework.asset.resources.CssAsset;
 import org.toop.framework.asset.resources.ImageAsset;
 
 public final class MainMenu extends Menu {
-	private Locale currentLocale = AppContext.getLocale();
-    private ResourceBundle resourceBundle = ResourceBundle.getBundle("Localization", currentLocale);
+	private Locale currentLocale = Locale.of("nl");
+	private LocalizationAsset loc = AssetManager.get("localization.properties");
 
     public MainMenu() {
-		final Button tictactoe = createButton(resourceBundle.getString("mainMenuSelectTicTacToe"), () -> {});
-		final Button reversi = createButton(resourceBundle.getString("mainMenuSelectReversi"), () -> {});
-		final Button sudoku = createButton(resourceBundle.getString("mainMenuSelectSudoku"), () -> {});
-		final Button battleship = createButton(resourceBundle.getString("mainMenuSelectBattleship"), () -> {});
-		final Button other = createButton(resourceBundle.getString("mainMenuSelectOther"), () -> {});
+		final Button tictactoe = createButton(loc.getString("mainMenuSelectTicTacToe", currentLocale), () -> {});
+		final Button reversi = createButton(loc.getString("mainMenuSelectReversi", currentLocale), () -> {});
+		final Button sudoku = createButton(loc.getString("mainMenuSelectSudoku", currentLocale), () -> {});
+		final Button battleship = createButton(loc.getString("mainMenuSelectBattleship", currentLocale), () -> {});
+		final Button other = createButton(loc.getString("mainMenuSelectOther", currentLocale), () -> {});
 
 		final VBox gamesBox = new VBox(tictactoe, reversi, sudoku, battleship, other);
 		gamesBox.setAlignment(Pos.TOP_CENTER);
 
-		final Button credits = createButton(resourceBundle.getString("mainMenuSelectCredits"), () -> {});
-		final Button options = createButton(resourceBundle.getString("mainMenuSelectOptions"), () -> {});
-		final Button quit = createButton(resourceBundle.getString("mainMenuSelectQuit"), () -> {});
+		final Button credits = createButton(loc.getString("mainMenuSelectCredits", currentLocale), () -> {});
+		final Button options = createButton(loc.getString("mainMenuSelectOptions", currentLocale), () -> {});
+		final Button quit = createButton(loc.getString("mainMenuSelectQuit", currentLocale), () -> {});
 
 		final VBox creditsBox = new VBox(credits, options, quit);
 		creditsBox.setAlignment(Pos.BOTTOM_CENTER);

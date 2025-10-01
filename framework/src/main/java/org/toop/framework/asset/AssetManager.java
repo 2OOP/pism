@@ -61,4 +61,22 @@ public class AssetManager {
         assets.put(asset.getName(), asset);
     }
 
+//    public static LocalizationAsset getLocalization(Locale locale) {
+//        for (Asset<? extends BaseResource> asset : assets.values()) {
+//            if (asset.getResource() instanceof LocalizationAsset locAsset) {
+//                if (!locAsset.isLoaded()) locAsset.load();
+//                if (locAsset.hasLocale(locale)) return locAsset;
+//            }
+//        }
+//        // fallback NL
+//        Locale fallback = Locale.forLanguageTag("nl");
+//        for (Asset<? extends BaseResource> asset : assets.values()) {
+//            if (asset.getResource() instanceof LocalizationAsset locAsset) {
+//                if (!locAsset.isLoaded()) locAsset.load();
+//                if (locAsset.hasLocale(fallback)) return locAsset;
+//            }
+//        }
+//        throw new NoSuchElementException("No localization asset available for locale: " + locale + " or fallback: nl");
+//    }
+
 }

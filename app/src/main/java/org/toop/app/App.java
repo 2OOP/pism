@@ -8,6 +8,8 @@ import javafx.application.Application;
 import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.toop.framework.asset.AssetManager;
+import org.toop.framework.asset.resources.LocalizationAsset;
 import org.toop.local.AppContext;
 
 import java.util.Locale;
@@ -18,8 +20,8 @@ public class App extends Application {
 	private static Scene scene;
 	private static StackPane root;
 
-    private Locale currentLocale = AppContext.getLocale();
-    private ResourceBundle resourceBundle = ResourceBundle.getBundle("Localization", currentLocale);
+	private Locale currentLocale = AppContext.getLocale();
+	private LocalizationAsset loc = AssetManager.get("localization.properties");
 
 	public static void run(String[] args) {
 		launch(args);
@@ -30,7 +32,7 @@ public class App extends Application {
 		final StackPane root = new StackPane(new MainMenu().getPane());
 		final Scene scene = new Scene(root);
 
-		stage.setTitle(resourceBundle.getString("windowTitle"));
+		stage.setTitle(loc.getString("windowTitle", currentLocale));
 		stage.setMinWidth(1080);
 		stage.setMinHeight(720);
 
