@@ -17,8 +17,6 @@ public final class MainMenu extends Menu {
     private ResourceBundle resourceBundle = ResourceBundle.getBundle("Localization", currentLocale);
 
     public MainMenu() {
-		final ImageView background = new ImageView();
-
 		final Button tictactoe = createButton(resourceBundle.getString("mainMenuSelectTicTacToe"), () -> {});
 		final Button reversi = createButton(resourceBundle.getString("mainMenuSelectReversi"), () -> {});
 		final Button sudoku = createButton(resourceBundle.getString("mainMenuSelectSudoku"), () -> {});
