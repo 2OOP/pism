@@ -10,6 +10,7 @@ import java.util.function.Function;
 
 import org.reflections.Reflections;
 import org.toop.framework.asset.resources.FileExtension;
+import org.toop.framework.asset.resources.FontAsset;
 
 public class AssetLoader {
 
@@ -58,6 +59,7 @@ public class AssetLoader {
                 BaseResource resource = resourceMapper(fileEntry, BaseResource.class);
                 if (resource != null) {
                     assets.add(new Asset<>(fileEntry.getName(), resource));
+                    if (resource instanceof FontAsset fontAsset) fontAsset.load(); // Autoload if is a FONT for easy css support.
                 }
             }
         }
