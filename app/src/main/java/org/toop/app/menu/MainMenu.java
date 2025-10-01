@@ -25,7 +25,7 @@ public final class MainMenu extends Menu {
 		final VBox creditsBox = new VBox(10, credits, options, quit);
 		creditsBox.setAlignment(Pos.BOTTOM_CENTER);
 
-		pane = new StackPane(background, grid);
+		//pane = new StackPane(background, grid);
 		pane.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
 	}
 }
