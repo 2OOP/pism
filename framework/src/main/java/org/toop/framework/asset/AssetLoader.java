@@ -60,8 +60,23 @@ public class AssetLoader {
         List<File> foundFiles = new ArrayList<>();
         fileSearcher(rootFolder, foundFiles);
         this.totalCount = foundFiles.size();
+
+        // measure memory before loading
+        long before = getUsedMemory();
+
         loader(foundFiles);
-        logger.info("Total files loaded: " + this.totalCount);
+
+        // ~measure memory after loading
+        long after = getUsedMemory();
+        long used = after - before;
+
+        logger.info("Total files loaded: {}", this.totalCount);
+        logger.info("Memory used by assets: ~{} MB", used / (1024 * 1024));
+    }
+
+    private static long getUsedMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.totalMemory() - runtime.freeMemory();
     }
 
     /**
