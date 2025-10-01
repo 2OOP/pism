@@ -5,7 +5,38 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * A thread-safe, distributed unique ID generator following the Snowflake pattern.
+ * <p>
+ * Each generated 64-bit ID encodes:
+ * <ul>
+ *     <li>41-bit timestamp (milliseconds since custom epoch)</li>
+ *     <li>10-bit machine identifier</li>
+ *     <li>12-bit sequence number for IDs generated in the same millisecond</li>
+ * </ul>
+ * </p>
+ *
+ * <p>This implementation ensures:
+ * <ul>
+ *     <li>IDs are unique per machine.</li>
+ *     <li>Monotonicity within the same machine.</li>
+ *     <li>Safe concurrent generation via synchronized {@link #nextId()}.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>Custom epoch is set to {@code 2025-01-01T00:00:00Z}.</p>
+ *
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * SnowflakeGenerator generator = new SnowflakeGenerator();
+ * long id = generator.nextId();
+ * }</pre>
+ */
 public class SnowflakeGenerator {
+
+    /**
+     * Custom epoch in milliseconds (2025-01-01T00:00:00Z).
+     */
     private static final long EPOCH = Instant.parse("2025-01-01T00:00:00Z").toEpochMilli();
 
     // Bit allocations
@@ -13,19 +44,27 @@ public class SnowflakeGenerator {
     private static final long MACHINE_BITS = 10;
     private static final long SEQUENCE_BITS = 12;
 
-    // Max values
+    // Maximum values for each component
     private static final long MAX_MACHINE_ID = (1L << MACHINE_BITS) - 1;
     private static final long MAX_SEQUENCE = (1L << SEQUENCE_BITS) - 1;
     private static final long MAX_TIMESTAMP = (1L << TIMESTAMP_BITS) - 1;
 
-    // Bit shifts
+    // Bit shifts for composing the ID
     private static final long MACHINE_SHIFT = SEQUENCE_BITS;
     private static final long TIMESTAMP_SHIFT = SEQUENCE_BITS + MACHINE_BITS;
 
+    /**
+     * Unique machine identifier derived from network interfaces (10 bits).
+     */
     private static final long machineId = SnowflakeGenerator.genMachineId();
+
     private final AtomicLong lastTimestamp = new AtomicLong(-1L);
     private long sequence = 0L;
 
+    /**
+     * Generates a 10-bit machine identifier based on MAC addresses of network interfaces.
+     * Falls back to a random value if MAC cannot be determined.
+     */
     private static long genMachineId() {
         try {
             StringBuilder sb = new StringBuilder();
@@ -35,17 +74,25 @@ public class SnowflakeGenerator {
                     for (byte b : mac) sb.append(String.format("%02X", b));
                 }
             }
-            // limit to 10 bits (0–1023)
-            return sb.toString().hashCode() & 0x3FF;
+            return sb.toString().hashCode() & 0x3FF; // limit to 10 bits
         } catch (Exception e) {
             return (long) (Math.random() * 1024); // fallback
         }
     }
 
+    /**
+     * For testing: manually set the last generated timestamp.
+     * @param l timestamp in milliseconds
+     */
     void setTime(long l) {
         this.lastTimestamp.set(l);
     }
 
+    /**
+     * Constructs a SnowflakeGenerator.
+     * Validates that the machine ID is within allowed range.
+     * @throws IllegalArgumentException if machine ID is invalid
+     */
     public SnowflakeGenerator() {
         if (machineId < 0 || machineId > MAX_MACHINE_ID) {
             throw new IllegalArgumentException(
@@ -53,6 +100,16 @@ public class SnowflakeGenerator {
         }
     }
 
+    /**
+     * Generates the next unique ID.
+     * <p>
+     * If multiple IDs are generated in the same millisecond, a sequence number
+     * is incremented. If the sequence overflows, waits until the next millisecond.
+     * </p>
+     *
+     * @return a unique 64-bit ID
+     * @throws IllegalStateException if clock moves backwards or timestamp exceeds 41-bit limit
+     */
     public synchronized long nextId() {
         long currentTimestamp = timestamp();
 
@@ -67,7 +124,6 @@ public class SnowflakeGenerator {
         if (currentTimestamp == lastTimestamp.get()) {
             sequence = (sequence + 1) & MAX_SEQUENCE;
             if (sequence == 0) {
-                // Sequence overflow, wait for next millisecond
                 currentTimestamp = waitNextMillis(currentTimestamp);
             }
         } else {
@@ -81,6 +137,11 @@ public class SnowflakeGenerator {
                 | sequence;
     }
 
+    /**
+     * Waits until the next millisecond if sequence overflows.
+     * @param lastTimestamp previous timestamp
+     * @return new timestamp
+     */
     private long waitNextMillis(long lastTimestamp) {
         long ts = timestamp();
         while (ts <= lastTimestamp) {
@@ -89,6 +150,9 @@ public class SnowflakeGenerator {
         return ts;
     }
 
+    /**
+     * Returns current system timestamp in milliseconds.
+     */
     private long timestamp() {
         return System.currentTimeMillis();
     }
