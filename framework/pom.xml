@@ -102,6 +102,14 @@
             <version>25</version>
         </dependency>
 
+		<!-- JavaFX Media -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-media</artifactId>
+			<version>25</version>
+		</dependency>
+
+
 		<!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
 		<dependency>
 			<groupId>org.reflections</groupId>
@@ -122,24 +130,6 @@
 					<target>25</target>
 					<release>25</release>
 					<encoding>UTF-8</encoding>
-<!--					<compilerArgs>-->
-<!--						<arg>-XDcompilePolicy=simple</arg>-->
-<!--						<arg>&#45;&#45;should-stop=ifError=FLOW</arg>-->
-<!--						<arg>-Xplugin:ErrorProne</arg>-->
-<!--					</compilerArgs>-->
-<!--					<annotationProcessorPaths>-->
-<!--						<path>-->
-<!--							<groupId>com.google.errorprone</groupId>-->
-<!--							<artifactId>error_prone_core</artifactId>-->
-<!--							<version>2.42.0</version>-->
-<!--						</path>-->
-<!--						&lt;!&ndash; Other annotation processors go here.-->
-
-<!--                        If 'annotationProcessorPaths' is set, processors will no longer be-->
-<!--                        discovered on the regular -classpath; see also 'Using Error Prone-->
-<!--                        together with other annotation processors' below. &ndash;&gt;-->
-<!--					</annotationProcessorPaths>-->
-<!--					<fork>true</fork>-->
 				</configuration>
 			</plugin>
 			<plugin>
