@@ -6,14 +6,12 @@ import org.toop.app.GameType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-import org.toop.app.menu.game.TicTacToeMenu;
-import org.toop.game.tictactoe.TicTacToe;
 
 public final class MainMenu extends Menu {
 	public MainMenu() {
 		final Region background = createBackground();
 
-		final Button tictactoe = createButton("Tic Tac Toe", () -> { App.activate(new TicTacToeMenu(new TicTacToe("player 1", true, "player 2", true))); });
+		final Button tictactoe = createButton("Tic Tac Toe", () -> { App.activate(new GameSelectMenu(GameType.TICTACTOE)); });
 		final Button reversi = createButton("Reversi", () -> { App.activate(new GameSelectMenu(GameType.REVERSI)); });
 
 		final VBox gamesBox = new VBox(10, tictactoe, reversi);

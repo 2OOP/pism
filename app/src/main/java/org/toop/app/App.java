@@ -1,5 +1,6 @@
 package org.toop.app;
 
+import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.app.menu.MainMenu;
 import org.toop.app.menu.Menu;
 
@@ -47,7 +48,6 @@ public final class App extends Application {
 
 			pane = new StackPane(background, box);
 			pane.getStylesheets().add(ResourceManager.get(CssAsset.class, "quit.css").getUrl());
-
 		}
 	}
 
@@ -60,7 +60,7 @@ public final class App extends Application {
 		final StackPane root = new StackPane(new MainMenu().getPane());
 
 		final Scene scene = new Scene(root);
-		scene.getStylesheets().add(((CssAsset) ResourceManager.get("app.css")).getUrl());
+		scene.getStylesheets().add(((CssAsset)ResourceManager.get("app.css")).getUrl());
 
 		stage.setTitle("pism");
 		stage.setMinWidth(1080);
@@ -85,10 +85,13 @@ public final class App extends Application {
 		App.width = (int)stage.getWidth();
 		App.height = (int)stage.getHeight();
 
+		App.isQuitting = false;
+
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 		new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(0.1)).asyncPostEvent();
 
-		App.isQuitting = false;
+		TicTacToeCanvas canvas = new TicTacToeCanvas();
+		root.getChildren().addLast(canvas.getCanvas());
 	}
 
 	public static void quitPopup() {

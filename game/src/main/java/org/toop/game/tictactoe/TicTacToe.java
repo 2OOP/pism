@@ -1,15 +1,14 @@
 package org.toop.game.tictactoe;
 
-import org.toop.game.Game;
-import org.toop.game.Player;
+import org.toop.game.TurnBasedGame;
 
 import java.util.ArrayList;
 
-public final class TicTacToe extends Game {
+public final class TicTacToe extends TurnBasedGame {
     private int movesLeft;
 
-    public TicTacToe(String player1, boolean isPlayer1AI, String player2, boolean isPlayer2AI) {
-        super(3, 3, new Player(player1, isPlayer1AI, 'X'), new Player(player2, isPlayer2AI, 'O'));
+    public TicTacToe() {
+        super(3, 3, 2);
         movesLeft = board.length;
     }
 
@@ -20,11 +19,12 @@ public final class TicTacToe extends Game {
 
     @Override
     public Move[] getLegalMoves() {
-        final ArrayList<Move> legalMoves = new ArrayList<>();
+	    final ArrayList<Move> legalMoves = new ArrayList<>();
+	    final char currentValue = getCurrentValue();
 
         for (int i = 0; i < board.length; i++) {
             if (board[i] == EMPTY) {
-                legalMoves.add(new Move(i, getCurrentPlayer().values()[0]));
+                legalMoves.add(new Move(i, currentValue));
             }
         }
 
@@ -35,7 +35,7 @@ public final class TicTacToe extends Game {
     public State play(Move move) {
         assert move != null;
         assert move.position() >= 0 && move.position() < board.length;
-        assert move.value() == getCurrentPlayer().values()[0];
+        assert move.value() == getCurrentValue();
 
         board[move.position()] = move.value();
         movesLeft--;
@@ -44,12 +44,12 @@ public final class TicTacToe extends Game {
             return State.WIN;
         }
 
-        nextPlayer();
+		nextTurn();
 
         if (movesLeft <= 2) {
-            if (checkDraw(new TicTacToe(this))) {
-                return State.DRAW;
-            }
+			if (movesLeft <= 0 || checkForEarlyDraw(this)) {
+				return State.DRAW;
+			}
         }
 
         return State.NORMAL;
@@ -60,18 +60,14 @@ public final class TicTacToe extends Game {
         for (int i = 0; i < 3; i++) {
             final int index = i * 3;
 
-            if (board[index] != EMPTY
-                    && board[index] == board[index + 1]
-                    && board[index] == board[index + 2]) {
+            if (board[index] != EMPTY && board[index] == board[index + 1] && board[index] == board[index + 2]) {
                 return true;
             }
         }
 
         // Vertical
         for (int i = 0; i < 3; i++) {
-            if (board[i] != EMPTY
-                    && board[i] == board[i + 3]
-                    && board[i] == board[i + 6]) {
+            if (board[i] != EMPTY && board[i] == board[i + 3] && board[i] == board[i + 6]) {
                 return true;
             }
         }
@@ -85,25 +81,19 @@ public final class TicTacToe extends Game {
         return board[2] != EMPTY && board[2] == board[4] && board[2] == board[6];
     }
 
-    public boolean checkDraw(TicTacToe game) {
-        if (game.checkForWin()) {
-            return false;
-        }
-        if (game.movesLeft == 0) {
-            return true;
-        }
-        // try every move on a legal copy
-        for (Move move : game.getLegalMoves()) {
-            TicTacToe copy = new TicTacToe(game);
-            State result = copy.play(move);
+    private boolean checkForEarlyDraw(TicTacToe game) {
+        for (final Move move : game.getLegalMoves()) {
+	        final TicTacToe copy = new TicTacToe(game);
 
-            if (result == State.WIN) {
-                return false;
-            }
-            if (!checkDraw(copy)) {
+            if (copy.play(move) == State.WIN || !checkForEarlyDraw(copy)) {
                 return false;
             }
         }
+
         return true;
     }
+
+	private char getCurrentValue() {
+		return currentTurn == 0? 'X' : 'O';
+	}
 }
