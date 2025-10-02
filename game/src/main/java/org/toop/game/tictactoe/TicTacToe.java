@@ -8,8 +8,8 @@ import java.util.ArrayList;
 public final class TicTacToe extends Game {
     private int movesLeft;
 
-    public TicTacToe(String player1, String player2) {
-        super(3, 3, new Player(player1, 'X'), new Player(player2, 'O'));
+    public TicTacToe(String player1, boolean isPlayer1AI, String player2, boolean isPlayer2AI) {
+        super(3, 3, new Player(player1, isPlayer1AI, 'X'), new Player(player2, isPlayer2AI, 'O'));
         movesLeft = board.length;
     }
 
@@ -51,6 +51,7 @@ public final class TicTacToe extends Game {
                 return State.DRAW;
             }
         }
+
         return State.NORMAL;
     }
 

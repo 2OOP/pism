@@ -1,5 +1,5 @@
 .background {
-	-fx-background-image: url("/image/lowpoly.png");
+	-fx-background-color: linear-gradient(to bottom right, #21a7b2, #8f32b9);
 }
 
 .text {

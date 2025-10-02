@@ -10,14 +10,6 @@ public abstract class Menu {
 	protected Pane pane;
 	public Pane getPane() { return pane; }
 
-	public void push(Node node) {
-		pane.getChildren().addLast(node);
-	}
-
-	public void pop() {
-		pane.getChildren().removeLast();
-	}
-
 	public Region createBackground(String css) {
 		final Region background = new Region();
 		background.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);

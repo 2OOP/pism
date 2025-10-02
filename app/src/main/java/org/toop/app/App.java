@@ -13,6 +13,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.toop.framework.asset.AssetManager;
+import org.toop.framework.asset.resources.CssAsset;
 
 public final class App extends Application {
 	private static Stage stage;
@@ -42,7 +44,7 @@ public final class App extends Application {
 			box.setMaxHeight(200);
 
 			pane = new StackPane(background, box);
-			pane.getStylesheets().add(App.class.getResource("/style/quit.css").toExternalForm());
+			pane.getStylesheets().add(((CssAsset)AssetManager.get("quit.css")).getUrl());
 		}
 	}
 
@@ -55,7 +57,7 @@ public final class App extends Application {
 		final StackPane root = new StackPane(new MainMenu().getPane());
 
 		final Scene scene = new Scene(root);
-		scene.getStylesheets().add(App.class.getResource("/style/app.css").toExternalForm());
+		scene.getStylesheets().add(((CssAsset)AssetManager.get("app.css")).getUrl());
 
 		stage.setTitle("pism");
 		stage.setMinWidth(1080);
