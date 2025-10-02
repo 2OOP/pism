@@ -12,9 +12,10 @@ import java.util.Locale;
 import org.toop.framework.asset.AssetManager;
 import org.toop.framework.asset.resources.CssAsset;
 import org.toop.framework.asset.resources.ImageAsset;
+import org.toop.local.AppContext;
 
 public final class MainMenu extends Menu {
-	private final Locale currentLocale = Locale.of("nl");
+	private final Locale currentLocale = AppContext.getLocale();
 	private final LocalizationAsset loc = AssetManager.get("localization.properties");
 
     public MainMenu() {
