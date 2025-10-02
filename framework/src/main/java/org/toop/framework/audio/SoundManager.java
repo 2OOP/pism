@@ -36,7 +36,14 @@ public class SoundManager {
                 .listen(this::handlePlaySound)
                 .listen(this::handleStopSound)
                 .listen(this::handleMusicStart)
-                .listen(this::handleVolumeChange);
+                .listen(this::handleVolumeChange)
+                .listen(AudioEvents.playOnClickButton.class, _ -> {
+                    try {
+                        playSound("hitsound0.wav", false);
+                    } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     private void handlePlaySound(AudioEvents.PlayAudio event) {

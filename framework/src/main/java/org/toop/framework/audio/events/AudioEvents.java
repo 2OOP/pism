@@ -13,5 +13,5 @@ public class AudioEvents extends EventsBase {
 
     public record StartBackgroundMusic() implements EventWithoutSnowflake {}
     public record ChangeVolume(double newVolume) implements EventWithoutSnowflake {}
-
+    public record playOnClickButton() implements EventWithoutSnowflake {}
 }
