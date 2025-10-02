@@ -1,13 +1,15 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.asset.types;
+
+import org.toop.framework.asset.ResourceLoader;
 
 /**
- * Marker interface for resources that should be **automatically loaded** by the {@link org.toop.framework.asset.AssetLoader}.
+ * Marker interface for resources that should be **automatically loaded** by the {@link ResourceLoader}.
  *
  * <p>Extends {@link LoadableResource}, so any implementing class must provide the standard
  * {@link LoadableResource#load()} and {@link LoadableResource#unload()} methods, as well as the
  * {@link LoadableResource#isLoaded()} check.</p>
  *
- * <p>When a resource implements {@code PreloadResource}, the {@code AssetLoader} will invoke
+ * <p>When a resource implements {@code PreloadResource}, the {@code ResourceLoader} will invoke
  * {@link LoadableResource#load()} automatically after the resource is discovered and instantiated,
  * without requiring manual loading by the user.</p>
  *

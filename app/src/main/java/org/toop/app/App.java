@@ -13,8 +13,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.toop.framework.asset.AssetManager;
+import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 
 public final class App extends Application {
 	private static Stage stage;
@@ -44,7 +46,8 @@ public final class App extends Application {
 			box.setMaxHeight(200);
 
 			pane = new StackPane(background, box);
-			pane.getStylesheets().add(((CssAsset)AssetManager.get("quit.css")).getUrl());
+			pane.getStylesheets().add(ResourceManager.get(CssAsset.class, "quit.css").getUrl());
+
 		}
 	}
 
@@ -57,7 +60,7 @@ public final class App extends Application {
 		final StackPane root = new StackPane(new MainMenu().getPane());
 
 		final Scene scene = new Scene(root);
-		scene.getStylesheets().add(((CssAsset)AssetManager.get("app.css")).getUrl());
+		scene.getStylesheets().add(((CssAsset) ResourceManager.get("app.css")).getUrl());
 
 		stage.setTitle("pism");
 		stage.setMinWidth(1080);
@@ -81,6 +84,9 @@ public final class App extends Application {
 
 		App.width = (int)stage.getWidth();
 		App.height = (int)stage.getHeight();
+
+		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
+		new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(0.1)).asyncPostEvent();
 
 		App.isQuitting = false;
 	}

@@ -1,8 +1,8 @@
 package org.toop;
 
 import org.toop.app.App;
-import org.toop.framework.asset.AssetLoader;
-import org.toop.framework.asset.AssetManager;
+import org.toop.framework.asset.ResourceLoader;
+import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.audio.SoundManager;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
@@ -14,7 +14,7 @@ public final class Main {
 	}
 
 	private static void initSystems() throws NetworkingInitializationException {
-		AssetManager.loadAssets(new AssetLoader("app/src/main/resources/assets"));
+		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
 		new Thread(NetworkingClientManager::new).start();
 		new Thread(SoundManager::new).start();
 	}

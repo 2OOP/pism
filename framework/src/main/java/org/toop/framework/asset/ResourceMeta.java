@@ -3,12 +3,12 @@ package org.toop.framework.asset;
 import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.asset.resources.BaseResource;
 
-public class Asset <T extends BaseResource> {
+public class ResourceMeta<T extends BaseResource> {
     private final Long id;
     private final String name;
     private final T resource;
 
-    public Asset(String name, T resource) {
+    public ResourceMeta(String name, T resource) {
         this.id = new SnowflakeGenerator().nextId();
         this.name = name;
         this.resource = resource;

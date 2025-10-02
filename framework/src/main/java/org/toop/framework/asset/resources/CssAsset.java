@@ -1,5 +1,7 @@
 package org.toop.framework.asset.resources;
 
+import org.toop.framework.asset.types.FileExtension;
+
 import java.io.File;
 
 @FileExtension({"css"})

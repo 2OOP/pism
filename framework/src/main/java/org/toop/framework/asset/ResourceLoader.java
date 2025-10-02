@@ -4,6 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.asset.events.AssetLoaderEvents;
 import org.toop.framework.asset.resources.*;
+import org.toop.framework.asset.types.BundledResource;
+import org.toop.framework.asset.types.FileExtension;
+import org.toop.framework.asset.types.PreloadResource;
 import org.toop.framework.eventbus.EventFlow;
 import org.reflections.Reflections;
 
@@ -17,7 +20,7 @@ import java.util.function.Function;
 /**
  * Responsible for loading assets from a file system directory into memory.
  * <p>
- * The {@code AssetLoader} scans a root folder recursively, identifies files,
+ * The {@code ResourceLoader} scans a root folder recursively, identifies files,
  * and maps them to registered resource types based on file extensions and
  * {@link FileExtension} annotations.
  * It supports multiple resource types including {@link PreloadResource} (automatically loaded)
@@ -25,7 +28,7 @@ import java.util.function.Function;
  * </p>
  *
  * <p>Assets are stored in a static, thread-safe list and can be retrieved
- * through {@link AssetManager}.</p>
+ * through {@link ResourceManager}.</p>
  *
  * <p>Features:</p>
  * <ul>
@@ -38,24 +41,24 @@ import java.util.function.Function;
  *
  * <p>Usage example:</p>
  * <pre>{@code
- * AssetLoader loader = new AssetLoader("assets");
+ * ResourceLoader loader = new ResourceLoader("assets");
  * double progress = loader.getProgress();
  * List<Asset<? extends BaseResource>> loadedAssets = loader.getAssets();
  * }</pre>
  */
-public class AssetLoader {
-    private static final Logger logger = LogManager.getLogger(AssetLoader.class);
-    private static final List<Asset<? extends BaseResource>> assets = new CopyOnWriteArrayList<>();
+public class ResourceLoader {
+    private static final Logger logger = LogManager.getLogger(ResourceLoader.class);
+    private static final List<ResourceMeta<? extends BaseResource>> assets = new CopyOnWriteArrayList<>();
     private final Map<String, Function<File, ? extends BaseResource>> registry = new ConcurrentHashMap<>();
 
     private final AtomicInteger loadedCount = new AtomicInteger(0);
     private int totalCount = 0;
 
     /**
-     * Constructs an AssetLoader and loads assets from the given root folder.
+     * Constructs an ResourceLoader and loads assets from the given root folder.
      * @param rootFolder the folder containing asset files
      */
-    public AssetLoader(File rootFolder) {
+    public ResourceLoader(File rootFolder) {
         autoRegisterResources();
         List<File> foundFiles = new ArrayList<>();
         fileSearcher(rootFolder, foundFiles);
@@ -80,10 +83,10 @@ public class AssetLoader {
     }
 
     /**
-     * Constructs an AssetLoader from a folder path.
+     * Constructs an ResourceLoader from a folder path.
      * @param rootFolder the folder path containing assets
      */
-    public AssetLoader(String rootFolder) {
+    public ResourceLoader(String rootFolder) {
         this(new File(rootFolder));
     }
 
@@ -115,7 +118,7 @@ public class AssetLoader {
      * Returns a snapshot list of all assets loaded by this loader.
      * @return list of loaded assets
      */
-    public List<Asset<? extends BaseResource>> getAssets() {
+    public List<ResourceMeta<? extends BaseResource>> getAssets() {
         return new ArrayList<>(assets);
     }
 
@@ -179,7 +182,7 @@ public class AssetLoader {
             boolean alreadyAdded = assets.stream()
                     .anyMatch(a -> a.getResource() == finalResource);
             if (!alreadyAdded) {
-                assets.add(new Asset<>(file.getName(), resource));
+                assets.add(new ResourceMeta<>(file.getName(), resource));
             }
 
             logger.info("Loaded {} from {}", resource.getClass().getSimpleName(), file.getAbsolutePath());

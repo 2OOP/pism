@@ -1,4 +1,6 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.asset.types;
+
+import org.toop.framework.asset.ResourceLoader;
 
 /**
  * Represents a resource that can be explicitly loaded and unloaded.
@@ -40,7 +42,7 @@ package org.toop.framework.asset.resources;
  * }</pre>
  *
  * <p>This interface is commonly used with {@link PreloadResource} to allow automatic
- * loading by an {@link org.toop.framework.asset.AssetLoader} if desired.</p>
+ * loading by an {@link ResourceLoader} if desired.</p>
  */
 public interface LoadableResource {
     /**

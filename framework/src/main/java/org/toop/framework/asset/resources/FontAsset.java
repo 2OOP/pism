@@ -1,6 +1,9 @@
 package org.toop.framework.asset.resources;
 
 import javafx.scene.text.Font;
+import org.toop.framework.asset.types.FileExtension;
+import org.toop.framework.asset.types.PreloadResource;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

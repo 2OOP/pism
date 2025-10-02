@@ -1,4 +1,6 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.asset.types;
+
+import org.toop.framework.asset.ResourceLoader;
 
 import java.io.File;
 
@@ -6,7 +8,7 @@ import java.io.File;
  * Represents a resource that can be composed of multiple files, or "bundled" together
  * under a common base name.
  *
- * <p>Implementing classes allow an {@link org.toop.framework.asset.AssetLoader}
+ * <p>Implementing classes allow an {@link ResourceLoader}
  * to automatically merge multiple related files into a single resource instance.</p>
  *
  * <p>Typical use cases include:</p>

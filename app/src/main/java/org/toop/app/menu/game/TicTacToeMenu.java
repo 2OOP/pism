@@ -6,16 +6,14 @@ import org.toop.game.Player;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import javax.management.RuntimeErrorException;
+import java.util.concurrent.*;
 
 public final class TicTacToeMenu extends GameMenu {
 	private final TicTacToe game;
 	private final TicTacToeAI ai;
 
-	private final ExecutorService executor = Executors.newFixedThreadPool(1);
+//	private final ExecutorService executor = Executors.newFixedThreadPool(1);
 	private final BlockingQueue<Game.Move> moveQueue = new LinkedBlockingQueue<>();
 
 	public TicTacToeMenu(TicTacToe game) {
@@ -43,7 +41,7 @@ public final class TicTacToeMenu extends GameMenu {
 			}
 		});
 
-		this.executor.submit(this::gameThread);
+		new Thread(this::gameThread).start();
 	}
 
 	private void play(Game.Move move) {
@@ -130,8 +128,6 @@ public final class TicTacToeMenu extends GameMenu {
 			} catch (RuntimeException e) {
 				return;
 			}
-		}
-
-		executor.close();
+        }
 	}
 }

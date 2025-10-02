@@ -1,4 +1,7 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.asset.types;
+
+import org.toop.framework.asset.ResourceLoader;
+import org.toop.framework.asset.resources.BaseResource;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -9,7 +12,7 @@ import java.lang.annotation.ElementType;
  * Annotation to declare which file extensions a {@link BaseResource} subclass
  * can handle.
  *
- * <p>This annotation is processed by the {@link org.toop.framework.asset.AssetLoader}
+ * <p>This annotation is processed by the {@link ResourceLoader}
  * to automatically register resource types for specific file extensions.
  * Each extension listed will be mapped to the annotated resource class,
  * allowing the loader to instantiate the correct type when scanning files.</p>

@@ -1,10 +1,10 @@
 package org.toop.framework.asset.resources;
 
-import javafx.scene.media.Media;
+import org.toop.framework.asset.types.FileExtension;
+import org.toop.framework.asset.types.LoadableResource;
 
 import javax.sound.sampled.*;
 import java.io.*;
-import java.net.URI;
 
 @FileExtension({"wav"})
 public class SoundEffectAsset extends BaseResource implements LoadableResource {

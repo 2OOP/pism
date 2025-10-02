@@ -1,14 +1,14 @@
 package org.toop.framework.audio;
 
-import javafx.application.Platform;
-import javafx.scene.media.MediaPlayer;
 import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.asset.Asset;
-import org.toop.framework.asset.AssetManager;
+import org.toop.framework.asset.ResourceManager;
+import org.toop.framework.asset.ResourceMeta;
 import org.toop.framework.asset.resources.MusicAsset;
 import org.toop.framework.asset.resources.SoundEffectAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+
+import javafx.scene.media.MediaPlayer;
 
 import java.io.*;
 import java.util.*;
@@ -25,7 +25,7 @@ public class SoundManager {
 
     public SoundManager() {
         // Get all Audio Resources and add them to a list.
-        for (Asset<SoundEffectAsset> asset : AssetManager.getAllOfType(SoundEffectAsset.class)) {
+        for (ResourceMeta<SoundEffectAsset> asset : ResourceManager.getAllOfType(SoundEffectAsset.class)) {
             try {
                 this.addAudioResource(asset);
             } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
@@ -58,7 +58,7 @@ public class SoundManager {
         this.stopSound(event.clipId());
     }
 
-    private void addAudioResource(Asset<SoundEffectAsset> audioAsset)
+    private void addAudioResource(ResourceMeta<SoundEffectAsset> audioAsset)
             throws IOException, UnsupportedAudioFileException, LineUnavailableException {
 
         this.audioResources.put(audioAsset.getName(), audioAsset.getResource());
@@ -74,15 +74,15 @@ public class SoundManager {
 
     private void handleMusicStart(AudioEvents.StartBackgroundMusic e) {
         backgroundMusicQueue.clear();
-        Platform.runLater(() -> {
-            backgroundMusicQueue.addAll(
-                    AssetManager.getAllOfType(MusicAsset.class).stream()
-                            .map(Asset::getResource)
-                            .toList()
-            );
-            backgroundMusicPlayer();
-        });
-
+        List<MusicAsset> shuffledArray = new ArrayList<>(ResourceManager.getAllOfType(MusicAsset.class)
+                .stream()
+                .map(ResourceMeta::getResource)
+                .toList());
+        Collections.shuffle(shuffledArray);
+        backgroundMusicQueue.addAll(
+            shuffledArray
+        );
+        backgroundMusicPlayer();
     }
 
     private void addBackgroundMusic(MusicAsset musicAsset) {
