@@ -9,7 +9,7 @@
 		<main-class>org.toop.Main</main-class>
 		<maven.compiler.source>25</maven.compiler.source>
 		<maven.compiler.target>25</maven.compiler.target>
-
+		<maven.compiler.release>25</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -68,6 +68,7 @@
 									<mainClass>org.toop.Main</mainClass>
 								</transformer>
 							</transformers>
+							<finalName>pism</finalName>
 						</configuration>
 					</execution>
 				</executions>
