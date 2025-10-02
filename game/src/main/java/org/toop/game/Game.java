@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public abstract class Game {
 	public enum State {
-		NORMAL, LOSE, DRAW, WIN,
+		NORMAL, DRAW, LOSE, WIN,
 	}
 
 	public record Move(int position, char value) {}

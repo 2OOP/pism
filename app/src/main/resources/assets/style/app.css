@@ -1,0 +1,37 @@
+.background {
+	-fx-background-color: linear-gradient(to bottom right, #21a7b2, #8f32b9);
+}
+
+.text {
+	-fx-fill: white;
+
+	-fx-font-family: "Segoe UI", sans-serif;
+	-fx-font-weight: bold;
+	-fx-font-size: 24px;
+}
+
+.button, .text-field, .combo-box, .combo-box-popup .list-cell {
+	-fx-padding: 10 20;
+
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+}
+
+.combo-box-popup .list-view {
+	-fx-background-color: #1d1d1d;
+}
+
+.text-field {
+	-fx-text-fill: white;
+}
+
+.button:hover, .text-field:hover, .combo-box:hover, .combo-box-popup .list-cell:hover {
+	-fx-cursor: hand;
+
+	-fx-effect: dropshadow(gaussian, #00ffff7f, 10, 0.5, 0, 0);
+	-fx-border-color: white;
+}
+
+.text-field:focused, .combo-box:focused {
+	-fx-border-color: white;
+}

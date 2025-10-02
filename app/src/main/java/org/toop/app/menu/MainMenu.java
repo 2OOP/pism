@@ -1,52 +1,37 @@
 package org.toop.app.menu;
 
+import org.toop.app.App;
+import org.toop.app.GameType;
+
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
-import org.toop.framework.asset.resources.FontAsset;
-import org.toop.framework.asset.resources.LocalizationAsset;
-
-import java.util.Locale;
-import org.toop.framework.asset.AssetManager;
-import org.toop.framework.asset.resources.CssAsset;
-import org.toop.framework.asset.resources.ImageAsset;
-import org.toop.local.AppContext;
+import org.toop.app.menu.game.TicTacToeMenu;
+import org.toop.game.tictactoe.TicTacToe;
 
 public final class MainMenu extends Menu {
-	private final Locale currentLocale = AppContext.getLocale();
-	private final LocalizationAsset loc = AssetManager.get("localization.properties");
+	public MainMenu() {
+		final Region background = createBackground();
 
-    public MainMenu() {
+		final Button tictactoe = createButton("Tic Tac Toe", () -> { App.activate(new TicTacToeMenu(new TicTacToe("player 1", true, "player 2", true))); });
+		final Button reversi = createButton("Reversi", () -> { App.activate(new GameSelectMenu(GameType.REVERSI)); });
 
-		final Button tictactoe = createButton(loc.getString("mainMenuSelectTicTacToe", currentLocale), () -> {});
-		final Button reversi = createButton(loc.getString("mainMenuSelectReversi", currentLocale), () -> {});
-		final Button sudoku = createButton(loc.getString("mainMenuSelectSudoku", currentLocale), () -> {});
-		final Button battleship = createButton(loc.getString("mainMenuSelectBattleship", currentLocale), () -> {});
-		final Button other = createButton(loc.getString("mainMenuSelectOther", currentLocale), () -> {});
+		final VBox gamesBox = new VBox(10, tictactoe, reversi);
+		gamesBox.setAlignment(Pos.TOP_LEFT);
+		gamesBox.setPickOnBounds(false);
+		gamesBox.setTranslateY(50);
+		gamesBox.setTranslateX(25);
 
-		final VBox gamesBox = new VBox(tictactoe, reversi, sudoku, battleship, other);
-		gamesBox.setAlignment(Pos.TOP_CENTER);
+		final Button credits = createButton("Credits", () -> { App.push(new CreditsMenu()); });
+		final Button options = createButton("Options", () -> { App.push(new OptionsMenu()); });
+		final Button quit = createButton("Quit", () -> { App.quitPopup(); });
 
-		final Button credits = createButton(loc.getString("mainMenuSelectCredits", currentLocale), () -> {});
-		final Button options = createButton(loc.getString("mainMenuSelectOptions", currentLocale), () -> {});
-		final Button quit = createButton(loc.getString("mainMenuSelectQuit", currentLocale), () -> {});
+		final VBox controlBox = new VBox(10, credits, options, quit);
+		controlBox.setAlignment(Pos.BOTTOM_LEFT);
+		controlBox.setPickOnBounds(false);
+		controlBox.setTranslateY(-50);
+		controlBox.setTranslateX(25);
 
-		final VBox creditsBox = new VBox(credits, options, quit);
-		creditsBox.setAlignment(Pos.BOTTOM_CENTER);
-
-		VBox grid = new VBox(20, gamesBox, creditsBox);
-		grid.setAlignment(Pos.CENTER);
-
-		ImageAsset backgroundImage = (ImageAsset) AssetManager.getByName("background.jpg").getResource();
-		ImageView background = new ImageView(backgroundImage.getImage());
-		background.setPreserveRatio(false);
-		background.fitWidthProperty().bind(grid.widthProperty());
-		background.fitHeightProperty().bind(grid.heightProperty());
-
-		pane = new StackPane(background, grid);
-		CssAsset css = AssetManager.get("main.css");
-		pane.getStylesheets().add(css.getUrl());
+		pane = new StackPane(background, gamesBox, controlBox);
 	}
 }

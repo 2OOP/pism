@@ -1,5 +1,8 @@
 package org.toop.framework.asset.resources;
 
+import org.toop.framework.asset.types.FileExtension;
+import org.toop.framework.asset.types.LoadableResource;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
