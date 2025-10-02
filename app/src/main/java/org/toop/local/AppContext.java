@@ -8,6 +8,7 @@ public class AppContext {
     public static void setCurrentLocale(Locale locale) {
         currentLocale = locale;
     }
+
     public static Locale getLocale() {
         return currentLocale;
     }

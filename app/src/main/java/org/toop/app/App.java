@@ -60,7 +60,7 @@ public final class App extends Application {
 		final StackPane root = new StackPane(new MainMenu().getPane());
 
 		final Scene scene = new Scene(root);
-		scene.getStylesheets().add(((CssAsset)ResourceManager.get("app.css")).getUrl());
+		scene.getStylesheets().add(ResourceManager.get(CssAsset.class, "app.css").getUrl());
 
 		stage.setTitle("pism");
 		stage.setMinWidth(1080);
@@ -90,7 +90,9 @@ public final class App extends Application {
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 		new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(0.1)).asyncPostEvent();
 
-		TicTacToeCanvas canvas = new TicTacToeCanvas();
+		// Todo: Temp Obviously
+		// Replace with game of life
+		final TicTacToeCanvas canvas = new TicTacToeCanvas();
 		root.getChildren().addLast(canvas.getCanvas());
 	}
 
