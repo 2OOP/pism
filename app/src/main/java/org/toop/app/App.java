@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.toop.framework.asset.AssetManager;
 import org.toop.framework.asset.resources.LocalizationAsset;
-import org.toop.framework.audio.SoundManager;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;

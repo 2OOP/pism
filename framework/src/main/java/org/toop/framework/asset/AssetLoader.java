@@ -144,6 +144,7 @@ public class AssetLoader {
                     "File " + file.getName() + " is not of type " + type.getSimpleName()
             );
         }
+
         return type.cast(resource);
     }
 
