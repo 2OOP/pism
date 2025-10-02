@@ -1,0 +1,8 @@
+.quit_background {
+	-fx-background-color: rgba(0, 0, 0, 0.6);
+}
+
+.quit_box {
+	-fx-background-color: rgba(30, 30, 30, 0.5);
+	-fx-background-radius: 15;
+}
