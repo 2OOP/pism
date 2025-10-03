@@ -1,5 +1,6 @@
 package org.toop.app.menu.game;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,6 +13,13 @@ import javafx.scene.text.Text;
 import org.toop.app.App;
 import org.toop.app.menu.MainMenu;
 import org.toop.app.menu.Menu;
+import org.toop.framework.asset.ResourceManager;
+import org.toop.framework.asset.resources.LocalizationAsset;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.local.AppContext;
+import org.toop.local.LocalizationEvents;
+
+import java.util.Locale;
 
 public abstract class GameMenu extends Menu {
 	protected final class Cell {
@@ -46,7 +54,11 @@ public abstract class GameMenu extends Menu {
 
 	protected final Cell[] cells;
 
+    private Locale currentLocale = AppContext.getLocale();
+    private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+    private final Button hint,back;
 	protected GameMenu(int rows, int columns, int gapSize) {
+
 		final int size = Math.min(App.getWidth(), App.getHeight()) / 5 * 4;
 
 		final Canvas canvas = new Canvas(size, size);
@@ -87,13 +99,30 @@ public abstract class GameMenu extends Menu {
 		playersContainer.setPickOnBounds(false);
 		playersContainer.setTranslateY(50);
 
-		final Button hint = createButton("Hint", () -> {});
-		final Button back = createButton("Back", () -> { App.activate(new MainMenu()); });
+		hint = createButton(loc.getString("gameMenuHint",currentLocale), () -> {});
+		back = createButton(loc.getString("gameMenuBack",currentLocale), () -> { App.activate(new MainMenu()); });
 
 		final VBox controlContainer = new VBox(hint, back);
 		StackPane.setAlignment(controlContainer, Pos.BOTTOM_LEFT);
 		controlContainer.setPickOnBounds(false);
 
 		pane = new StackPane(background, canvas, playersContainer, controlContainer);
-	}
+        try {
+            new EventFlow()
+                    .listen(this::handleChangeLanguage);
+
+        }catch (Exception e){
+            System.out.println("Something went wrong while trying to change the language.");
+            throw e;
+        }
+
+    }
+    private void handleChangeLanguage(LocalizationEvents.LanguageHasChanged event) {
+        Platform.runLater(() -> {
+            currentLocale = AppContext.getLocale();
+            hint.setText(loc.getString("gameMenuHint",currentLocale));
+            back.setText(loc.getString("gameMenuBack",currentLocale));
+        });
+
+    }
 }

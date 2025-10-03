@@ -1,5 +1,6 @@
 package org.toop.app;
 
+import javafx.application.Platform;
 import org.toop.app.menu.MainMenu;
 import org.toop.app.menu.Menu;
 
@@ -15,8 +16,13 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
+import org.toop.framework.asset.resources.LocalizationAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.local.AppContext;
+import org.toop.local.LocalizationEvents;
+
+import java.util.Locale;
 
 public final class App extends Application {
 	private static Stage stage;
@@ -26,15 +32,19 @@ public final class App extends Application {
 	private static int height;
 
 	private static boolean isQuitting;
+    private Locale currentLocale = AppContext.getLocale();
+    private final LocalizationAsset loc = ResourceManager.get("localization.properties");
 
 	private static class QuitMenu extends Menu {
-		public QuitMenu() {
+        private Locale currentLocale = AppContext.getLocale();
+        private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+        public QuitMenu() {
 			final Region background = createBackground("quit_background");
 
-			final Text sure = createText("Are you sure?");
+			final Text sure = createText(loc.getString("quitMenuTextSure",currentLocale));
 
-			final Button yes = createButton("Yes", () -> { stage.close(); });
-			final Button no = createButton("No", () -> { pop(); isQuitting = false; });
+			final Button yes = createButton(loc.getString("quitMenuButtonYes",currentLocale), () -> { stage.close(); });
+			final Button no = createButton(loc.getString("quitMenuButtonNo",currentLocale), () -> { pop(); isQuitting = false; });
 
 			final HBox buttons = new HBox(50, yes, no);
 			buttons.setAlignment(Pos.CENTER);
@@ -62,7 +72,7 @@ public final class App extends Application {
 		final Scene scene = new Scene(root);
 		scene.getStylesheets().add(((CssAsset) ResourceManager.get("app.css")).getUrl());
 
-		stage.setTitle("pism");
+		stage.setTitle(loc.getString("windowTitle",currentLocale));
 		stage.setMinWidth(1080);
 		stage.setMinHeight(720);
 
@@ -89,7 +99,23 @@ public final class App extends Application {
 		new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(0.1)).asyncPostEvent();
 
 		App.isQuitting = false;
-	}
+        try {
+            new EventFlow()
+                    .listen(this::handleChangeLanguage);
+
+        }catch (Exception e){
+            System.out.println("Something went wrong while trying to change the language.");
+            throw e;
+        }
+
+    }
+    private void handleChangeLanguage(LocalizationEvents.LanguageHasChanged event) {
+        Platform.runLater(() -> {
+            currentLocale = AppContext.getLocale();
+            stage.setTitle(loc.getString("windowTitle",currentLocale));
+        });
+
+    }
 
 	public static void quitPopup() {
 		isQuitting = true;
@@ -102,7 +128,7 @@ public final class App extends Application {
 	}
 
 	public static void push(Menu menu) {
-		root.getChildren().addLast(menu.getPane());
+        root.getChildren().addLast(menu.getPane());
 	}
 
 	public static void pop() {

@@ -1,5 +1,6 @@
 package org.toop.app.menu;
 
+import javafx.application.Platform;
 import org.toop.app.App;
 import org.toop.app.GameType;
 
@@ -7,14 +8,24 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import org.toop.app.menu.game.TicTacToeMenu;
+import org.toop.framework.asset.ResourceManager;
+import org.toop.framework.asset.resources.LocalizationAsset;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.game.tictactoe.TicTacToe;
+import org.toop.local.AppContext;
+import org.toop.local.LocalizationEvents;
+
+import java.util.Locale;
 
 public final class MainMenu extends Menu {
-	public MainMenu() {
+    private Locale currentLocale = AppContext.getLocale();
+    private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+    private final Button tictactoe,reversi,credits,options,quit;
+    public MainMenu() {
 		final Region background = createBackground();
 
-		final Button tictactoe = createButton("Tic Tac Toe", () -> { App.activate(new TicTacToeMenu(new TicTacToe("player 1", true, "player 2", true))); });
-		final Button reversi = createButton("Reversi", () -> { App.activate(new GameSelectMenu(GameType.REVERSI)); });
+		tictactoe = createButton(loc.getString("mainMenuSelectTicTacToe",currentLocale), () -> { App.activate(new TicTacToeMenu(new TicTacToe("player 1", true, "player 2", true))); });
+		reversi = createButton(loc.getString("mainMenuSelectReversi",currentLocale), () -> { App.activate(new GameSelectMenu(GameType.REVERSI)); });
 
 		final VBox gamesBox = new VBox(10, tictactoe, reversi);
 		gamesBox.setAlignment(Pos.TOP_LEFT);
@@ -22,9 +33,9 @@ public final class MainMenu extends Menu {
 		gamesBox.setTranslateY(50);
 		gamesBox.setTranslateX(25);
 
-		final Button credits = createButton("Credits", () -> { App.push(new CreditsMenu()); });
-		final Button options = createButton("Options", () -> { App.push(new OptionsMenu()); });
-		final Button quit = createButton("Quit", () -> { App.quitPopup(); });
+		credits = createButton(loc.getString("mainMenuSelectCredits",currentLocale), () -> { App.push(new CreditsMenu()); });
+		options = createButton(loc.getString("mainMenuSelectOptions",currentLocale), () -> { App.push(new OptionsMenu()); });
+		quit = createButton(loc.getString("mainMenuSelectQuit",currentLocale), () -> { App.quitPopup(); });
 
 		final VBox controlBox = new VBox(10, credits, options, quit);
 		controlBox.setAlignment(Pos.BOTTOM_LEFT);
@@ -33,5 +44,25 @@ public final class MainMenu extends Menu {
 		controlBox.setTranslateX(25);
 
 		pane = new StackPane(background, gamesBox, controlBox);
-	}
+        try {
+            new EventFlow()
+                    .listen(this::handleChangeLanguage);
+
+        }catch (Exception e){
+            System.out.println("Something went wrong while trying to change the language.");
+            throw e;
+        }
+
+    }
+    private void handleChangeLanguage(LocalizationEvents.LanguageHasChanged event) {
+        Platform.runLater(() -> {
+            currentLocale = AppContext.getLocale();
+            tictactoe.setText(loc.getString("mainMenuSelectTicTacToe",currentLocale));
+            reversi.setText(loc.getString("mainMenuSelectReversi",currentLocale));
+            credits.setText(loc.getString("mainMenuSelectCredits",currentLocale));
+            options.setText(loc.getString("mainMenuSelectOptions",currentLocale));
+            quit.setText(loc.getString("mainMenuSelectQuit",currentLocale));
+        });
+
+    }
 }
