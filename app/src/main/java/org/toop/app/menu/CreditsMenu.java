@@ -8,7 +8,7 @@ import java.util.Locale;
 
 public final class CreditsMenu extends Menu {
     private Locale currentLocale = AppContext.getLocale();
-    private LocalizationAsset loc = ResourceManager.get("localization.properties");
+    private LocalizationAsset loc = ResourceManager.get("localization_en_us.properties");
     public CreditsMenu() {
 	}
 }
