@@ -1,6 +1,5 @@
 package org.toop.framework.audio.events;
 
-import org.toop.framework.asset.resources.MusicAsset;
 import org.toop.framework.eventbus.events.EventWithSnowflake;
 import org.toop.framework.eventbus.events.EventWithoutSnowflake;
 import org.toop.framework.eventbus.events.EventsBase;
@@ -9,10 +8,10 @@ import java.util.Map;
 
 public class AudioEvents extends EventsBase {
     /** Starts playing a sound. */
-    public record PlayAudio(String fileName, boolean loop)
+    public record PlayEffect(String fileName, boolean loop)
             implements EventWithoutSnowflake {}
 
-    public record StopAudio(long clipId) implements EventWithoutSnowflake {}
+    public record StopEffect(long clipId) implements EventWithoutSnowflake {}
 
     public record StartBackgroundMusic() implements EventWithoutSnowflake {}
     public record ChangeVolume(double newVolume) implements EventWithoutSnowflake {}
@@ -38,5 +37,5 @@ public class AudioEvents extends EventsBase {
             return snowflakeId;
         }
     }
-    public record playOnClickButton() implements EventWithoutSnowflake {}
+    public record clickButton() implements EventWithoutSnowflake {}
 }

@@ -1,5 +1,7 @@
 package org.toop.framework.audio;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.ResourceMeta;
@@ -15,6 +17,7 @@ import java.util.*;
 import javax.sound.sampled.*;
 
 public class SoundManager {
+    private static final Logger logger = LogManager.getLogger(SoundManager.class);
     private final List<MediaPlayer> activeMusic = new ArrayList<>();
     private final Queue<MusicAsset> backgroundMusicQueue = new LinkedList<>();
     private final Map<Long, Clip> activeSoundEffects = new HashMap<>();
@@ -38,16 +41,16 @@ public class SoundManager {
                 .listen(this::handleMusicStart)
                 .listen(this::handleVolumeChange)
                 .listen(this::handleGetCurrentVolume)
-                .listen(AudioEvents.playOnClickButton.class, _ -> {
+                .listen(AudioEvents.clickButton.class, _ -> {
                     try {
-                        playSound("hitsound0.wav", false);
+                        playSound("medium-button-click.wav", false);
                     } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
-                        throw new RuntimeException(e);
+                        logger.error(e);
                     }
                 });
     }
 
-    private void handlePlaySound(AudioEvents.PlayAudio event) {
+    private void handlePlaySound(AudioEvents.PlayEffect event) {
         try {
             this.playSound(event.fileName(), event.loop());
         } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
@@ -55,7 +58,7 @@ public class SoundManager {
         }
     }
 
-    private void handleStopSound(AudioEvents.StopAudio event) {
+    private void handleStopSound(AudioEvents.StopEffect event) {
         this.stopSound(event.clipId());
     }
 
@@ -71,7 +74,6 @@ public class SoundManager {
         for (MediaPlayer mediaPlayer : this.activeMusic) {
             mediaPlayer.setVolume(this.volume);
         }
-        IO.println("Volume: " + this.volume);
     }
 
     private void handleGetCurrentVolume(AudioEvents.GetCurrentVolume event) {
@@ -125,13 +127,15 @@ public class SoundManager {
         mediaPlayer.setVolume(this.volume);
         mediaPlayer.play();
         activeMusic.add(mediaPlayer);
+        logger.info("Playing background music: {}", ma.getFile().getName());
     }
 
     private long playSound(String audioFileName, boolean loop) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         SoundEffectAsset asset = audioResources.get(audioFileName);
 
         // Return -1 which indicates resource wasn't available
-        if (asset == null){
+        if (asset == null) {
+            logger.warn("Unable to load audio asset: {}", audioFileName);
             return -1;
         }
 
@@ -145,6 +149,8 @@ public class SoundManager {
         else {
             clip.start();
         }
+
+        logger.info("Playing sound: {}", asset.getFile().getName());
 
         // Generate id for clip
         long clipId = idGenerator.nextId();

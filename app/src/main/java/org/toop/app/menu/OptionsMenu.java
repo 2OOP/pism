@@ -55,7 +55,7 @@ public final class OptionsMenu extends Menu {
             selectLanguage.getItems().add(locFile);
         }
 
-        selectLanguage.setConverter(new javafx.util.StringConverter<Locale>() {
+        selectLanguage.setConverter(new javafx.util.StringConverter<>() {
             @Override
             public String toString(Locale locale) {
                 return locale.getDisplayName();
@@ -67,7 +67,12 @@ public final class OptionsMenu extends Menu {
             }
         });
 
+        selectLanguage.setOnShowing(event -> {
+            new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
+        });
+
         selectLanguage.setOnAction(event -> {
+            new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
             Locale selectedLocale = selectLanguage.getSelectionModel().getSelectedItem();
             if (selectedLocale != null) {
                 AppContext.setLocale(selectedLocale);
@@ -87,7 +92,12 @@ public final class OptionsMenu extends Menu {
             selectScreen.getItems().add(screen);
         }
 
+        selectScreen.setOnShowing(event -> {
+            new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
+        });
+
         selectScreen.setOnAction(event -> {
+            new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
             int selectedIndex = selectScreen.getSelectionModel().getSelectedIndex();
             Object selectedItem = selectScreen.getSelectionModel().getSelectedItem();
 
@@ -102,6 +112,17 @@ public final class OptionsMenu extends Menu {
         for (DisplayMode displayMode : currentScreenDevice.getDisplayModes()) {
             selectWindowSize.getItems().add(displayMode);
         }
+        selectWindowSize.setOnShowing(event -> {
+            new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
+        });
+        selectWindowSize.setOnAction(event -> {
+            new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
+            int selectedIndex = selectWindowSize.getSelectionModel().getSelectedIndex();
+            Object selectedItem = selectWindowSize.getSelectionModel().getSelectedItem();
+
+            System.out.println("Selection made: [" + selectedIndex + "] " + selectedItem);
+            System.out.println("   ChoiceBox.getValue(): " + selectWindowSize.getValue());
+        });
         return selectWindowSize;
     }
 
@@ -109,6 +130,7 @@ public final class OptionsMenu extends Menu {
         final CheckBox setFullscreen = new CheckBox("Fullscreen");
         setFullscreen.setSelected(App.isFullscreen());
         setFullscreen.setOnAction(event -> {
+            new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
             boolean isSelected = setFullscreen.isSelected();
             App.setFullscreen(isSelected);
         });
@@ -131,11 +153,24 @@ public final class OptionsMenu extends Menu {
 
         Label valueLabel = new Label(String.valueOf((int) volumeSlider.getValue()));
 
+        final long[] lastPlayed = {0};
+        final long cooldown = 50;
         volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            long now = System.currentTimeMillis();
+
+            if (now - lastPlayed[0] >= cooldown) {
+                lastPlayed[0] = now;
+
+                int value = newVal.intValue();
+                valueLabel.setText(String.valueOf(value));
+
+                new EventFlow().addPostEvent(new AudioEvents.PlayEffect("soft-button-click.wav", false)).asyncPostEvent();
+            }
             valueLabel.setText(String.valueOf(newVal.intValue()));
             new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(newVal.doubleValue()/100.0))
                     .asyncPostEvent();
         });
+
         return volumeSlider;
     }
 

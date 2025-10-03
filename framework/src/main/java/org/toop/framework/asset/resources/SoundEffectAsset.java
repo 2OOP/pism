@@ -23,13 +23,30 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
         Clip clip = AudioSystem.getClip();
 
         // Insert a new audio stream into the clip
-        clip.open(this.getAudioStream());
+        AudioInputStream inputStream = this.getAudioStream();
+        AudioFormat baseFormat = inputStream.getFormat();
+        if (baseFormat.getSampleSizeInBits() > 16) inputStream = downSampleAudio(inputStream, baseFormat);
+        clip.open(inputStream); // ^ Clip can only run 16 bit and lower, thus downsampling necessary.
         return clip;
     }
 
     // Generates a new audio stream from byte array
     private AudioInputStream getAudioStream() throws UnsupportedAudioFileException, IOException {
         return AudioSystem.getAudioInputStream(this.file);
+    }
+
+    private AudioInputStream downSampleAudio(AudioInputStream audioInputStream, AudioFormat baseFormat) {
+        AudioFormat decodedFormat = new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                baseFormat.getSampleRate(),
+                16,       // force 16-bit
+                baseFormat.getChannels(),
+                baseFormat.getChannels() * 2,
+                baseFormat.getSampleRate(),
+                false                   // little-endian
+        );
+
+        return AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
     }
 
     @Override
