@@ -8,7 +8,7 @@ import javafx.geometry.Pos;
 
 public final class QuitLayer extends Layer {
 	public QuitLayer() {
-		super("quit.css");
+		super("quit.css", "quit_background");
 
 		final Container mainContainer = Container.create(Container.Type.VERTICAL, 30);
 		mainContainer.addText("Are you sure?");

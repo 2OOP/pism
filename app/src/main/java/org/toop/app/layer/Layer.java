@@ -13,16 +13,20 @@ public abstract class Layer {
 	protected StackPane layer;
 	protected Region background;
 
-	protected Layer(String cssFile) {
+	protected Layer(String cssFile, String backgroundCssClass) {
 		layer = new StackPane();
 		layer.setPickOnBounds(false);
 		layer.getStylesheets().add(ResourceManager.get(CssAsset.class, cssFile).getUrl());
 
 		background = new Region();
 		background.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
-		background.getStyleClass().add("background");
+		background.getStyleClass().add(backgroundCssClass);
 
 		layer.getChildren().addLast(background);
+	}
+
+	protected Layer(String cssFile) {
+		this(cssFile, "background");
 	}
 
 	protected void addContainer(Container container, Pos position, int xOffset, int yOffset) {
