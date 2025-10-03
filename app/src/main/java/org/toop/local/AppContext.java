@@ -11,6 +11,7 @@ public class AppContext {
         currentLocale = locale;
         new EventFlow().addPostEvent(new LocalizationEvents.LanguageHasChanged(locale.getLanguage())).asyncPostEvent();
     }
+
     public static Locale getLocale() {
         return currentLocale;
     }

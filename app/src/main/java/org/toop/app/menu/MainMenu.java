@@ -24,7 +24,7 @@ public final class MainMenu extends Menu {
     public MainMenu() {
 		final Region background = createBackground();
 
-		tictactoe = createButton(loc.getString("mainMenuSelectTicTacToe",currentLocale), () -> { App.activate(new TicTacToeMenu(new TicTacToe("player 1", true, "player 2", true))); });
+		tictactoe = createButton(loc.getString("mainMenuSelectTicTacToe",currentLocale), () -> { App.activate(new GameSelectMenu(GameType.TICTACTOE)); });
 		reversi = createButton(loc.getString("mainMenuSelectReversi",currentLocale), () -> { App.activate(new GameSelectMenu(GameType.REVERSI)); });
 
 		final VBox gamesBox = new VBox(10, tictactoe, reversi);
