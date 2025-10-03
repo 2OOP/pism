@@ -55,7 +55,7 @@ public abstract class GameMenu extends Menu {
 	protected final Cell[] cells;
 
     private Locale currentLocale = AppContext.getLocale();
-    private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+    private final LocalizationAsset loc = ResourceManager.get("localization");
     private final Button hint,back;
 	protected GameMenu(int rows, int columns, int gapSize) {
 

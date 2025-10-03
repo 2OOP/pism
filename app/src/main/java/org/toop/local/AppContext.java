@@ -2,6 +2,7 @@ package org.toop.local;
 
 import org.toop.framework.eventbus.EventFlow;
 
+import java.lang.reflect.Array;
 import java.util.Locale;
 
 public class AppContext {
@@ -9,6 +10,7 @@ public class AppContext {
 
     public static void setLocale(Locale locale) {
         currentLocale = locale;
+        new EventFlow().addPostEvent(new LocalizationEvents.LanguageHasChanged(locale.getLanguage())).asyncPostEvent();
     }
 
     public static void setCurrentLocale(Locale locale) {

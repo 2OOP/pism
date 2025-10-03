@@ -1,5 +1,6 @@
 package org.toop.app;
 
+import javafx.stage.Screen;
 import org.toop.app.canvas.TicTacToeCanvas;
 import javafx.application.Platform;
 import org.toop.app.menu.MainMenu;
@@ -29,16 +30,17 @@ public final class App extends Application {
 	private static Stage stage;
 	private static StackPane root;
 
+	private static Screen screen; // TODO set screen
 	private static int width;
 	private static int height;
 
 	private static boolean isQuitting;
     private Locale currentLocale = AppContext.getLocale();
-    private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+    private final LocalizationAsset loc = ResourceManager.get("localization");
 
 	private static class QuitMenu extends Menu {
         private Locale currentLocale = AppContext.getLocale();
-        private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+        private final LocalizationAsset loc = ResourceManager.get("localization");
         public QuitMenu() {
 			final Region background = createBackground("quit_background");
 
@@ -118,7 +120,7 @@ public final class App extends Application {
     private void handleChangeLanguage(LocalizationEvents.LanguageHasChanged event) {
         Platform.runLater(() -> {
             currentLocale = AppContext.getLocale();
-            stage.setTitle(loc.getString("windowTitle",currentLocale));
+            stage.setTitle(loc.getString("windowTitle", currentLocale));
         });
 
     }
@@ -145,4 +147,21 @@ public final class App extends Application {
 
 	public static int getWidth() { return width; }
 	public static int getHeight() { return height; }
+
+	public static void setWidth(int widthSetter) {
+		width = widthSetter;
+	}
+
+	public static void setHeight(int heightSetter) {
+		height = heightSetter;
+	}
+
+	public static boolean isFullscreen() {
+		return stage.isFullScreen();
+	}
+
+	public static void setFullscreen(boolean fullscreen) {
+		stage.setFullScreen(fullscreen);
+	}
+
 }

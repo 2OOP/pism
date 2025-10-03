@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public class GameSelectMenu extends Menu {
     private Locale currentLocale = AppContext.getLocale();
-    private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+    private final LocalizationAsset loc = ResourceManager.get("localization");
 
     final ComboBox<String> selectedMode, selectedGame;
     final TextField serverIpField;

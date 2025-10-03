@@ -18,7 +18,7 @@ import java.util.Locale;
 
 public final class MainMenu extends Menu {
     private Locale currentLocale = AppContext.getLocale();
-    private final LocalizationAsset loc = ResourceManager.get("localization.properties");
+    private final LocalizationAsset loc = ResourceManager.get("localization");
     private final Button tictactoe,reversi,credits,options,quit;
     public MainMenu() {
 		final Region background = createBackground();
