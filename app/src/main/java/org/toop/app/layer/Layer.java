@@ -56,6 +56,24 @@ public abstract class Layer {
 		layer.getChildren().addLast(canvas.getCanvas());
 	}
 
+	protected void pop() {
+		if (layer.getChildren().size() <= 1) {
+			return;
+		}
+
+		layer.getChildren().removeLast();
+	}
+
+	protected void popAll() {
+		final int containers = layer.getChildren().size();
+
+		for (int i = 1; i < containers; i++) {
+			layer.getChildren().removeLast();
+		}
+	}
+
 	public StackPane getLayer() { return layer; }
 	public Region getBackground() { return background; }
+
+	public abstract void reload();
 }

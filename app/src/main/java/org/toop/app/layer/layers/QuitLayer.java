@@ -19,4 +19,8 @@ public final class QuitLayer extends Layer {
 
 		addContainer(mainContainer, Pos.CENTER, 0, 0);
 	}
+
+	@Override
+	public void reload() {
+	}
 }

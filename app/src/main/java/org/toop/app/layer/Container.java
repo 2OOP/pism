@@ -87,11 +87,11 @@ public final class Container {
 		return addButton("button", x, runnable);
 	}
 
-	public Label addToggle(String cssClass, String unChecked, String checked, Consumer<Boolean> consumer) {
-		final Label element = new Label(unChecked);
+	public Label addToggle(String cssClass, String x1, String x2, boolean toggled, Consumer<Boolean> consumer) {
+		final Label element = new Label(toggled? x2 : x1);
 		element.getStyleClass().add(cssClass);
 
-		final BooleanProperty selected = new SimpleBooleanProperty(false);
+		final BooleanProperty checked = new SimpleBooleanProperty(toggled);
 
 		element.setOnMouseEntered(_ -> {
 			GlobalEventBus.post(new AppEvents.OnNodeHover());
@@ -99,23 +99,23 @@ public final class Container {
 
 		element.setOnMouseClicked(_ -> {
 			GlobalEventBus.post(new AppEvents.OnNodeClick());
-			selected.set(!selected.get());
+			checked.set(!checked.get());
 
-			if (selected.get()) {
-				element.setText(checked);
+			if (checked.get()) {
+				element.setText(x1);
 			} else {
-				element.setText(unChecked);
+				element.setText(x2);
 			}
 
-			consumer.accept(selected.get());
+			consumer.accept(checked.get());
 		});
 
 		container.getChildren().addLast(element);
 		return element;
 	}
 
-	public Label addToggle(String unChecked, String checked, Consumer<Boolean> consumer) {
-		return addToggle("toggle", unChecked, checked, consumer);
+	public Label addToggle(String x1, String x2, boolean toggled, Consumer<Boolean> consumer) {
+		return addToggle("toggle", x1, x2, toggled, consumer);
 	}
 
 	public Pane getContainer() { return container; }
