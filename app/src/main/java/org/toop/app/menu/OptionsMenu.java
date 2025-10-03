@@ -143,7 +143,7 @@ public final class OptionsMenu extends Menu {
                 .addPostEvent(AudioEvents.GetCurrentVolume.class)
                 .onResponse(AudioEvents.GetCurrentVolumeReponse.class, event -> {
                     volumeSlider.setValue(event.currentVolume() * 100);
-                }).asyncPostEvent();
+                }, true).asyncPostEvent();
         volumeSlider.setShowTickLabels(true);
         volumeSlider.setShowTickMarks(true);
         volumeSlider.setMajorTickUnit(25);
@@ -160,11 +160,8 @@ public final class OptionsMenu extends Menu {
 
             if (now - lastPlayed[0] >= cooldown) {
                 lastPlayed[0] = now;
-
-                int value = newVal.intValue();
-                valueLabel.setText(String.valueOf(value));
-
-                new EventFlow().addPostEvent(new AudioEvents.PlayEffect("soft-button-click.wav", false)).asyncPostEvent();
+//                new EventFlow().addPostEvent(new AudioEvents.clickButton())
+//                        .asyncPostEvent(); // TODO: creates double sound bug, WHYYY????
             }
             valueLabel.setText(String.valueOf(newVal.intValue()));
             new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(newVal.doubleValue()/100.0))

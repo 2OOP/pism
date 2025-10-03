@@ -128,6 +128,7 @@ public class SoundManager {
         mediaPlayer.play();
         activeMusic.add(mediaPlayer);
         logger.info("Playing background music: {}", ma.getFile().getName());
+        logger.info("Background music next in line: {}", backgroundMusicQueue.peek().getFile().getName());
     }
 
     private long playSound(String audioFileName, boolean loop) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
@@ -150,7 +151,7 @@ public class SoundManager {
             clip.start();
         }
 
-        logger.info("Playing sound: {}", asset.getFile().getName());
+        logger.debug("Playing sound: {}", asset.getFile().getName());
 
         // Generate id for clip
         long clipId = idGenerator.nextId();
