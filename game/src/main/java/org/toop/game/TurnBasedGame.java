@@ -6,10 +6,9 @@ public abstract class TurnBasedGame extends Game {
 	protected int currentTurn;
 
 	protected TurnBasedGame(int rowSize, int columnSize, int turns) {
-		assert turns >= 2;
-
 		super(rowSize, columnSize);
-		this.turns = turns;
+        assert turns >= 2;
+        this.turns = turns;
 	}
 
 	protected TurnBasedGame(TurnBasedGame other) {

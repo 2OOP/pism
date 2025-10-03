@@ -7,7 +7,6 @@ import org.toop.app.GameType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-import org.toop.app.menu.game.TicTacToeMenu;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.LocalizationAsset;
 import org.toop.framework.eventbus.EventFlow;
