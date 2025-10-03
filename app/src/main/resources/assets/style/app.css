@@ -20,7 +20,7 @@
 	-fx-font-size: 24px;
 }
 
-.button {
+.button, .toggle {
 	-fx-padding: 10;
 
 	-fx-background-color: transparent;
@@ -29,7 +29,7 @@
 	-fx-transition: all 0.3s ease-in-out;
 }
 
-.button:hover {
+.button:hover, .toggle:hover {
 	-fx-cursor: hand;
 
     -fx-scale-x: 1.1;

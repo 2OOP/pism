@@ -3,12 +3,17 @@ package org.toop.app.layer;
 import org.toop.app.events.AppEvents;
 import org.toop.framework.eventbus.GlobalEventBus;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
+import java.util.function.Consumer;
 
 public final class Container {
 	public enum Type {
@@ -80,6 +85,37 @@ public final class Container {
 
 	public Button addButton(String x, Runnable runnable) {
 		return addButton("button", x, runnable);
+	}
+
+	public Label addToggle(String cssClass, String unChecked, String checked, Consumer<Boolean> consumer) {
+		final Label element = new Label(unChecked);
+		element.getStyleClass().add(cssClass);
+
+		final BooleanProperty selected = new SimpleBooleanProperty(false);
+
+		element.setOnMouseEntered(_ -> {
+			GlobalEventBus.post(new AppEvents.OnNodeHover());
+		});
+
+		element.setOnMouseClicked(_ -> {
+			GlobalEventBus.post(new AppEvents.OnNodeClick());
+			selected.set(!selected.get());
+
+			if (selected.get()) {
+				element.setText(checked);
+			} else {
+				element.setText(unChecked);
+			}
+
+			consumer.accept(selected.get());
+		});
+
+		container.getChildren().addLast(element);
+		return element;
+	}
+
+	public Label addToggle(String unChecked, String checked, Consumer<Boolean> consumer) {
+		return addToggle("toggle", unChecked, checked, consumer);
 	}
 
 	public Pane getContainer() { return container; }
