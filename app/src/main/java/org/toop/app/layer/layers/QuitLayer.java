@@ -1,9 +1,10 @@
 package org.toop.app.layer.layers;
 
-import javafx.geometry.Pos;
 import org.toop.app.App;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
+
+import javafx.geometry.Pos;
 
 public final class QuitLayer extends Layer {
 	public QuitLayer() {

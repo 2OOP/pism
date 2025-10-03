@@ -1,6 +1,7 @@
 package org.toop.app.layer.layers;
 
 import org.toop.app.App;
+import org.toop.app.GameType;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 
@@ -10,11 +11,11 @@ public final class MainLayer extends Layer {
 	public MainLayer() {
 		super("main.css");
 
-		final Container gamesContainer = Container.create(Container.Type.VERTICAL, 10);
-		gamesContainer.addButton("Tic Tac Toe", () -> {});
-		gamesContainer.addButton("Othello", () -> {});
+		final Container gamesContainer = Container.create(Container.Type.VERTICAL, 5);
+		gamesContainer.addButton("Tic Tac Toe", () -> { App.activate(new SelectionLayer(GameType.TICTACTOE)); });
+		gamesContainer.addButton("Othello", () -> { App.activate(new SelectionLayer(GameType.OTHELLO)); });
 
-		final Container controlContainer = Container.create(Container.Type.VERTICAL, 10);
+		final Container controlContainer = Container.create(Container.Type.VERTICAL, 5);
 		controlContainer.addButton("Credits", () -> {});
 		controlContainer.addButton("Options", () -> {});
 		controlContainer.addButton("Quit", () -> { App.quitPopup(); });

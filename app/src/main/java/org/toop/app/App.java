@@ -3,13 +3,13 @@ package org.toop.app;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitLayer;
+import org.toop.framework.asset.ResourceManager;
+import org.toop.framework.asset.resources.CssAsset;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.resources.CssAsset;
 
 public final class App extends Application {
 	private static Stage stage;
@@ -56,8 +56,13 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
-		push(new MainLayer());
+		activate(new MainLayer());
     }
+
+	public static void activate(Layer layer) {
+		popAll();
+		push(layer);
+	}
 
 	public static void push(Layer layer) {
         root.getChildren().addLast(layer.getLayer());
@@ -66,6 +71,14 @@ public final class App extends Application {
 	public static void pop() {
 		root.getChildren().removeLast();
 		isQuitting = false;
+	}
+
+	public static void popAll() {
+		final int childrenCount = root.getChildren().size();
+
+		for (int i = 0; i < childrenCount; i++) {
+			root.getChildren().removeLast();
+		}
 	}
 
 	public static void quitPopup() {
