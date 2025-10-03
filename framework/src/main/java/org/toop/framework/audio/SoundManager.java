@@ -37,6 +37,7 @@ public class SoundManager {
                 .listen(this::handleStopSound)
                 .listen(this::handleMusicStart)
                 .listen(this::handleVolumeChange)
+                .listen(this::handleGetCurrentVolume)
                 .listen(AudioEvents.playOnClickButton.class, _ -> {
                     try {
                         playSound("hitsound0.wav", false);
@@ -70,6 +71,12 @@ public class SoundManager {
         for (MediaPlayer mediaPlayer : this.activeMusic) {
             mediaPlayer.setVolume(this.volume);
         }
+        IO.println("Volume: " + this.volume);
+    }
+
+    private void handleGetCurrentVolume(AudioEvents.GetCurrentVolume event) {
+        new EventFlow().addPostEvent(new AudioEvents.GetCurrentVolumeReponse(volume, event.snowflakeId()))
+                .asyncPostEvent();
     }
 
     private void handleMusicStart(AudioEvents.StartBackgroundMusic e) {

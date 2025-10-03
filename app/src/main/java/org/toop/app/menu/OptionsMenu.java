@@ -1,9 +1,8 @@
 package org.toop.app.menu;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -11,6 +10,8 @@ import javafx.scene.layout.VBox;
 import org.toop.app.App;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.LocalizationAsset;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
 
 import java.awt.*;
@@ -34,6 +35,7 @@ public final class OptionsMenu extends Menu {
                 screenDeviceSelectorCreation(),
                 displayModeSelectorCreation(),
                 selectFullscreenCreation(),
+                volumeSelectorCreation(),
                 exitOptionsButton);
 
         optionsBox.setAlignment(Pos.CENTER);
@@ -111,6 +113,30 @@ public final class OptionsMenu extends Menu {
             App.setFullscreen(isSelected);
         });
         return setFullscreen;
+    }
+
+    private Slider volumeSelectorCreation() {
+        Slider volumeSlider = new Slider(0, 100, 50);
+        new EventFlow()
+                .addPostEvent(AudioEvents.GetCurrentVolume.class)
+                .onResponse(AudioEvents.GetCurrentVolumeReponse.class, event -> {
+                    volumeSlider.setValue(event.currentVolume() * 100);
+                }).asyncPostEvent();
+        volumeSlider.setShowTickLabels(true);
+        volumeSlider.setShowTickMarks(true);
+        volumeSlider.setMajorTickUnit(25);
+        volumeSlider.setMinorTickCount(4);
+        volumeSlider.setBlockIncrement(5);
+        volumeSlider.setMaxWidth(225);
+
+        Label valueLabel = new Label(String.valueOf((int) volumeSlider.getValue()));
+
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            valueLabel.setText(String.valueOf(newVal.intValue()));
+            new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(newVal.doubleValue()/100.0))
+                    .asyncPostEvent();
+        });
+        return volumeSlider;
     }
 
 }
