@@ -158,6 +158,7 @@ public class ResourceLoader {
         Map<String, BundledResource> bundledResources = new HashMap<>();
 
         for (File file : files) {
+            boolean skipAdd = false;
             BaseResource resource = resourceMapper(file, BaseResource.class);
             switch (resource) {
                 case null -> {
@@ -165,13 +166,11 @@ public class ResourceLoader {
                 }
                 case BundledResource br -> {
                     String key = resource.getClass().getName() + ":" + br.getBaseName();
-                    if (bundledResources.containsKey(key)) {
-                        bundledResources.get(key).loadFile(file);
-                        resource = (BaseResource) bundledResources.get(key);
-                    } else {
-                        br.loadFile(file);
-                        bundledResources.put(key, br);
-                    }
+                    if (!bundledResources.containsKey(key)) {bundledResources.put(key, br);}
+                    bundledResources.get(key).loadFile(file);
+                    resource = (BaseResource) bundledResources.get(key);
+                    assets.add(new ResourceMeta<>(br.getBaseName(), resource));
+                    skipAdd = true;
                 }
                 case PreloadResource pr -> pr.load();
                 default -> {
@@ -181,7 +180,7 @@ public class ResourceLoader {
             BaseResource finalResource = resource;
             boolean alreadyAdded = assets.stream()
                     .anyMatch(a -> a.getResource() == finalResource);
-            if (!alreadyAdded) {
+            if (!alreadyAdded && !skipAdd) {
                 assets.add(new ResourceMeta<>(file.getName(), resource));
             }
 

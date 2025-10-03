@@ -7,6 +7,10 @@ import java.util.Locale;
 public class AppContext {
     private static Locale currentLocale = Locale.getDefault();
 
+    public static void setLocale(Locale locale) {
+        currentLocale = locale;
+    }
+
     public static void setCurrentLocale(Locale locale) {
         currentLocale = locale;
         new EventFlow().addPostEvent(new LocalizationEvents.LanguageHasChanged(locale.getLanguage())).asyncPostEvent();
