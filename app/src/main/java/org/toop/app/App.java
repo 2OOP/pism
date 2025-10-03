@@ -1,67 +1,24 @@
 package org.toop.app;
 
-import javafx.stage.Screen;
-import org.toop.app.canvas.TicTacToeCanvas;
-import javafx.application.Platform;
-import org.toop.app.menu.MainMenu;
-import org.toop.app.menu.Menu;
+import org.toop.app.layer.Layer;
+import org.toop.app.layer.layers.MainLayer;
+import org.toop.app.layer.layers.QuitLayer;
 
 import javafx.application.Application;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
-import org.toop.framework.asset.resources.LocalizationAsset;
-import org.toop.framework.audio.events.AudioEvents;
-import org.toop.framework.eventbus.EventFlow;
-import org.toop.local.AppContext;
-import org.toop.local.LocalizationEvents;
-
-import java.util.Locale;
 
 public final class App extends Application {
 	private static Stage stage;
 	private static StackPane root;
 
-	private static Screen screen; // TODO set screen
 	private static int width;
 	private static int height;
 
 	private static boolean isQuitting;
-    private Locale currentLocale = AppContext.getLocale();
-    private final LocalizationAsset loc = ResourceManager.get("localization");
-
-	private static class QuitMenu extends Menu {
-        private Locale currentLocale = AppContext.getLocale();
-        private final LocalizationAsset loc = ResourceManager.get("localization");
-        public QuitMenu() {
-			final Region background = createBackground("quit_background");
-
-			final Text sure = createText(loc.getString("quitMenuTextSure",currentLocale));
-
-			final Button yes = createButton(loc.getString("quitMenuButtonYes",currentLocale), () -> { stage.close(); });
-			final Button no = createButton(loc.getString("quitMenuButtonNo",currentLocale), () -> { pop(); isQuitting = false; });
-
-			final HBox buttons = new HBox(50, yes, no);
-			buttons.setAlignment(Pos.CENTER);
-
-			final VBox box = new VBox(35, sure, buttons);
-			box.getStyleClass().add("quit_box");
-			box.setAlignment(Pos.CENTER);
-			box.setMaxWidth(350);
-			box.setMaxHeight(200);
-
-			pane = new StackPane(background, box);
-			pane.getStylesheets().add(ResourceManager.get(CssAsset.class, "quit.css").getUrl());
-		}
-	}
 
 	public static void run(String[] args) {
 		launch(args);
@@ -69,14 +26,14 @@ public final class App extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		final StackPane root = new StackPane(new MainMenu().getPane());
+		final StackPane root = new StackPane();
 
 		final Scene scene = new Scene(root);
 		scene.getStylesheets().add(ResourceManager.get(CssAsset.class, "app.css").getUrl());
 
-		stage.setTitle(loc.getString("windowTitle",currentLocale));
-		stage.setMinWidth(1080);
-		stage.setMinHeight(720);
+		stage.setTitle("pism");
+		stage.setWidth(1080);
+		stage.setHeight(720);
 
 		stage.setOnCloseRequest(event -> {
 			event.consume();
@@ -99,69 +56,27 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
-		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
-		new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(0.1)).asyncPostEvent();
-
-        // Todo: Temp Obviously
-        // Replace with game of life
-        final TicTacToeCanvas canvas = new TicTacToeCanvas();
-        root.getChildren().addLast(canvas.getCanvas());
-
-        try {
-            new EventFlow()
-                    .listen(this::handleChangeLanguage);
-
-        }catch (Exception e){
-            System.out.println("Something went wrong while trying to change the language.");
-            throw e;
-        }
-
-    }
-    private void handleChangeLanguage(LocalizationEvents.LanguageHasChanged event) {
-        Platform.runLater(() -> {
-            currentLocale = AppContext.getLocale();
-            stage.setTitle(loc.getString("windowTitle", currentLocale));
-        });
-
+		push(new MainLayer());
     }
 
-
-
-	public static void quitPopup() {
-		isQuitting = true;
-		push(new QuitMenu());
-	}
-
-	public static void activate(Menu menu) {
-		pop();
-		push(menu);
-	}
-
-	public static void push(Menu menu) {
-        root.getChildren().addLast(menu.getPane());
+	public static void push(Layer layer) {
+        root.getChildren().addLast(layer.getLayer());
 	}
 
 	public static void pop() {
 		root.getChildren().removeLast();
+		isQuitting = false;
+	}
+
+	public static void quitPopup() {
+		push(new QuitLayer());
+		isQuitting = true;
+	}
+
+	public static void quit() {
+		stage.close();
 	}
 
 	public static int getWidth() { return width; }
 	public static int getHeight() { return height; }
-
-	public static void setWidth(int widthSetter) {
-		width = widthSetter;
-	}
-
-	public static void setHeight(int heightSetter) {
-		height = heightSetter;
-	}
-
-	public static boolean isFullscreen() {
-		return stage.isFullScreen();
-	}
-
-	public static void setFullscreen(boolean fullscreen) {
-		stage.setFullScreen(fullscreen);
-	}
-
 }

@@ -1,5 +1,11 @@
-.background {
-	-fx-background-color: linear-gradient(to bottom right, #21a7b2, #8f32b9);
+.container {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+
+	-fx-alignment: center;
+	-fx-text-alignment: center;
 }
 
 .text {
@@ -10,28 +16,20 @@
 	-fx-font-size: 24px;
 }
 
-.button, .text-field, .combo-box, .combo-box-popup .list-cell {
-	-fx-padding: 10 20;
+.button {
+	-fx-padding: 10;
 
 	-fx-background-color: transparent;
 	-fx-border-color: transparent;
+
+	-fx-transition: all 0.3s ease-in-out;
 }
 
-.combo-box-popup .list-view {
-	-fx-background-color: #1d1d1d;
-}
-
-.text-field {
-	-fx-text-fill: white;
-}
-
-.button:hover, .text-field:hover, .combo-box:hover, .combo-box-popup .list-cell:hover {
+.button:hover {
 	-fx-cursor: hand;
 
-	-fx-effect: dropshadow(gaussian, #00ffff7f, 10, 0.5, 0, 0);
-	-fx-border-color: white;
-}
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
 
-.text-field:focused, .combo-box:focused {
-	-fx-border-color: white;
+    -fx-effect: dropshadow(gaussian, #007fff, 10, 0.5, 0, 0);
 }

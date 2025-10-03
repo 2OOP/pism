@@ -63,14 +63,14 @@ public class TicTacToeCanvas extends GameCanvas {
 				final Game.State state = game.play(move);
 
 				if (state == Game.State.WIN) {
-					graphics.setFill(Color.GREEN);
-					graphics.fillRect(cells[4].x(), cells[4].y(), cells[4].width(), cells[4].height());
-
 					for (int i = 0; i < game.board.length; i++) {
 						if (game.board[i] != move.value()) {
 							clearCell(i);
 						}
 					}
+
+					graphics.setFill(Color.GREEN);
+					graphics.fillRect(cells[4].x(), cells[4].y(), cells[4].width(), cells[4].height());
 				} else if (state == Game.State.DRAW) {
 					graphics.setFill(Color.DARKORANGE);
 					graphics.fillRect(cells[4].x(), cells[4].y(), cells[4].width(), cells[4].height());
