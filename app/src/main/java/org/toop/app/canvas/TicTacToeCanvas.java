@@ -1,15 +1,15 @@
 package org.toop.app.canvas;
 
-import javafx.scene.paint.Color;
-import org.toop.app.App;
 import org.toop.game.Game;
 import org.toop.game.tictactoe.TicTacToe;
+
+import javafx.scene.paint.Color;
 
 public class TicTacToeCanvas extends GameCanvas {
 	private final TicTacToe game;
 
-	public TicTacToeCanvas() {
-		super(App.getHeight(), App.getHeight(), 3, 3, 10);
+	public TicTacToeCanvas(int width, int height) {
+		super(width, height, 3, 3, 10);
 		game = new TicTacToe();
 
 		graphics.setFill(Color.CYAN);
