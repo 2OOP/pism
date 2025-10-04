@@ -2,6 +2,7 @@ package org.toop.app.layer.layers;
 
 import org.toop.app.App;
 import org.toop.app.GameType;
+import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
@@ -41,6 +42,12 @@ public class MultiplayerLayer extends Layer {
 		final Container player2Container = new VerticalContainer("player_container", 5);
 		playersContainer.addContainer(player2Container, true);
 
+		if (isConnectionLocal) {
+			mainContainer.addButton("Start", () -> {});
+		} else {
+			mainContainer.addButton("Connnect", () -> { App.activate(new GameLayer()); });
+		}
+
 		player1Container.addToggle("Human", "Computer", !isPlayer1Human, (computer) -> {
 			isPlayer1Human = !computer;
 			reload();
@@ -68,8 +75,11 @@ public class MultiplayerLayer extends Layer {
 				player2Container.addToggle("Easy", "Hard", false, (hard) -> {});
 			}
 		} else {
-			player2Container.addText("enter server ip here: ...", true);
-			player2Container.addText("enter server port here: ...", true);
+			player2Container.addText("Server IP", true);
+			player2Container.addInput("", (input) -> {});
+
+			player2Container.addText("Server Port", true);
+			player2Container.addInput("", (input) -> {});
 		}
 
 		final Container controlContainer = new VerticalContainer(5);

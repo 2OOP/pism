@@ -1,5 +1,6 @@
 package org.toop.app;
 
+import org.toop.app.canvas.GameCanvas;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitLayer;
@@ -71,6 +72,10 @@ public final class App extends Application {
 	public static void pop() {
 		root.getChildren().removeLast();
 		isQuitting = false;
+	}
+
+	public static void pushCanvas(GameCanvas canvas) {
+		root.getChildren().addLast(canvas.getCanvas());
 	}
 
 	public static void popAll() {

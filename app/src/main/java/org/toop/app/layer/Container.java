@@ -6,8 +6,8 @@ import org.toop.framework.eventbus.GlobalEventBus;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -20,43 +20,40 @@ public abstract class Container {
 	public abstract void addNode(Node node);
 	public abstract void addContainer(Container container, boolean fill);
 
-	public Text addText(String cssClass, String x, boolean wrap) {
+	public void addText(String cssClass, String x, boolean wrap) {
 		final Text element = new Text(x);
 		element.getStyleClass().add(cssClass);
 
 		if (wrap) {
 			addNode(new TextFlow(element));
 		} else { addNode(element); }
-
-		return element;
 	}
 
-	public Text addText(String x, boolean wrap) {
-		return addText("text", x, wrap);
+	public void addText(String x, boolean wrap) {
+		addText("text", x, wrap);
 	}
 
-	public Button addButton(String cssClass, String x, Runnable runnable) {
-		final Button element = new Button(x);
+	public void addButton(String cssClass, String x, Runnable runnable) {
+		final Label element = new Label(x);
 		element.getStyleClass().add(cssClass);
 
 		element.setOnMouseEntered(_ -> {
 			GlobalEventBus.post(new AppEvents.OnNodeHover());
 		});
 
-		element.setOnAction(_ -> {
+		element.setOnMouseClicked(_ -> {
 			GlobalEventBus.post(new AppEvents.OnNodeClick());
 			runnable.run();
 		});
 
 		addNode(element);
-		return element;
 	}
 
-	public Button addButton(String x, Runnable runnable) {
-		return addButton("button", x, runnable);
+	public void addButton(String x, Runnable runnable) {
+		addButton("button", x, runnable);
 	}
 
-	public Label addToggle(String cssClass, String x1, String x2, boolean toggled, Consumer<Boolean> consumer) {
+	public void addToggle(String cssClass, String x1, String x2, boolean toggled, Consumer<Boolean> consumer) {
 		final Label element = new Label(toggled? x2 : x1);
 		element.getStyleClass().add(cssClass);
 
@@ -80,10 +77,28 @@ public abstract class Container {
 		});
 
 		addNode(element);
-		return element;
 	}
 
-	public Label addToggle(String x1, String x2, boolean toggled, Consumer<Boolean> consumer) {
-		return addToggle("toggle", x1, x2, toggled, consumer);
+	public void addToggle(String x1, String x2, boolean toggled, Consumer<Boolean> consumer) {
+		addToggle("toggle", x1, x2, toggled, consumer);
+	}
+
+	public void addInput(String cssClass, String input, Consumer<String> consumer) {
+		final TextField element = new TextField(input);
+		element.getStyleClass().add(cssClass);
+
+		element.setOnMouseEntered(_ -> {
+			GlobalEventBus.post(new AppEvents.OnNodeHover());
+		});
+
+		element.textProperty().addListener((_, _, newValue) -> {
+			consumer.accept(newValue);
+		});
+
+		addNode(element);
+	}
+
+	public void addInput(String input, Consumer<String> consumer) {
+		addInput("input", input, consumer);
 	}
 }
