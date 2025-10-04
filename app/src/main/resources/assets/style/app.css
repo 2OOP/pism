@@ -13,7 +13,7 @@
     -fx-background-radius: 5;
 }
 
-.text, .button, .toggle, .input {
+.text, .button, .toggle {
 	-fx-padding: 10;
 
 	-fx-fill: white;
@@ -37,6 +37,21 @@
 	-fx-effect: dropshadow(gaussian, #007fff, 10, 0.5, 0, 0);
 }
 
+.input {
+	-fx-padding: 10;
+
+	-fx-fill: white;
+	-fx-text-fill: white;
+
+	-fx-font-family: "Segoe UI", sans-serif;
+	-fx-font-weight: bold;
+	-fx-font-size: 20px;
+
+	-fx-background-color: transparent;
+
+	-fx-border-color: #7f7f7f;
+}
+
 .input:focused {
 	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
 	-fx-background-insets: 0, 2;
@@ -57,5 +72,9 @@
 }
 
 .slider .thumb {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+}
+
+.separator {
 	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
 }

@@ -5,8 +5,10 @@ import org.toop.framework.eventbus.GlobalEventBus;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
@@ -19,7 +21,6 @@ public abstract class Container {
 	public abstract Region getContainer();
 
 	public abstract void addNode(Node node);
-
 	public abstract void addContainer(Container container, boolean fill);
 
 	public void addText(String cssClass, String x, boolean wrap) {
@@ -128,5 +129,17 @@ public abstract class Container {
 
 	public void addInput(String input, Consumer<String> consumer) {
 		addInput("input", input, consumer);
+	}
+
+	public void addSeparator(String cssClass, boolean horizontal) {
+		final Separator element = new Separator(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
+		element.getStyleClass().add(cssClass);
+		element.setMinSize(50, 50);
+
+		addNode(element);
+	}
+
+	public void addSeparator(boolean horizontal) {
+		addSeparator("separator", horizontal);
 	}
 }

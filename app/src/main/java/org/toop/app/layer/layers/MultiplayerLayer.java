@@ -87,6 +87,8 @@ public class MultiplayerLayer extends Layer {
 			player2Container.addInput("", (input) -> {
 			});
 
+			player2Container.addSeparator(true);
+
 			player2Container.addText("Server Port", true);
 			player2Container.addInput("", (input) -> {
 			});
