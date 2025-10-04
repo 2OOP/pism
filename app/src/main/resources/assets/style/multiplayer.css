@@ -1,0 +1,6 @@
+.player_container {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+}

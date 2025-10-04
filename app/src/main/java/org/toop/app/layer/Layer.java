@@ -1,7 +1,6 @@
 package org.toop.app.layer;
 
 import org.toop.app.App;
-import org.toop.app.canvas.GameCanvas;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
 
@@ -29,31 +28,24 @@ public abstract class Layer {
 		this(cssFile, "background");
 	}
 
-	protected void addContainer(Container container, Pos position, int xOffset, int yOffset) {
+	protected void addContainer(Container container, Pos position, int xOffset, int yOffset, int widthPercent, int heightPercent) {
 		StackPane.setAlignment(container.getContainer(), position);
 
-		container.getContainer().setMaxWidth(Region.USE_PREF_SIZE);
-		container.getContainer().setMaxHeight(Region.USE_PREF_SIZE);
+		final double widthUnit = App.getWidth() / 100.0;
+		final double heightUnit = App.getHeight() / 100.0;
 
-		final double xPercent = xOffset * (App.getWidth() / 100.0);
-		final double yPercent = yOffset * (App.getHeight() / 100.0);
+		if (widthPercent > 0) {
+			container.getContainer().setMaxWidth(widthPercent * widthUnit);
+		} else { container.getContainer().setMaxWidth(Region.USE_PREF_SIZE); }
 
-		container.getContainer().setTranslateX(xPercent);
-		container.getContainer().setTranslateY(yPercent);
+		if (heightPercent > 0) {
+			container.getContainer().setMaxHeight(heightPercent * heightUnit);
+		} else { container.getContainer().setMaxHeight(Region.USE_PREF_SIZE); }
+
+		container.getContainer().setTranslateX(xOffset * widthUnit);
+		container.getContainer().setTranslateY(yOffset * heightUnit);
 
 		layer.getChildren().addLast(container.getContainer());
-	}
-
-	protected void addCanvas(GameCanvas canvas, Pos position, int xOffset, int yOffset) {
-		StackPane.setAlignment(canvas.getCanvas(), position);
-
-		final double xPercent = xOffset * (App.getWidth() / 100.0);
-		final double yPercent = yOffset * (App.getHeight() / 100.0);
-
-		canvas.getCanvas().setTranslateX(xPercent);
-		canvas.getCanvas().setTranslateX(yPercent);
-
-		layer.getChildren().addLast(canvas.getCanvas());
 	}
 
 	protected void pop() {
