@@ -32,6 +32,7 @@ public final class MainLayer extends Layer {
 		final Container controlContainer = new VerticalContainer(5);
 
 		controlContainer.addButton("Credits", () -> {
+			App.activate(new CreditsLayer());
 		});
 
 		controlContainer.addButton("Options", () -> {

@@ -2,11 +2,9 @@
 	-fx-background-color: linear-gradient(to bottom right, #21a7b2, #8f32b9);
 }
 
-.vertical_container, .horizontal_container {
+.stack_container, .vertical_container, .horizontal_container {
 	-fx-padding: 10;
-
 	-fx-alignment: center;
-	-fx-text-alignment: center;
 
 	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
     -fx-background-insets: 0, 2;

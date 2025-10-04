@@ -6,13 +6,7 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 4, 0, 2, 2);
 }
 
-.button.exit-button {
-    -fx-background-color: #3498db;
-    -fx-text-fill: white;
-    -fx-font-size: 72px;
-    -fx-padding: 10 20 10 20;
-    -fx-background-radius: 5;
-}
-.button.exit-button:hover {
-    -fx-background-color: #2980b9;
+.animated_credits_container {
+	-fx-padding: 10;
+	-fx-alignment: center;
 }
