@@ -84,7 +84,7 @@ public final class OptionsLayer extends Layer {
 		container.addSlider(100, currentVolume, (volume) -> {
 			currentVolume = volume;
             settings.setVolume(volume);
-            new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue() / 100.0)).asyncPostEvent();
+            new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue())).asyncPostEvent();
 		});
 	}
 

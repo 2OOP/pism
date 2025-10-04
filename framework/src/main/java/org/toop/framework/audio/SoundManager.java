@@ -69,15 +69,16 @@ public class SoundManager {
     }
 
     private void handleVolumeChange(AudioEvents.ChangeVolume event) {
-        if (event.newVolume() > 1.0) this.volume = 1.0;
-        else this.volume = Math.max(event.newVolume(), 0.0);
+        double newVolume = event.newVolume() / 100;
+        if (newVolume > 1.0) this.volume = 1.0;
+        else this.volume = Math.max(newVolume, 0.0);
         for (MediaPlayer mediaPlayer : this.activeMusic) {
             mediaPlayer.setVolume(this.volume);
         }
     }
 
     private void handleGetCurrentVolume(AudioEvents.GetCurrentVolume event) {
-        new EventFlow().addPostEvent(new AudioEvents.GetCurrentVolumeReponse(volume, event.snowflakeId()))
+        new EventFlow().addPostEvent(new AudioEvents.GetCurrentVolumeReponse(volume * 100, event.snowflakeId()))
                 .asyncPostEvent();
     }
 

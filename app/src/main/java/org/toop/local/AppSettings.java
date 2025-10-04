@@ -2,6 +2,8 @@ package org.toop.local;
 
 import org.toop.app.App;
 import org.toop.framework.asset.resources.SettingsAsset;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.settings.Settings;
 
 import java.io.File;
@@ -20,6 +22,8 @@ public class AppSettings {
 
         AppContext.setLocale(Locale.of(settingsData.locale));
         App.setFullscreen(settingsData.fullScreen);
+        new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume)).asyncPostEvent();
+
     }
 
     public SettingsAsset getPath() {

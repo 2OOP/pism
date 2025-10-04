@@ -11,6 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.toop.framework.asset.resources.SettingsAsset;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppSettings;
 
 import java.io.File;
@@ -64,6 +66,8 @@ public final class App extends Application {
 		App.height = (int) stage.getHeight();
 
 		App.isQuitting = false;
+
+		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).postEvent();
 
 		activate(new MainLayer());
 	}
