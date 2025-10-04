@@ -6,12 +6,14 @@ import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.LocalizationAsset;
+import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ChoiceBox;
+import org.toop.local.AppSettings;
 
 import java.util.Locale;
 
@@ -19,8 +21,11 @@ public final class OptionsLayer extends Layer {
 	private Locale currentLocale = AppContext.getLocale();
 	private LocalizationAsset locale = ResourceManager.get("localization");
 
-	private static int currentVolume = 25;
-	private static boolean isWindowed = true;
+    AppSettings appSettings = new AppSettings();
+    SettingsAsset settings = appSettings.getPath();
+
+	private int currentVolume = settings.getVolume();
+	private boolean isWindowed = !(settings.getFullscreen());
 
 	OptionsLayer() {
 		super("options.css");
@@ -61,6 +66,8 @@ public final class OptionsLayer extends Layer {
 
 			AppContext.setLocale(locale);
 
+            settings.setLocale(locale.toLanguageTag());
+
 			this.currentLocale = AppContext.getLocale();
 			this.locale = ResourceManager.get("localization");
 
@@ -70,14 +77,14 @@ public final class OptionsLayer extends Layer {
 		for (final Locale localeFile : locale.getAvailableLocales()) {
 			languageBox.getItems().add(localeFile);
 		}
-
 		languageBox.setValue(currentLocale);
 	}
 
 	private void addVolumeSlider(Container container) {
 		container.addSlider(100, currentVolume, (volume) -> {
 			currentVolume = volume;
-			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue() / 100.0)).asyncPostEvent();
+            settings.setVolume(volume);
+            new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue() / 100.0)).asyncPostEvent();
 		});
 	}
 
@@ -85,6 +92,7 @@ public final class OptionsLayer extends Layer {
 		container.addToggle("Windowed", "Fullscreen", !isWindowed, (fullscreen) -> {
 			isWindowed = !fullscreen;
 			App.setFullscreen(fullscreen);
-		});
+            settings.setFullscreen(fullscreen);
+        });
 	}
 }
