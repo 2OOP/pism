@@ -1,6 +1,5 @@
 package org.toop.app;
 
-import org.toop.app.canvas.GameCanvas;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitLayer;
@@ -52,13 +51,13 @@ public final class App extends Application {
 		App.stage = stage;
 		App.root = root;
 
-		App.width = (int)stage.getWidth();
-		App.height = (int)stage.getHeight();
+		App.width = (int) stage.getWidth();
+		App.height = (int) stage.getHeight();
 
 		App.isQuitting = false;
 
 		activate(new MainLayer());
-    }
+	}
 
 	public static void activate(Layer layer) {
 		popAll();
@@ -66,16 +65,12 @@ public final class App extends Application {
 	}
 
 	public static void push(Layer layer) {
-        root.getChildren().addLast(layer.getLayer());
+		root.getChildren().addLast(layer.getLayer());
 	}
 
 	public static void pop() {
 		root.getChildren().removeLast();
 		isQuitting = false;
-	}
-
-	public static void pushCanvas(GameCanvas canvas) {
-		root.getChildren().addLast(canvas.getCanvas());
 	}
 
 	public static void popAll() {
@@ -95,6 +90,11 @@ public final class App extends Application {
 		stage.close();
 	}
 
-	public static int getWidth() { return width; }
-	public static int getHeight() { return height; }
+	public static int getWidth() {
+		return width;
+	}
+
+	public static int getHeight() {
+		return height;
+	}
 }

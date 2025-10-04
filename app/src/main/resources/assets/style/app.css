@@ -24,6 +24,7 @@
 	-fx-font-size: 20px;
 
 	-fx-background-color: transparent;
+
 	-fx-border-color: transparent;
 }
 
@@ -37,9 +38,24 @@
 }
 
 .input:focused {
-	-fx-border-color: transparent;
-
 	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
 	-fx-background-insets: 0, 2;
 	-fx-background-radius: 8;
+
+	-fx-border-color: transparent;
+}
+
+.slider {
+	-fx-padding: 10;
+
+	-fx-background-color: transparent;
+}
+
+.slider .track {
+	-fx-background-color: linear-gradient(to right, #00ff00, #ff0000);
+	-fx-background-radius: 2;
+}
+
+.slider .thumb {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
 }

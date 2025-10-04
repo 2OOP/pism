@@ -21,7 +21,9 @@ public final class HorizontalContainer extends Container {
 	}
 
 	@Override
-	public Region getContainer() { return container; }
+	public Region getContainer() {
+		return container;
+	}
 
 	@Override
 	public void addNode(Node node) {
@@ -51,7 +53,7 @@ public final class HorizontalContainer extends Container {
 
 		for (final Node child : children) {
 			if (child instanceof Region) {
-				((Region)child).setPrefWidth(widthPerChild);
+				((Region) child).setPrefWidth(widthPerChild);
 			}
 		}
 	}

@@ -37,11 +37,15 @@ public abstract class Layer {
 
 		if (widthPercent > 0) {
 			container.getContainer().setMaxWidth(widthPercent * widthUnit);
-		} else { container.getContainer().setMaxWidth(Region.USE_PREF_SIZE); }
+		} else {
+			container.getContainer().setMaxWidth(Region.USE_PREF_SIZE);
+		}
 
 		if (heightPercent > 0) {
 			container.getContainer().setMaxHeight(heightPercent * heightUnit);
-		} else { container.getContainer().setMaxHeight(Region.USE_PREF_SIZE); }
+		} else {
+			container.getContainer().setMaxHeight(Region.USE_PREF_SIZE);
+		}
 
 		container.getContainer().setTranslateX(xOffset * widthUnit);
 		container.getContainer().setTranslateY(yOffset * heightUnit);
@@ -57,11 +61,15 @@ public abstract class Layer {
 
 		if (widthPercent > 0) {
 			canvas.getCanvas().setWidth(widthPercent * widthUnit);
-		} else { canvas.getCanvas().setWidth(Region.USE_PREF_SIZE); }
+		} else {
+			canvas.getCanvas().setWidth(Region.USE_PREF_SIZE);
+		}
 
 		if (heightPercent > 0) {
 			canvas.getCanvas().setHeight(heightPercent * heightUnit);
-		} else { canvas.getCanvas().setHeight(Region.USE_PREF_SIZE); }
+		} else {
+			canvas.getCanvas().setHeight(Region.USE_PREF_SIZE);
+		}
 
 		canvas.getCanvas().setTranslateX(xOffset * widthUnit);
 		canvas.getCanvas().setTranslateY(yOffset * heightUnit);
@@ -85,8 +93,13 @@ public abstract class Layer {
 		}
 	}
 
-	public StackPane getLayer() { return layer; }
-	public Region getBackground() { return background; }
+	public StackPane getLayer() {
+		return layer;
+	}
+
+	public Region getBackground() {
+		return background;
+	}
 
 	public abstract void reload();
 }

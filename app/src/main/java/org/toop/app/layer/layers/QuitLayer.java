@@ -19,13 +19,20 @@ public final class QuitLayer extends Layer {
 		popAll();
 
 		final Container mainContainer = new VerticalContainer(30);
+
 		mainContainer.addText("Are you sure?", false);
 
 		final Container controlContainer = new HorizontalContainer(30);
+
 		mainContainer.addContainer(controlContainer, false);
 
-		controlContainer.addButton("Yes", () -> { App.quit(); });
-		controlContainer.addButton("No", () -> { App.pop(); });
+		controlContainer.addButton("Yes", () -> {
+			App.quit();
+		});
+
+		controlContainer.addButton("No", () -> {
+			App.pop();
+		});
 
 		addContainer(mainContainer, Pos.CENTER, 0, 0, 30, 30);
 	}

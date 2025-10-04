@@ -19,13 +19,26 @@ public final class MainLayer extends Layer {
 		popAll();
 
 		final Container gamesContainer = new VerticalContainer(5);
-		gamesContainer.addButton("Tic Tac Toe", () -> { App.activate(new MultiplayerLayer(GameType.TICTACTOE)); });
-		gamesContainer.addButton("Othello", () -> { App.activate(new MultiplayerLayer(GameType.OTHELLO)); });
+
+		gamesContainer.addButton("Tic Tac Toe", () -> {
+			App.activate(new MultiplayerLayer(GameType.TICTACTOE));
+		});
+
+		gamesContainer.addButton("Othello", () -> {
+			App.activate(new MultiplayerLayer(GameType.OTHELLO));
+		});
 
 		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton("Credits", () -> {});
-		controlContainer.addButton("Options", () -> {});
-		controlContainer.addButton("Quit", () -> { App.quitPopup(); });
+
+		controlContainer.addButton("Credits", () -> {
+		});
+
+		controlContainer.addButton("Options", () -> {
+		});
+
+		controlContainer.addButton("Quit", () -> {
+			App.quitPopup();
+		});
 
 		addContainer(gamesContainer, Pos.TOP_LEFT, 2, 2, 25, 0);
 		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 25, 0);

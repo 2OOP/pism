@@ -18,7 +18,10 @@ public class GameLayer extends Layer {
 		App.popAll();
 
 		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton("Back", () -> { App.activate(new MainLayer()); });
+
+		controlContainer.addButton("Back", () -> {
+			App.activate(new MainLayer());
+		});
 
 		addCanvas(new TicTacToeCanvas(), Pos.CENTER, 0, 0, 100, 100);
 		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 0, 0);

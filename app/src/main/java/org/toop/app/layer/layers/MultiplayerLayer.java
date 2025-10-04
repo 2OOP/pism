@@ -2,7 +2,6 @@ package org.toop.app.layer.layers;
 
 import org.toop.app.App;
 import org.toop.app.GameType;
-import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
@@ -26,26 +25,33 @@ public class MultiplayerLayer extends Layer {
 		popAll();
 
 		final Container mainContainer = new VerticalContainer(5);
+
 		mainContainer.addToggle("Local", "Server", !isConnectionLocal, (server) -> {
 			isConnectionLocal = !server;
 			reload();
 		});
 
 		final Container playersContainer = new HorizontalContainer(50);
+
 		mainContainer.addContainer(playersContainer, true);
 
 		final Container player1Container = new VerticalContainer("player_container", 5);
+
 		playersContainer.addContainer(player1Container, true);
 
 		playersContainer.addText("VS", false);
 
 		final Container player2Container = new VerticalContainer("player_container", 5);
+
 		playersContainer.addContainer(player2Container, true);
 
 		if (isConnectionLocal) {
-			mainContainer.addButton("Start", () -> {});
+			mainContainer.addButton("Start", () -> {
+			});
 		} else {
-			mainContainer.addButton("Connnect", () -> { App.activate(new GameLayer()); });
+			mainContainer.addButton("Connnect", () -> {
+				App.activate(new GameLayer());
+			});
 		}
 
 		player1Container.addToggle("Human", "Computer", !isPlayer1Human, (computer) -> {
@@ -57,8 +63,9 @@ public class MultiplayerLayer extends Layer {
 			player1Container.addText("player is human", true);
 			player1Container.addText("input player name here: ...", true);
 		} else {
-			player1Container.addText("playing against ai", true);
-			player1Container.addToggle("Easy", "Hard", false, (hard) -> {});
+			player1Container.addText("Computer depth", true);
+			player1Container.addSlider(9, 2, (depth) -> {
+			});
 		}
 
 		if (isConnectionLocal) {
@@ -71,19 +78,25 @@ public class MultiplayerLayer extends Layer {
 				player2Container.addText("player is human", true);
 				player2Container.addText("input player name here: ...", true);
 			} else {
-				player2Container.addText("playing against ai", true);
-				player2Container.addToggle("Easy", "Hard", false, (hard) -> {});
+				player2Container.addText("Computer depth", true);
+				player2Container.addSlider(9, 2, (depth) -> {
+				});
 			}
 		} else {
 			player2Container.addText("Server IP", true);
-			player2Container.addInput("", (input) -> {});
+			player2Container.addInput("", (input) -> {
+			});
 
 			player2Container.addText("Server Port", true);
-			player2Container.addInput("", (input) -> {});
+			player2Container.addInput("", (input) -> {
+			});
 		}
 
 		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton("Back", () -> { App.activate(new MainLayer()); });
+
+		controlContainer.addButton("Back", () -> {
+			App.activate(new MainLayer());
+		});
 
 		addContainer(mainContainer, Pos.CENTER, 0, 0, 75, 75);
 		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 0, 0);
