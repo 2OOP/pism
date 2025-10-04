@@ -1,24 +1,28 @@
 package org.toop.local;
 
-import org.toop.app.events.AppEvents;
-import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.asset.ResourceManager;
+import org.toop.framework.asset.resources.LocalizationAsset;
 
 import java.util.Locale;
 
 public class AppContext {
-    private static Locale currentLocale = Locale.getDefault();
+	private static final LocalizationAsset localization = ResourceManager.get("localization");
+	private static Locale locale = Locale.forLanguageTag("en");
 
-    public static void setLocale(Locale locale) {
-        currentLocale = locale;
-        new EventFlow().addPostEvent(new AppEvents.OnLanguageChange(locale.getLanguage())).asyncPostEvent();
-    }
+	public static LocalizationAsset getLocalization() {
+		return localization;
+	}
 
-    public static void setCurrentLocale(Locale locale) {
-        currentLocale = locale;
-        new EventFlow().addPostEvent(new AppEvents.OnLanguageChange(locale.getLanguage())).asyncPostEvent();
-    }
+	public static void setLocale(Locale locale) {
+		AppContext.locale = locale;
+	}
 
-    public static Locale getLocale() {
-        return currentLocale;
-    }
+	public static Locale getLocale() {
+		return locale;
+	}
+
+	public static String getString(String key) {
+		assert localization != null;
+		return localization.getString(key, locale);
+	}
 }

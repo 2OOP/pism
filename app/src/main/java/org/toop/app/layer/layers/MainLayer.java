@@ -6,6 +6,7 @@ import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.game.othello.Othello;
 import org.toop.game.tictactoe.TicTacToe;
+import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
@@ -21,25 +22,25 @@ public final class MainLayer extends Layer {
 
 		final Container gamesContainer = new VerticalContainer(5);
 
-		gamesContainer.addButton("Tic Tac Toe", () -> {
+		gamesContainer.addButton(AppContext.getString("tictactoe"), () -> {
 			App.activate(new MultiplayerLayer<TicTacToe>());
 		});
 
-		gamesContainer.addButton("Othello", () -> {
+		gamesContainer.addButton(AppContext.getString("othello"), () -> {
 			App.activate(new MultiplayerLayer<Othello>());
 		});
 
 		final Container controlContainer = new VerticalContainer(5);
 
-		controlContainer.addButton("Credits", () -> {
+		controlContainer.addButton(AppContext.getString("credits"), () -> {
 			App.activate(new CreditsLayer());
 		});
 
-		controlContainer.addButton("Options", () -> {
+		controlContainer.addButton(AppContext.getString("options"), () -> {
 			App.activate(new OptionsLayer());
 		});
 
-		controlContainer.addButton("Quit", () -> {
+		controlContainer.addButton(AppContext.getString("quit"), () -> {
 			App.quitPopup();
 		});
 

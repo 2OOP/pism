@@ -4,8 +4,6 @@ import org.toop.app.App;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.VerticalContainer;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.resources.LocalizationAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
@@ -16,9 +14,6 @@ import javafx.scene.control.ChoiceBox;
 import java.util.Locale;
 
 public final class OptionsLayer extends Layer {
-	private Locale currentLocale = AppContext.getLocale();
-	private LocalizationAsset locale = ResourceManager.get("localization");
-
 	private static int currentVolume = 25;
 	private static boolean isWindowed = true;
 
@@ -32,20 +27,22 @@ public final class OptionsLayer extends Layer {
 		popAll();
 
 		final Container optionsContainer = new VerticalContainer(5);
-		optionsContainer.addText("Language", false);
+		optionsContainer.addText(AppContext.getString("language"), false);
 		addLanguageBox(optionsContainer);
 		optionsContainer.addSeparator(true);
-		optionsContainer.addText("Volume", false);
+
+		optionsContainer.addText(AppContext.getString("volume"), false);
 		addVolumeSlider(optionsContainer);
 		optionsContainer.addSeparator(true);
+
 		addFullscreenToggle(optionsContainer);
 
 		final Container mainContainer = new VerticalContainer(50);
-		mainContainer.addText("Options", false);
+		mainContainer.addText(AppContext.getString("options"), false);
 		mainContainer.addContainer(optionsContainer, true);
 
 		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton("Back", () -> {
+		controlContainer.addButton(AppContext.getString("back"), () -> {
 			App.activate(new MainLayer());
 		});
 
@@ -54,24 +51,34 @@ public final class OptionsLayer extends Layer {
 	}
 
 	private void addLanguageBox(Container container) {
+		assert AppContext.getLocalization() != null;
+
 		final ChoiceBox<Locale> languageBox = container.addChoiceBox((locale) -> {
-			if (locale == currentLocale) {
+			if (locale == AppContext.getLocale()) {
 				return;
 			}
 
 			AppContext.setLocale(locale);
-
-			this.currentLocale = AppContext.getLocale();
-			this.locale = ResourceManager.get("localization");
-
 			App.reloadAll();
 		});
 
-		for (final Locale localeFile : locale.getAvailableLocales()) {
+		for (final Locale localeFile : AppContext.getLocalization().getAvailableLocales()) {
 			languageBox.getItems().add(localeFile);
 		}
 
-		languageBox.setValue(currentLocale);
+		languageBox.setConverter(new javafx.util.StringConverter<>() {
+			@Override
+			public String toString(Locale locale) {
+				return AppContext.getString(locale.getDisplayName().toLowerCase());
+			}
+
+			@Override
+			public Locale fromString(String string) {
+				return null;
+			}
+		});
+
+		languageBox.setValue(AppContext.getLocale());
 	}
 
 	private void addVolumeSlider(Container container) {
@@ -82,7 +89,7 @@ public final class OptionsLayer extends Layer {
 	}
 
 	private void addFullscreenToggle(Container container) {
-		container.addToggle("Windowed", "Fullscreen", !isWindowed, (fullscreen) -> {
+		container.addToggle(AppContext.getString("windowed"), AppContext.getString("fullscreen"), !isWindowed, (fullscreen) -> {
 			isWindowed = !fullscreen;
 			App.setFullscreen(fullscreen);
 		});

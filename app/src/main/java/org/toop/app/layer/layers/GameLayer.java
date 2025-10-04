@@ -4,6 +4,7 @@ import org.toop.app.App;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
@@ -19,7 +20,7 @@ public class GameLayer extends Layer {
 
 		final Container controlContainer = new VerticalContainer(5);
 
-		controlContainer.addButton("Back", () -> {
+		controlContainer.addButton(AppContext.getString("back"), () -> {
 			App.activate(new MainLayer());
 		});
 

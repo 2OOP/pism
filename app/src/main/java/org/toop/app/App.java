@@ -5,6 +5,7 @@ import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitLayer;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
+import org.toop.local.AppContext;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -34,7 +35,7 @@ public final class App extends Application {
 		final Scene scene = new Scene(root);
 		scene.getStylesheets().add(ResourceManager.get(CssAsset.class, "app.css").getUrl());
 
-		stage.setTitle("pism");
+		stage.setTitle(AppContext.getString("appTitle"));
 		stage.setWidth(1080);
 		stage.setHeight(720);
 
@@ -100,6 +101,8 @@ public final class App extends Application {
 	}
 
 	public static void reloadAll() {
+		stage.setTitle(AppContext.getString("appTitle"));
+
 		for (final Layer layer : stack) {
 			layer.reload();
 		}

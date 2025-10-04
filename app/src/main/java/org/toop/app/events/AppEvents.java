@@ -5,6 +5,4 @@ import org.toop.framework.eventbus.events.EventsBase;
 
 public class AppEvents extends EventsBase {
 	public record OnNodeHover() implements EventWithoutSnowflake {}
-
-	public record OnLanguageChange(String language) implements EventWithoutSnowflake {}
 }

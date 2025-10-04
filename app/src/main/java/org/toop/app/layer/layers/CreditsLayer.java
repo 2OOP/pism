@@ -5,6 +5,7 @@ import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.local.AppContext;
 
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
@@ -14,17 +15,6 @@ import javafx.util.Duration;
 public final class CreditsLayer extends Layer {
 	private final int lineHeight = 100;
 
-	private final String[] credits = {
-			"Scrum Master: Stef",
-			"Product Owner: Omar",
-			"Merge Commander: Bas",
-			"Localization: Ticho",
-			"AI: Michiel",
-			"Developers: Michiel, Bas, Stef, Omar, Ticho",
-			"Moral Support: Wesley (voor 1 week)",
-			"OpenGL: Omar"
-	};
-
 	CreditsLayer() {
 		super("credits.css");
 		reload();
@@ -33,6 +23,17 @@ public final class CreditsLayer extends Layer {
 	@Override
 	public void reload() {
 		popAll();
+
+		final String[] credits = {
+				AppContext.getString("scrumMaster") + ": Stef",
+				AppContext.getString("productOwner") + ": Omar",
+				AppContext.getString("mergeCommander") + ": Bas",
+				AppContext.getString("localization") + ": Ticho",
+				AppContext.getString("ai") + ": Michiel",
+				AppContext.getString("developers") + ": Michiel, Bas, Stef, Omar, Ticho",
+				AppContext.getString("moralSupport") + ": Wesley",
+				AppContext.getString("opengl") + ": Omar"
+		};
 
 		final Container creditsContainer = new HorizontalContainer(0);
 
@@ -44,7 +45,7 @@ public final class CreditsLayer extends Layer {
 		}
 
 		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton("Back", () -> {
+		controlContainer.addButton(AppContext.getString("back"), () -> {
 			App.activate(new MainLayer());
 		});
 

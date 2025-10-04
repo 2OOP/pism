@@ -6,6 +6,7 @@ import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.game.TurnBasedGame;
+import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
@@ -34,7 +35,7 @@ public final class MultiplayerLayer<T extends TurnBasedGame> extends Layer {
 
 		final Container mainContainer = new VerticalContainer(5);
 
-		mainContainer.addToggle("Local", "Server", !isConnectionLocal, (server) -> {
+		mainContainer.addToggle(AppContext.getString("local"), AppContext.getString("server"), !isConnectionLocal, (server) -> {
 			isConnectionLocal = !server;
 			reload();
 		});
@@ -54,56 +55,56 @@ public final class MultiplayerLayer<T extends TurnBasedGame> extends Layer {
 		playersContainer.addContainer(player2Container, true);
 
 		if (isConnectionLocal) {
-			mainContainer.addButton("Start", () -> {
+			mainContainer.addButton(AppContext.getString("start"), () -> {
 			});
 		} else {
-			mainContainer.addButton("Connect", () -> {
+			mainContainer.addButton(AppContext.getString("connect"), () -> {
 			});
 		}
 
-		player1Container.addToggle("Human", "Computer", !isPlayer1Human, (computer) -> {
+		player1Container.addToggle(AppContext.getString("human"), AppContext.getString("computer"), !isPlayer1Human, (computer) -> {
 			isPlayer1Human = !computer;
 			reload();
 		});
 
 		if (isPlayer1Human) {
-			player1Container.addText("Player name", true);
+			player1Container.addText(AppContext.getString("playerName"), true);
 			player1Container.addInput(player1Name, (name) -> {
 				player1Name = name;
 			});
 		} else {
-			player1Container.addText("Computer difficulty", true);
+			player1Container.addText(AppContext.getString("computerDifficulty"), true);
 			player1Container.addSlider(5, computer1Difficulty, (difficulty) -> {
 				computer1Difficulty = difficulty;
 			});
 		}
 
 		if (isConnectionLocal) {
-			player2Container.addToggle("Human", "Computer", !isPlayer2Human, (computer) -> {
+			player2Container.addToggle(AppContext.getString("human"), AppContext.getString("computer"), !isPlayer2Human, (computer) -> {
 				isPlayer2Human = !computer;
 				reload();
 			});
 
 			if (isPlayer2Human) {
-				player2Container.addText("Player name", true);
+				player2Container.addText(AppContext.getString("playerName"), true);
 				player2Container.addInput(player2Name, (name) -> {
 					player2Name = name;
 				});
 			} else {
-				player2Container.addText("Computer difficulty", true);
+				player2Container.addText(AppContext.getString("computerDifficulty"), true);
 				player2Container.addSlider(5, computer2Difficulty, (difficulty) -> {
 					computer2Difficulty = difficulty;
 				});
 			}
 		} else {
-			player2Container.addText("Server IP", true);
+			player2Container.addText(AppContext.getString("serverIP"), true);
 			player2Container.addInput(serverIP, (ip) -> {
 				serverIP = ip;
 			});
 
 			player2Container.addSeparator(true);
 
-			player2Container.addText("Server Port", true);
+			player2Container.addText(AppContext.getString("serverPort"), true);
 			player2Container.addInput(serverPort, (port) -> {
 				serverPort = port;
 			});
@@ -111,7 +112,7 @@ public final class MultiplayerLayer<T extends TurnBasedGame> extends Layer {
 
 		final Container controlContainer = new VerticalContainer(5);
 
-		controlContainer.addButton("Back", () -> {
+		controlContainer.addButton(AppContext.getString("back"), () -> {
 			App.activate(new MainLayer());
 		});
 
