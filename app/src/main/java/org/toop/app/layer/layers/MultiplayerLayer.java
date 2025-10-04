@@ -1,21 +1,29 @@
 package org.toop.app.layer.layers;
 
 import org.toop.app.App;
-import org.toop.app.GameType;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.game.TurnBasedGame;
 
 import javafx.geometry.Pos;
 
-public class MultiplayerLayer extends Layer {
-	boolean isConnectionLocal = true;
+public final class MultiplayerLayer<T extends TurnBasedGame> extends Layer {
+	private boolean isConnectionLocal = true;
 
-	boolean isPlayer1Human = true;
-	boolean isPlayer2Human = true;
+	private boolean isPlayer1Human = true;
+	private String player1Name = "";
+	private int computer1Difficulty = 0;
 
-	protected MultiplayerLayer(GameType type) {
+	private boolean isPlayer2Human = true;
+	private String player2Name = "";
+	private int computer2Difficulty = 0;
+
+	private String serverIP = "";
+	private String serverPort = "";
+
+	public MultiplayerLayer() {
 		super("multiplayer.css");
 		reload();
 	}
@@ -49,8 +57,7 @@ public class MultiplayerLayer extends Layer {
 			mainContainer.addButton("Start", () -> {
 			});
 		} else {
-			mainContainer.addButton("Connnect", () -> {
-				App.activate(new GameLayer());
+			mainContainer.addButton("Connect", () -> {
 			});
 		}
 
@@ -60,11 +67,14 @@ public class MultiplayerLayer extends Layer {
 		});
 
 		if (isPlayer1Human) {
-			player1Container.addText("player is human", true);
-			player1Container.addText("input player name here: ...", true);
+			player1Container.addText("Player name", true);
+			player1Container.addInput(player1Name, (name) -> {
+				player1Name = name;
+			});
 		} else {
-			player1Container.addText("Computer depth", true);
-			player1Container.addSlider(9, 2, (depth) -> {
+			player1Container.addText("Computer difficulty", true);
+			player1Container.addSlider(5, computer1Difficulty, (difficulty) -> {
+				computer1Difficulty = difficulty;
 			});
 		}
 
@@ -75,22 +85,27 @@ public class MultiplayerLayer extends Layer {
 			});
 
 			if (isPlayer2Human) {
-				player2Container.addText("player is human", true);
-				player2Container.addText("input player name here: ...", true);
+				player2Container.addText("Player name", true);
+				player2Container.addInput(player2Name, (name) -> {
+					player2Name = name;
+				});
 			} else {
-				player2Container.addText("Computer depth", true);
-				player2Container.addSlider(9, 2, (depth) -> {
+				player2Container.addText("Computer difficulty", true);
+				player2Container.addSlider(5, computer2Difficulty, (difficulty) -> {
+					computer2Difficulty = difficulty;
 				});
 			}
 		} else {
 			player2Container.addText("Server IP", true);
-			player2Container.addInput("", (input) -> {
+			player2Container.addInput(serverIP, (ip) -> {
+				serverIP = ip;
 			});
 
 			player2Container.addSeparator(true);
 
 			player2Container.addText("Server Port", true);
-			player2Container.addInput("", (input) -> {
+			player2Container.addInput(serverPort, (port) -> {
+				serverPort = port;
 			});
 		}
 
