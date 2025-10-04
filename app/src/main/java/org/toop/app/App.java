@@ -11,9 +11,12 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.Stack;
+
 public final class App extends Application {
 	private static Stage stage;
 	private static StackPane root;
+	private static Stack<Layer> stack;
 
 	private static int width;
 	private static int height;
@@ -50,6 +53,7 @@ public final class App extends Application {
 
 		App.stage = stage;
 		App.root = root;
+		App.stack = new Stack<>();
 
 		App.width = (int) stage.getWidth();
 		App.height = (int) stage.getHeight();
@@ -66,10 +70,13 @@ public final class App extends Application {
 
 	public static void push(Layer layer) {
 		root.getChildren().addLast(layer.getLayer());
+		stack.push(layer);
 	}
 
 	public static void pop() {
 		root.getChildren().removeLast();
+		stack.pop();
+
 		isQuitting = false;
 	}
 
@@ -79,6 +86,8 @@ public final class App extends Application {
 		for (int i = 0; i < childrenCount; i++) {
 			root.getChildren().removeLast();
 		}
+
+		stack.removeAllElements();
 	}
 
 	public static void quitPopup() {
@@ -88,6 +97,21 @@ public final class App extends Application {
 
 	public static void quit() {
 		stage.close();
+	}
+
+	public static void reloadAll() {
+		for (final Layer layer : stack) {
+			layer.reload();
+		}
+	}
+
+	public static void setFullscreen(boolean fullscreen) {
+		stage.setFullScreen(fullscreen);
+
+		width = (int) stage.getWidth();
+		height = (int) stage.getHeight();
+
+		reloadAll();
 	}
 
 	public static int getWidth() {

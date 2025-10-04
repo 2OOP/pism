@@ -42,7 +42,7 @@ public final class MainLayer extends Layer {
 			App.quitPopup();
 		});
 
-		addContainer(gamesContainer, Pos.TOP_LEFT, 2, 2, 25, 0);
-		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 25, 0);
+		addContainer(gamesContainer, Pos.TOP_LEFT, 2, 2, 20, 0);
+		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 20, 0);
 	}
 }
