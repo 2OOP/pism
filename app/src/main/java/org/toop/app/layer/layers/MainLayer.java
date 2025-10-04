@@ -35,6 +35,7 @@ public final class MainLayer extends Layer {
 		});
 
 		controlContainer.addButton("Options", () -> {
+			App.activate(new OptionsLayer());
 		});
 
 		controlContainer.addButton("Quit", () -> {
