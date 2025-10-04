@@ -4,6 +4,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 
 public abstract class Menu {
 	protected Pane pane;
@@ -34,7 +36,10 @@ public abstract class Menu {
 
 	public Button createButton(String css, String x, Runnable runnable) {
 		final Button button = new Button(x);
-		button.setOnAction(_ -> runnable.run());
+		button.setOnAction(_ -> {
+			new EventFlow().addPostEvent(new AudioEvents.clickButton()).asyncPostEvent();
+			runnable.run();
+		});
 		button.getStyleClass().add(css);
 
 		return button;

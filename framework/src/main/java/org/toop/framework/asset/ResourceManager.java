@@ -1,5 +1,7 @@
 package org.toop.framework.asset;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.asset.resources.*;
 
 import java.util.*;
@@ -46,6 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ul>
  */
 public class ResourceManager {
+    private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     private static final ResourceManager INSTANCE = new ResourceManager();
     private static final Map<String, ResourceMeta<? extends BaseResource>> assets = new ConcurrentHashMap<>();
 
