@@ -14,7 +14,7 @@
 }
 
 .text, .button, .toggle {
-	-fx-padding: 10;
+	-fx-padding: 5 10 5 10;
 
 	-fx-fill: white;
 	-fx-text-fill: white;
@@ -73,6 +73,38 @@
 
 .slider .thumb {
 	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+}
+
+.choicebox {
+	-fx-alignment: center;
+
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+	-fx-background-insets: 0, 2;
+	-fx-background-radius: 8;
+
+	-fx-border-color: transparent;
+}
+
+.choicebox .label {
+	-fx-text-fill: white;
+	-fx-alignment: center;
+	-fx-padding: 5 10 5 10;
+}
+
+.choicebox .arrow {
+	-fx-background-color: transparent;
+}
+
+.choicebox .context-menu {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+	-fx-background-insets: 0, 2;
+	-fx-background-radius: 5;
+}
+
+.choicebox .menu-item:hover {
+	-fx-cursor: hand;
+
+	-fx-background-color: #ffffff11;
 }
 
 .separator {
