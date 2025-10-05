@@ -27,6 +27,10 @@ public final class TicTacToeLayer extends Layer {
 
 	private final BlockingQueue<Game.Move> playerMoveQueue = new LinkedBlockingQueue<>();
 
+	// Todo: set these from the server
+	private char currentPlayerMove = Game.EMPTY;
+	private String player2Name = "";
+
 	public TicTacToeLayer(GameInformation information) {
 		super("game.css");
 
@@ -40,7 +44,9 @@ public final class TicTacToeLayer extends Layer {
 					}
 				} else {
 					if (ticTacToe.getCurrentTurn() == 0) {
-						// Todo: identify if we are x or o and put in queue
+						if (information.isPlayerHuman()[0] && currentPlayerMove != Game.EMPTY) {
+							playerMoveQueue.put(new Game.Move(cell, currentPlayerMove));
+						}
 					}
 				}
 			} catch (InterruptedException e) {
