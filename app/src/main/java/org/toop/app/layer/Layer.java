@@ -1,6 +1,7 @@
 package org.toop.app.layer;
 
 import org.toop.app.App;
+import org.toop.app.canvas.GameCanvas;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
 
@@ -45,6 +46,18 @@ public abstract class Layer {
 		container.getContainer().setTranslateY(yOffset * heightUnit);
 
 		layer.getChildren().addLast(container.getContainer());
+	}
+
+	protected void addGameCanvas(GameCanvas canvas, Pos position, int xOffset, int yOffset) {
+		StackPane.setAlignment(canvas.getCanvas(), position);
+
+		final double widthUnit = App.getWidth() / 100.0;
+		final double heightUnit = App.getHeight() / 100.0;
+
+		canvas.getCanvas().setTranslateX(xOffset * widthUnit);
+		canvas.getCanvas().setTranslateY(yOffset * heightUnit);
+
+		layer.getChildren().addLast(canvas.getCanvas());
 	}
 
 	protected void pop() {

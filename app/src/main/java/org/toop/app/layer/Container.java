@@ -1,7 +1,8 @@
 package org.toop.app.layer;
 
 import org.toop.app.events.AppEvents;
-import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -42,11 +43,8 @@ public abstract class Container {
 		final Label element = new Label(x);
 		element.getStyleClass().add(cssClass);
 
-		element.setOnMouseEntered(_ -> {
-			GlobalEventBus.post(new AppEvents.OnNodeHover());
-		});
-
 		element.setOnMouseClicked(_ -> {
+			new EventFlow().addPostEvent(new AudioEvents.ClickButton()).asyncPostEvent();
 			runnable.run();
 		});
 
@@ -64,11 +62,8 @@ public abstract class Container {
 
 		final BooleanProperty checked = new SimpleBooleanProperty(toggled);
 
-		element.setOnMouseEntered(_ -> {
-			GlobalEventBus.post(new AppEvents.OnNodeHover());
-		});
-
 		element.setOnMouseClicked(_ -> {
+			new EventFlow().addPostEvent(new AudioEvents.ClickButton()).asyncPostEvent();
 			checked.set(!checked.get());
 
 			if (checked.get()) {
@@ -99,8 +94,8 @@ public abstract class Container {
 		element.setSnapToTicks(true);
 		element.setShowTickLabels(true);
 
-		element.setOnMouseEntered(_ -> {
-			GlobalEventBus.post(new AppEvents.OnNodeHover());
+		element.setOnMouseClicked(_ -> {
+			new EventFlow().addPostEvent(new AudioEvents.ClickButton()).asyncPostEvent();
 		});
 
 		element.valueProperty().addListener((_, _, newValue) -> {
@@ -119,8 +114,8 @@ public abstract class Container {
 		final TextField element = new TextField(input);
 		element.getStyleClass().add(cssClass);
 
-		element.setOnMouseEntered(_ -> {
-			GlobalEventBus.post(new AppEvents.OnNodeHover());
+		element.setOnMouseClicked(_ -> {
+			new EventFlow().addPostEvent(new AudioEvents.ClickButton()).asyncPostEvent();
 		});
 
 		element.textProperty().addListener((_, _, newValue) -> {
@@ -139,8 +134,8 @@ public abstract class Container {
 		final ChoiceBox<T> element = new ChoiceBox<>();
 		element.getStyleClass().add(cssClass);
 
-		element.setOnMouseEntered(_ -> {
-			GlobalEventBus.post(new AppEvents.OnNodeHover());
+		element.setOnMouseClicked(_ -> {
+			new EventFlow().addPostEvent(new AudioEvents.ClickButton()).asyncPostEvent();
 		});
 
 		element.valueProperty().addListener((_, _, newValue) -> {

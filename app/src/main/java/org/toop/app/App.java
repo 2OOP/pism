@@ -5,6 +5,8 @@ import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitLayer;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
 
 import javafx.application.Application;
@@ -61,6 +63,7 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
+		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 		activate(new MainLayer());
 	}
 

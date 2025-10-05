@@ -23,11 +23,11 @@ public final class MainLayer extends Layer {
 		final Container gamesContainer = new VerticalContainer(5);
 
 		gamesContainer.addButton(AppContext.getString("tictactoe"), () -> {
-			App.activate(new MultiplayerLayer<TicTacToe>());
+			App.activate(new MultiplayerLayer());
 		});
 
 		gamesContainer.addButton(AppContext.getString("othello"), () -> {
-			App.activate(new MultiplayerLayer<Othello>());
+			App.activate(new MultiplayerLayer());
 		});
 
 		final Container controlContainer = new VerticalContainer(5);

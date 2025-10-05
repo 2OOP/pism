@@ -1,16 +1,17 @@
 package org.toop.app.layer.layers;
 
 import org.toop.app.App;
+import org.toop.app.GameInformation;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
-import org.toop.game.TurnBasedGame;
+import org.toop.app.layer.layers.game.TicTacToeLayer;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
-public final class MultiplayerLayer<T extends TurnBasedGame> extends Layer {
+public final class MultiplayerLayer extends Layer {
 	private boolean isConnectionLocal = true;
 
 	private boolean isPlayer1Human = true;
@@ -54,13 +55,13 @@ public final class MultiplayerLayer<T extends TurnBasedGame> extends Layer {
 
 		playersContainer.addContainer(player2Container, true);
 
-		if (isConnectionLocal) {
-			mainContainer.addButton(AppContext.getString("start"), () -> {
-			});
-		} else {
-			mainContainer.addButton(AppContext.getString("connect"), () -> {
-			});
-		}
+		mainContainer.addButton(isConnectionLocal? AppContext.getString("start") : AppContext.getString("connect"), () -> {
+			App.activate(new TicTacToeLayer(new GameInformation(
+					new String[] { player1Name, player2Name },
+					new boolean[] { isPlayer1Human, isPlayer2Human },
+					new int[] { computer1Difficulty, computer2Difficulty },
+					isConnectionLocal, serverIP, serverPort)));
+		});
 
 		player1Container.addToggle(AppContext.getString("human"), AppContext.getString("computer"), !isPlayer1Human, (computer) -> {
 			isPlayer1Human = !computer;

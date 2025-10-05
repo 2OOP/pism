@@ -14,7 +14,7 @@ import javafx.scene.control.ChoiceBox;
 import java.util.Locale;
 
 public final class OptionsLayer extends Layer {
-	private static int currentVolume = 25;
+	private static int currentVolume = 0;
 	private static boolean isWindowed = true;
 
 	OptionsLayer() {
@@ -84,7 +84,7 @@ public final class OptionsLayer extends Layer {
 	private void addVolumeSlider(Container container) {
 		container.addSlider(100, currentVolume, (volume) -> {
 			currentVolume = volume;
-			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue() / 100.0)).asyncPostEvent();
+			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue())).asyncPostEvent();
 		});
 	}
 
