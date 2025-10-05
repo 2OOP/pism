@@ -13,16 +13,21 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.toop.framework.asset.resources.SettingsAsset;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.local.AppSettings;
 
+import java.io.File;
 import java.util.Stack;
 
 public final class App extends Application {
 	private static Stage stage;
 	private static StackPane root;
 	private static Stack<Layer> stack;
-
-	private static int width;
-	private static int height;
+    private static int height;
+    private static int width;
+    private static SettingsAsset settingsAsset;
 
 	private static boolean isQuitting;
 
@@ -32,7 +37,14 @@ public final class App extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		final StackPane root = new StackPane();
+
+        App.stage = stage;
+        final StackPane root = new StackPane();
+        App.root = root;
+        App.stack = new Stack<>();
+
+        AppSettings settings = new AppSettings();
+        settings.applySettings();
 
 		final Scene scene = new Scene(root);
 		scene.getStylesheets().add(ResourceManager.get(CssAsset.class, "app.css").getUrl());
@@ -63,7 +75,6 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
-		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 		activate(new MainLayer());
 	}
 

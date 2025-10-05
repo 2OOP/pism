@@ -4,18 +4,28 @@ import org.toop.app.App;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.framework.asset.ResourceManager;
+import org.toop.framework.asset.resources.LocalizationAsset;
+import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ChoiceBox;
+import org.toop.local.AppSettings;
 
 import java.util.Locale;
 
 public final class OptionsLayer extends Layer {
-	private static int currentVolume = 0;
-	private static boolean isWindowed = true;
+	private Locale currentLocale = AppContext.getLocale();
+	private LocalizationAsset locale = ResourceManager.get("localization");
+
+    AppSettings appSettings = new AppSettings();
+    SettingsAsset settings = appSettings.getPath();
+
+	private int currentVolume = settings.getVolume();
+	private boolean isWindowed = !(settings.getFullscreen());
 
 	OptionsLayer() {
 		super("options.css");
@@ -59,6 +69,10 @@ public final class OptionsLayer extends Layer {
 			}
 
 			AppContext.setLocale(locale);
+
+			this.currentLocale = AppContext.getLocale();
+			this.locale = ResourceManager.get("localization");
+
 			App.reloadAll();
 		});
 
@@ -79,12 +93,14 @@ public final class OptionsLayer extends Layer {
 		});
 
 		languageBox.setValue(AppContext.getLocale());
+		languageBox.setValue(currentLocale);
 	}
 
 	private void addVolumeSlider(Container container) {
 		container.addSlider(100, currentVolume, (volume) -> {
 			currentVolume = volume;
-			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue())).asyncPostEvent();
+            settings.setVolume(volume);
+            new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue())).asyncPostEvent();
 		});
 	}
 
@@ -92,6 +108,7 @@ public final class OptionsLayer extends Layer {
 		container.addToggle(AppContext.getString("windowed"), AppContext.getString("fullscreen"), !isWindowed, (fullscreen) -> {
 			isWindowed = !fullscreen;
 			App.setFullscreen(fullscreen);
-		});
+            settings.setFullscreen(fullscreen);
+        });
 	}
 }
