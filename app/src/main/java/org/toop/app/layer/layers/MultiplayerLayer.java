@@ -75,9 +75,8 @@ public final class MultiplayerLayer extends Layer {
 			});
 		} else {
 			player1Container.addText(AppContext.getString("computerDifficulty"), true);
-			player1Container.addSlider(5, computer1Difficulty, (difficulty) -> {
-				computer1Difficulty = difficulty;
-			});
+			player1Container.addSlider(10, computer1Difficulty, (difficulty) ->
+					computer1Difficulty = difficulty);
 		}
 
 		if (isConnectionLocal) {
@@ -93,9 +92,8 @@ public final class MultiplayerLayer extends Layer {
 				});
 			} else {
 				player2Container.addText(AppContext.getString("computerDifficulty"), true);
-				player2Container.addSlider(5, computer2Difficulty, (difficulty) -> {
-					computer2Difficulty = difficulty;
-				});
+				player2Container.addSlider(10, computer2Difficulty, (difficulty) ->
+						computer2Difficulty = difficulty);
 			}
 		} else {
 			player2Container.addText(AppContext.getString("serverIP"), true);

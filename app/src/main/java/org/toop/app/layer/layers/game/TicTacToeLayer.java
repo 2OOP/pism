@@ -7,6 +7,8 @@ import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.MainLayer;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
@@ -63,7 +65,13 @@ public final class TicTacToeLayer extends Layer {
 		if (information.isConnectionLocal()) {
 			new Thread(this::localGameThread).start();
 		} else {
-			new Thread(this::serverGameThread).start();
+			new EventFlow()
+					.addPostEvent(NetworkEvents.StartClient.class,
+							information.serverIP(),
+							Integer.parseInt(information.serverPort()))
+					.onResponse(NetworkEvents.StartClientResponse.class, event ->
+							new Thread(() -> serverGameThread(event)).start())
+					.postEvent();
 		}
 
 		reload();
@@ -126,7 +134,8 @@ public final class TicTacToeLayer extends Layer {
 					return;
 				}
 			} else {
-				move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(5, information.computerDifficulty()[currentPlayer]));
+				move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(10,
+						information.computerDifficulty()[currentPlayer]));
 			}
 
 			if (move == null) {
@@ -153,11 +162,37 @@ public final class TicTacToeLayer extends Layer {
 		}
 	}
 
-	private void serverGameThread() {
+	class OnlineGameState {
+		public long clientId = -1;
+		public long receivedMove = -1;
+	}
+
+	private void serverGameThread(NetworkEvents.StartClientResponse event) {
 		boolean running = true;
+		final long clientId = event.clientId();
+		final OnlineGameState onlineGameState = new OnlineGameState();
+		onlineGameState.clientId = clientId;
+
+		new EventFlow()
+				.listen(NetworkEvents.GameMoveResponse.class,respEvent -> onMoveResponse(onlineGameState, respEvent));
+
+		new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, information.playerName()[0]))
+				.postEvent();
+
+		new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, "tic-tac-toe"))
+				.postEvent();
 
 		while (running) {
 			final int currentPlayer = ticTacToe.getCurrentTurn();
 		}
 	}
+
+	private void onMoveResponse(OnlineGameState ogs, NetworkEvents.GameMoveResponse resp) {
+	}
+
+	private void serverGameThreadResponseHandler(OnlineGameState ogs, NetworkEvents.ChallengeResponse msg) {
+		if (msg.clientId() != ogs.clientId) return;
+		IO.println("Client ID: " + ogs.clientId + " Received Message: " + msg);
+	}
+
 }
