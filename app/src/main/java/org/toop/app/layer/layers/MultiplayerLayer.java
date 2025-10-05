@@ -1,22 +1,31 @@
 package org.toop.app.layer.layers;
 
 import org.toop.app.App;
-import org.toop.app.GameType;
-import org.toop.app.canvas.TicTacToeCanvas;
+import org.toop.app.GameInformation;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.app.layer.layers.game.TicTacToeLayer;
+import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
-public class MultiplayerLayer extends Layer {
-	boolean isConnectionLocal = true;
+public final class MultiplayerLayer extends Layer {
+	private boolean isConnectionLocal = true;
 
-	boolean isPlayer1Human = true;
-	boolean isPlayer2Human = true;
+	private boolean isPlayer1Human = true;
+	private String player1Name = "";
+	private int computer1Difficulty = 0;
 
-	protected MultiplayerLayer(GameType type) {
+	private boolean isPlayer2Human = true;
+	private String player2Name = "";
+	private int computer2Difficulty = 0;
+
+	private String serverIP = "";
+	private String serverPort = "";
+
+	public MultiplayerLayer() {
 		super("multiplayer.css");
 		reload();
 	}
@@ -26,64 +35,87 @@ public class MultiplayerLayer extends Layer {
 		popAll();
 
 		final Container mainContainer = new VerticalContainer(5);
-		mainContainer.addToggle("Local", "Server", !isConnectionLocal, (server) -> {
+
+		mainContainer.addToggle(AppContext.getString("local"), AppContext.getString("server"), !isConnectionLocal, (server) -> {
 			isConnectionLocal = !server;
 			reload();
 		});
 
 		final Container playersContainer = new HorizontalContainer(50);
+
 		mainContainer.addContainer(playersContainer, true);
 
 		final Container player1Container = new VerticalContainer("player_container", 5);
+
 		playersContainer.addContainer(player1Container, true);
 
 		playersContainer.addText("VS", false);
 
 		final Container player2Container = new VerticalContainer("player_container", 5);
+
 		playersContainer.addContainer(player2Container, true);
 
-		if (isConnectionLocal) {
-			mainContainer.addButton("Start", () -> {});
-		} else {
-			mainContainer.addButton("Connnect", () -> { App.activate(new GameLayer()); });
-		}
+		mainContainer.addButton(isConnectionLocal? AppContext.getString("start") : AppContext.getString("connect"), () -> {
+			App.activate(new TicTacToeLayer(new GameInformation(
+					new String[] { player1Name, player2Name },
+					new boolean[] { isPlayer1Human, isPlayer2Human },
+					new int[] { computer1Difficulty, computer2Difficulty },
+					isConnectionLocal, serverIP, serverPort)));
+		});
 
-		player1Container.addToggle("Human", "Computer", !isPlayer1Human, (computer) -> {
+		player1Container.addToggle(AppContext.getString("human"), AppContext.getString("computer"), !isPlayer1Human, (computer) -> {
 			isPlayer1Human = !computer;
 			reload();
 		});
 
 		if (isPlayer1Human) {
-			player1Container.addText("player is human", true);
-			player1Container.addText("input player name here: ...", true);
+			player1Container.addText(AppContext.getString("playerName"), true);
+			player1Container.addInput(player1Name, (name) -> {
+				player1Name = name;
+			});
 		} else {
-			player1Container.addText("playing against ai", true);
-			player1Container.addToggle("Easy", "Hard", false, (hard) -> {});
+			player1Container.addText(AppContext.getString("computerDifficulty"), true);
+			player1Container.addSlider(5, computer1Difficulty, (difficulty) -> {
+				computer1Difficulty = difficulty;
+			});
 		}
 
 		if (isConnectionLocal) {
-			player2Container.addToggle("Human", "Computer", !isPlayer2Human, (computer) -> {
+			player2Container.addToggle(AppContext.getString("human"), AppContext.getString("computer"), !isPlayer2Human, (computer) -> {
 				isPlayer2Human = !computer;
 				reload();
 			});
 
 			if (isPlayer2Human) {
-				player2Container.addText("player is human", true);
-				player2Container.addText("input player name here: ...", true);
+				player2Container.addText(AppContext.getString("playerName"), true);
+				player2Container.addInput(player2Name, (name) -> {
+					player2Name = name;
+				});
 			} else {
-				player2Container.addText("playing against ai", true);
-				player2Container.addToggle("Easy", "Hard", false, (hard) -> {});
+				player2Container.addText(AppContext.getString("computerDifficulty"), true);
+				player2Container.addSlider(5, computer2Difficulty, (difficulty) -> {
+					computer2Difficulty = difficulty;
+				});
 			}
 		} else {
-			player2Container.addText("Server IP", true);
-			player2Container.addInput("", (input) -> {});
+			player2Container.addText(AppContext.getString("serverIP"), true);
+			player2Container.addInput(serverIP, (ip) -> {
+				serverIP = ip;
+			});
 
-			player2Container.addText("Server Port", true);
-			player2Container.addInput("", (input) -> {});
+			player2Container.addSeparator(true);
+
+			player2Container.addText(AppContext.getString("serverPort"), true);
+			player2Container.addInput(serverPort, (port) -> {
+				serverPort = port;
+			});
 		}
 
 		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton("Back", () -> { App.activate(new MainLayer()); });
+
+		controlContainer.addButton(AppContext.getString("back"), () -> {
+			App.activate(new MainLayer());
+		});
 
 		addContainer(mainContainer, Pos.CENTER, 0, 0, 75, 75);
 		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 0, 0);

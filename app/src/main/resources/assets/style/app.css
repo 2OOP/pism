@@ -2,19 +2,17 @@
 	-fx-background-color: linear-gradient(to bottom right, #21a7b2, #8f32b9);
 }
 
-.vertical_container, .horizontal_container {
+.stack_container, .vertical_container, .horizontal_container {
 	-fx-padding: 10;
-
 	-fx-alignment: center;
-	-fx-text-alignment: center;
 
 	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
     -fx-background-insets: 0, 2;
     -fx-background-radius: 5;
 }
 
-.text, .button, .toggle, .input {
-	-fx-padding: 10;
+.text, .button, .toggle {
+	-fx-padding: 5 10 5 10;
 
 	-fx-fill: white;
 	-fx-text-fill: white;
@@ -24,6 +22,7 @@
 	-fx-font-size: 20px;
 
 	-fx-background-color: transparent;
+
 	-fx-border-color: transparent;
 }
 
@@ -36,10 +35,76 @@
 	-fx-effect: dropshadow(gaussian, #007fff, 10, 0.5, 0, 0);
 }
 
+.input {
+	-fx-padding: 10;
+
+	-fx-fill: white;
+	-fx-text-fill: white;
+
+	-fx-font-family: "Segoe UI", sans-serif;
+	-fx-font-weight: bold;
+	-fx-font-size: 20px;
+
+	-fx-background-color: transparent;
+
+	-fx-border-color: #7f7f7f;
+}
+
 .input:focused {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+	-fx-background-insets: 0, 2;
+	-fx-background-radius: 8;
+
 	-fx-border-color: transparent;
+}
+
+.slider {
+	-fx-padding: 10;
+
+	-fx-background-color: transparent;
+}
+
+.slider .track {
+	-fx-background-color: linear-gradient(to right, #00ff00, #ff0000);
+	-fx-background-radius: 2;
+}
+
+.slider .thumb {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+}
+
+.choicebox {
+	-fx-alignment: center;
 
 	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
 	-fx-background-insets: 0, 2;
 	-fx-background-radius: 8;
+
+	-fx-border-color: transparent;
+}
+
+.choicebox .label {
+	-fx-text-fill: white;
+	-fx-alignment: center;
+	-fx-padding: 5 10 5 10;
+}
+
+.choicebox .arrow {
+	-fx-background-color: transparent;
+}
+
+.choicebox .context-menu {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+	-fx-background-insets: 0, 2;
+	-fx-background-radius: 5;
+}
+
+.choicebox .menu-item:hover {
+	-fx-cursor: hand;
+
+	-fx-background-color: #ffffff11;
+}
+
+.separator {
+	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
 }

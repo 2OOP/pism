@@ -37,5 +37,5 @@ public class AudioEvents extends EventsBase {
             return snowflakeId;
         }
     }
-    public record clickButton() implements EventWithoutSnowflake {}
+    public record ClickButton() implements EventWithoutSnowflake {}
 }

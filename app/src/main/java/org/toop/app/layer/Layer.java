@@ -13,20 +13,15 @@ public abstract class Layer {
 	protected StackPane layer;
 	protected Region background;
 
-	protected Layer(String cssFile, String backgroundCssClass) {
+	protected Layer(String cssFile) {
 		layer = new StackPane();
-		layer.setPickOnBounds(false);
-		layer.getStylesheets().add(ResourceManager.get(CssAsset.class, cssFile).getUrl());
+		layer.getStylesheets().add(ResourceManager.<CssAsset>get(cssFile).getUrl());
 
 		background = new Region();
+		background.getStyleClass().add("background");
 		background.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
-		background.getStyleClass().add(backgroundCssClass);
 
 		layer.getChildren().addLast(background);
-	}
-
-	protected Layer(String cssFile) {
-		this(cssFile, "background");
 	}
 
 	protected void addContainer(Container container, Pos position, int xOffset, int yOffset, int widthPercent, int heightPercent) {
@@ -37,11 +32,15 @@ public abstract class Layer {
 
 		if (widthPercent > 0) {
 			container.getContainer().setMaxWidth(widthPercent * widthUnit);
-		} else { container.getContainer().setMaxWidth(Region.USE_PREF_SIZE); }
+		} else {
+			container.getContainer().setMaxWidth(Region.USE_PREF_SIZE);
+		}
 
 		if (heightPercent > 0) {
 			container.getContainer().setMaxHeight(heightPercent * heightUnit);
-		} else { container.getContainer().setMaxHeight(Region.USE_PREF_SIZE); }
+		} else {
+			container.getContainer().setMaxHeight(Region.USE_PREF_SIZE);
+		}
 
 		container.getContainer().setTranslateX(xOffset * widthUnit);
 		container.getContainer().setTranslateY(yOffset * heightUnit);
@@ -49,19 +48,11 @@ public abstract class Layer {
 		layer.getChildren().addLast(container.getContainer());
 	}
 
-	protected void addCanvas(GameCanvas canvas, Pos position, int xOffset, int yOffset, int widthPercent, int heightPercent) {
+	protected void addGameCanvas(GameCanvas canvas, Pos position, int xOffset, int yOffset) {
 		StackPane.setAlignment(canvas.getCanvas(), position);
 
 		final double widthUnit = App.getWidth() / 100.0;
 		final double heightUnit = App.getHeight() / 100.0;
-
-		if (widthPercent > 0) {
-			canvas.getCanvas().setWidth(widthPercent * widthUnit);
-		} else { canvas.getCanvas().setWidth(Region.USE_PREF_SIZE); }
-
-		if (heightPercent > 0) {
-			canvas.getCanvas().setHeight(heightPercent * heightUnit);
-		} else { canvas.getCanvas().setHeight(Region.USE_PREF_SIZE); }
 
 		canvas.getCanvas().setTranslateX(xOffset * widthUnit);
 		canvas.getCanvas().setTranslateY(yOffset * heightUnit);
@@ -85,8 +76,9 @@ public abstract class Layer {
 		}
 	}
 
-	public StackPane getLayer() { return layer; }
-	public Region getBackground() { return background; }
+	public StackPane getLayer() {
+		return layer;
+	}
 
 	public abstract void reload();
 }
