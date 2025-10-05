@@ -84,20 +84,10 @@ public class ResourceManager {
     @SuppressWarnings("unchecked")
     public static <T extends BaseResource> T get(String name) {
         ResourceMeta<T> asset = (ResourceMeta<T>) assets.get(name);
-        if (asset == null) return null;
+        if (asset == null) {
+            throw new TypeNotPresentException(name, new RuntimeException(String.format("Type %s not present", name))); // TODO: Create own exception, BAM
+        }
         return asset.getResource();
-    }
-
-    /**
-     * Retrieve the resource of a given name, cast to the expected type.
-     *
-     * @param name the asset name
-     * @param <T> the expected resource type
-     * @return the resource, or null if not found
-     */
-    @SuppressWarnings("unchecked")
-    public static <T extends BaseResource> T get(Class<T> type, String name) {
-        return type.cast(assets.get(name).getResource());
     }
 
     /**
@@ -132,26 +122,6 @@ public class ResourceManager {
             }
         }
         return null;
-    }
-
-    /**
-     * Retrieve an asset by its name.
-     *
-     * @param name the asset name
-     * @return the asset, or null if not found
-     */
-    public static ResourceMeta<? extends BaseResource> getByName(String name) {
-        return assets.get(name);
-    }
-
-    /**
-     * Attempt to find an asset by name, returning an {@link Optional}.
-     *
-     * @param name the asset name
-     * @return an Optional containing the asset if found
-     */
-    public static Optional<ResourceMeta<? extends BaseResource>> findByName(String name) {
-        return Optional.ofNullable(assets.get(name));
     }
 
     /**
