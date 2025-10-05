@@ -4,8 +4,6 @@ import org.toop.app.App;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.VerticalContainer;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.resources.LocalizationAsset;
 import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
@@ -18,9 +16,6 @@ import org.toop.local.AppSettings;
 import java.util.Locale;
 
 public final class OptionsLayer extends Layer {
-	private Locale currentLocale = AppContext.getLocale();
-	private LocalizationAsset locale = ResourceManager.get("localization");
-
     AppSettings appSettings = new AppSettings();
     SettingsAsset settings = appSettings.getPath();
 
@@ -69,10 +64,6 @@ public final class OptionsLayer extends Layer {
 			}
 
 			AppContext.setLocale(locale);
-
-			this.currentLocale = AppContext.getLocale();
-			this.locale = ResourceManager.get("localization");
-
 			App.reloadAll();
 		});
 
@@ -93,7 +84,6 @@ public final class OptionsLayer extends Layer {
 		});
 
 		languageBox.setValue(AppContext.getLocale());
-		languageBox.setValue(currentLocale);
 	}
 
 	private void addVolumeSlider(Container container) {
