@@ -32,7 +32,17 @@ public final class TicTacToeLayer extends Layer {
 
 		canvas = new TicTacToeCanvas(Color.WHITE, (App.getHeight() / 100) * 75, (App.getHeight() / 100) * 75, (cell) -> {
 			try {
-				playerMoveQueue.put(new Game.Move(cell, 'X'));
+				if (information.isConnectionLocal()) {
+					if (ticTacToe.getCurrentTurn() == 0) {
+						playerMoveQueue.put(new Game.Move(cell, 'X'));
+					} else {
+						playerMoveQueue.put(new Game.Move(cell, 'O'));
+					}
+				} else {
+					if (ticTacToe.getCurrentTurn() == 0) {
+						// Todo: identify if we are x or o and put in queue
+					}
+				}
 			} catch (InterruptedException e) {
 				return;
 			}
@@ -45,6 +55,8 @@ public final class TicTacToeLayer extends Layer {
 
 		if (information.isConnectionLocal()) {
 			new Thread(this::localGameThread).start();
+		} else {
+			new Thread(this::serverGameThread).start();
 		}
 
 		reload();
@@ -91,8 +103,6 @@ public final class TicTacToeLayer extends Layer {
 		while (running) {
 			final int currentPlayer = ticTacToe.getCurrentTurn();
 
-			System.out.println("test");
-
 			Game.Move move = null;
 
 			if (information.isPlayerHuman()[currentPlayer]) {
@@ -102,7 +112,7 @@ public final class TicTacToeLayer extends Layer {
 					return;
 				}
 			} else {
-				move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(9, information.computerDifficulty()[currentPlayer]));
+				move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(5, information.computerDifficulty()[currentPlayer]));
 			}
 
 			assert move != null;
@@ -123,6 +133,14 @@ public final class TicTacToeLayer extends Layer {
 
 				running = false;
 			}
+		}
+	}
+
+	private void serverGameThread() {
+		boolean running = true;
+
+		while (running) {
+			final int currentPlayer = ticTacToe.getCurrentTurn();
 		}
 	}
 }
