@@ -1,7 +1,5 @@
 package org.toop.app.layer.layers.game;
 
-import javafx.geometry.Pos;
-import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.TicTacToeCanvas;
@@ -13,6 +11,9 @@ import org.toop.game.Game;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
 import org.toop.local.AppContext;
+
+import javafx.geometry.Pos;
+import javafx.scene.paint.Color;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -113,7 +114,14 @@ public final class TicTacToeLayer extends Layer {
 
 			if (information.isPlayerHuman()[currentPlayer]) {
 				try {
-					move = playerMoveQueue.take();
+					final Game.Move wants = playerMoveQueue.take();
+					final Game.Move[] legalMoves = ticTacToe.getLegalMoves();
+
+					for (final Game.Move legalMove : legalMoves) {
+						if (legalMove.position() == wants.position() && legalMove.value() == wants.value()) {
+							move = wants;
+						}
+					}
 				} catch (InterruptedException exception) {
 					return;
 				}
@@ -121,7 +129,10 @@ public final class TicTacToeLayer extends Layer {
 				move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(5, information.computerDifficulty()[currentPlayer]));
 			}
 
-			assert move != null;
+			if (move == null) {
+				continue;
+			}
+
 			final Game.State state = ticTacToe.play(move);
 
 			if (move.value() == 'X') {
