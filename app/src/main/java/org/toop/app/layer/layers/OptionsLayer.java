@@ -64,6 +64,7 @@ public final class OptionsLayer extends Layer {
 			}
 
 			AppContext.setLocale(locale);
+			settings.setLocale(locale.toString());
 			App.reloadAll();
 		});
 

@@ -13,12 +13,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.toop.framework.asset.resources.SettingsAsset;
-import org.toop.framework.audio.events.AudioEvents;
-import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppSettings;
 
-import java.io.File;
 import java.util.Stack;
 
 public final class App extends Application {
@@ -27,7 +23,6 @@ public final class App extends Application {
 	private static Stack<Layer> stack;
     private static int height;
     private static int width;
-    private static SettingsAsset settingsAsset;
 
 	private static boolean isQuitting;
 
@@ -75,6 +70,7 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
+		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 		activate(new MainLayer());
 	}
 
