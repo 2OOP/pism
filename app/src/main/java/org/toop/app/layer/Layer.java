@@ -15,7 +15,7 @@ public abstract class Layer {
 
 	protected Layer(String cssFile) {
 		layer = new StackPane();
-		layer.getStylesheets().add(ResourceManager.get(CssAsset.class, cssFile).getUrl());
+		layer.getStylesheets().add(ResourceManager.<CssAsset>get(cssFile).getUrl());
 
 		background = new Region();
 		background.getStyleClass().add("background");
