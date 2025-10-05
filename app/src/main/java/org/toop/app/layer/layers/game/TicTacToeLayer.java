@@ -19,6 +19,8 @@ import javafx.scene.paint.Color;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 public final class TicTacToeLayer extends Layer {
 	private TicTacToeCanvas canvas;
@@ -165,8 +167,10 @@ public final class TicTacToeLayer extends Layer {
 	class OnlineGameState {
 		public long clientId = -1;
 		public long receivedMove = -1;
+        public boolean firstPlayerIsMe = true;
 	}
-
+    AtomicBoolean firstPlayerIsMe = new AtomicBoolean(true);
+    AtomicBoolean gameHasStarted = new AtomicBoolean(false);
 	private void serverGameThread(NetworkEvents.StartClientResponse event) {
 		boolean running = true;
 		final long clientId = event.clientId();
@@ -176,19 +180,115 @@ public final class TicTacToeLayer extends Layer {
 		new EventFlow()
 				.listen(NetworkEvents.GameMoveResponse.class,respEvent -> onMoveResponse(onlineGameState, respEvent));
 
+        new EventFlow()
+                .listen(this::yourTurnResponse)
+                .listen(this::handleChallengeResponse)
+                .listen(this::handleServerGameStart)
+                .listen(this::handleReceivedMessage);
+
 		new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, information.playerName()[0]))
 				.postEvent();
 
 		new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, "tic-tac-toe"))
 				.postEvent();
 
+        new EventFlow().addPostEvent(new NetworkEvents.SendCommand(clientId, "message hello-world"))
+                .postEvent();
+
 		while (running) {
-			final int currentPlayer = ticTacToe.getCurrentTurn();
+            boolean hasStarted = gameHasStarted.get();
+            if (hasStarted) {
+                onlineGameState.firstPlayerIsMe = firstPlayerIsMe.get();
+                if (onlineGameState.firstPlayerIsMe) {
+                    currentPlayerMove = 'X';
+                }
+                else {
+                    currentPlayerMove = 'O';
+                }
+                if(!information.isPlayerHuman()[0]){
+                    if (onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn()%2 == 0 || !onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn()%2 == 1) {
+                        Game.Move move;
+                        move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(10, 10));
+                        new EventFlow().addPostEvent(new NetworkEvents.SendMove(clientId, (short) move.position()))
+                                .postEvent();
+                        final Game.State state = ticTacToe.play(move);
+                        drawSymbol(move);
+                        if (Game.State.NORMAL != state) {
+                            System.out.println("Win Or Draw");//todo
+                            running = false;
+                        }
+                    }
+                }
+                else {
+                    try {
+                        final Game.Move wants = playerMoveQueue.take();
+                        final Game.Move[] legalMoves = ticTacToe.getLegalMoves();
+                        Game.State state = Game.State.NORMAL;
+                        for (final Game.Move legalMove : legalMoves) {
+                            if (legalMove.position() == wants.position() && legalMove.value() == wants.value()) {
+                                state = ticTacToe.play(wants);
+                                new EventFlow().addPostEvent(new NetworkEvents.SendMove(clientId, (short) wants.position()))
+                                        .postEvent();
+                                drawSymbol(wants);
+                                break;
+                            }
+                        }
+
+                        if(Game.State.NORMAL != state){
+                            System.out.println("Win Or Draw");
+                            running = false;
+                        }
+                    } catch (InterruptedException exception) {
+                        return;
+                    }
+                }
+            }
 		}
 	}
+    private void drawSymbol(Game.Move move){
+        if (move.value() == 'X') {
+            canvas.drawX(Color.RED, move.position());
+        } else if (move.value() == 'O') {
+            canvas.drawO(Color.BLUE, move.position());
+        }
+    }
+
+    private void handleServerGameStart(NetworkEvents.GameMatchResponse resp) {
+        if(resp.playerToMove().equals(resp.opponent())){
+            firstPlayerIsMe.set(false);
+        }
+        else{
+            firstPlayerIsMe.set(true);
+        }
+        gameHasStarted.set(true);
+    }
 
 	private void onMoveResponse(OnlineGameState ogs, NetworkEvents.GameMoveResponse resp) {
+        ogs.receivedMove = Long.parseLong(resp.move());
+        char opponentChar;
+        if (firstPlayerIsMe.get()) {
+            opponentChar = 'O';
+        }
+        else {
+            opponentChar = 'X';
+        }
+        ticTacToe.play(new Game.Move(Integer.parseInt(resp.move()),opponentChar));
 	}
+
+    private void handleChallengeResponse(NetworkEvents.ChallengeResponse resp) {
+        new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(resp.clientId(),Integer.parseInt(resp.challengeId())))
+                .postEvent();
+    }
+
+    private void yourTurnResponse(NetworkEvents.YourTurnResponse response) {
+
+        //new EventFlow().addPostEvent(new NetworkEvents.SendCommand(response.clientId(),"CHALLENGE banaan tic-tac-toe")).postEvent();
+        //new EventFlow().addPostEvent(new NetworkEvents.SendMove(response.clientId(),(short)2))
+        //        .postEvent();
+    }
+    private void handleReceivedMessage(NetworkEvents.ReceivedMessage msg) {
+        System.out.println("Received Message: " + msg.message()); //todo add chat window
+    }
 
 	private void serverGameThreadResponseHandler(OnlineGameState ogs, NetworkEvents.ChallengeResponse msg) {
 		if (msg.clientId() != ogs.clientId) return;

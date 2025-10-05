@@ -48,10 +48,7 @@ public class Match {
     private void handleYourTurn(NetworkEvents.YourTurnResponse response) {
         //System.out.println(response.toString());
         //new EventFlow().addPostEvent(NetworkEvents.SendMove.class, clientId,(short)1).asyncPostEvent();
-        try{
-            sleep(2000);
-        }
-        catch (InterruptedException e){}
+
         new EventFlow().addPostEvent(NetworkEvents.SendCommand.class, clientId,"MOVE 2").asyncPostEvent();
     }
 

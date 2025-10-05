@@ -41,7 +41,7 @@ public class NetworkEvents extends EventsBase {
 
     /** Response indicating a challenge was received. */
     public record ChallengeResponse(
-            long clientId, String challengerName, String gameType, String challengeId)
+            long clientId, String challengerName, String challengeId, String gameType)
             implements EventWithoutSnowflake {}
 
     /** Response containing a list of players for a client. */

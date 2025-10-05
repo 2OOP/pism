@@ -11,6 +11,9 @@ import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public final class MultiplayerLayer extends Layer {
 	private boolean isConnectionLocal = true;
 
@@ -60,7 +63,8 @@ public final class MultiplayerLayer extends Layer {
 					new String[] { player1Name, player2Name },
 					new boolean[] { isPlayer1Human, isPlayer2Human },
 					new int[] { computer1Difficulty, computer2Difficulty },
-					isConnectionLocal, serverIP, serverPort)));
+					isConnectionLocal, "127.0.0.1", "7789")));
+                    // serverIP, serverPort)));
 		});
 
 		player1Container.addToggle(AppContext.getString("human"), AppContext.getString("computer"), !isPlayer1Human, (computer) -> {
@@ -74,6 +78,7 @@ public final class MultiplayerLayer extends Layer {
 				player1Name = name;
 			});
 		} else {
+            player1Name = "PismBot" + LocalDateTime.now().getSecond();
 			player1Container.addText(AppContext.getString("computerDifficulty"), true);
 			player1Container.addSlider(10, computer1Difficulty, (difficulty) ->
 					computer1Difficulty = difficulty);
