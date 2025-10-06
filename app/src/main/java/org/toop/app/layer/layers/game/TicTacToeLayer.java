@@ -96,12 +96,6 @@ public final class TicTacToeLayer extends Layer {
 		}
 
 		final Container controlContainer = new VerticalContainer(5);
-
-		if (information.isPlayerHuman()[0] || information.isConnectionLocal() && information.isPlayerHuman()[1]) {
-			controlContainer.addButton(AppContext.getString("hint"), () -> {
-			});
-		}
-
 		controlContainer.addButton(AppContext.getString("back"), () -> {
 			App.activate(new MainLayer());
 		});

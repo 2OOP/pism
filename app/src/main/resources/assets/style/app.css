@@ -1,110 +1,244 @@
+/* ─────────────────────────────
+   Root Background
+───────────────────────────── */
 .background {
-	-fx-background-color: linear-gradient(to bottom right, #21a7b2, #8f32b9);
+	/* Layout */
+
+	/* Visual */
+	-fx-background-color: linear-gradient(to bottom right, #3f51b5, #2196f3);
+
+	/* Text */
+
+	/* Effects */
 }
 
-.stack_container, .vertical_container, .horizontal_container {
-	-fx-padding: 10;
+/* ─────────────────────────────
+   Containers
+───────────────────────────── */
+.stack_container,
+.vertical_container,
+.horizontal_container {
+	/* Layout */
+	-fx-padding: 12;
 	-fx-alignment: center;
 
-	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
-    -fx-background-insets: 0, 2;
-    -fx-background-radius: 5;
+	/* Visual */
+	-fx-background-color: linear-gradient(to bottom right, #4a4e91, #3a3f76);
+	-fx-background-radius: 8;
+
+	/* Text */
+
+	/* Effects */
+	-fx-effect: dropshadow(gaussian, #00000033, 12, 0.3, 0, 4);
 }
 
-.text, .button, .toggle {
-	-fx-padding: 5 10 5 10;
+/* ─────────────────────────────
+   Text Elements (Labels, Headings)
+───────────────────────────── */
+.text {
+	/* Layout */
+	-fx-padding: 4 8;
 
-	-fx-fill: white;
-	-fx-text-fill: white;
+	/* Visual */
 
-	-fx-font-family: "Segoe UI", sans-serif;
-	-fx-font-weight: bold;
-	-fx-font-size: 20px;
+	/* Text */
+	-fx-font-family: "Arial";
+	-fx-font-size: 16px;
+	-fx-fill: #ffffff;
 
-	-fx-background-color: transparent;
+	/* Effects */
+}
 
+/* ─────────────────────────────
+   Buttons and Toggles
+───────────────────────────── */
+.button,
+.toggle {
+	/* Layout */
+	-fx-padding: 8 16;
+
+	/* Visual */
+	-fx-background-color: #5c6bc0;
+	-fx-background-radius: 6;
 	-fx-border-color: transparent;
-}
 
-.button:hover, .toggle:hover {
+	/* Text */
+	-fx-text-fill: #ffffff;
+
+	/* Effects */
+	-fx-effect: dropshadow(gaussian, #00000033, 2, 0.1, 0, 1);
 	-fx-cursor: hand;
-
-	-fx-scale-x: 1.1;
-	-fx-scale-y: 1.1;
-
-	-fx-effect: dropshadow(gaussian, #007fff, 10, 0.5, 0, 0);
+	-fx-transition: all 0.2s ease-in-out;
 }
 
+.button:hover,
+.toggle:hover {
+	/* Layout */
+
+	/* Visual */
+	-fx-background-color: #7986cb;
+
+	/* Text */
+
+	/* Effects */
+	-fx-scale-x: 1.05;
+	-fx-scale-y: 1.05;
+	-fx-effect: dropshadow(gaussian, #90caf9, 8, 0.3, 0, 0);
+}
+
+/* ─────────────────────────────
+   Input Fields
+───────────────────────────── */
 .input {
-	-fx-padding: 10;
+	/* Layout */
+	-fx-padding: 8;
 
-	-fx-fill: white;
-	-fx-text-fill: white;
+	/* Visual */
+	-fx-background-color: #3f3f5a;
+	-fx-background-radius: 6;
+	-fx-border-color: #9fa8da;
+	-fx-border-radius: 6;
 
-	-fx-font-family: "Segoe UI", sans-serif;
-	-fx-font-weight: bold;
-	-fx-font-size: 20px;
+	/* Text */
+	-fx-text-fill: #ffffff;
 
-	-fx-background-color: transparent;
-
-	-fx-border-color: #7f7f7f;
+	/* Effects */
+	-fx-cursor: text;
 }
 
 .input:focused {
-	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
-	-fx-background-insets: 0, 2;
-	-fx-background-radius: 8;
+	/* Layout */
 
-	-fx-border-color: transparent;
+	/* Visual */
+	-fx-background-color: #5c6bc0;
+	-fx-border-color: #ffffff;
+	-fx-border-width: 2;
+
+	/* Text */
+
+	/* Effects */
 }
 
+/* ─────────────────────────────
+   Sliders
+───────────────────────────── */
 .slider {
+	/* Layout */
 	-fx-padding: 10;
 
+	/* Visual */
 	-fx-background-color: transparent;
+
+	/* Text */
+
+	/* Effects */
 }
 
 .slider .track {
-	-fx-background-color: linear-gradient(to right, #00ff00, #ff0000);
+	/* Layout */
+
+	/* Visual */
+	-fx-background-color: linear-gradient(to right, #76ff03, #ff5252);
 	-fx-background-radius: 2;
+	-fx-pref-height: 6;
+
+	/* Text */
+
+	/* Effects */
 }
 
 .slider .thumb {
-	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+	/* Layout */
+
+	/* Visual */
+	-fx-background-color: #ffffff;
+	-fx-background-radius: 50%;
+
+	/* Text */
+
+	/* Effects */
+	-fx-effect: dropshadow(gaussian, #0000004d, 4, 0.2, 0, 1);
+	-fx-cursor: hand;
 }
 
+/* ─────────────────────────────
+   ChoiceBox
+───────────────────────────── */
 .choicebox {
+	/* Layout */
 	-fx-alignment: center;
 
-	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
-	-fx-background-insets: 0, 2;
-	-fx-background-radius: 8;
-
+	/* Visual */
+	-fx-background-color: #5c6bc0;
+	-fx-background-radius: 6;
 	-fx-border-color: transparent;
+
+	/* Text */
+
+	/* Effects */
+	-fx-cursor: hand;
 }
 
 .choicebox .label {
-	-fx-text-fill: white;
-	-fx-alignment: center;
-	-fx-padding: 5 10 5 10;
+	/* Layout */
+	-fx-padding: 6 12;
+
+	/* Visual */
+
+	/* Text */
+	-fx-text-fill: #ffffff;
+
+	/* Effects */
 }
 
 .choicebox .arrow {
-	-fx-background-color: transparent;
+	/* Layout */
+
+	/* Visual */
+	-fx-background-color: #ffffff;
+
+	/* Text */
+
+	/* Effects */
 }
 
 .choicebox .context-menu {
-	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
-	-fx-background-insets: 0, 2;
-	-fx-background-radius: 5;
+	/* Layout */
+
+	/* Visual */
+	-fx-background-color: #3f3f5a;
+	-fx-background-radius: 6;
+
+	/* Text */
+
+	/* Effects */
 }
 
 .choicebox .menu-item:hover {
-	-fx-cursor: hand;
+	/* Layout */
 
-	-fx-background-color: #ffffff11;
+	/* Visual */
+	-fx-background-color: #7986cb;
+
+	/* Text */
+
+	/* Effects */
+	-fx-cursor: hand;
 }
 
+/* ─────────────────────────────
+   Separator
+───────────────────────────── */
 .separator {
-	-fx-background-color: linear-gradient(to bottom right, orange, indigo), #1d1d1d;
+	/* Layout */
+	-fx-padding: 8 0;
+	-fx-border-insets: 4 0 4 0;
+
+	/* Visual */
+	-fx-border-color: #ffffff55;
+	-fx-border-width: 0 0 1 0;
+
+	/* Text */
+
+	/* Effects */
 }
