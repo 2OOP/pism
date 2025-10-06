@@ -93,7 +93,11 @@ public final class App extends Application {
 		final int childrenCount = root.getChildren().size();
 
 		for (int i = 0; i < childrenCount; i++) {
-			root.getChildren().removeLast();
+            try {
+                root.getChildren().removeLast();
+            } catch (Exception e) {
+                IO.println(e);
+            }
 		}
 
 		stack.removeAllElements();
