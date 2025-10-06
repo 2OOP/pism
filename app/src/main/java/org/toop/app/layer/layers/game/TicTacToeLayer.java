@@ -75,8 +75,11 @@ public final class TicTacToeLayer extends Layer {
 					.addPostEvent(NetworkEvents.StartClient.class,
 							information.serverIP(),
 							Integer.parseInt(information.serverPort()))
-					.onResponse(NetworkEvents.StartClientResponse.class, event ->
-							new Thread(() -> serverGameThread(event)).start())
+					.onResponse(NetworkEvents.StartClientResponse.class, event -> {
+                        Thread a = new Thread(() -> serverGameThread(event));
+                        a.setDaemon(false);
+                        a.start();
+                    })
 					.postEvent();
 		}
 
