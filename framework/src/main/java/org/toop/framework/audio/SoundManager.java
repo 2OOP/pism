@@ -75,6 +75,20 @@ public class SoundManager {
         for (MediaPlayer mediaPlayer : this.activeMusic) {
             mediaPlayer.setVolume(this.volume);
         }
+        for (Clip clip : this.activeSoundEffects.values()){
+            updateClipVolume(clip);
+        }
+    }
+
+    private void updateClipVolume(Clip clip){
+        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)){
+            FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float min = volumeControl.getMinimum();
+            float max = volumeControl.getMaximum();
+            float dB = (float) (Math.log10(Math.max(volume, 0.0001)) * 20.0); // convert linear to dB
+            dB = Math.max(min, Math.min(max, dB));
+            volumeControl.setValue(dB);
+        }
     }
 
     private void handleGetCurrentVolume(AudioEvents.GetCurrentVolume event) {
@@ -143,6 +157,9 @@ public class SoundManager {
 
         // Get a new clip from resource
         Clip clip = asset.getNewClip();
+
+        // Set volume of clip
+        updateClipVolume(clip);
 
         // If supposed to loop make it loop, else just start it once
         if (loop) {
