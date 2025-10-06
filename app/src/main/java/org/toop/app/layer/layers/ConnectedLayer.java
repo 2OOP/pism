@@ -80,7 +80,7 @@ public final class ConnectedLayer extends Layer {
 		for (int i = 0; i < onlinePlayers.size(); i++) {
             int finalI = i;
             players.getItems().add(NodeBuilder.button(onlinePlayers.get(i), () -> {
-                var clickedPlayer = onlinePlayers.get(finalI);
+                String clickedPlayer = onlinePlayers.get(finalI);
                 sendChallenge(clickedPlayer, "tic-tac-toe");
 			}));
 		}
