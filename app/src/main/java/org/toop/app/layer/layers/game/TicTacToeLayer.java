@@ -48,11 +48,9 @@ public final class TicTacToeLayer extends Layer {
 						playerMoveQueue.put(new Game.Move(cell, 'O'));
 					}
 				} else {
-					if (ticTacToe.getCurrentTurn() == 0) {
-						if (information.isPlayerHuman()[0] && currentPlayerMove != Game.EMPTY) {
-							playerMoveQueue.put(new Game.Move(cell, currentPlayerMove));
-						}
-					}
+                    if (information.isPlayerHuman()[0] && currentPlayerMove != Game.EMPTY) {
+                        playerMoveQueue.put(new Game.Move(cell, currentPlayerMove));
+                    }
 				}
 			} catch (InterruptedException e) {
 				return;
@@ -228,6 +226,7 @@ public final class TicTacToeLayer extends Layer {
                             }
                         }
                     } catch (InterruptedException exception) {
+                        System.out.println(exception.getMessage());
                         return;
                     }
                 }
