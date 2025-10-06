@@ -38,6 +38,9 @@ public final class OptionsPopup extends Popup {
 		final var volumeHeader = NodeBuilder.header(AppContext.getString("volume"));
 		final var volumeSeparator = NodeBuilder.separator();
 
+        final var fxVolumeHeader = NodeBuilder.header(AppContext.getString("fxVolume"));
+        final var fxVolumeSeparator = NodeBuilder.separator();
+
 		final var themeHeader = NodeBuilder.header(AppContext.getString("theme"));
 		final var themeSeparator = NodeBuilder.separator();
 
@@ -47,6 +50,7 @@ public final class OptionsPopup extends Popup {
 		final var optionsContainer = new VerticalContainer(5);
 		optionsContainer.addNodes(languageHeader, languageChoiceBox(), languageSeparator);
 		optionsContainer.addNodes(volumeHeader, volumeSlider(), volumeSeparator);
+        optionsContainer.addNodes(fxVolumeHeader, fxVolumeSlider(), fxVolumeSeparator);
 		optionsContainer.addNodes(themeHeader, themeChoiceBox(), themeSeparator);
 		optionsContainer.addNodes(layoutSizeHeader, layoutSizeChoiceBox(), layoutSizeSeparator);
 		optionsContainer.addNodes(fullscreenToggle());
@@ -103,6 +107,14 @@ public final class OptionsPopup extends Popup {
 			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue())).asyncPostEvent();
 		});
 	}
+
+    private Slider fxVolumeSlider() {
+        return NodeBuilder.slider(100, settings.getFxVolume(), (volume) -> {
+            settings.setFxVolume(volume);
+            new EventFlow().addPostEvent(new AudioEvents.ChangeFxVolume(volume.doubleValue())).asyncPostEvent();
+        });
+    }
+
 
 	private Label fullscreenToggle() {
 		return NodeBuilder.toggle(AppContext.getString("windowed"), AppContext.getString("fullscreen"), !isWindowed, (fullscreen) -> {

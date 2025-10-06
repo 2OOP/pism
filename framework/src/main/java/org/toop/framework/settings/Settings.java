@@ -6,4 +6,5 @@ public class Settings {
 	public String theme = "dark";
 	public String layoutSize = "medium";
     public int volume = 15;
+    public int fxVolume = 20;
 }

@@ -25,6 +25,7 @@ public class SoundManager {
     private final SnowflakeGenerator idGenerator = new SnowflakeGenerator(); // TODO: Don't create a new generator
 
     private double volume = 1.0;
+    private double fxVolume = 1.0;
 
     public SoundManager() {
         // Get all Audio Resources and add them to a list.
@@ -40,7 +41,9 @@ public class SoundManager {
                 .listen(this::handleStopSound)
                 .listen(this::handleMusicStart)
                 .listen(this::handleVolumeChange)
+                .listen(this::handleFxVolumeChange)
                 .listen(this::handleGetCurrentVolume)
+                .listen(this::handleGetCurrentFxVolume)
                 .listen(AudioEvents.ClickButton.class, _ -> {
                     try {
                         playSound("medium-button-click.wav", false);
@@ -68,13 +71,20 @@ public class SoundManager {
         this.audioResources.put(audioAsset.getName(), audioAsset.getResource());
     }
 
+    private double limitVolume(double volume) {
+        if (volume > 1.0) return 1.0;
+        else return Math.max(volume, 0.0);
+    }
+
     private void handleVolumeChange(AudioEvents.ChangeVolume event) {
-        double newVolume = event.newVolume() / 100;
-        if (newVolume > 1.0) this.volume = 1.0;
-        else this.volume = Math.max(newVolume, 0.0);
+        this.volume = limitVolume(event.newVolume() / 100);
         for (MediaPlayer mediaPlayer : this.activeMusic) {
             mediaPlayer.setVolume(this.volume);
         }
+    }
+
+    private void handleFxVolumeChange(AudioEvents.ChangeFxVolume event) {
+        this.fxVolume = limitVolume(event.newVolume() / 100);
         for (Clip clip : this.activeSoundEffects.values()){
             updateClipVolume(clip);
         }
@@ -85,14 +95,19 @@ public class SoundManager {
             FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             float min = volumeControl.getMinimum();
             float max = volumeControl.getMaximum();
-            float dB = (float) (Math.log10(Math.max(volume, 0.0001)) * 20.0); // convert linear to dB
+            float dB = (float) (Math.log10(Math.max(fxVolume, 0.0001)) * 20.0); // convert linear to dB
             dB = Math.max(min, Math.min(max, dB));
             volumeControl.setValue(dB);
         }
     }
 
     private void handleGetCurrentVolume(AudioEvents.GetCurrentVolume event) {
-        new EventFlow().addPostEvent(new AudioEvents.GetCurrentVolumeReponse(volume * 100, event.snowflakeId()))
+        new EventFlow().addPostEvent(new AudioEvents.GetCurrentVolumeResponse(volume * 100, event.snowflakeId()))
+                .asyncPostEvent();
+    }
+
+    private void handleGetCurrentFxVolume(AudioEvents.GetCurrentFxVolume event) {
+        new EventFlow().addPostEvent(new AudioEvents.GetCurrentFxVolumeResponse(fxVolume * 100, event.snowflakeId()))
                 .asyncPostEvent();
     }
 

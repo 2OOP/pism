@@ -15,6 +15,7 @@ public class AudioEvents extends EventsBase {
 
     public record StartBackgroundMusic() implements EventWithoutSnowflake {}
     public record ChangeVolume(double newVolume) implements EventWithoutSnowflake {}
+    public record ChangeFxVolume(double newVolume) implements EventWithoutSnowflake {}
     public record GetCurrentVolume(long snowflakeId) implements EventWithSnowflake {
         @Override
         public Map<String, Object> result() {
@@ -26,7 +27,7 @@ public class AudioEvents extends EventsBase {
             return snowflakeId;
         }
     }
-    public record GetCurrentVolumeReponse(double currentVolume, long snowflakeId) implements EventWithSnowflake {
+    public record GetCurrentVolumeResponse(double currentVolume, long snowflakeId) implements EventWithSnowflake {
         @Override
         public Map<String, Object> result() {
             return Map.of();
@@ -37,5 +38,30 @@ public class AudioEvents extends EventsBase {
             return snowflakeId;
         }
     }
+
+    public record GetCurrentFxVolume(long snowflakeId) implements EventWithSnowflake {
+        @Override
+        public Map<String, Object> result() {
+            return Map.of();
+        }
+
+        @Override
+        public long eventSnowflake() {
+            return this.snowflakeId;
+        }
+    }
+
+    public record GetCurrentFxVolumeResponse(double currentVolume, long snowflakeId) implements EventWithSnowflake {
+        @Override
+        public Map<String, Object> result() {
+            return Map.of();
+        }
+
+        @Override
+        public long eventSnowflake() {
+            return this.snowflakeId;
+        }
+    }
+
     public record ClickButton() implements EventWithoutSnowflake {}
 }
