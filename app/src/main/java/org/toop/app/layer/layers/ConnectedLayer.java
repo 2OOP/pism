@@ -31,7 +31,9 @@ public final class ConnectedLayer extends Layer {
 		new EventFlow().addPostEvent(new NetworkEvents.SendLogin(this.clientId, this.user)).postEvent();
 		new EventFlow().listen(this::handleReceivedChallenge);
 
-		new Thread(this::populatePlayerList).start();
+		Thread popThread = new Thread(this::populatePlayerList);
+        popThread.setDaemon(false);
+        popThread.start();
 
         reload();
 	}
@@ -57,7 +59,7 @@ public final class ConnectedLayer extends Layer {
 		};
 
 		Timer pollTimer = new Timer();
-		pollTimer.schedule(task, 0L, 5000L);
+		pollTimer.schedule(task, 0L, 5000L); // TODO: Block app exit, fix later
 	}
 
 	private void sendChallenge(String oppUsername, String gameType) {
