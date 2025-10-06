@@ -2,7 +2,7 @@ package org.toop.app;
 
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.layers.MainLayer;
-import org.toop.app.layer.layers.QuitLayer;
+import org.toop.app.layer.layers.QuitPopup;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
 import org.toop.framework.audio.events.AudioEvents;
@@ -19,7 +19,9 @@ import java.util.Stack;
 
 public final class App extends Application {
 	private static Stage stage;
+	private static Scene scene;
 	private static StackPane root;
+
 	private static Stack<Layer> stack;
     private static int height;
     private static int width;
@@ -32,17 +34,8 @@ public final class App extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-
-        App.stage = stage;
         final StackPane root = new StackPane();
-        App.root = root;
-        App.stack = new Stack<>();
-
-        AppSettings settings = new AppSettings();
-        settings.applySettings();
-
 		final Scene scene = new Scene(root);
-		scene.getStylesheets().add(ResourceManager.<CssAsset>get("app.css").getUrl());
 
 		stage.setTitle(AppContext.getString("appTitle"));
 		stage.setWidth(1080);
@@ -62,13 +55,18 @@ public final class App extends Application {
 		stage.show();
 
 		App.stage = stage;
+		App.scene = scene;
 		App.root = root;
+
 		App.stack = new Stack<>();
 
 		App.width = (int) stage.getWidth();
 		App.height = (int) stage.getHeight();
 
 		App.isQuitting = false;
+
+		final AppSettings settings = new AppSettings();
+		settings.applySettings();
 
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 		activate(new MainLayer());
@@ -102,7 +100,7 @@ public final class App extends Application {
 	}
 
 	public static void quitPopup() {
-		push(new QuitLayer());
+		push(new QuitPopup());
 		isQuitting = true;
 	}
 
@@ -123,6 +121,19 @@ public final class App extends Application {
 
 		width = (int) stage.getWidth();
 		height = (int) stage.getHeight();
+
+		reloadAll();
+	}
+
+	public static void setStyle(String theme, String layoutSize) {
+		final int stylesCount = scene.getStylesheets().size();
+
+		for (int i = 0; i < stylesCount; i++) {
+			scene.getStylesheets().removeLast();
+		}
+
+		scene.getStylesheets().add(ResourceManager.<CssAsset>get(theme + ".css").getUrl());
+		scene.getStylesheets().add(ResourceManager.<CssAsset>get(layoutSize + ".css").getUrl());
 
 		reloadAll();
 	}

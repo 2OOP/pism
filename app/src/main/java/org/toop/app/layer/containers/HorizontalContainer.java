@@ -11,13 +11,13 @@ import javafx.scene.layout.Region;
 public final class HorizontalContainer extends Container {
 	private final HBox container;
 
-	public HorizontalContainer(String cssClass, int spacing) {
+	public HorizontalContainer(int spacing, String... cssClasses) {
 		container = new HBox(spacing);
-		container.getStyleClass().add(cssClass);
+		container.getStyleClass().addAll(cssClasses);
 	}
 
 	public HorizontalContainer(int spacing) {
-		this("horizontal_container", spacing);
+		this(spacing, "container");
 	}
 
 	@Override
@@ -26,8 +26,8 @@ public final class HorizontalContainer extends Container {
 	}
 
 	@Override
-	public void addNode(Node node) {
-		container.getChildren().addLast(node);
+	public void addNodes(Node... nodes) {
+		container.getChildren().addAll(nodes);
 	}
 
 	@Override

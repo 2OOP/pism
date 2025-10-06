@@ -2,7 +2,8 @@ package org.toop.app.layer.layers;
 
 import org.toop.app.App;
 import org.toop.app.layer.Container;
-import org.toop.app.layer.Layer;
+import org.toop.app.layer.NodeBuilder;
+import org.toop.app.layer.Popup;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.local.AppContext;
@@ -10,13 +11,14 @@ import org.toop.local.AppContext;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Pos;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public final class CreditsLayer extends Layer {
+public final class CreditsPopup extends Popup {
 	private final int lineHeight = 100;
 
-	CreditsLayer() {
-		super("credits.css");
+	public CreditsPopup() {
+		super(true, "bg-primary");
 		reload();
 	}
 
@@ -35,22 +37,19 @@ public final class CreditsLayer extends Layer {
 				AppContext.getString("opengl") + ": Omar"
 		};
 
-		final Container creditsContainer = new HorizontalContainer(0);
+		final Text[] creditsHeaders = new Text[credits.length];
 
-		final Container animatedContainer = new VerticalContainer("animated_credits_container", lineHeight);
-		creditsContainer.addContainer(animatedContainer, true);
-
-		for (final String credit : credits) {
-			animatedContainer.addText("credit-text", credit, false);
+		for (int i = 0; i < credits.length; i++) {
+			creditsHeaders[i] = NodeBuilder.header(credits[i]);
 		}
 
-		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton(AppContext.getString("back"), () -> {
-			App.activate(new MainLayer());
-		});
+		final Container creditsContainer = new HorizontalContainer(0);
 
+		final Container animatedContainer = new VerticalContainer(lineHeight);
+		creditsContainer.addContainer(animatedContainer, true);
+
+		animatedContainer.addNodes(creditsHeaders);
 		addContainer(creditsContainer, Pos.CENTER, 0, 0, 50, 100);
-		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 0, 0);
 
 		playCredits(animatedContainer, App.getHeight());
 	}

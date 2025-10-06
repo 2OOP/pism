@@ -11,13 +11,13 @@ import javafx.scene.layout.VBox;
 public final class VerticalContainer extends Container {
 	private final VBox container;
 
-	public VerticalContainer(String cssClass, int spacing) {
+	public VerticalContainer(int spacing, String... cssClasses) {
 		container = new VBox(spacing);
-		container.getStyleClass().add(cssClass);
+		container.getStyleClass().addAll(cssClasses);
 	}
 
 	public VerticalContainer(int spacing) {
-		this("vertical_container", spacing);
+		this(spacing, "container");
 	}
 
 	@Override
@@ -26,8 +26,8 @@ public final class VerticalContainer extends Container {
 	}
 
 	@Override
-	public void addNode(Node node) {
-		container.getChildren().addLast(node);
+	public void addNodes(Node... nodes) {
+		container.getChildren().addAll(nodes);
 	}
 
 	@Override

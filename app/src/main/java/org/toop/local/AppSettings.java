@@ -23,7 +23,7 @@ public class AppSettings {
         AppContext.setLocale(Locale.of(settingsData.locale));
         App.setFullscreen(settingsData.fullScreen);
         new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume)).asyncPostEvent();
-
+		App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
     }
 
     public SettingsAsset getPath() {

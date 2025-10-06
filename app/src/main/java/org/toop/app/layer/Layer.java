@@ -2,8 +2,6 @@ package org.toop.app.layer;
 
 import org.toop.app.App;
 import org.toop.app.canvas.GameCanvas;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.resources.CssAsset;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.Region;
@@ -13,12 +11,11 @@ public abstract class Layer {
 	protected StackPane layer;
 	protected Region background;
 
-	protected Layer(String cssFile) {
+	protected Layer(String... backgroundStyles) {
 		layer = new StackPane();
-		layer.getStylesheets().add(ResourceManager.<CssAsset>get(cssFile).getUrl());
 
 		background = new Region();
-		background.getStyleClass().add("background");
+		background.getStyleClass().addAll(backgroundStyles);
 		background.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
 		layer.getChildren().addLast(background);

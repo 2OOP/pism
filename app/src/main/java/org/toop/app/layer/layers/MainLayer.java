@@ -3,16 +3,15 @@ package org.toop.app.layer.layers;
 import org.toop.app.App;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
+import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.containers.VerticalContainer;
-import org.toop.game.othello.Othello;
-import org.toop.game.tictactoe.TicTacToe;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
 public final class MainLayer extends Layer {
 	public MainLayer() {
-		super("main.css");
+		super("bg-primary");
 		reload();
 	}
 
@@ -20,29 +19,31 @@ public final class MainLayer extends Layer {
 	public void reload() {
 		popAll();
 
-		final Container gamesContainer = new VerticalContainer(5);
-
-		gamesContainer.addButton(AppContext.getString("tictactoe"), () -> {
+		final var tictactoeButton = NodeBuilder.button(AppContext.getString("tictactoe"), () -> {
 			App.activate(new MultiplayerLayer());
 		});
 
-		gamesContainer.addButton(AppContext.getString("othello"), () -> {
+		final var othelloButton = NodeBuilder.button(AppContext.getString("othello"), () -> {
 			App.activate(new MultiplayerLayer());
 		});
 
-		final Container controlContainer = new VerticalContainer(5);
-
-		controlContainer.addButton(AppContext.getString("credits"), () -> {
-			App.activate(new CreditsLayer());
+		final var creditsButton = NodeBuilder.button(AppContext.getString("credits"), () -> {
+			App.push(new CreditsPopup());
 		});
 
-		controlContainer.addButton(AppContext.getString("options"), () -> {
-			App.activate(new OptionsLayer());
+		final var optionsButton = NodeBuilder.button(AppContext.getString("options"), () -> {
+			App.push(new OptionsPopup());
 		});
 
-		controlContainer.addButton(AppContext.getString("quit"), () -> {
+		final var quitButton = NodeBuilder.button(AppContext.getString("quit"), () -> {
 			App.quitPopup();
 		});
+
+		final Container gamesContainer = new VerticalContainer(5);
+		gamesContainer.addNodes(tictactoeButton, othelloButton);
+
+		final Container controlContainer = new VerticalContainer(5);
+		controlContainer.addNodes(creditsButton, optionsButton, quitButton);
 
 		addContainer(gamesContainer, Pos.TOP_LEFT, 2, 2, 20, 0);
 		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 20, 0);

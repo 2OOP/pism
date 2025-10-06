@@ -24,6 +24,14 @@ public class SettingsAsset extends JsonAsset<Settings> {
         return getContent().fullScreen;
     }
 
+	public String getTheme() {
+		return getContent().theme;
+	}
+
+	public String getLayoutSize() {
+		return getContent().layoutSize;
+	}
+
     public void setVolume(int volume) {
         getContent().volume = volume;
         save();
@@ -38,4 +46,14 @@ public class SettingsAsset extends JsonAsset<Settings> {
         getContent().fullScreen = fullscreen;
         save();
     }
+
+	public void setTheme(String theme) {
+		getContent().theme = theme;
+		save();
+	}
+
+	public void setLayoutSize(String layoutSize) {
+		getContent().layoutSize = layoutSize;
+		save();
+	}
 }
