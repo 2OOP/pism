@@ -2,7 +2,6 @@ package org.toop.app.layer.layers;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.layer.Container;
@@ -23,10 +22,12 @@ public final class MultiplayerLayer extends Layer {
 	private boolean isPlayer1Human = true;
 	private String player1Name = "";
 	private int computer1Difficulty = 0;
+	private int computer1ThinkTime = 0;
 
 	private boolean isPlayer2Human = true;
 	private String player2Name = "";
 	private int computer2Difficulty = 0;
+	private int computer2ThinkTime = 0;
 
 	private String serverIP = "";
 	private String serverPort = "";
@@ -64,11 +65,17 @@ public final class MultiplayerLayer extends Layer {
 			final var computerNameSeparator = NodeBuilder.separator();
 
 			final var computerDifficultyText = NodeBuilder.text(AppContext.getString("computerDifficulty"));
+			final var computerDifficultySeparator = NodeBuilder.separator();
 			final var computerDifficultySlider = NodeBuilder.slider(10, computer1Difficulty, (difficulty) ->
 					computer1Difficulty = difficulty);
 
+			final var computerThinkTimeText = NodeBuilder.text(AppContext.getString("computerThinkTime"));
+			final var computerThinkTimeSlider = NodeBuilder.slider(5, computer1ThinkTime, (thinkTime) ->
+					computer1ThinkTime = thinkTime);
+
 			player1Container.addNodes(computerNameText, computerNameSeparator,
-					computerDifficultyText, computerDifficultySlider);
+					computerDifficultyText, computerDifficultySlider, computerDifficultySeparator,
+					computerThinkTimeText, computerThinkTimeSlider);
 		}
 
 		if (isConnectionLocal) {
@@ -93,11 +100,17 @@ public final class MultiplayerLayer extends Layer {
 				final var computerNameSeparator = NodeBuilder.separator();
 
 				final var computerDifficultyText = NodeBuilder.text(AppContext.getString("computerDifficulty"));
-				final var computerDifficultySlider = NodeBuilder.slider(10, computer1Difficulty, (difficulty) ->
+				final var computerDifficultySeparator = NodeBuilder.separator();
+				final var computerDifficultySlider = NodeBuilder.slider(10, computer2Difficulty, (difficulty) ->
 						computer2Difficulty = difficulty);
 
+				final var computerThinkTimeText = NodeBuilder.text(AppContext.getString("computerThinkTime"));
+				final var computerThinkTimeSlider = NodeBuilder.slider(5, computer2ThinkTime, (thinkTime) ->
+						computer2ThinkTime = thinkTime);
+
 				player2Container.addNodes(computerNameText, computerNameSeparator,
-						computerDifficultyText, computerDifficultySlider);
+						computerDifficultyText, computerDifficultySlider, computerDifficultySeparator,
+						computerThinkTimeText, computerThinkTimeSlider);
 			}
 		} else {
 			final var serverIPText = NodeBuilder.text(AppContext.getString("serverIP"));
@@ -115,7 +128,7 @@ public final class MultiplayerLayer extends Layer {
 					serverPortText, serverPortInput);
 		}
 
-		final var versusText = NodeBuilder.text("VS");
+		final var versusText = NodeBuilder.header("VS");
 
 		final var connectionTypeText = NodeBuilder.text(AppContext.getString("connectionType") + ":");
 		final var connectionTypeToggle = NodeBuilder.toggle(AppContext.getString("local"), AppContext.getString("server"), !isConnectionLocal, (server) -> {
@@ -129,6 +142,7 @@ public final class MultiplayerLayer extends Layer {
 						new String[]{player1Name, player2Name},
 						new boolean[]{isPlayer1Human, isPlayer2Human},
 						new int[]{computer1Difficulty, computer2Difficulty},
+						new int[]{computer1ThinkTime, computer2ThinkTime},
 						isConnectionLocal, serverIP, serverPort)));
 			} else {
 				new EventFlow()

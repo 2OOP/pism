@@ -20,6 +20,7 @@ import org.toop.local.AppContext;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
+import java.time.Duration;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -145,8 +146,19 @@ public final class TicTacToeLayer extends Layer {
 					return;
 				}
 			} else {
+				final long start = System.currentTimeMillis();
+
 				move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(10,
 						information.computerDifficulty()[currentPlayer]));
+
+				if (information.computerThinkTime()[currentPlayer] > 0) {
+					final long elapsedTime = System.currentTimeMillis() - start;
+					final long sleepTime = information.computerThinkTime()[currentPlayer] * 1000L - elapsedTime;
+
+					try {
+						Thread.sleep(sleepTime);
+					} catch (InterruptedException _) {}
+				}
 			}
 
 			if (move == null) {
