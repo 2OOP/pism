@@ -1,5 +1,6 @@
 package org.toop.app.layer.layers;
 
+import javafx.application.Platform;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.NodeBuilder;
@@ -26,12 +27,13 @@ public final class ConnectedLayer extends Layer {
 
 		this.clientId = clientId;
 		this.user = user;
-		reload();
 
 		new EventFlow().addPostEvent(new NetworkEvents.SendLogin(this.clientId, this.user)).postEvent();
 		new EventFlow().listen(this::handleReceivedChallenge);
 
 		new Thread(this::populatePlayerList).start();
+
+        reload();
 	}
 
 	private void populatePlayerList() {
@@ -50,6 +52,7 @@ public final class ConnectedLayer extends Layer {
 		TimerTask task = new TimerTask() {
 			public void run() {
 				sendGetPlayerList.postEvent();
+                Platform.runLater(() -> reload());
 			}
 		};
 
@@ -75,9 +78,10 @@ public final class ConnectedLayer extends Layer {
 		ListView<Label> players = new ListView<>();
 
 		for (int i = 0; i < onlinePlayers.size(); i++) {
-			players.getItems().add(NodeBuilder.button(onlinePlayers.get(i), () -> {
-				// get clicked player name with: onlinePlayers.get(i)
-				// connection logic here
+            int finalI = i;
+            players.getItems().add(NodeBuilder.button(onlinePlayers.get(i), () -> {
+                var clickedPlayer = onlinePlayers.get(finalI);
+                sendChallenge(clickedPlayer, "tic-tac-toe");
 			}));
 		}
 
