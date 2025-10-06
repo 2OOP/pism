@@ -22,6 +22,7 @@ public final class ConnectedLayer extends Layer {
         reload();
 
         new EventFlow().addPostEvent(new NetworkEvents.SendLogin(this.clientId, this.user)).postEvent();
+        new EventFlow().listen(this::handleReceivedChallenge);
 
         new Thread(this::populatePlayerList).start();
     }
@@ -47,7 +48,17 @@ public final class ConnectedLayer extends Layer {
 
         Timer pollTimer = new Timer();
         pollTimer.schedule(task, 0L, 5000L);
+    }
 
+    private void sendChallenge(String oppUsername, String gameType) {
+        if (onlinePlayers.contains(oppUsername)) {
+            new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(this.clientId, oppUsername, gameType))
+                    .postEvent();
+        }
+    }
+
+    private void handleReceivedChallenge(NetworkEvents.ChallengeResponse response) {
+        // TODO: Popup? Idk what this actually sends back.
     }
 
     @Override
