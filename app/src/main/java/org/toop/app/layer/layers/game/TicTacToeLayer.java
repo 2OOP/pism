@@ -1,11 +1,13 @@
 package org.toop.app.layer.layers.game;
 
+import javafx.scene.text.Text;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.NodeBuilder;
+import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.framework.eventbus.EventFlow;
@@ -21,7 +23,6 @@ import javafx.scene.paint.Color;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
 public final class TicTacToeLayer extends Layer {
 	private TicTacToeCanvas canvas;
@@ -30,6 +31,9 @@ public final class TicTacToeLayer extends Layer {
 	private TicTacToeAI ticTacToeAI;
 
 	private GameInformation information;
+
+	private final Text currentPlayerNameText;
+	private final Text currentPlayerMoveText;
 
 	private final BlockingQueue<Game.Move> playerMoveQueue = new LinkedBlockingQueue<>();
 
@@ -40,7 +44,7 @@ public final class TicTacToeLayer extends Layer {
 	public TicTacToeLayer(GameInformation information) {
 		super("bg-primary");
 
-		canvas = new TicTacToeCanvas(Color.WHITE, (App.getHeight() / 100) * 75, (App.getHeight() / 100) * 75, (cell) -> {
+		canvas = new TicTacToeCanvas(Color.LIME, (App.getHeight() / 100) * 75, (App.getHeight() / 100) * 75, (cell) -> {
 			try {
 				if (information.isConnectionLocal()) {
 					if (ticTacToe.getCurrentTurn() == 0) {
@@ -75,6 +79,9 @@ public final class TicTacToeLayer extends Layer {
 					.postEvent();
 		}
 
+		currentPlayerNameText = NodeBuilder.header("");
+		currentPlayerMoveText = NodeBuilder.header("");
+
 		reload();
 	}
 
@@ -101,7 +108,11 @@ public final class TicTacToeLayer extends Layer {
 		final Container controlContainer = new VerticalContainer(5);
 		controlContainer.addNodes(backButton);
 
+		final Container informationContainer = new HorizontalContainer(15);
+		informationContainer.addNodes(currentPlayerNameText, currentPlayerMoveText);
+
 		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 0, 0);
+		addContainer(informationContainer, Pos.TOP_LEFT, 2, 2, 0, 0);
 		addGameCanvas(canvas, Pos.CENTER, 0, 0);
 	}
 
@@ -114,6 +125,9 @@ public final class TicTacToeLayer extends Layer {
 
 		while (running) {
 			final int currentPlayer = ticTacToe.getCurrentTurn();
+
+			currentPlayerNameText.setText(information.playerName()[currentPlayer]);
+			currentPlayerMoveText.setText(ticTacToe.getCurrentTurn() == 0? "X" : "O");
 
 			Game.Move move = null;
 
@@ -149,9 +163,9 @@ public final class TicTacToeLayer extends Layer {
 
 			if (state != Game.State.NORMAL) {
 				if (state == Game.State.WIN) {
-					// Win logic
+					App.push(new GameFinishedPopup(false, information.playerName()[ticTacToe.getCurrentTurn()]));
 				} else if (state == Game.State.DRAW) {
-					// Draw logic
+					App.push(new GameFinishedPopup(true, ""));
 				}
 
 				running = false;

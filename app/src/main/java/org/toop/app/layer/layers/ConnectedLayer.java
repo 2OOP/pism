@@ -1,5 +1,6 @@
 package org.toop.app.layer.layers;
 
+import org.toop.app.GameInformation;
 import org.toop.app.layer.Layer;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
@@ -14,9 +15,9 @@ public final class ConnectedLayer extends Layer {
     String user;
     List<String> onlinePlayers = new CopyOnWriteArrayList<>();
 
-
     public ConnectedLayer(long clientId, String user) {
-        super("multiplayer.css");
+        super("primary-bg");
+
         this.clientId = clientId;
         this.user = user;
         reload();

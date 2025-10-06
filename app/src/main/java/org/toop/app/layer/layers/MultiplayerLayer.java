@@ -1,5 +1,6 @@
 package org.toop.app.layer.layers;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import org.toop.app.App;
@@ -10,6 +11,8 @@ import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.game.TicTacToeLayer;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.local.AppContext;
 
 import java.time.LocalDateTime;
@@ -128,12 +131,13 @@ public final class MultiplayerLayer extends Layer {
 						new int[]{computer1Difficulty, computer2Difficulty},
 						isConnectionLocal, serverIP, serverPort)));
 			} else {
-				App.activate(new TicTacToeLayer(new GameInformation(
-						new String[]{player1Name, player2Name},
-						new boolean[]{isPlayer1Human, isPlayer2Human},
-						new int[]{computer1Difficulty, computer2Difficulty},
-						isConnectionLocal, serverIP, serverPort)));
-
+				new EventFlow()
+						.addPostEvent(NetworkEvents.StartClient.class, serverIP, Integer.parseInt(serverPort))
+						.onResponse(NetworkEvents.StartClientResponse.class,
+								e -> Platform.runLater(
+										() -> App.activate(new ConnectedLayer(e.clientId(), player1Name))
+								))
+						.postEvent();
 			}
 		});
 

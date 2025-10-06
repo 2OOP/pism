@@ -1,5 +1,6 @@
 package org.toop.app;
 
+import javafx.application.Platform;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitPopup;
@@ -73,39 +74,49 @@ public final class App extends Application {
 	}
 
 	public static void activate(Layer layer) {
-		popAll();
-		push(layer);
+		Platform.runLater(() -> {
+			popAll();
+			push(layer);
+		});
 	}
 
 	public static void push(Layer layer) {
-		root.getChildren().addLast(layer.getLayer());
-		stack.push(layer);
+		Platform.runLater(() -> {
+			root.getChildren().addLast(layer.getLayer());
+			stack.push(layer);
+		});
 	}
 
 	public static void pop() {
-		root.getChildren().removeLast();
-		stack.pop();
+		Platform.runLater(() -> {
+			root.getChildren().removeLast();
+			stack.pop();
 
-		isQuitting = false;
+			isQuitting = false;
+		});
 	}
 
 	public static void popAll() {
-		final int childrenCount = root.getChildren().size();
+		Platform.runLater(() -> {
+			final int childrenCount = root.getChildren().size();
 
-		for (int i = 0; i < childrenCount; i++) {
-            try {
-                root.getChildren().removeLast();
-            } catch (Exception e) {
-                IO.println(e);
-            }
-		}
+			for (int i = 0; i < childrenCount; i++) {
+				try {
+					root.getChildren().removeLast();
+				} catch (Exception e) {
+					IO.println(e);
+				}
+			}
 
-		stack.removeAllElements();
+			stack.removeAllElements();
+		});
 	}
 
 	public static void quitPopup() {
-		push(new QuitPopup());
-		isQuitting = true;
+		Platform.runLater(() -> {
+			push(new QuitPopup());
+			isQuitting = true;
+		});
 	}
 
 	public static void quit() {
