@@ -177,14 +177,15 @@ public final class TicTacToeLayer extends Layer {
 		final OnlineGameState onlineGameState = new OnlineGameState();
 		onlineGameState.clientId = clientId;
 
-		new EventFlow()
-				.listen(NetworkEvents.GameMoveResponse.class,respEvent -> onMoveResponse(onlineGameState, respEvent));
+		//new EventFlow()
+		//		.listen(NetworkEvents.GameMoveResponse.class,respEvent -> onMoveResponse(onlineGameState, respEvent));
 
         new EventFlow()
                 .listen(this::yourTurnResponse)
                 .listen(this::handleChallengeResponse)
                 .listen(this::handleServerGameStart)
-                .listen(this::handleReceivedMessage);
+                .listen(this::handleReceivedMessage)
+                .listen(this::onMoveResponse);
 
 		new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, information.playerName()[0]))
 				.postEvent();
@@ -192,10 +193,10 @@ public final class TicTacToeLayer extends Layer {
 		new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, "tic-tac-toe"))
 				.postEvent();
 
-        new EventFlow().addPostEvent(new NetworkEvents.SendCommand(clientId, "message hello-world"))
-                .postEvent();
-
 		while (running) {
+            try {
+                Thread.sleep(250);
+            }catch (InterruptedException exception) {}
             boolean hasStarted = gameHasStarted.get();
             if (hasStarted) {
                 onlineGameState.firstPlayerIsMe = firstPlayerIsMe.get();
@@ -206,37 +207,25 @@ public final class TicTacToeLayer extends Layer {
                     currentPlayerMove = 'O';
                 }
                 if(!information.isPlayerHuman()[0]){
-                    if (onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn()%2 == 0 || !onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn()%2 == 1) {
+                    boolean myTurn = (onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn() % 2 == 0)
+                            || (!onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn() % 2 == 1);
+                    if (myTurn) {
                         Game.Move move;
                         move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(10, 10));
                         new EventFlow().addPostEvent(new NetworkEvents.SendMove(clientId, (short) move.position()))
                                 .postEvent();
-                        final Game.State state = ticTacToe.play(move);
-                        drawSymbol(move);
-                        if (Game.State.NORMAL != state) {
-                            System.out.println("Win Or Draw");//todo
-                            running = false;
-                        }
                     }
                 }
                 else {
                     try {
                         final Game.Move wants = playerMoveQueue.take();
                         final Game.Move[] legalMoves = ticTacToe.getLegalMoves();
-                        Game.State state = Game.State.NORMAL;
                         for (final Game.Move legalMove : legalMoves) {
                             if (legalMove.position() == wants.position() && legalMove.value() == wants.value()) {
-                                state = ticTacToe.play(wants);
                                 new EventFlow().addPostEvent(new NetworkEvents.SendMove(clientId, (short) wants.position()))
                                         .postEvent();
-                                drawSymbol(wants);
                                 break;
                             }
-                        }
-
-                        if(Game.State.NORMAL != state){
-                            System.out.println("Win Or Draw");
-                            running = false;
                         }
                     } catch (InterruptedException exception) {
                         return;
@@ -263,16 +252,21 @@ public final class TicTacToeLayer extends Layer {
         gameHasStarted.set(true);
     }
 
-	private void onMoveResponse(OnlineGameState ogs, NetworkEvents.GameMoveResponse resp) {
-        ogs.receivedMove = Long.parseLong(resp.move());
-        char opponentChar;
-        if (firstPlayerIsMe.get()) {
-            opponentChar = 'O';
+	private void onMoveResponse(NetworkEvents.GameMoveResponse resp) {
+        char playerChar;
+        if (resp.player().equals(information.playerName()[0]) && firstPlayerIsMe.get()
+                || !resp.player().equals(information.playerName()[0]) && !firstPlayerIsMe.get()) {
+            playerChar = 'X';
         }
-        else {
-            opponentChar = 'X';
+        else{
+            playerChar = 'O';
         }
-        ticTacToe.play(new Game.Move(Integer.parseInt(resp.move()),opponentChar));
+        Game.Move move =new Game.Move(Integer.parseInt(resp.move()),playerChar);
+        Game.State state = ticTacToe.play(move);
+        if (state != Game.State.NORMAL) { //todo differentiate between future draw guaranteed and is currently a draw
+            gameHasStarted.set(false);
+        }
+        drawSymbol(move);
 	}
 
     private void handleChallengeResponse(NetworkEvents.ChallengeResponse resp) {

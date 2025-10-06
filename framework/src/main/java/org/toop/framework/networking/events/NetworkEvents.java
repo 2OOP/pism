@@ -62,7 +62,7 @@ public class NetworkEvents extends EventsBase {
             implements EventWithoutSnowflake {}
 
     /** Response indicating a game move occurred. */
-    public record GameMoveResponse(long clientId, String player, String details, String move)
+    public record GameMoveResponse(long clientId, String player, String move, String details)
             implements EventWithoutSnowflake {}
 
     /** Response indicating it is the player's turn. */
