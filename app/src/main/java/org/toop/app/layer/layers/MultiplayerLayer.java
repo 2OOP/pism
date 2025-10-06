@@ -114,7 +114,7 @@ public final class MultiplayerLayer extends Layer {
 
 		final var versusText = NodeBuilder.text("VS");
 
-		final var connectionTypeText = NodeBuilder.text("Connection type (translate)");
+		final var connectionTypeText = NodeBuilder.text(AppContext.getString("connectionType") + ":");
 		final var connectionTypeToggle = NodeBuilder.toggle(AppContext.getString("local"), AppContext.getString("server"), !isConnectionLocal, (server) -> {
 			isConnectionLocal = !server;
 			reload();

@@ -5,6 +5,7 @@ import org.toop.app.GameInformation;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
+import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.framework.eventbus.EventFlow;
@@ -37,7 +38,7 @@ public final class TicTacToeLayer extends Layer {
 	private String player2Name = "";
 
 	public TicTacToeLayer(GameInformation information) {
-		super("game.css");
+		super("bg-primary");
 
 		canvas = new TicTacToeCanvas(Color.WHITE, (App.getHeight() / 100) * 75, (App.getHeight() / 100) * 75, (cell) -> {
 			try {
@@ -93,10 +94,12 @@ public final class TicTacToeLayer extends Layer {
 			}
 		}
 
-		final Container controlContainer = new VerticalContainer(5);
-		controlContainer.addButton(AppContext.getString("back"), () -> {
+		final var backButton = NodeBuilder.button(AppContext.getString("back"), () -> {
 			App.activate(new MainLayer());
 		});
+
+		final Container controlContainer = new VerticalContainer(5);
+		controlContainer.addNodes(backButton);
 
 		addContainer(controlContainer, Pos.BOTTOM_LEFT, 2, -2, 0, 0);
 		addGameCanvas(canvas, Pos.CENTER, 0, 0);
