@@ -38,7 +38,7 @@ public final class OptionsPopup extends Popup {
 		final var volumeHeader = NodeBuilder.header(AppContext.getString("volume"));
 		final var volumeSeparator = NodeBuilder.separator();
 
-        final var fxVolumeHeader = NodeBuilder.header(AppContext.getString("fxVolume"));
+        final var fxVolumeHeader = NodeBuilder.header(AppContext.getString("effectsVolume"));
         final var fxVolumeSeparator = NodeBuilder.separator();
 
 		final var themeHeader = NodeBuilder.header(AppContext.getString("theme"));
