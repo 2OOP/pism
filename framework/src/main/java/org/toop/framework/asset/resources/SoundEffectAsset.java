@@ -5,9 +5,11 @@ import org.toop.framework.asset.types.LoadableResource;
 
 import javax.sound.sampled.*;
 import java.io.*;
+import java.nio.file.Files;
 
 @FileExtension({"wav"})
 public class SoundEffectAsset extends BaseResource implements LoadableResource {
+    private byte[] rawData;
 
     public SoundEffectAsset(final File audioFile) {
         super(audioFile);
@@ -15,10 +17,6 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
 
     // Gets a new clip to play
     public Clip getNewClip() throws LineUnavailableException, UnsupportedAudioFileException, IOException {
-        if(!this.isLoaded()){
-            this.load();
-        }
-
         // Get a new clip from audio system
         Clip clip = AudioSystem.getClip();
 
@@ -32,7 +30,13 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
 
     // Generates a new audio stream from byte array
     private AudioInputStream getAudioStream() throws UnsupportedAudioFileException, IOException {
-        return AudioSystem.getAudioInputStream(this.file);
+        // Check if raw data is loaded into memory
+        if(!this.isLoaded()){
+            this.load();
+        }
+
+        // Turn rawData into an input stream and turn that into an audio input stream;
+        return AudioSystem.getAudioInputStream(new ByteArrayInputStream(this.rawData));
     }
 
     private AudioInputStream downSampleAudio(AudioInputStream audioInputStream, AudioFormat baseFormat) {
@@ -52,16 +56,17 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
     @Override
     public void load() {
         try {
-            this.getAudioStream();
+            this.rawData = Files.readAllBytes(file.toPath());
             this.isLoaded = true;
-        } catch (UnsupportedAudioFileException | IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public void unload() {
-        this.isLoaded = false; // TODO?
+        this.rawData = null;
+        this.isLoaded = false;
     }
 
     @Override
