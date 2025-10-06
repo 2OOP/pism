@@ -1,6 +1,5 @@
 package org.toop.app.layer;
 
-import org.toop.app.events.AppEvents;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 
@@ -153,7 +152,6 @@ public abstract class Container {
 	public Separator addSeparator(String cssClass, boolean horizontal) {
 		final Separator element = new Separator(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
 		element.getStyleClass().add(cssClass);
-		element.setMinSize(50, 50);
 
 		addNode(element);
 		return element;

@@ -5,7 +5,6 @@ import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitLayer;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
-import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
@@ -24,7 +23,6 @@ public final class App extends Application {
 	private static Stack<Layer> stack;
     private static int height;
     private static int width;
-    private static SettingsAsset settingsAsset;
 
 	private static boolean isQuitting;
 
