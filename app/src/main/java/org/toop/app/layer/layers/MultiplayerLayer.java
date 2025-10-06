@@ -1,5 +1,6 @@
 package org.toop.app.layer.layers;
 
+import javafx.application.Platform;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.layer.Container;
@@ -7,6 +8,8 @@ import org.toop.app.layer.Layer;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.game.TicTacToeLayer;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -27,6 +30,7 @@ public final class MultiplayerLayer extends Layer {
 
 	private String serverIP = "";
 	private String serverPort = "";
+    private long clientId = -1;
 
 	public MultiplayerLayer() {
 		super("multiplayer.css");
@@ -59,12 +63,20 @@ public final class MultiplayerLayer extends Layer {
 		playersContainer.addContainer(player2Container, true);
 
 		mainContainer.addButton(isConnectionLocal? AppContext.getString("start") : AppContext.getString("connect"), () -> {
-			App.activate(new TicTacToeLayer(new GameInformation(
-					new String[] { player1Name, player2Name },
-					new boolean[] { isPlayer1Human, isPlayer2Human },
-					new int[] { computer1Difficulty, computer2Difficulty },
-					isConnectionLocal, "127.0.0.1", "7789")));
-                    // serverIP, serverPort)));
+//			App.activate(new TicTacToeLayer(new GameInformation(
+//					new String[] { player1Name, player2Name },
+//					new boolean[] { isPlayer1Human, isPlayer2Human },
+//					new int[] { computer1Difficulty, computer2Difficulty },
+//					isConnectionLocal, "127.0.0.1", "7789")));
+
+            new EventFlow()
+                    .addPostEvent(NetworkEvents.StartClient.class, serverIP, Integer.parseInt(serverPort))
+                    .onResponse(NetworkEvents.StartClientResponse.class,
+                            e -> Platform.runLater(
+                                    () -> App.activate(new ConnectedLayer(e.clientId(), player1Name))
+                            ))
+                    .postEvent();
+
 		});
 
 		player1Container.addToggle(AppContext.getString("human"), AppContext.getString("computer"), !isPlayer1Human, (computer) -> {

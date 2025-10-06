@@ -179,16 +179,10 @@ public final class TicTacToeLayer extends Layer {
                 .listen(this::handleReceivedMessage)
                 .listen(this::onMoveResponse);
 
-		new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, information.playerName()[0]))
-				.postEvent();
-
-		new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, "tic-tac-toe"))
-				.postEvent();
-
 		while (running) {
             try {
                 Thread.sleep(250);
-            }catch (InterruptedException exception) {}
+            } catch (InterruptedException exception) {}
             boolean hasStarted = gameHasStarted.get();
             if (hasStarted) {
                 onlineGameState.firstPlayerIsMe = firstPlayerIsMe.get();
@@ -227,7 +221,8 @@ public final class TicTacToeLayer extends Layer {
             }
 		}
 	}
-    private void drawSymbol(Game.Move move){
+
+    private void drawSymbol(Game.Move move) {
         if (move.value() == 'X') {
             canvas.drawX(Color.RED, move.position());
         } else if (move.value() == 'O') {
@@ -251,7 +246,7 @@ public final class TicTacToeLayer extends Layer {
                 || !resp.player().equals(information.playerName()[0]) && !firstPlayerIsMe.get()) {
             playerChar = 'X';
         }
-        else{
+        else {
             playerChar = 'O';
         }
         Game.Move move =new Game.Move(Integer.parseInt(resp.move()),playerChar);
