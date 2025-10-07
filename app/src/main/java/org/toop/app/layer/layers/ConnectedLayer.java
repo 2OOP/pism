@@ -1,39 +1,113 @@
 package org.toop.app.layer.layers;
 
 import javafx.application.Platform;
+import org.toop.app.App;
+import org.toop.app.GameInformation;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.NodeBuilder;
+import org.toop.app.layer.Popup;
+import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.app.layer.layers.game.TicTacToeLayer;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import org.toop.local.AppContext;
 
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ConnectedLayer extends Layer {
+	private static Timer pollTimer = new Timer();
+
+	private static class ChallengePopup extends Popup {
+		private final GameInformation information;
+
+		private final String challenger;
+		private final String game;
+
+		private final long clientID;
+		private final int challengeID;
+
+		public ChallengePopup(GameInformation information, String challenger, String game, long clientID, String challengeID) {
+			super(false, "bg-popup");
+
+			this.information = information;
+
+			this.challenger = challenger;
+			this.game = game;
+
+			this.clientID = clientID;
+			this.challengeID = Integer.parseInt(challengeID.substring(18, challengeID.length() - 2));
+
+			reload();
+		}
+
+		@Override
+		public void reload() {
+			popAll();
+
+			final var challengeText = NodeBuilder.header(AppContext.getString("challengeText"));
+			final var challengerNameText = NodeBuilder.header(challenger);
+
+			final var gameText = NodeBuilder.text(AppContext.getString("gameIsText"));
+			final var gameNameText = NodeBuilder.text(game);
+
+			final var acceptButton = NodeBuilder.button(AppContext.getString("accept"), () -> {
+				pollTimer.cancel();
+
+				new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientID, challengeID)).postEvent();
+				App.activate(new TicTacToeLayer(information, clientID));
+			});
+
+			final var denyButton = NodeBuilder.button(AppContext.getString("deny"), () -> {
+				App.pop();
+			});
+
+			final Container controlContainer = new HorizontalContainer(30);
+			controlContainer.addNodes(acceptButton, denyButton);
+
+			final Container mainContainer = new VerticalContainer(30);
+			mainContainer.addNodes(challengeText, challengerNameText);
+			mainContainer.addNodes(gameText, gameNameText);
+
+			mainContainer.addContainer(controlContainer, false);
+
+			addContainer(mainContainer, Pos.CENTER, 0, 0, 30, 30);
+		}
+	}
+
+	GameInformation information;
 	long clientId;
 	String user;
 	List<String> onlinePlayers = new CopyOnWriteArrayList<>();
 
-	public ConnectedLayer(long clientId, String user) {
+	public ConnectedLayer(GameInformation information) {
 		super("bg-primary");
 
-		this.clientId = clientId;
-		this.user = user;
+		this.information = information;
 
-		new EventFlow().addPostEvent(new NetworkEvents.SendLogin(this.clientId, this.user)).postEvent();
+		new EventFlow()
+				.addPostEvent(NetworkEvents.StartClient.class, information.serverIP(), Integer.parseInt(information.serverPort()))
+				.onResponse(NetworkEvents.StartClientResponse.class, e -> {
+					clientId = e.clientId();
+					user = information.playerName()[0].replaceAll("\\s+", "");
+
+					new EventFlow().addPostEvent(new NetworkEvents.SendLogin(this.clientId, this.user)).postEvent();
+
+					Thread popThread = new Thread(this::populatePlayerList);
+					popThread.setDaemon(false);
+					popThread.start();
+				}).postEvent();
+
 		new EventFlow().listen(this::handleReceivedChallenge);
-
-		Thread popThread = new Thread(this::populatePlayerList);
-        popThread.setDaemon(false);
-        popThread.start();
 
         reload();
 	}
@@ -58,19 +132,32 @@ public final class ConnectedLayer extends Layer {
 			}
 		};
 
-		Timer pollTimer = new Timer();
 		pollTimer.schedule(task, 0L, 5000L); // TODO: Block app exit, fix later
 	}
 
 	private void sendChallenge(String oppUsername, String gameType) {
+		final AtomicInteger challengeId = new AtomicInteger(-1);
+
 		if (onlinePlayers.contains(oppUsername)) {
 			new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(this.clientId, oppUsername, gameType))
-					.postEvent();
+					.listen(NetworkEvents.ChallengeResponse.class, e -> {
+						challengeId.set(Integer.parseInt(e.challengeId().substring(18, e.challengeId().length() - 2)));
+					})
+					.listen(NetworkEvents.GameMatchResponse.class, e -> {
+						if (e.clientId() == this.clientId) {
+							pollTimer.cancel();
+							App.activate(new TicTacToeLayer(information, this.clientId));
+						}
+					}, false).postEvent();
+			//           ^
+ 			//           |
+ 			//           |
+ 			//           |
 		}
 	}
 
 	private void handleReceivedChallenge(NetworkEvents.ChallengeResponse response) {
-		// TODO: Popup? Idk what this actually sends back.
+		App.push(new ChallengePopup(information, response.challengerName(), response.gameType(), clientId, response.challengeId()));
 	}
 
 	@Override

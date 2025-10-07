@@ -20,15 +20,15 @@ import org.toop.local.AppContext;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
-import java.time.Duration;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class TicTacToeLayer extends Layer {
 	private TicTacToeCanvas canvas;
 
-	private TicTacToe ticTacToe;
+	private AtomicReference<TicTacToe> ticTacToe;
 	private TicTacToeAI ticTacToeAI;
 
 	private GameInformation information;
@@ -42,49 +42,48 @@ public final class TicTacToeLayer extends Layer {
 	private char currentPlayerMove = Game.EMPTY;
 	private String player2Name = "";
 
+	final AtomicBoolean firstPlayerIsMe = new AtomicBoolean(true);
+
 	public TicTacToeLayer(GameInformation information) {
 		super("bg-primary");
 
 		canvas = new TicTacToeCanvas(Color.LIME, (App.getHeight() / 100) * 75, (App.getHeight() / 100) * 75, (cell) -> {
 			try {
 				if (information.isConnectionLocal()) {
-					if (ticTacToe.getCurrentTurn() == 0) {
+					if (ticTacToe.get().getCurrentTurn() == 0) {
 						playerMoveQueue.put(new Game.Move(cell, 'X'));
 					} else {
 						playerMoveQueue.put(new Game.Move(cell, 'O'));
 					}
 				} else {
-                    if (information.isPlayerHuman()[0] && currentPlayerMove != Game.EMPTY) {
-                        playerMoveQueue.put(new Game.Move(cell, currentPlayerMove));
-                    }
+					if (information.isPlayerHuman()[0] && currentPlayerMove != Game.EMPTY) {
+						playerMoveQueue.put(new Game.Move(cell, firstPlayerIsMe.get()? 'X' : 'O'));
+					}
 				}
-			} catch (InterruptedException e) {
-				return;
-			}
+			} catch (InterruptedException _) {}
 		});
 
-		ticTacToe = new TicTacToe();
+		ticTacToe = new AtomicReference<>(new TicTacToe());
 		ticTacToeAI = new TicTacToeAI();
 
 		this.information = information;
 
 		if (information.isConnectionLocal()) {
 			new Thread(this::localGameThread).start();
-		} else {
-			new EventFlow()
-					.addPostEvent(NetworkEvents.StartClient.class,
-							information.serverIP(),
-							Integer.parseInt(information.serverPort()))
-					.onResponse(NetworkEvents.StartClientResponse.class, event -> {
-                        Thread a = new Thread(() -> serverGameThread(event));
-                        a.setDaemon(false);
-                        a.start();
-                    })
-					.postEvent();
 		}
 
 		currentPlayerNameText = NodeBuilder.header("");
 		currentPlayerMoveText = NodeBuilder.header("");
+
+		reload();
+	}
+
+	public TicTacToeLayer(GameInformation information, long clientID) {
+		this(information);
+
+		Thread a = new Thread(this::serverGameThread);
+		a.setDaemon(false);
+		a.start();
 
 		reload();
 	}
@@ -95,8 +94,8 @@ public final class TicTacToeLayer extends Layer {
 
 		canvas.resize((App.getHeight() / 100) * 75, (App.getHeight() / 100) * 75);
 
-		for (int i = 0; i < ticTacToe.board.length; i++) {
-			final char value = ticTacToe.board[i];
+		for (int i = 0; i < ticTacToe.get().board.length; i++) {
+			final char value = ticTacToe.get().board[i];
 
 			if (value == 'X') {
 				canvas.drawX(Color.RED, i);
@@ -128,30 +127,28 @@ public final class TicTacToeLayer extends Layer {
 		boolean running = true;
 
 		while (running) {
-			final int currentPlayer = ticTacToe.getCurrentTurn();
+			final int currentPlayer = ticTacToe.get().getCurrentTurn();
 
 			currentPlayerNameText.setText(information.playerName()[currentPlayer]);
-			currentPlayerMoveText.setText(ticTacToe.getCurrentTurn() == 0? "X" : "O");
+			currentPlayerMoveText.setText(ticTacToe.get().getCurrentTurn() == 0? "X" : "O");
 
 			Game.Move move = null;
 
 			if (information.isPlayerHuman()[currentPlayer]) {
 				try {
 					final Game.Move wants = playerMoveQueue.take();
-					final Game.Move[] legalMoves = ticTacToe.getLegalMoves();
+					final Game.Move[] legalMoves = ticTacToe.get().getLegalMoves();
 
 					for (final Game.Move legalMove : legalMoves) {
 						if (legalMove.position() == wants.position() && legalMove.value() == wants.value()) {
 							move = wants;
 						}
 					}
-				} catch (InterruptedException exception) {
-					return;
-				}
+				} catch (InterruptedException _) {}
 			} else {
 				final long start = System.currentTimeMillis();
 
-				move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(10,
+				move = ticTacToeAI.findBestMove(ticTacToe.get(), compurterDifficultyToDepth(10,
 						information.computerDifficulty()[currentPlayer]));
 
 				if (information.computerThinkTime()[currentPlayer] > 0) {
@@ -168,7 +165,7 @@ public final class TicTacToeLayer extends Layer {
 				continue;
 			}
 
-			final Game.State state = ticTacToe.play(move);
+			final Game.State state = ticTacToe.get().play(move);
 
 			if (move.value() == 'X') {
 				canvas.drawX(Color.RED, move.position());
@@ -178,7 +175,7 @@ public final class TicTacToeLayer extends Layer {
 
 			if (state != Game.State.NORMAL) {
 				if (state == Game.State.WIN) {
-					App.push(new GameFinishedPopup(false, information.playerName()[ticTacToe.getCurrentTurn()]));
+					App.push(new GameFinishedPopup(false, information.playerName()[ticTacToe.get().getCurrentTurn()]));
 				} else if (state == Game.State.DRAW) {
 					App.push(new GameFinishedPopup(true, ""));
 				}
@@ -188,125 +185,112 @@ public final class TicTacToeLayer extends Layer {
 		}
 	}
 
-	class OnlineGameState {
-		public long clientId = -1;
-		public long receivedMove = -1;
-        public boolean firstPlayerIsMe = true;
+	private void serverGameThread() {
+		new EventFlow()
+				.listen(this::handleServerGameStart) // <-----------
+				.listen(this::yourTurnResponse)
+				.listen(this::onMoveResponse)
+				.listen(this::handleReceivedMessage);
 	}
-    AtomicBoolean firstPlayerIsMe = new AtomicBoolean(true);
-    AtomicBoolean gameHasStarted = new AtomicBoolean(false);
-	private void serverGameThread(NetworkEvents.StartClientResponse event) {
-		boolean running = true;
-		final long clientId = event.clientId();
-		final OnlineGameState onlineGameState = new OnlineGameState();
-		onlineGameState.clientId = clientId;
 
-		//new EventFlow()
-		//		.listen(NetworkEvents.GameMoveResponse.class,respEvent -> onMoveResponse(onlineGameState, respEvent));
+	private void handleServerGameStart(NetworkEvents.GameMatchResponse resp) {
+		// Meneer Bas de Jong. Dit functie wordt niet aangeroepen als je de challenger bent.
+		// Ik heb veel dingen geprobeert. FUCKING veel dingen. Hij doet het niet.
+		// Ik heb zelfs in jou code gekeken en unsubscribeAfterSuccess op false gezet. (zie ConnectedLayer).
+		// Alle andere functies worden wel gecalt. Behalve dit.
 
-        new EventFlow()
-                .listen(this::yourTurnResponse)
-                .listen(this::handleChallengeResponse)
-                .listen(this::handleServerGameStart)
-                .listen(this::handleReceivedMessage)
-                .listen(this::onMoveResponse);
+		// Ben jij gehandicapt of ik? Want het moet 1 van de 2 zijn. Ik ben dit al 2 uur aan het debuggen.
+		// Ik ga nu slapen (04:46).
 
-		while (running) {
-            try {
-                Thread.sleep(250);
-            } catch (InterruptedException exception) {}
-            boolean hasStarted = gameHasStarted.get();
-            if (hasStarted) {
-                onlineGameState.firstPlayerIsMe = firstPlayerIsMe.get();
-                if (onlineGameState.firstPlayerIsMe) {
-                    currentPlayerMove = 'X';
-                }
-                else {
-                    currentPlayerMove = 'O';
-                }
-                if(!information.isPlayerHuman()[0]){
-                    boolean myTurn = (onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn() % 2 == 0)
-                            || (!onlineGameState.firstPlayerIsMe && ticTacToe.getCurrentTurn() % 2 == 1);
-                    if (myTurn) {
-                        Game.Move move;
-                        move = ticTacToeAI.findBestMove(ticTacToe, compurterDifficultyToDepth(10, 10));
-                        new EventFlow().addPostEvent(new NetworkEvents.SendMove(clientId, (short) move.position()))
-                                .postEvent();
-                    }
-                }
-                else {
-                    try {
-                        final Game.Move wants = playerMoveQueue.take();
-                        final Game.Move[] legalMoves = ticTacToe.getLegalMoves();
-                        for (final Game.Move legalMove : legalMoves) {
-                            if (legalMove.position() == wants.position() && legalMove.value() == wants.value()) {
-                                new EventFlow().addPostEvent(new NetworkEvents.SendMove(clientId, (short) wants.position()))
-                                        .postEvent();
-                                break;
-                            }
-                        }
-                    } catch (InterruptedException exception) {
-                        System.out.println(exception.getMessage());
-                        return;
-                    }
-                }
-            }
+//                                ⠀⠀⠀⠀⠀⠀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⢀⣴⣿⣿⠿⣟⢷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⢸⣏⡏⠀⠀⠀⢣⢻⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⢸⣟⠧⠤⠤⠔⠋⠀⢿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⠀⣿⡆⠀⠀⠀⠀⠀⠸⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⠀⠘⣿⡀⢀⣶⠤⠒⠀⢻⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⠀⠀⢹⣧⠀⠀⠀⠀⠀⠈⢿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⠀⠀⠀⣿⡆⠀⠀⠀⠀⠀⠈⢿⣆⣠⣤⣤⣤⣤⣴⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⠀⢀⣾⢿⢿⠀⠀⠀⢀⣀⣀⠘⣿⠋⠁⠀⠙⢇⠀⠀⠙⢿⣦⡀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⢀⣾⢇⡞⠘⣧⠀⢖⡭⠞⢛⡄⠘⣆⠀⠀⠀⠈⢧⠀⠀⠀⠙⢿⣄⠀⠀⠀⠀
+//                                ⠀⠀⣠⣿⣛⣥⠤⠤⢿⡄⠀⠀⠈⠉⠀⠀⠹⡄⠀⠀⠀⠈⢧⠀⠀⠀⠈⠻⣦⠀⠀⠀
+//                                ⠀⣼⡟⡱⠛⠙⠀⠀⠘⢷⡀⠀⠀⠀⠀⠀⠀⠹⡀⠀⠀⠀⠈⣧⠀⠀⠀⠀⠹⣧⡀⠀
+//                                ⢸⡏⢠⠃⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀⠘⣧⠀⠀⠀⠀⠸⣷⡀
+//                                ⠸⣧⠘⡇⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀⠀⠀⠀⢣⠀⠀⠀⠀⢹⡇⠀⠀⠀⠀⣿⠇
+//                                ⠀⣿⡄⢳⠀⠀⠀⠀⠀⠀⠀⠈⣷⠀⠀⠀⠀⠀⠀⠈⠆⠀⠀⠀⠀⠀⠀⠀⠀⣼⡟⠀
+//                                ⠀⢹⡇⠘⣇⠀⠀⠀⠀⠀⠀⠰⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠀⣼⡟⠀⠀
+//                                ⠀⢸⡇⠀⢹⡆⠀⠀⠀⠀⠀⠀⠙⠁⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⢳⣼⠟⠀⠀⠀
+//                                ⠀⠸⣧⣀⠀⢳⡀⠀⠀⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⢃⠀⢀⣴⡿⠁⠀⠀⠀⠀
+//                                ⠀⠀⠈⠙⢷⣄⢳⡀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀⠀⠀⣠⡿⠟⠛⠉⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⠀⠈⠻⢿⣷⣦⣄⣀⣀⣠⣤⠾⠷⣦⣤⣤⡶⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+//                                ⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+
+		player2Name = resp.opponent();
+		System.out.println(player2Name);
+
+		currentPlayerMoveText.setText("X");
+
+		if(!resp.playerToMove().equalsIgnoreCase(resp.opponent())) {
+			currentPlayerNameText.setText(information.playerName()[0]);
+			firstPlayerIsMe.set(true);
+
+			System.out.printf("I am starting: My client id is %d\n", resp.clientId());
+		} else {
+			currentPlayerNameText.setText(player2Name);
+			firstPlayerIsMe.set(false);
+
+			System.out.printf("I am NOT starting: My client id is %d\n", resp.clientId());
 		}
 	}
 
-    private void drawSymbol(Game.Move move) {
-        if (move.value() == 'X') {
-            canvas.drawX(Color.RED, move.position());
-        } else if (move.value() == 'O') {
-            canvas.drawO(Color.BLUE, move.position());
-        }
-    }
-
-    private void handleServerGameStart(NetworkEvents.GameMatchResponse resp) {
-        if(resp.playerToMove().equals(resp.opponent())){
-            firstPlayerIsMe.set(false);
-        }
-        else{
-            firstPlayerIsMe.set(true);
-        }
-        gameHasStarted.set(true);
-    }
-
 	private void onMoveResponse(NetworkEvents.GameMoveResponse resp) {
-        char playerChar;
-        if (resp.player().equals(information.playerName()[0]) && firstPlayerIsMe.get()
-                || !resp.player().equals(information.playerName()[0]) && !firstPlayerIsMe.get()) {
-            playerChar = 'X';
-        }
-        else {
-            playerChar = 'O';
-        }
-        Game.Move move =new Game.Move(Integer.parseInt(resp.move()),playerChar);
-        Game.State state = ticTacToe.play(move);
-        if (state != Game.State.NORMAL) { //todo differentiate between future draw guaranteed and is currently a draw
-            gameHasStarted.set(false);
-        }
-        drawSymbol(move);
+		char playerChar;
+
+		if (!resp.player().equalsIgnoreCase(player2Name)) {
+			playerChar = firstPlayerIsMe.get()? 'X' : 'O';
+		} else {
+			playerChar = firstPlayerIsMe.get()? 'O' : 'X';
+		}
+
+		final Game.Move move = new Game.Move(Integer.parseInt(resp.move()), playerChar);
+		final Game.State state = ticTacToe.get().play(move);
+
+		if (state != Game.State.NORMAL) { //todo differentiate between future draw guaranteed and is currently a draw
+			if (state == Game.State.WIN) {
+				App.push(new GameFinishedPopup(false, information.playerName()[ticTacToe.get().getCurrentTurn()]));
+			} else if (state == Game.State.DRAW) {
+				App.push(new GameFinishedPopup(true, ""));
+			}
+		}
+
+		if (move.value() == 'X') {
+			canvas.drawX(Color.RED, move.position());
+		} else if (move.value() == 'O') {
+			canvas.drawO(Color.BLUE, move.position());
+		}
+
+		currentPlayerNameText.setText(ticTacToe.get().getCurrentTurn() == (firstPlayerIsMe.get()? 0 : 1)? information.playerName()[0] : player2Name);
+		currentPlayerMoveText.setText(ticTacToe.get().getCurrentTurn() == 0? "X" : "O");
 	}
 
-    private void handleChallengeResponse(NetworkEvents.ChallengeResponse resp) {
-        new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(resp.clientId(),Integer.parseInt(resp.challengeId())))
-                .postEvent();
-    }
+	private void yourTurnResponse(NetworkEvents.YourTurnResponse response) {
+		int position = -1;
 
-    private void yourTurnResponse(NetworkEvents.YourTurnResponse response) {
+		if (information.isPlayerHuman()[0]) {
+			try {
+				position = playerMoveQueue.take().position();
+			} catch (InterruptedException _) {}
+		} else {
+			final Game.Move move = ticTacToeAI.findBestMove(ticTacToe.get(), compurterDifficultyToDepth(10,
+					information.computerDifficulty()[0]));
 
-        //new EventFlow().addPostEvent(new NetworkEvents.SendCommand(response.clientId(),"CHALLENGE banaan tic-tac-toe")).postEvent();
-        //new EventFlow().addPostEvent(new NetworkEvents.SendMove(response.clientId(),(short)2))
-        //        .postEvent();
-    }
-    private void handleReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-        System.out.println("Received Message: " + msg.message()); //todo add chat window
-    }
+			position = move.position();
+		}
 
-	private void serverGameThreadResponseHandler(OnlineGameState ogs, NetworkEvents.ChallengeResponse msg) {
-		if (msg.clientId() != ogs.clientId) return;
-		IO.println("Client ID: " + ogs.clientId + " Received Message: " + msg);
+		new EventFlow().addPostEvent(new NetworkEvents.SendMove(response.clientId(), (short)position))
+				.postEvent();
 	}
 
+	private void handleReceivedMessage(NetworkEvents.ReceivedMessage msg) {
+		System.out.println("Received Message: " + msg.message()); //todo add chat window
+	}
 }

@@ -1,7 +1,5 @@
 package org.toop.app.layer.layers;
 
-import javafx.application.Platform;
-import javafx.geometry.Pos;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.layer.Container;
@@ -10,9 +8,9 @@ import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.game.TicTacToeLayer;
-import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.local.AppContext;
+
+import javafx.geometry.Pos;
 
 import java.time.LocalDateTime;
 
@@ -59,7 +57,7 @@ public final class MultiplayerLayer extends Layer {
 
 			player1Container.addNodes(playerNameText, playerNameInput);
 		} else {
-			player1Name = "Pism Bot #" + LocalDateTime.now().getSecond();
+			player1Name = "Pism Bot V" + LocalDateTime.now().getSecond();
 
 			final var computerNameText = NodeBuilder.text(player1Name);
 			final var computerNameSeparator = NodeBuilder.separator();
@@ -94,7 +92,7 @@ public final class MultiplayerLayer extends Layer {
 
 				player2Container.addNodes(playerNameText, playerNameInput);
 			} else {
-				player2Name = "Pism Bot #" + LocalDateTime.now().getSecond();
+				player2Name = "Pism Bot V" + LocalDateTime.now().getSecond();
 
 				final var computerNameText = NodeBuilder.text(player2Name);
 				final var computerNameSeparator = NodeBuilder.separator();
@@ -137,21 +135,17 @@ public final class MultiplayerLayer extends Layer {
 		});
 
 		final var playButton = NodeBuilder.button(isConnectionLocal ? AppContext.getString("start") : AppContext.getString("connect"), () -> {
+			final var information = new GameInformation(
+					new String[]{player1Name, player2Name},
+					new boolean[]{isPlayer1Human, isPlayer2Human},
+					new int[]{computer1Difficulty, computer2Difficulty},
+					new int[]{computer1ThinkTime, computer2ThinkTime},
+					isConnectionLocal, serverIP, serverPort);
+
 			if (isConnectionLocal) {
-				App.activate(new TicTacToeLayer(new GameInformation(
-						new String[]{player1Name, player2Name},
-						new boolean[]{isPlayer1Human, isPlayer2Human},
-						new int[]{computer1Difficulty, computer2Difficulty},
-						new int[]{computer1ThinkTime, computer2ThinkTime},
-						isConnectionLocal, serverIP, serverPort)));
+				App.activate(new TicTacToeLayer(information));
 			} else {
-				new EventFlow()
-						.addPostEvent(NetworkEvents.StartClient.class, serverIP, Integer.parseInt(serverPort))
-						.onResponse(NetworkEvents.StartClientResponse.class,
-								e -> Platform.runLater(
-										() -> App.activate(new ConnectedLayer(e.clientId(), player1Name))
-								))
-						.postEvent();
+				App.activate(new ConnectedLayer(information));
 			}
 		});
 

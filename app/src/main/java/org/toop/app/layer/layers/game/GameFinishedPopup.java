@@ -1,6 +1,5 @@
 package org.toop.app.layer.layers.game;
 
-import javafx.geometry.Pos;
 import org.toop.app.App;
 import org.toop.app.layer.Container;
 import org.toop.app.layer.NodeBuilder;
@@ -8,6 +7,8 @@ import org.toop.app.layer.Popup;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.local.AppContext;
+
+import javafx.geometry.Pos;
 
 public class GameFinishedPopup extends Popup {
 	private final boolean isDraw;
