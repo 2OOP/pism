@@ -61,7 +61,8 @@ public class JsonAsset<T> extends BaseResource implements LoadableResource {
         File file = getFile();
         File parent = file.getParentFile();
         if (parent != null && !parent.exists()) {
-            parent.mkdirs();
+            boolean isDirectoryMade = parent.mkdirs();
+            assert isDirectoryMade;
         }
         try (FileWriter writer = new FileWriter(file)) {
             gson.toJson(content, writer);

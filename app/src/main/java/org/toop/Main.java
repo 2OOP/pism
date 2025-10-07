@@ -8,7 +8,7 @@ import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
 
 public final class Main {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         initSystems();
         App.run(args);
     }

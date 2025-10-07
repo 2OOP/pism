@@ -1,5 +1,6 @@
 package org.toop.app.layer.layers.game;
 
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -153,6 +154,7 @@ public final class TicTacToeLayer extends Layer {
                         if (legalMove.position() == wants.position()
                                 && legalMove.value() == wants.value()) {
                             move = wants;
+                            // TODO: maybe add break?
                         }
                     }
                 } catch (InterruptedException _) {
@@ -315,7 +317,7 @@ public final class TicTacToeLayer extends Layer {
                             ticTacToe.get(),
                             compurterDifficultyToDepth(10, information.computerDifficulty()[0]));
 
-            position = move.position();
+            position = Objects.requireNonNull(move).position();
         }
 
         new EventFlow()

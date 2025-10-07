@@ -9,7 +9,7 @@ import org.toop.framework.asset.resources.*;
 /**
  * Centralized manager for all loaded assets in the application.
  *
- * <p>{@code ResourceManager} maintains a thread-safe registry of {@link Asset} objects and provides
+ * <p>{@code ResourceManager} maintains a thread-safe registry of {@link ResourceMeta} objects and provides
  * utility methods to retrieve assets by name, ID, or type. It works together with {@link
  * ResourceLoader} to register assets automatically when they are loaded from the file system.
  *
@@ -50,20 +50,10 @@ import org.toop.framework.asset.resources.*;
  */
 public class ResourceManager {
     private static final Logger logger = LogManager.getLogger(ResourceManager.class);
-    private static final ResourceManager INSTANCE = new ResourceManager();
     private static final Map<String, ResourceMeta<? extends BaseResource>> assets =
             new ConcurrentHashMap<>();
 
     private ResourceManager() {}
-
-    /**
-     * Returns the singleton instance of {@code ResourceManager}.
-     *
-     * @return the shared instance
-     */
-    public static ResourceManager getInstance() {
-        return INSTANCE;
-    }
 
     /**
      * Loads all assets from a given {@link ResourceLoader} into the manager.

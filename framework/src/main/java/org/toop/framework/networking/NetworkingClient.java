@@ -84,9 +84,9 @@ public class NetworkingClient {
         if (isChannelActive()) {
             this.channel.writeAndFlush(msg);
             logger.info(
-                    "Connection {} sent message: '{}'", this.channel.remoteAddress(), literalMsg);
+                    "Connection {} sent message: '{}' ", this.channel.remoteAddress(), literalMsg);
         } else {
-            logger.warn("Cannot send message: '{}', connection inactive.", literalMsg);
+            logger.warn("Cannot send message: '{}', connection inactive. ", literalMsg);
         }
     }
 

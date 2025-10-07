@@ -120,7 +120,7 @@ public class SoundManager {
         logger.info("Playing background music: {}", ma.getFile().getName());
         logger.info(
                 "Background music next in line: {}",
-                backgroundMusicQueue.peek().getFile().getName());
+                backgroundMusicQueue.peek() != null ? backgroundMusicQueue.peek().getFile().getName() : null);
     }
 
     private long playSound(String audioFileName, boolean loop)
