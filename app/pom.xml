@@ -9,16 +9,21 @@
 		<main-class>org.toop.Main</main-class>
 		<maven.compiler.source>25</maven.compiler.source>
 		<maven.compiler.target>25</maven.compiler.target>
-
+		<maven.compiler.release>25</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.diffplug.spotless</groupId>
 			<artifactId>spotless-maven-plugin</artifactId>
 			<version>2.46.1</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
 		<dependency>
 			<groupId>org.toop</groupId>
 			<artifactId>pism_framework</artifactId>
@@ -31,38 +36,46 @@
 			<version>0.1</version>
 			<scope>compile</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>25</version>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.14.1</version>
-				<configuration>
-					<source>25</source>
-					<target>25</target>
-					<release>25</release>
-					<encoding>UTF-8</encoding>
-<!--					<compilerArgs>-->
-<!--						<arg>-XDcompilePolicy=simple</arg>-->
-<!--						<arg>&#45;&#45;should-stop=ifError=FLOW</arg>-->
-<!--						<arg>-Xplugin:ErrorProne</arg>-->
-<!--					</compilerArgs>-->
-<!--					<annotationProcessorPaths>-->
-<!--						<path>-->
-<!--							<groupId>com.google.errorprone</groupId>-->
-<!--							<artifactId>error_prone_core</artifactId>-->
-<!--							<version>2.42.0</version>-->
-<!--						</path>-->
-<!--						&lt;!&ndash; Other annotation processors go here.-->
-
-<!--                        If 'annotationProcessorPaths' is set, processors will no longer be-->
-<!--                        discovered on the regular -classpath; see also 'Using Error Prone-->
-<!--                        together with other annotation processors' below. &ndash;&gt;-->
-<!--					</annotationProcessorPaths>-->
-<!--					<fork>true</fork>-->
-				</configuration>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.6.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.toop.Main</mainClass>
+								</transformer>
+							</transformers>
+							<finalName>pism</finalName>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>com.diffplug.spotless</groupId>
@@ -97,6 +110,14 @@
 							<formatJavadoc>true</formatJavadoc>
 						</googleJavaFormat>
 					</java>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>25</source>
+					<target>25</target>
 				</configuration>
 			</plugin>
 		</plugins>

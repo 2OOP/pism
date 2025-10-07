@@ -35,10 +35,10 @@ class NetworkEventsTest {
     @Test
     void testChallengeResponse() {
         NetworkEvents.ChallengeResponse event =
-                new NetworkEvents.ChallengeResponse(1L, "Alice", "Chess", "ch001");
-        assertEquals("Alice", event.challengerName());
-        assertEquals("Chess", event.gameType());
-        assertEquals("ch001", event.challengeId());
+                new NetworkEvents.ChallengeResponse(1L, "John", "1", "tic-tac-toe");
+        assertEquals("John", event.challengerName());
+        assertEquals("1", event.challengeId());
+        assertEquals("tic-tac-toe", event.gameType());
     }
 
     @Test

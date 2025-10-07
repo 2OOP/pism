@@ -41,7 +41,7 @@ public class NetworkEvents extends EventsBase {
 
     /** Response indicating a challenge was received. */
     public record ChallengeResponse(
-            long clientId, String challengerName, String gameType, String challengeId)
+            long clientId, String challengerName, String challengeId, String gameType)
             implements EventWithoutSnowflake {}
 
     /** Response containing a list of players for a client. */
@@ -62,7 +62,7 @@ public class NetworkEvents extends EventsBase {
             implements EventWithoutSnowflake {}
 
     /** Response indicating a game move occurred. */
-    public record GameMoveResponse(long clientId, String player, String details, String move)
+    public record GameMoveResponse(long clientId, String player, String move, String details)
             implements EventWithoutSnowflake {}
 
     /** Response indicating it is the player's turn. */

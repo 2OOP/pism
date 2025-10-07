@@ -1,0 +1,215 @@
+/* ----------------------------
+	.background
+----------------------------- */
+.bg-primary {
+	-fx-background-color: #181818;
+}
+
+.bg-secondary {
+	-fx-background-color: #2a2a2a;
+}
+
+.bg-popup {
+	-fx-background-color: #1818187f;
+}
+
+/* ----------------------------
+	.button
+----------------------------- */
+.button {
+	/* Layout */
+	-fx-padding: 10 20;
+	-fx-background-radius: 6;
+	-fx-cursor: hand;
+
+	/* Color */
+	-fx-background-color: #2a2a2a;
+	-fx-text-fill: #f0f0f0;
+	-fx-border-color: #3a3a3a;
+	-fx-border-width: 1;
+
+	/* Effects */
+	-fx-effect: dropshadow(gaussian, #0000004d, 4, 0, 0, 1);
+}
+
+.button:hover {
+	-fx-background-color: #3a3a3a;
+	-fx-border-color: #4caf50;
+}
+
+/* ----------------------------
+	.choice-box
+----------------------------- */
+.choice-box {
+	/* Layout */
+	-fx-padding: 6;
+	-fx-background-radius: 4;
+
+	/* Color */
+	-fx-background-color: #2a2a2a;
+	-fx-border-color: #444444;
+	-fx-border-width: 1;
+	-fx-mark-color: #f0f0f0;
+}
+
+.choice-box:hover {
+	-fx-border-color: #4caf50;
+}
+
+.choice-box:focused {
+	-fx-border-color: #81c784;
+}
+
+.choice-box .label {
+	-fx-text-fill: #f0f0f0;
+}
+
+/* ----------------------------
+	.choice-box popup styling
+----------------------------- */
+.choice-box .context-menu {
+	/* Layout */
+	-fx-padding: 4;
+	-fx-background-radius: 4;
+
+	/* Color */
+	-fx-background-color: #2a2a2a;
+	-fx-border-color: #444444;
+	-fx-border-width: 1;
+}
+
+.choice-box .menu-item {
+	/* Layout */
+	-fx-padding: 6 12;
+}
+
+.choice-box .menu-item .label {
+	-fx-text-fill: #dddddd;
+}
+
+.choice-box .menu-item:hover {
+	-fx-background-color: #3a3a3a;
+}
+
+.choice-box .menu-item:focused {
+	-fx-background-color: #4caf50;
+	-fx-text-fill: #ffffff;
+}
+
+/* ----------------------------
+	.container
+----------------------------- */
+.container {
+	/* Layout */
+	-fx-padding: 10;
+	-fx-alignment: center;
+
+	/* Color */
+	-fx-background-color: #2a2a2a;
+}
+
+/* ----------------------------
+	.input
+----------------------------- */
+.input {
+	/* Layout */
+	-fx-padding: 8;
+	-fx-background-radius: 4;
+
+	/* Color */
+	-fx-background-color: #2a2a2a;
+	-fx-text-fill: #f0f0f0;
+	-fx-border-color: #444444;
+	-fx-border-width: 1;
+}
+
+.input:hover {
+	-fx-border-color: #4caf50;
+}
+
+.input:focused {
+	-fx-border-color: #81c784;
+}
+
+/* ----------------------------
+	.separator
+----------------------------- */
+.separator {
+	/* Layout */
+	-fx-padding: 10 0;
+}
+
+.separator .line {
+	/* Color */
+	-fx-border-color: #3a3a3a;
+	-fx-border-width: 0 0 1 0;
+}
+
+/* ----------------------------
+	.slider
+----------------------------- */
+.slider {
+	/* Layout */
+	-fx-padding: 6 0;
+
+	/* Color */
+	-fx-background-color: transparent;
+}
+
+.slider .track {
+	/* Color */
+	-fx-background-color: linear-gradient(to left, #4caf50, #f44336);
+	-fx-background-insets: 0;
+	-fx-background-radius: 2;
+	-fx-pref-height: 4;
+}
+
+.slider .thumb {
+	/* Color */
+	-fx-background-color: #f0f0f0;
+	-fx-background-radius: 50%;
+
+	/* Effects */
+	-fx-effect: dropshadow(gaussian, #00000066, 4, 0, 0, 1);
+}
+
+.slider .thumb:hover {
+	-fx-scale-x: 1.2;
+	-fx-scale-y: 1.2;
+}
+
+/* ----------------------------
+	.text-header
+----------------------------- */
+.text-header {
+	-fx-fill: #f0f0f0;
+	-fx-text-fill: #f0f0f0;
+}
+
+/* ----------------------------
+	.text-normal
+----------------------------- */
+.text-normal {
+	-fx-fill: #dddddd;
+	-fx-text-fill: #dddddd;
+}
+
+/* ----------------------------
+	.toggle-button
+----------------------------- */
+.toggle {
+	/* Layout */
+	-fx-padding: 8 16;
+	-fx-background-radius: 6;
+
+	/* Color */
+	-fx-background-color: #333333;
+	-fx-text-fill: #cccccc;
+	-fx-border-color: #4a4a4a;
+}
+
+.toggle:hover {
+	-fx-background-color: #4caf50;
+	-fx-text-fill: #ffffff;
+	-fx-border-color: #4caf50;
+}

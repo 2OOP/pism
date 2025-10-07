@@ -47,6 +47,9 @@ shelf/
 *.iml
 *.ipr
 *.iws
+misc.xml
+uiDesigner.xml
+
 
 ##############################
 ## Eclipse
@@ -104,3 +107,8 @@ newgamesver-release-V1.jar
 server.properties
 gameserver.log.*
 gameserver.log
+
+##############################
+## JPackage
+##############################
+jpackage-input
