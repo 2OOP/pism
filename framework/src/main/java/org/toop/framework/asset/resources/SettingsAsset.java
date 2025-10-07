@@ -20,6 +20,10 @@ public class SettingsAsset extends JsonAsset<Settings> {
         return getContent().fxVolume;
     }
 
+    public int getMusicVolume() {
+        return getContent().musicVolume;
+    }
+
     public Locale getLocale() {
         return Locale.forLanguageTag(getContent().locale);
     }
@@ -43,6 +47,11 @@ public class SettingsAsset extends JsonAsset<Settings> {
 
     public void setFxVolume(int fxVolume) {
         getContent().fxVolume = fxVolume;
+        save();
+    }
+
+    public void setMusicVolume(int musicVolume) {
+        getContent().musicVolume = musicVolume;
         save();
     }
 
