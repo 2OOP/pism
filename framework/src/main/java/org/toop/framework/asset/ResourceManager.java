@@ -1,30 +1,29 @@
 package org.toop.framework.asset;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.asset.resources.*;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Centralized manager for all loaded assets in the application.
- * <p>
- * {@code ResourceManager} maintains a thread-safe registry of {@link Asset} objects
- * and provides utility methods to retrieve assets by name, ID, or type.
- * It works together with {@link ResourceLoader} to register assets automatically
- * when they are loaded from the file system.
- * </p>
  *
- * <p>Key responsibilities:</p>
+ * <p>{@code ResourceManager} maintains a thread-safe registry of {@link Asset} objects and provides
+ * utility methods to retrieve assets by name, ID, or type. It works together with {@link
+ * ResourceLoader} to register assets automatically when they are loaded from the file system.
+ *
+ * <p>Key responsibilities:
+ *
  * <ul>
- *     <li>Storing all loaded assets in a concurrent map.</li>
- *     <li>Providing typed access to asset resources.</li>
- *     <li>Allowing lookup by asset name or ID.</li>
- *     <li>Supporting retrieval of all assets of a specific {@link BaseResource} subclass.</li>
+ *   <li>Storing all loaded assets in a concurrent map.
+ *   <li>Providing typed access to asset resources.
+ *   <li>Allowing lookup by asset name or ID.
+ *   <li>Supporting retrieval of all assets of a specific {@link BaseResource} subclass.
  * </ul>
  *
- * <p>Example usage:</p>
+ * <p>Example usage:
+ *
  * <pre>{@code
  * // Load assets from a loader
  * ResourceLoader loader = new ResourceLoader(new File("RootFolder"));
@@ -40,17 +39,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * Optional<Asset<? extends BaseResource>> maybeAsset = ResourceManager.findByName("menu.css");
  * }</pre>
  *
- * <p>Notes:</p>
+ * <p>Notes:
+ *
  * <ul>
- *     <li>All retrieval methods are static and thread-safe.</li>
- *     <li>The {@link #get(String)} method may require casting if the asset type is not known at compile time.</li>
- *     <li>Assets should be loaded via {@link ResourceLoader} before retrieval.</li>
+ *   <li>All retrieval methods are static and thread-safe.
+ *   <li>The {@link #get(String)} method may require casting if the asset type is not known at
+ *       compile time.
+ *   <li>Assets should be loaded via {@link ResourceLoader} before retrieval.
  * </ul>
  */
 public class ResourceManager {
     private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     private static final ResourceManager INSTANCE = new ResourceManager();
-    private static final Map<String, ResourceMeta<? extends BaseResource>> assets = new ConcurrentHashMap<>();
+    private static final Map<String, ResourceMeta<? extends BaseResource>> assets =
+            new ConcurrentHashMap<>();
 
     private ResourceManager() {}
 
@@ -68,7 +70,7 @@ public class ResourceManager {
      *
      * @param loader the loader that has already loaded assets
      */
-    public synchronized static void loadAssets(ResourceLoader loader) {
+    public static synchronized void loadAssets(ResourceLoader loader) {
         for (var asset : loader.getAssets()) {
             assets.put(asset.getName(), asset);
         }
@@ -85,15 +87,20 @@ public class ResourceManager {
     public static <T extends BaseResource> T get(String name) {
         ResourceMeta<T> asset = (ResourceMeta<T>) assets.get(name);
         if (asset == null) {
-            throw new TypeNotPresentException(name, new RuntimeException(String.format("Type %s not present", name))); // TODO: Create own exception, BAM
+            throw new TypeNotPresentException(
+                    name,
+                    new RuntimeException(
+                            String.format(
+                                    "Type %s not present",
+                                    name))); // TODO: Create own exception, BAM
         }
         return asset.getResource();
     }
 
-//    @SuppressWarnings("unchecked")
-//    public static <T extends BaseResource> ArrayList<ResourceMeta<T>> getAllOfType() {
-//        return (ArrayList<ResourceMeta<T>>) (ArrayList<?>) new ArrayList<>(assets.values());
-//    }
+    //    @SuppressWarnings("unchecked")
+    //    public static <T extends BaseResource> ArrayList<ResourceMeta<T>> getAllOfType() {
+    //        return (ArrayList<ResourceMeta<T>>) (ArrayList<?>) new ArrayList<>(assets.values());
+    //    }
 
     /**
      * Retrieve all assets of a specific resource type.

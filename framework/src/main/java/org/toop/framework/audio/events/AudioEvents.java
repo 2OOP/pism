@@ -1,21 +1,22 @@
 package org.toop.framework.audio.events;
 
+import java.util.Map;
 import org.toop.framework.eventbus.events.EventWithSnowflake;
 import org.toop.framework.eventbus.events.EventWithoutSnowflake;
 import org.toop.framework.eventbus.events.EventsBase;
 
-import java.util.Map;
-
 public class AudioEvents extends EventsBase {
     /** Starts playing a sound. */
-    public record PlayEffect(String fileName, boolean loop)
-            implements EventWithoutSnowflake {}
+    public record PlayEffect(String fileName, boolean loop) implements EventWithoutSnowflake {}
 
     public record StopEffect(long clipId) implements EventWithoutSnowflake {}
 
     public record StartBackgroundMusic() implements EventWithoutSnowflake {}
+
     public record ChangeVolume(double newVolume) implements EventWithoutSnowflake {}
+
     public record ChangeFxVolume(double newVolume) implements EventWithoutSnowflake {}
+
     public record ChangeMusicVolume(double newVolume) implements EventWithoutSnowflake {}
 
     public record GetCurrentVolume(long snowflakeId) implements EventWithSnowflake {
@@ -29,7 +30,9 @@ public class AudioEvents extends EventsBase {
             return snowflakeId;
         }
     }
-    public record GetCurrentVolumeResponse(double currentVolume, long snowflakeId) implements EventWithSnowflake {
+
+    public record GetCurrentVolumeResponse(double currentVolume, long snowflakeId)
+            implements EventWithSnowflake {
         @Override
         public Map<String, Object> result() {
             return Map.of();
@@ -65,7 +68,8 @@ public class AudioEvents extends EventsBase {
         }
     }
 
-    public record GetCurrentFxVolumeResponse(double currentVolume, long snowflakeId) implements EventWithSnowflake {
+    public record GetCurrentFxVolumeResponse(double currentVolume, long snowflakeId)
+            implements EventWithSnowflake {
         @Override
         public Map<String, Object> result() {
             return Map.of();
@@ -77,7 +81,8 @@ public class AudioEvents extends EventsBase {
         }
     }
 
-    public record GetCurrentMusicVolumeResponse(double currentVolume, long snowflakeId) implements EventWithSnowflake {
+    public record GetCurrentMusicVolumeResponse(double currentVolume, long snowflakeId)
+            implements EventWithSnowflake {
         @Override
         public Map<String, Object> result() {
             return Map.of();
@@ -90,5 +95,4 @@ public class AudioEvents extends EventsBase {
     }
 
     public record ClickButton() implements EventWithoutSnowflake {}
-
-    }
+}

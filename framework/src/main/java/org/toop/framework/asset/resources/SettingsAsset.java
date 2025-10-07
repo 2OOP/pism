@@ -1,10 +1,8 @@
 package org.toop.framework.asset.resources;
 
-
-import org.toop.framework.settings.Settings;
-
 import java.io.File;
 import java.util.Locale;
+import org.toop.framework.settings.Settings;
 
 public class SettingsAsset extends JsonAsset<Settings> {
 
@@ -32,13 +30,13 @@ public class SettingsAsset extends JsonAsset<Settings> {
         return getContent().fullScreen;
     }
 
-	public String getTheme() {
-		return getContent().theme;
-	}
+    public String getTheme() {
+        return getContent().theme;
+    }
 
-	public String getLayoutSize() {
-		return getContent().layoutSize;
-	}
+    public String getLayoutSize() {
+        return getContent().layoutSize;
+    }
 
     public void setVolume(int volume) {
         getContent().volume = volume;
@@ -65,13 +63,13 @@ public class SettingsAsset extends JsonAsset<Settings> {
         save();
     }
 
-	public void setTheme(String theme) {
-		getContent().theme = theme;
-		save();
-	}
+    public void setTheme(String theme) {
+        getContent().theme = theme;
+        save();
+    }
 
-	public void setLayoutSize(String layoutSize) {
-		getContent().layoutSize = layoutSize;
-		save();
-	}
+    public void setLayoutSize(String layoutSize) {
+        getContent().layoutSize = layoutSize;
+        save();
+    }
 }

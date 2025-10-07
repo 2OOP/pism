@@ -7,26 +7,27 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A thread-safe, distributed unique ID generator following the Snowflake pattern.
- * <p>
- * Each generated 64-bit ID encodes:
+ *
+ * <p>Each generated 64-bit ID encodes:
+ *
  * <ul>
- *     <li>41-bit timestamp (milliseconds since custom epoch)</li>
- *     <li>10-bit machine identifier</li>
- *     <li>12-bit sequence number for IDs generated in the same millisecond</li>
+ *   <li>41-bit timestamp (milliseconds since custom epoch)
+ *   <li>10-bit machine identifier
+ *   <li>12-bit sequence number for IDs generated in the same millisecond
  * </ul>
- * </p>
  *
  * <p>This implementation ensures:
+ *
  * <ul>
- *     <li>IDs are unique per machine.</li>
- *     <li>Monotonicity within the same machine.</li>
- *     <li>Safe concurrent generation via synchronized {@link #nextId()}.</li>
+ *   <li>IDs are unique per machine.
+ *   <li>Monotonicity within the same machine.
+ *   <li>Safe concurrent generation via synchronized {@link #nextId()}.
  * </ul>
- * </p>
  *
- * <p>Custom epoch is set to {@code 2025-01-01T00:00:00Z}.</p>
+ * <p>Custom epoch is set to {@code 2025-01-01T00:00:00Z}.
  *
- * <p>Usage example:</p>
+ * <p>Usage example:
+ *
  * <pre>{@code
  * SnowflakeGenerator generator = new SnowflakeGenerator();
  * long id = generator.nextId();
@@ -34,9 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SnowflakeGenerator {
 
-    /**
-     * Custom epoch in milliseconds (2025-01-01T00:00:00Z).
-     */
+    /** Custom epoch in milliseconds (2025-01-01T00:00:00Z). */
     private static final long EPOCH = Instant.parse("2025-01-01T00:00:00Z").toEpochMilli();
 
     // Bit allocations
@@ -53,17 +52,15 @@ public class SnowflakeGenerator {
     private static final long MACHINE_SHIFT = SEQUENCE_BITS;
     private static final long TIMESTAMP_SHIFT = SEQUENCE_BITS + MACHINE_BITS;
 
-    /**
-     * Unique machine identifier derived from network interfaces (10 bits).
-     */
+    /** Unique machine identifier derived from network interfaces (10 bits). */
     private static final long machineId = SnowflakeGenerator.genMachineId();
 
     private final AtomicLong lastTimestamp = new AtomicLong(-1L);
     private long sequence = 0L;
 
     /**
-     * Generates a 10-bit machine identifier based on MAC addresses of network interfaces.
-     * Falls back to a random value if MAC cannot be determined.
+     * Generates a 10-bit machine identifier based on MAC addresses of network interfaces. Falls
+     * back to a random value if MAC cannot be determined.
      */
     private static long genMachineId() {
         try {
@@ -82,6 +79,7 @@ public class SnowflakeGenerator {
 
     /**
      * For testing: manually set the last generated timestamp.
+     *
      * @param l timestamp in milliseconds
      */
     void setTime(long l) {
@@ -89,8 +87,8 @@ public class SnowflakeGenerator {
     }
 
     /**
-     * Constructs a SnowflakeGenerator.
-     * Validates that the machine ID is within allowed range.
+     * Constructs a SnowflakeGenerator. Validates that the machine ID is within allowed range.
+     *
      * @throws IllegalArgumentException if machine ID is invalid
      */
     public SnowflakeGenerator() {
@@ -102,10 +100,9 @@ public class SnowflakeGenerator {
 
     /**
      * Generates the next unique ID.
-     * <p>
-     * If multiple IDs are generated in the same millisecond, a sequence number
-     * is incremented. If the sequence overflows, waits until the next millisecond.
-     * </p>
+     *
+     * <p>If multiple IDs are generated in the same millisecond, a sequence number is incremented.
+     * If the sequence overflows, waits until the next millisecond.
      *
      * @return a unique 64-bit ID
      * @throws IllegalStateException if clock moves backwards or timestamp exceeds 41-bit limit
@@ -139,6 +136,7 @@ public class SnowflakeGenerator {
 
     /**
      * Waits until the next millisecond if sequence overflows.
+     *
      * @param lastTimestamp previous timestamp
      * @return new timestamp
      */
@@ -150,9 +148,7 @@ public class SnowflakeGenerator {
         return ts;
     }
 
-    /**
-     * Returns current system timestamp in milliseconds.
-     */
+    /** Returns current system timestamp in milliseconds. */
     private long timestamp() {
         return System.currentTimeMillis();
     }

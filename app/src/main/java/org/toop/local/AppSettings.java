@@ -1,14 +1,12 @@
 package org.toop.local;
 
-import jdk.jfr.Event;
+import java.io.File;
+import java.util.Locale;
 import org.toop.app.App;
 import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.settings.Settings;
-
-import java.io.File;
-import java.util.Locale;
 
 public class AppSettings {
 
@@ -23,10 +21,16 @@ public class AppSettings {
 
         AppContext.setLocale(Locale.of(settingsData.locale));
         App.setFullscreen(settingsData.fullScreen);
-        new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume)).asyncPostEvent();
-        new EventFlow().addPostEvent(new AudioEvents.ChangeFxVolume(settingsData.fxVolume)).asyncPostEvent();
-        new EventFlow().addPostEvent(new AudioEvents.ChangeMusicVolume(settingsData.musicVolume)).asyncPostEvent();
-		App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
+        new EventFlow()
+                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume))
+                .asyncPostEvent();
+        new EventFlow()
+                .addPostEvent(new AudioEvents.ChangeFxVolume(settingsData.fxVolume))
+                .asyncPostEvent();
+        new EventFlow()
+                .addPostEvent(new AudioEvents.ChangeMusicVolume(settingsData.musicVolume))
+                .asyncPostEvent();
+        App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
     }
 
     public SettingsAsset getPath() {
@@ -45,7 +49,8 @@ public class AppSettings {
                 basePath = System.getProperty("user.home") + "/.config";
             }
 
-            File settingsFile = new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
+            File settingsFile =
+                    new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
             this.settingsAsset = new SettingsAsset(settingsFile);
         }
         return this.settingsAsset;

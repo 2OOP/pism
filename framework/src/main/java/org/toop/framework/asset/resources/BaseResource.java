@@ -14,5 +14,4 @@ public abstract class BaseResource {
     public File getFile() {
         return this.file;
     }
-
 }

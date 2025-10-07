@@ -1,12 +1,13 @@
 package org.toop.framework.asset.resources;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.toop.framework.asset.types.FileExtension;
-import org.toop.framework.asset.types.LoadableResource;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import org.toop.framework.asset.types.FileExtension;
+import org.toop.framework.asset.types.LoadableResource;
 
 @FileExtension({"json"})
 public class JsonAsset<T> extends BaseResource implements LoadableResource {
@@ -25,7 +26,8 @@ public class JsonAsset<T> extends BaseResource implements LoadableResource {
         File file = getFile();
         if (!file.exists()) {
             try {
-                // make a new file with the declared constructor (example: settings) if it doesn't exist
+                // make a new file with the declared constructor (example: settings) if it doesn't
+                // exist
                 content = type.getDeclaredConstructor().newInstance();
                 save();
             } catch (Exception e) {
@@ -36,7 +38,7 @@ public class JsonAsset<T> extends BaseResource implements LoadableResource {
             try (FileReader reader = new FileReader(file)) {
                 content = gson.fromJson(reader, type);
                 this.isLoaded = true;
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Failed to load JSON asset" + getFile(), e);
             }
         }
@@ -62,7 +64,7 @@ public class JsonAsset<T> extends BaseResource implements LoadableResource {
             parent.mkdirs();
         }
         try (FileWriter writer = new FileWriter(file)) {
-                gson.toJson(content, writer);
+            gson.toJson(content, writer);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save JSON asset" + getFile(), e);
         }

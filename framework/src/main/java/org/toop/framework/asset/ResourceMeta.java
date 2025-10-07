@@ -25,5 +25,4 @@ public class ResourceMeta<T extends BaseResource> {
     public T getResource() {
         return this.resource;
     }
-
 }

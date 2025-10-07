@@ -1,10 +1,9 @@
 package org.toop.framework.asset.resources;
 
+import java.io.*;
 import javafx.scene.media.Media;
 import org.toop.framework.asset.types.FileExtension;
 import org.toop.framework.asset.types.LoadableResource;
-
-import java.io.*;
 
 @FileExtension({"mp3"})
 public class MusicAsset extends BaseResource implements LoadableResource {
