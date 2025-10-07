@@ -12,11 +12,11 @@ import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.game.TicTacToeLayer;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import org.toop.local.AppContext;
 
 import java.util.List;
 import java.util.Timer;
