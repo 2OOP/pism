@@ -1,4 +1,4 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.resource.resources;
 
 import java.io.File;
 import java.util.Locale;

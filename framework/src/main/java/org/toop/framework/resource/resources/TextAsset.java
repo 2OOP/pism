@@ -1,11 +1,11 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.resource.resources;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import org.toop.framework.asset.types.FileExtension;
-import org.toop.framework.asset.types.LoadableResource;
+import org.toop.framework.resource.types.FileExtension;
+import org.toop.framework.resource.types.LoadableResource;
 
 @FileExtension({"txt", "json", "xml"})
 public class TextAsset extends BaseResource implements LoadableResource {

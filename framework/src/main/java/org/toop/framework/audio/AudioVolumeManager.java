@@ -68,8 +68,6 @@ public class AudioVolumeManager {
 
     private void handleMusicVolumeChange(AudioEvents.ChangeMusicVolume event) {
         this.musicVolume = limitVolume(event.newVolume() / 100);
-        System.out.println(this.musicVolume);
-        System.out.println(this.volume);
         for (MediaPlayer mediaPlayer : sM.getActiveMusic()) {
             this.updateMusicVolume(mediaPlayer);
         }

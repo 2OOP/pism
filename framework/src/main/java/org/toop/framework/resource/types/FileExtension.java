@@ -1,11 +1,11 @@
-package org.toop.framework.asset.types;
+package org.toop.framework.resource.types;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.toop.framework.asset.ResourceLoader;
-import org.toop.framework.asset.resources.BaseResource;
+import org.toop.framework.resource.ResourceLoader;
+import org.toop.framework.resource.resources.BaseResource;
 
 /**
  * Annotation to declare which file extensions a {@link BaseResource} subclass can handle.

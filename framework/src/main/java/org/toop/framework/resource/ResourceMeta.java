@@ -1,7 +1,7 @@
-package org.toop.framework.asset;
+package org.toop.framework.resource;
 
 import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.asset.resources.BaseResource;
+import org.toop.framework.resource.resources.BaseResource;
 
 public class ResourceMeta<T extends BaseResource> {
     private final Long id;

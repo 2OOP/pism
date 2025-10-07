@@ -10,9 +10,9 @@ import org.toop.app.layer.Container;
 import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.Popup;
 import org.toop.app.layer.containers.VerticalContainer;
-import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.resources.SettingsAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 

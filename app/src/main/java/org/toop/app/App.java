@@ -9,10 +9,10 @@ import javafx.stage.Stage;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitPopup;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.resources.CssAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.resources.CssAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 
@@ -107,7 +107,7 @@ public final class App extends Application {
                         try {
                             root.getChildren().removeLast();
                         } catch (Exception e) {
-                            IO.println(e);
+                            IO.println(e); // TODO: Use logger
                         }
                     }
 

@@ -1,7 +1,7 @@
-package org.toop.framework.asset.types;
+package org.toop.framework.resource.types;
 
 import java.io.File;
-import org.toop.framework.asset.ResourceLoader;
+import org.toop.framework.resource.ResourceLoader;
 
 /**
  * Represents a resource that can be composed of multiple files, or "bundled" together under a

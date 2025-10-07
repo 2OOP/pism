@@ -1,6 +1,6 @@
-package org.toop.framework.asset.types;
+package org.toop.framework.resource.types;
 
-import org.toop.framework.asset.ResourceLoader;
+import org.toop.framework.resource.ResourceLoader;
 
 /**
  * Marker interface for resources that should be **automatically loaded** by the {@link

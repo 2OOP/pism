@@ -1,11 +1,11 @@
 package org.toop;
 
 import org.toop.app.App;
-import org.toop.framework.asset.ResourceLoader;
-import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.audio.SoundManager;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
+import org.toop.framework.resource.ResourceLoader;
+import org.toop.framework.resource.ResourceManager;
 
 public final class Main {
     static void main(String[] args) {

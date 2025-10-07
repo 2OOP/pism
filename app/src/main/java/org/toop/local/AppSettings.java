@@ -3,9 +3,9 @@ package org.toop.local;
 import java.io.File;
 import java.util.Locale;
 import org.toop.app.App;
-import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.resources.SettingsAsset;
 import org.toop.framework.settings.Settings;
 
 public class AppSettings {

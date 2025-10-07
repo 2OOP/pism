@@ -1,10 +1,10 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.resource.resources;
 
 import java.io.*;
 import java.nio.file.Files;
 import javax.sound.sampled.*;
-import org.toop.framework.asset.types.FileExtension;
-import org.toop.framework.asset.types.LoadableResource;
+import org.toop.framework.resource.types.FileExtension;
+import org.toop.framework.resource.types.LoadableResource;
 
 @FileExtension({"wav"})
 public class SoundEffectAsset extends BaseResource implements LoadableResource {

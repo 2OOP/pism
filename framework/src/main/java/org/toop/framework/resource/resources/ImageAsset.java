@@ -1,10 +1,10 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.resource.resources;
 
 import java.io.File;
 import java.io.FileInputStream;
 import javafx.scene.image.Image;
-import org.toop.framework.asset.types.FileExtension;
-import org.toop.framework.asset.types.LoadableResource;
+import org.toop.framework.resource.types.FileExtension;
+import org.toop.framework.resource.types.LoadableResource;
 
 @FileExtension({"png", "jpg", "jpeg"})
 public class ImageAsset extends BaseResource implements LoadableResource {

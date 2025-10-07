@@ -1,4 +1,4 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.resource.resources;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.toop.framework.asset.types.FileExtension;
-import org.toop.framework.asset.types.LoadableResource;
+import org.toop.framework.resource.types.FileExtension;
+import org.toop.framework.resource.types.LoadableResource;
 
 @FileExtension({"json"})
 public class JsonAsset<T> extends BaseResource implements LoadableResource {

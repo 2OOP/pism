@@ -1,7 +1,7 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.resource.resources;
 
 import java.io.File;
-import org.toop.framework.asset.types.FileExtension;
+import org.toop.framework.resource.types.FileExtension;
 
 @FileExtension({"css"})
 public class CssAsset extends BaseResource {

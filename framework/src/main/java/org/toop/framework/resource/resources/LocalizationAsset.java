@@ -1,11 +1,11 @@
-package org.toop.framework.asset.resources;
+package org.toop.framework.resource.resources;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import org.toop.framework.asset.types.BundledResource;
-import org.toop.framework.asset.types.FileExtension;
-import org.toop.framework.asset.types.LoadableResource;
+import org.toop.framework.resource.types.BundledResource;
+import org.toop.framework.resource.types.FileExtension;
+import org.toop.framework.resource.types.LoadableResource;
 
 /**
  * Represents a localization resource asset that loads and manages property files containing
@@ -38,7 +38,7 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
     private final String baseName = "localization";
 
     /** Fallback locale used when no matching locale is found. */
-    private final Locale fallback = Locale.forLanguageTag("en_US");
+    private final Locale fallback = Locale.forLanguageTag("en");
 
     /**
      * Constructs a new LocalizationAsset for the specified file.

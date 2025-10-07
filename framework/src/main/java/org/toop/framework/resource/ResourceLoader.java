@@ -1,4 +1,4 @@
-package org.toop.framework.asset;
+package org.toop.framework.resource;
 
 import java.io.File;
 import java.util.*;
@@ -9,12 +9,13 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
-import org.toop.framework.asset.events.AssetLoaderEvents;
-import org.toop.framework.asset.resources.*;
-import org.toop.framework.asset.types.BundledResource;
-import org.toop.framework.asset.types.FileExtension;
-import org.toop.framework.asset.types.PreloadResource;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.events.AssetLoaderEvents;
+import org.toop.framework.resource.exceptions.CouldNotCreateResourceFactoryException;
+import org.toop.framework.resource.resources.*;
+import org.toop.framework.resource.types.BundledResource;
+import org.toop.framework.resource.types.FileExtension;
+import org.toop.framework.resource.types.PreloadResource;
 
 /**
  * Responsible for loading assets from a file system directory into memory.
@@ -141,19 +142,24 @@ public class ResourceLoader {
     }
 
     /** Maps a file to a resource instance based on its extension and registered factories. */
-    private <T extends BaseResource> T resourceMapper(File file, Class<T> type) {
+    private <T extends BaseResource> T resourceMapper(File file)
+            throws CouldNotCreateResourceFactoryException, IllegalArgumentException {
         String ext = getExtension(file.getName());
         Function<File, ? extends BaseResource> factory = registry.get(ext);
-        if (factory == null) return null;
+        if (factory == null)
+            throw new CouldNotCreateResourceFactoryException(registry, file.getName());
 
         BaseResource resource = factory.apply(file);
 
-        if (!type.isInstance(resource)) {
+        if (resource == null) {
             throw new IllegalArgumentException(
-                    "File " + file.getName() + " is not of type " + type.getSimpleName());
+                    "File "
+                            + file.getName()
+                            + " is not of type "
+                            + BaseResource.class.getSimpleName());
         }
 
-        return type.cast(resource);
+        return ((Class<T>) BaseResource.class).cast(resource);
     }
 
     /** Loads the given list of files into assets, handling bundled and preload resources. */
@@ -162,7 +168,14 @@ public class ResourceLoader {
 
         for (File file : files) {
             boolean skipAdd = false;
-            BaseResource resource = resourceMapper(file, BaseResource.class);
+            BaseResource resource = null;
+            try {
+                resource = resourceMapper(file);
+            } catch (CouldNotCreateResourceFactoryException _) {
+                logger.warn("Could not create resource for: {}", file);
+            } catch (IllegalArgumentException e) {
+                logger.error(e);
+            }
             switch (resource) {
                 case null -> {
                     continue;
@@ -216,7 +229,7 @@ public class ResourceLoader {
      * {@link FileExtension}.
      */
     private void autoRegisterResources() {
-        Reflections reflections = new Reflections("org.toop.framework.asset.resources");
+        Reflections reflections = new Reflections("org.toop.framework.resource.resources");
         Set<Class<? extends BaseResource>> classes = reflections.getSubTypesOf(BaseResource.class);
 
         for (Class<? extends BaseResource> cls : classes) {

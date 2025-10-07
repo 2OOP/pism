@@ -7,12 +7,12 @@ import javax.sound.sampled.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.ResourceMeta;
-import org.toop.framework.asset.resources.MusicAsset;
-import org.toop.framework.asset.resources.SoundEffectAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.ResourceMeta;
+import org.toop.framework.resource.resources.MusicAsset;
+import org.toop.framework.resource.resources.SoundEffectAsset;
 
 public class SoundManager {
     private static final Logger logger = LogManager.getLogger(SoundManager.class);
@@ -20,8 +20,6 @@ public class SoundManager {
     private final Queue<MusicAsset> backgroundMusicQueue = new LinkedList<>();
     private final Map<Long, Clip> activeSoundEffects = new HashMap<>();
     private final HashMap<String, SoundEffectAsset> audioResources = new HashMap<>();
-    private final SnowflakeGenerator idGenerator =
-            new SnowflakeGenerator(); // TODO: Don't create a new generator
     private final AudioVolumeManager audioVolumeManager = new AudioVolumeManager(this);
 
     public SoundManager() {
@@ -120,7 +118,9 @@ public class SoundManager {
         logger.info("Playing background music: {}", ma.getFile().getName());
         logger.info(
                 "Background music next in line: {}",
-                backgroundMusicQueue.peek() != null ? backgroundMusicQueue.peek().getFile().getName() : null);
+                backgroundMusicQueue.peek() != null
+                        ? backgroundMusicQueue.peek().getFile().getName()
+                        : null);
     }
 
     private long playSound(String audioFileName, boolean loop)
@@ -149,10 +149,10 @@ public class SoundManager {
         logger.debug("Playing sound: {}", asset.getFile().getName());
 
         // Generate id for clip
-        long clipId = idGenerator.nextId();
+        long clipId = new SnowflakeGenerator().nextId();
 
         // store it so we can stop it later
-        activeSoundEffects.put(clipId, clip); // TODO: Do on snowflake for specific sound to stop
+        activeSoundEffects.put(clipId, clip);
 
         // remove when finished (only for non-looping sounds)
         clip.addLineListener(

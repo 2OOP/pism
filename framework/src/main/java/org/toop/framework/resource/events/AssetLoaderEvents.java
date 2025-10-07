@@ -1,4 +1,4 @@
-package org.toop.framework.asset.events;
+package org.toop.framework.resource.events;
 
 import org.toop.framework.eventbus.events.EventWithoutSnowflake;
 

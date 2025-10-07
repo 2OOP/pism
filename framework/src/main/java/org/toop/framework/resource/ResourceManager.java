@@ -1,16 +1,15 @@
-package org.toop.framework.asset;
+package org.toop.framework.resource;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.toop.framework.asset.resources.*;
+import org.toop.framework.resource.exceptions.ResourceNotFoundException;
+import org.toop.framework.resource.resources.*;
 
 /**
  * Centralized manager for all loaded assets in the application.
  *
- * <p>{@code ResourceManager} maintains a thread-safe registry of {@link ResourceMeta} objects and provides
- * utility methods to retrieve assets by name, ID, or type. It works together with {@link
+ * <p>{@code ResourceManager} maintains a thread-safe registry of {@link ResourceMeta} objects and
+ * provides utility methods to retrieve assets by name, ID, or type. It works together with {@link
  * ResourceLoader} to register assets automatically when they are loaded from the file system.
  *
  * <p>Key responsibilities:
@@ -49,7 +48,7 @@ import org.toop.framework.asset.resources.*;
  * </ul>
  */
 public class ResourceManager {
-    private static final Logger logger = LogManager.getLogger(ResourceManager.class);
+    //    private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     private static final Map<String, ResourceMeta<? extends BaseResource>> assets =
             new ConcurrentHashMap<>();
 
@@ -61,7 +60,7 @@ public class ResourceManager {
      * @param loader the loader that has already loaded assets
      */
     public static synchronized void loadAssets(ResourceLoader loader) {
-        for (var asset : loader.getAssets()) {
+        for (ResourceMeta<? extends BaseResource> asset : loader.getAssets()) {
             assets.put(asset.getName(), asset);
         }
     }
@@ -77,12 +76,7 @@ public class ResourceManager {
     public static <T extends BaseResource> T get(String name) {
         ResourceMeta<T> asset = (ResourceMeta<T>) assets.get(name);
         if (asset == null) {
-            throw new TypeNotPresentException(
-                    name,
-                    new RuntimeException(
-                            String.format(
-                                    "Type %s not present",
-                                    name))); // TODO: Create own exception, BAM
+            throw new ResourceNotFoundException(name);
         }
         return asset.getResource();
     }

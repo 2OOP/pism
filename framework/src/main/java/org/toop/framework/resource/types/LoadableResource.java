@@ -1,6 +1,6 @@
-package org.toop.framework.asset.types;
+package org.toop.framework.resource.types;
 
-import org.toop.framework.asset.ResourceLoader;
+import org.toop.framework.resource.ResourceLoader;
 
 /**
  * Represents a resource that can be explicitly loaded and unloaded.

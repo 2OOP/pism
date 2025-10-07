@@ -1,8 +1,8 @@
 package org.toop.local;
 
 import java.util.Locale;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.resources.LocalizationAsset;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.resources.LocalizationAsset;
 
 public class AppContext {
     private static final LocalizationAsset localization = ResourceManager.get("localization");
