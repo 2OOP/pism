@@ -39,7 +39,6 @@ public final class TicTacToeLayer extends Layer {
 	private final BlockingQueue<Game.Move> playerMoveQueue = new LinkedBlockingQueue<>();
 
 	// Todo: set these from the server
-	private char currentPlayerMove = Game.EMPTY;
 	private String player2Name = "";
 
 	final AtomicBoolean firstPlayerIsMe = new AtomicBoolean(true);
@@ -56,8 +55,16 @@ public final class TicTacToeLayer extends Layer {
 						playerMoveQueue.put(new Game.Move(cell, 'O'));
 					}
 				} else {
-					if (information.isPlayerHuman()[0] && currentPlayerMove != Game.EMPTY) {
-						playerMoveQueue.put(new Game.Move(cell, firstPlayerIsMe.get()? 'X' : 'O'));
+					if (information.isPlayerHuman()[0]) {
+						if (ticTacToe.get().getCurrentTurn() == 0) {
+							if (firstPlayerIsMe.get()) {
+								playerMoveQueue.put(new Game.Move(cell, 'X'));
+							}
+						} else {
+							if (!firstPlayerIsMe.get()) {
+								playerMoveQueue.put(new Game.Move(cell, 'O'));
+							}
+						}
 					}
 				}
 			} catch (InterruptedException _) {}
@@ -84,6 +91,18 @@ public final class TicTacToeLayer extends Layer {
 		Thread a = new Thread(this::serverGameThread);
 		a.setDaemon(false);
 		a.start();
+
+		reload();
+	}
+
+	public TicTacToeLayer(GameInformation information, long clientID, NetworkEvents.GameMatchResponse resp) {
+		this(information);
+
+		Thread a = new Thread(this::serverGameThread);
+		a.setDaemon(false);
+		a.start();
+
+		handleServerGameStart(resp);
 
 		reload();
 	}
@@ -256,7 +275,11 @@ public final class TicTacToeLayer extends Layer {
 
 		if (state != Game.State.NORMAL) { //todo differentiate between future draw guaranteed and is currently a draw
 			if (state == Game.State.WIN) {
-				App.push(new GameFinishedPopup(false, information.playerName()[ticTacToe.get().getCurrentTurn()]));
+				if (!resp.player().equalsIgnoreCase(player2Name)) {
+					App.push(new GameFinishedPopup(false, information.playerName()[0]));
+				} else {
+					App.push(new GameFinishedPopup(false, player2Name));
+				}
 			} else if (state == Game.State.DRAW) {
 				App.push(new GameFinishedPopup(true, ""));
 			}
@@ -278,6 +301,7 @@ public final class TicTacToeLayer extends Layer {
 		if (information.isPlayerHuman()[0]) {
 			try {
 				position = playerMoveQueue.take().position();
+				System.out.println("TEST" + position);
 			} catch (InterruptedException _) {}
 		} else {
 			final Game.Move move = ticTacToeAI.findBestMove(ticTacToe.get(), compurterDifficultyToDepth(10,

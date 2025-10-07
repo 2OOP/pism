@@ -146,7 +146,7 @@ public final class ConnectedLayer extends Layer {
 					.listen(NetworkEvents.GameMatchResponse.class, e -> {
 						if (e.clientId() == this.clientId) {
 							pollTimer.cancel();
-							App.activate(new TicTacToeLayer(information, this.clientId));
+							App.activate(new TicTacToeLayer(information, this.clientId, e));
 						}
 					}, false).postEvent();
 			//           ^
