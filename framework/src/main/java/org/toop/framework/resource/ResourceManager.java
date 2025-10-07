@@ -2,6 +2,9 @@ package org.toop.framework.resource;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.resource.exceptions.ResourceNotFoundException;
 import org.toop.framework.resource.resources.*;
 
@@ -48,7 +51,7 @@ import org.toop.framework.resource.resources.*;
  * </ul>
  */
 public class ResourceManager {
-    //    private static final Logger logger = LogManager.getLogger(ResourceManager.class);
+        private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     private static final Map<String, ResourceMeta<? extends BaseResource>> assets =
             new ConcurrentHashMap<>();
 
@@ -127,5 +130,6 @@ public class ResourceManager {
      */
     public static void addAsset(ResourceMeta<? extends BaseResource> asset) {
         assets.put(asset.getName(), asset);
+        logger.info("Successfully added asset: {}, to the asset list", asset.getName());
     }
 }

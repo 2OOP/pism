@@ -5,6 +5,8 @@ import java.util.Locale;
 import org.toop.app.App;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.ResourceMeta;
 import org.toop.framework.resource.resources.SettingsAsset;
 import org.toop.framework.settings.Settings;
 
@@ -13,11 +15,12 @@ public class AppSettings {
     private SettingsAsset settingsAsset;
 
     public void applySettings() {
-        SettingsAsset settings = getPath();
-        if (!settings.isLoaded()) {
-            settings.load();
+        this.settingsAsset = getPath();
+        if (!this.settingsAsset.isLoaded()) {
+            this.settingsAsset.load();
         }
-        Settings settingsData = settings.getContent();
+
+        Settings settingsData = this.settingsAsset.getContent();
 
         AppContext.setLocale(Locale.of(settingsData.locale));
         App.setFullscreen(settingsData.fullScreen);
@@ -51,8 +54,9 @@ public class AppSettings {
 
             File settingsFile =
                     new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
-            this.settingsAsset = new SettingsAsset(settingsFile);
+//            this.settingsAsset = new SettingsAsset(settingsFile);
+            ResourceManager.addAsset(new ResourceMeta<>("settings.json", new SettingsAsset(settingsFile)));
         }
-        return this.settingsAsset;
+        return ResourceManager.get("settings.json");
     }
 }
