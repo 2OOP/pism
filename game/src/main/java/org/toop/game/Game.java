@@ -9,6 +9,8 @@ public abstract class Game {
 
 	public record Move(int position, char value) {}
 
+    public record Score(int player1Score, int player2Score) {}
+
 	public static final char EMPTY = (char)0;
 
 	public final int rowSize;

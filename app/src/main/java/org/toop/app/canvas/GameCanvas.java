@@ -95,7 +95,7 @@ public abstract class GameCanvas {
 		}
 	}
 
-	public void draw(Color color, int cell) {
+	public void drawDot(Color color, int cell) {
 		final float x = cells[cell].x() + gapSize;
 		final float y = cells[cell].y() + gapSize;
 
@@ -103,7 +103,7 @@ public abstract class GameCanvas {
 		final float height = cells[cell].height() - gapSize * 2;
 
 		graphics.setFill(color);
-		graphics.fillRect(x, y, width, height);
+		graphics.fillOval(x, y, width, height);
 	}
 
 	public void resize(int width, int height) {

@@ -5,6 +5,7 @@ import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.app.layer.layers.game.ReversiLayer;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -24,7 +25,7 @@ public final class MainLayer extends Layer {
 		});
 
 		final var othelloButton = NodeBuilder.button(AppContext.getString("othello"), () -> {
-			App.activate(new MultiplayerLayer());
+			App.activate(new ReversiLayer());
 		});
 
 		final var creditsButton = NodeBuilder.button(AppContext.getString("credits"), () -> {
