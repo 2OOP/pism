@@ -26,6 +26,7 @@ public class ReversiLayer extends Layer{
 
 
         reload();
+        canvas.drawLegalMoves(reversi.getLegalMoves());
     }
 
     @Override

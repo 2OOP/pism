@@ -104,6 +104,7 @@ public abstract class GameCanvas {
 
 		graphics.setFill(color);
 		graphics.fillOval(x, y, width, height);
+        IO.println("gothere");
 	}
 
 	public void resize(int width, int height) {

@@ -22,13 +22,14 @@ public class ReversiCanvas extends GameCanvas{
     public void drawLegalMoves(Game.Move[] moves){
         mostRecentLegalMoves = moves;
         for(Game.Move move : moves){
-            drawDot(Color.RED,move.position());
+            IO.println("Legal Moves:" + move.position());
+            drawDot(new Color(1f,0,0,0.25f),move.position());
         }
     }
     public void removeLegalMoves(){
         if (mostRecentLegalMoves != null){
             for(Game.Move move : mostRecentLegalMoves){
-                drawDot(Color.GRAY,move.position()); //todo get current background color
+                drawDot(Color.GRAY,move.position()); //todo get current background color or make this redraw the entire board
             }
         }
         mostRecentLegalMoves = null;
