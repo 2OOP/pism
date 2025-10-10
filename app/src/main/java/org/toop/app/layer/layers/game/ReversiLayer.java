@@ -7,6 +7,7 @@ import org.toop.app.layer.*;
 import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.MainLayer;
+import org.toop.game.Game;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
 import org.toop.local.AppContext;
@@ -19,7 +20,9 @@ public class ReversiLayer extends Layer{
         super("bg-secondary"); //make reversiboard background dark green
 
         canvas = new ReversiCanvas(Color.GREEN,(App.getHeight() / 100) * 75, (App.getHeight() / 100) * 75, (cell) -> {
-            IO.println("clicked reversi cell: "+cell);
+            reversi.play(new Game.Move(cell,reversi.getCurrentPlayer()));
+            reload();
+            canvas.drawLegalMoves(reversi.getLegalMoves());
         });
         reversi = new Reversi() ;
         reversiAI = new ReversiAI();

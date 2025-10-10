@@ -2,7 +2,7 @@ package org.toop.game.tictactoe;
 
 import org.toop.game.Game;
 
-import java.util.Set;
+import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,46 +30,88 @@ class ReversiTest {
         assertEquals('B',game.board[35]);
         assertEquals('W',game.board[36]);
     }
+
     @Test
     void testGetLegalMovesAtStart() {
         Game.Move[] moves = game.getLegalMoves();
+        List<Game.Move> expectedMoves = List.of(
+                new Game.Move(19,'B'),
+                new Game.Move(26,'B'),
+                new Game.Move(37,'B'),
+                new Game.Move(44,'B')
+        );
         assertNotNull(moves);
         assertTrue(moves.length > 0);
-        assertEquals(new Game.Move(19,'B'),moves[0]);
-        assertEquals(new Game.Move(26,'B'),moves[0]);
-        assertEquals(new Game.Move(37,'B'),moves[0]);
-        assertEquals(new Game.Move(44,'B'),moves[0]);
+        assertMovesMatchIgnoreOrder(expectedMoves, Arrays.asList(moves));
     }
+
+    private void assertMovesMatchIgnoreOrder(List<Game.Move> expected, List<Game.Move> actual) {
+        assertEquals(expected.size(), actual.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertTrue(actual.contains(expected.get(i)));
+            assertTrue(expected.contains(actual.get(i)));
+        }
+    }
+
     @Test
     void testMakeValidMoveFlipsPieces() {
         game.play(new Game.Move(19, 'B'));
         assertEquals('B', game.board[19]);
         assertEquals('B', game.board[27], "Piece should have flipped to B");
     }
+
     @Test
     void testMakeInvalidMoveDoesNothing() {
         char[] before = game.board.clone();
         game.play(new Game.Move(0, 'B'));
         assertArrayEquals(before, game.board, "Board should not change on invalid move");
     }
+
     @Test
     void testTurnSwitchesAfterValidMove() {
         char current = game.getCurrentPlayer();
         game.play(game.getLegalMoves()[0]);
         assertNotEquals(current, game.getCurrentPlayer(), "Player turn should switch after a valid move");
     }
+
     @Test
-    void testCountScoreCorrectly() {
+    void testCountScoreCorrectlyAtStart() {
+        long start =  System.nanoTime();
         Game.Score score = game.getScore();
         assertEquals(2, score.player1Score()); // Black
         assertEquals(2, score.player2Score()); // White
+        long end  =  System.nanoTime();
+        IO.println((end-start));
     }
+
+    @Test
+    void testCountScoreCorrectlyAtEnd() {
+        for (int i = 0; i < 10; i++){
+            game =  new Reversi();
+            Game.Move[] legalMoves = game.getLegalMoves();
+            while(legalMoves.length > 0) {
+                game.play(legalMoves[(int)(Math.random()*legalMoves.length)]);
+                legalMoves = game.getLegalMoves();
+            }
+            Game.Score score = game.getScore();
+            IO.println(score.player1Score());
+            IO.println(score.player2Score());
+            char[][] grid = game.makeBoardAGrid();
+            for (char[] chars : grid) {
+                IO.println(Arrays.toString(chars));
+            }
+
+        }
+
+    }
+
     @Test
     void testAISelectsLegalMove() {
         Game.Move move = ai.findBestMove(game,4);
         assertNotNull(move);
         assertTrue(containsMove(game.getLegalMoves(),move), "AI should always choose a legal move");
     }
+
     private boolean containsMove(Game.Move[] moves, Game.Move move) {
         for (Game.Move m : moves) {
             if (m.equals(move)) return true;

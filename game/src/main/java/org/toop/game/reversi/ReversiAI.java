@@ -6,6 +6,6 @@ import org.toop.game.Game;
 public final class ReversiAI extends AI<Reversi> {
 	@Override
 	public Game.Move findBestMove(Reversi game, int depth) {
-		return null;
+		return game.getLegalMoves()[0];
 	}
 }
