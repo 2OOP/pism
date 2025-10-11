@@ -1,17 +1,12 @@
 package org.toop;
 
-import javafx.scene.media.MediaPlayer;
 import org.toop.app.App;
-import org.toop.framework.audio.AudioEventListener;
-import org.toop.framework.audio.AudioVolumeManager;
-import org.toop.framework.audio.MusicManager;
-import org.toop.framework.audio.SoundEffectManager;
+import org.toop.framework.audio.*;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.MusicAsset;
-import org.toop.framework.resource.resources.SoundEffectAsset;
 
 public final class Main {
     static void main(String[] args) {

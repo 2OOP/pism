@@ -101,9 +101,13 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
     }
 
     @Override
-    public boolean isPlaying() {
+    public void setOnEnd(Runnable run) {
         // TODO
-        return false;
+    }
+
+    @Override
+    public void setOnError(Runnable run) {
+        // TODO
     }
 
     @Override

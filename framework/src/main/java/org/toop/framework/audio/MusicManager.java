@@ -1,31 +1,40 @@
 package org.toop.framework.audio;
 
-import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.audio.interfaces.Dispatcher;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.BaseResource;
 import org.toop.framework.resource.types.AudioResource;
 
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MusicManager<T extends AudioResource> implements org.toop.framework.audio.interfaces.MusicManager<T> {
     private static final Logger logger = LogManager.getLogger(MusicManager.class);
-    private final Class<T> type;
+
     private final List<T> backgroundMusic = new LinkedList<>();
+    private final Dispatcher dispatcher;
+    private final List<T> resources;
     private int playingIndex = 0;
-    private ScheduledExecutorService scheduler;
+    private boolean playing = false;
 
     public MusicManager(Class<T> type) {
-        this.type = type;
-
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownScheduler));
+        this.dispatcher = new JavaFXDispatcher();
+        this.resources = new ArrayList<>(ResourceManager.getAllOfType((Class<? extends BaseResource>) type)
+                .stream()
+                .map(e -> (T) e.getResource())
+                .toList());
+        createShuffled();
     }
 
-    private void increasePlayingIndex() {
-        playingIndex = (playingIndex + 1) % backgroundMusic.size();
+    // Used in unit testing
+    MusicManager(Class<T> type, Dispatcher dispatcher, ResourceManager resourceManager) {
+        this.dispatcher = dispatcher;
+        this.resources = new ArrayList<>(resourceManager.getAllOfType((Class<? extends BaseResource>) type)
+            .stream()
+            .map(e -> (T) e.getResource())
+            .toList());
+        createShuffled();
     }
 
     @Override
@@ -37,52 +46,61 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         backgroundMusic.add(musicAsset);
     }
 
-    private void shutdownScheduler() {
-        if (scheduler != null && !scheduler.isShutdown()) {
-            scheduler.shutdownNow();
-            scheduler = null;
-            logger.debug("MusicManager scheduler shut down.");
-        }
-    }
-
-    @Override
-    public void stop() {
-        shutdownScheduler();
-        Platform.runLater(() -> backgroundMusic.forEach(T::stop));
+    private void createShuffled() {
+        backgroundMusic.clear();
+        Collections.shuffle(resources);
+        backgroundMusic.addAll(resources);
     }
 
     public void play() {
-        backgroundMusic.clear();
-        @SuppressWarnings("unchecked")
-        List<T> resources = new ArrayList<>(ResourceManager.getAllOfType((Class<? extends BaseResource>) type)
-                .stream()
-                .map(e -> (T) e.getResource())
-                .toList());
-        Collections.shuffle(resources);
-        backgroundMusic.addAll(resources);
+        if (playing) {
+            logger.warn("MusicManager is already playing.");
+            return;
+        }
 
         if (backgroundMusic.isEmpty()) return;
 
-        shutdownScheduler();
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        playingIndex = 0;
+        playing = true;
+        playCurrentTrack();
+    }
 
-        AtomicReference<T> current = new AtomicReference<>(backgroundMusic.get(playingIndex));
+    private void playCurrentTrack() {
+        if (playingIndex >= backgroundMusic.size()) {
+            playingIndex = 0;
+        }
 
-        Platform.runLater(() -> {
-            T first = current.get();
-            if (!first.isPlaying()) first.play();
+        T current = backgroundMusic.get(playingIndex);
+
+        if (current == null) {
+            logger.error("Current track is null!");
+            return;
+        }
+
+        dispatcher.run(() -> {
+            current.play();
+
+            current.setOnEnd(() -> {
+                playingIndex++;
+                playCurrentTrack();
+            });
+
+            current.setOnError(() -> {
+                logger.error("Error playing track: {}", current);
+                backgroundMusic.remove(current);
+                if (!backgroundMusic.isEmpty()) {
+                    playCurrentTrack();
+                } else {
+                    playing = false;
+                }
+            });
         });
+    }
 
-        scheduler.scheduleAtFixedRate(() -> {
-            T track = current.get();
-            if (!track.isPlaying()) {
-                increasePlayingIndex();
-                T next = backgroundMusic.get(playingIndex);
-                current.set(next);
-                Platform.runLater(() -> {
-                    if (!next.isPlaying()) next.play();
-                });
-            }
-        }, 500, 500, TimeUnit.MILLISECONDS);
+    public void stop() {
+        if (!playing) return;
+
+        playing = false;
+        dispatcher.run(() -> backgroundMusic.forEach(T::stop));
     }
 }

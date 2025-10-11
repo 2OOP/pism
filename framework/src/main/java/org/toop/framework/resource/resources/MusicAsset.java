@@ -62,8 +62,13 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
     }
 
     @Override
-    public boolean isPlaying() {
-        return isPlaying;
+    public void setOnEnd(Runnable run) {
+        mediaPlayer.setOnEndOfMedia(run);
+    }
+
+    @Override
+    public void setOnError(Runnable run) {
+        mediaPlayer.setOnError(run);
     }
 
     @Override

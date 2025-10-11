@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.resource.exceptions.ResourceNotFoundException;
 import org.toop.framework.resource.resources.*;
-import org.toop.framework.resource.types.AudioResource;
 
 /**
  * Centralized manager for all loaded assets in the application.
@@ -52,11 +51,19 @@ import org.toop.framework.resource.types.AudioResource;
  * </ul>
  */
 public class ResourceManager {
-        private static final Logger logger = LogManager.getLogger(ResourceManager.class);
+    private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     private static final Map<String, ResourceMeta<? extends BaseResource>> assets =
             new ConcurrentHashMap<>();
+    private static ResourceManager instance;
 
     private ResourceManager() {}
+
+    public static ResourceManager getInstance() {
+        if (instance == null) {
+            instance = new ResourceManager();
+        }
+        return instance;
+    }
 
     /**
      * Loads all assets from a given {@link ResourceLoader} into the manager.
