@@ -44,7 +44,7 @@ public class SoundEffectManager implements org.toop.framework.audio.interfaces.S
         }
 
         asset.play();
-        // TODO: Volume of Sound Effect isn't set when loading. When loading an effect it will be full volume.
+
         logger.debug("Playing sound: {}", asset.getFile().getName());
     }
 
