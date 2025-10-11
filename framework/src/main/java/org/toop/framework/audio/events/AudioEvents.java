@@ -11,7 +11,7 @@ public class AudioEvents extends EventsBase {
     /** Starts playing a sound. */
     public record PlayEffect(String fileName, boolean loop) implements EventWithoutSnowflake {}
 
-    public record StopEffect(long clipId) implements EventWithoutSnowflake {}
+    public record StopEffect(String fileName) implements EventWithoutSnowflake {}
 
     public record StartBackgroundMusic() implements EventWithoutSnowflake {}
 

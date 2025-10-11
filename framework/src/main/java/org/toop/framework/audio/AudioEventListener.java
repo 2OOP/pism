@@ -7,6 +7,10 @@ import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.types.AudioResource;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
+
 public class AudioEventListener<T extends AudioResource, K extends AudioResource> {
     private final MusicManager<T> musicManager;
     private final SoundEffectManager<K> soundEffectManager;
@@ -33,7 +37,10 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
                 .listen(this::handleMusicVolumeChange)
                 .listen(this::handleGetVolume)
                 .listen(this::handleGetFxVolume)
-                .listen(this::handleGetMusicVolume);
+                .listen(this::handleGetMusicVolume)
+                .listen(AudioEvents.ClickButton.class, _ -> {
+                    soundEffectManager.play("medium-button-click.wav", false);
+                });
     }
 
     private void handleStopMusicManager(AudioEvents.StopAudioManager event) {
@@ -45,7 +52,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleStopSound(AudioEvents.StopEffect event) {
-        this.soundEffectManager.stop(event.clipId());
+        this.soundEffectManager.stop(event.fileName());
     }
 
     private void handleMusicStart(AudioEvents.StartBackgroundMusic event) {

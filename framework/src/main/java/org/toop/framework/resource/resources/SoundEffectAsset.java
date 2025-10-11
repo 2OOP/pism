@@ -8,45 +8,23 @@ import org.toop.framework.resource.types.AudioResource;
 import org.toop.framework.resource.types.FileExtension;
 import org.toop.framework.resource.types.LoadableResource;
 
+import static javax.sound.sampled.LineEvent.Type.CLOSE;
+import static javax.sound.sampled.LineEvent.Type.STOP;
+
 @FileExtension({"wav"})
 public class SoundEffectAsset extends BaseResource implements LoadableResource, AudioResource {
-    private byte[] rawData;
-    private Clip clip = null;
+    private final Clip clip = AudioSystem.getClip();
 
-    public SoundEffectAsset(final File audioFile) {
+    public SoundEffectAsset(final File audioFile) throws LineUnavailableException {
         super(audioFile);
     }
 
     // Gets a new clip to play
-    public Clip getNewClip()
-            throws LineUnavailableException, UnsupportedAudioFileException, IOException {
-        // Get a new clip from audio system
-        Clip clip = AudioSystem.getClip();
-
-        // Insert a new audio stream into the clip
-        AudioInputStream inputStream = this.getAudioStream();
-        AudioFormat baseFormat = inputStream.getFormat();
-        if (baseFormat.getSampleSizeInBits() > 16)
-            inputStream = downSampleAudio(inputStream, baseFormat);
-        clip.open(
-                inputStream); // ^ Clip can only run 16 bit and lower, thus downsampling necessary.
-        this.clip = clip;
-        return clip;
+    public Clip getClip() {
+        if (!this.isLoaded()) {this.load();} return this.clip;
     }
 
-    // Generates a new audio stream from byte array
-    private AudioInputStream getAudioStream() throws UnsupportedAudioFileException, IOException {
-        // Check if raw data is loaded into memory
-        if (!this.isLoaded()) {
-            this.load();
-        }
-
-        // Turn rawData into an input stream and turn that into an audio input stream;
-        return AudioSystem.getAudioInputStream(new ByteArrayInputStream(this.rawData));
-    }
-
-    private AudioInputStream downSampleAudio(
-            AudioInputStream audioInputStream, AudioFormat baseFormat) {
+    private AudioInputStream downSampleAudio(AudioInputStream audioInputStream, AudioFormat baseFormat) {
         AudioFormat decodedFormat =
                 new AudioFormat(
                         AudioFormat.Encoding.PCM_SIGNED,
@@ -61,19 +39,35 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
         return AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
     }
 
+
+
     @Override
     public void load() {
         try {
-            this.rawData = Files.readAllBytes(file.toPath());
+            if (this.isLoaded){
+                return; // Return if it is already loaded
+            }
+
+            // Insert a new audio stream into the clip
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(this.getFile())));
+            AudioFormat baseFormat = inputStream.getFormat();
+            if (baseFormat.getSampleSizeInBits() > 16)
+                inputStream = downSampleAudio(inputStream, baseFormat);
+            this.clip.open(inputStream); // ^ Clip can only run 16 bit and lower, thus downsampling necessary.
             this.isLoaded = true;
-        } catch (IOException e) {
+        } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public void unload() {
-        this.rawData = null;
+        if (!this.isLoaded) return; // Return if already unloaded
+
+        if (clip.isRunning()) clip.stop(); // Stops playback of the clip
+
+        clip.close(); // Releases native resources (empties buffer)
+
         this.isLoaded = false;
     }
 
@@ -112,12 +106,15 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
 
     @Override
     public void play() {
-        // TODO
+        if (!isLoaded()) load();
+
+        this.clip.setFramePosition(0); // rewind to the start
+        this.clip.start();
     }
 
     @Override
     public void stop() {
-        // TODO
+        if (this.clip.isRunning()) this.clip.stop();
     }
 
 }
