@@ -28,13 +28,10 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
     }
 
     // Used in unit testing
-    MusicManager(Class<T> type, Dispatcher dispatcher, ResourceManager resourceManager) {
+    MusicManager(List<T> resources, Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
-        this.resources = new ArrayList<>(resourceManager.getAllOfType((Class<? extends BaseResource>) type)
-            .stream()
-            .map(e -> (T) e.getResource())
-            .toList());
-        createShuffled();
+        this.resources = new ArrayList<>(resources);
+        backgroundMusic.addAll(resources);
     }
 
     @Override
@@ -42,7 +39,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         return backgroundMusic;
     }
 
-    private void addBackgroundMusic(T musicAsset) {
+    void addBackgroundMusic(T musicAsset) {
         backgroundMusic.add(musicAsset);
     }
 
@@ -65,6 +62,20 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         playCurrentTrack();
     }
 
+    // Used in testing
+    void play(int index) {
+        if (playing) {
+            logger.warn("MusicManager is already playing.");
+            return;
+        }
+
+        if (backgroundMusic.isEmpty()) return;
+
+        playingIndex = index;
+        playing = true;
+        playCurrentTrack();
+    }
+
     private void playCurrentTrack() {
         if (playingIndex >= backgroundMusic.size()) {
             playingIndex = 0;
@@ -80,20 +91,26 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         dispatcher.run(() -> {
             current.play();
 
-            current.setOnEnd(() -> {
-                playingIndex++;
-                playCurrentTrack();
-            });
+            setTrackRunnable(current);
 
-            current.setOnError(() -> {
-                logger.error("Error playing track: {}", current);
-                backgroundMusic.remove(current);
-                if (!backgroundMusic.isEmpty()) {
-                    playCurrentTrack();
-                } else {
-                    playing = false;
-                }
-            });
+        });
+    }
+
+    private void setTrackRunnable(T track) {
+        track.setOnEnd(() -> {
+            playingIndex++;
+            playCurrentTrack();
+        });
+
+        track.setOnError(() -> {
+            logger.error("Error playing track: {}", track);
+            backgroundMusic.remove(track);
+
+            if (!backgroundMusic.isEmpty()) {
+                playCurrentTrack();
+            } else {
+                playing = false;
+            }
         });
     }
 
