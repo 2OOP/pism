@@ -3,12 +3,15 @@ package org.toop.framework.resource.resources;
 import java.io.*;
 import java.nio.file.Files;
 import javax.sound.sampled.*;
+
+import org.toop.framework.resource.types.AudioResource;
 import org.toop.framework.resource.types.FileExtension;
 import org.toop.framework.resource.types.LoadableResource;
 
 @FileExtension({"wav"})
-public class SoundEffectAsset extends BaseResource implements LoadableResource {
+public class SoundEffectAsset extends BaseResource implements LoadableResource, AudioResource {
     private byte[] rawData;
+    private Clip clip = null;
 
     public SoundEffectAsset(final File audioFile) {
         super(audioFile);
@@ -27,6 +30,7 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
             inputStream = downSampleAudio(inputStream, baseFormat);
         clip.open(
                 inputStream); // ^ Clip can only run 16 bit and lower, thus downsampling necessary.
+        this.clip = clip;
         return clip;
     }
 
@@ -76,5 +80,23 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
     @Override
     public boolean isLoaded() {
         return this.isLoaded;
+    }
+
+    @Override
+    public void updateVolume(double volume) {
+        {
+            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl volumeControl =
+                        (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                float min = volumeControl.getMinimum();
+                float max = volumeControl.getMaximum();
+                float dB =
+                        (float)
+                                (Math.log10(Math.max(volume, 0.0001))
+                                        * 20.0); // convert linear to dB
+                dB = Math.max(min, Math.min(max, dB));
+                volumeControl.setValue(dB);
+            }
+        }
     }
 }

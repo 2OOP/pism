@@ -1,7 +1,5 @@
 package org.toop.framework.audio;
 
-import javafx.scene.media.MediaPlayer;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.resource.ResourceManager;
@@ -9,35 +7,34 @@ import org.toop.framework.resource.resources.MusicAsset;
 
 import java.util.*;
 
-public class MusicManager implements org.toop.framework.audio.interfaces.MusicManager<MediaPlayer> {
+public class MusicManager implements org.toop.framework.audio.interfaces.MusicManager<MusicAsset> {
     private static final Logger logger = LogManager.getLogger(MusicManager.class);
-//    private final List<MusicAsset> musicAssets = new ArrayList<>(); // TODO
-    private final List<MediaPlayer> backgroundMusic = new LinkedList<>();
+    private final List<MusicAsset> backgroundMusic = new LinkedList<>();
     private int playingIndex = 0;
     private boolean playing = false;
 
     public MusicManager() {}
 
     @Override
-    public Collection<MediaPlayer> getActiveAudio() {
+    public Collection<MusicAsset> getActiveAudio() {
         return backgroundMusic;
     }
 
     private void addBackgroundMusic(MusicAsset musicAsset) {
-        backgroundMusic.add(new MediaPlayer(musicAsset.getMedia()));
+        backgroundMusic.add(musicAsset);
     }
 
-    private void addBackgroundMusic(MediaPlayer mediaPlayer) {
-        backgroundMusic.add(mediaPlayer);
-    }
-
-    public void play() { // TODO maybe remove VolumeManager from input
+    public void play() {
+        if (playing) {
+            logger.warn("MusicManager is already playing.");
+            return;
+        }
         backgroundMusic.clear();
-        List<MediaPlayer> shuffledArray =
+        List<MusicAsset> shuffledArray =
                 new ArrayList<>(
                         ResourceManager.getAllOfType(MusicAsset.class).stream()
                                 .map(ma ->
-                                        initMediaPlayer(new MediaPlayer(ma.getResource().getMedia())))
+                                        initMediaPlayer(ma.getResource()))
                                 .toList());
         Collections.shuffle(shuffledArray);
         backgroundMusic.addAll(shuffledArray);
@@ -50,35 +47,35 @@ public class MusicManager implements org.toop.framework.audio.interfaces.MusicMa
             playingIndex = 0;
         }
 
-        MediaPlayer ma = backgroundMusic.get(playingIndex);
+        MusicAsset ma = backgroundMusic.get(playingIndex);
 
         if (ma == null) {
             logger.error("Background music player is null. Queue: {}",
-                    backgroundMusic.stream().map(e -> e.getMedia().getSource()));
+                    backgroundMusic.stream().map(e -> e.getMediaPlayer().getMedia().getSource()));
             return;
         }
 
-        logger.info("Background music player is playing: {}", ma.getMedia().getSource()); //TODO shorten to name
-        ma.play();
+        logger.info("Background music player is playing: {}", ma.getMediaPlayer().getMedia().getSource()); //TODO shorten to name
+        ma.getMediaPlayer().play();
         this.playing = true;
     }
 
-    private MediaPlayer initMediaPlayer(MediaPlayer mediaPlayer) {
-        mediaPlayer.setOnEndOfMedia(mediaPlayer::stop);
+    private MusicAsset initMediaPlayer(MusicAsset ma) {
+        ma.getMediaPlayer().setOnEndOfMedia(() -> ma.getMediaPlayer().stop());
 
-        mediaPlayer.setOnError( () -> {
-            logger.error("Error playing music: {}", mediaPlayer.getMedia().getSource());
-            backgroundMusic.remove(mediaPlayer);
-            mediaPlayer.stop();
+        ma.getMediaPlayer().setOnError( () -> {
+            logger.error("Error playing music: {}", ma.getMediaPlayer().getError()); // TODO
+            backgroundMusic.remove(ma);
+            ma.getMediaPlayer().stop();
         });
 
-        mediaPlayer.setOnStopped( () -> {
-            mediaPlayer.stop();
+        ma.getMediaPlayer().setOnStopped( () -> {
+            ma.getMediaPlayer().stop();
             playingIndex++;
             this.playing = false;
             backgroundMusicPlayer();
         });
 
-        return mediaPlayer;
+        return ma;
     }
 }

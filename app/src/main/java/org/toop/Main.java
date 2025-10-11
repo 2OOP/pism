@@ -6,14 +6,10 @@ import org.toop.framework.audio.AudioEventListener;
 import org.toop.framework.audio.AudioVolumeManager;
 import org.toop.framework.audio.MusicManager;
 import org.toop.framework.audio.SoundEffectManager;
-import org.toop.framework.audio.interfaces.AudioManager;
-import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
-
-import javax.sound.sampled.Clip;
 
 public final class Main {
     static void main(String[] args) {
@@ -25,8 +21,8 @@ public final class Main {
         ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
         new Thread(NetworkingClientManager::new).start();
         new Thread(() -> {
-            AudioEventListener a =
-                    new AudioEventListener(
+            AudioEventListener<?, ?> a =
+                    new AudioEventListener<>(
                         new MusicManager(),
                         new SoundEffectManager(),
                         new AudioVolumeManager()

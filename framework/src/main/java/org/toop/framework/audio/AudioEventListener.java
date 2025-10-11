@@ -5,15 +5,16 @@ import org.toop.framework.audio.interfaces.MusicManager;
 import org.toop.framework.audio.interfaces.SoundEffectManager;
 import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.types.AudioResource;
 
-public class AudioEventListener {
-    private final MusicManager<?> musicManager;
-    private final SoundEffectManager<?> soundEffectManager;
+public class AudioEventListener<T extends AudioResource, K extends AudioResource> {
+    private final MusicManager<T> musicManager;
+    private final SoundEffectManager<K> soundEffectManager;
     private final VolumeManager audioVolumeManager;
 
     public AudioEventListener(
-            MusicManager<?> musicManager,
-            SoundEffectManager<?> soundEffectManager,
+            MusicManager<T> musicManager,
+            SoundEffectManager<K> soundEffectManager,
             VolumeManager audioVolumeManager
     ) {
         this.musicManager = musicManager;
