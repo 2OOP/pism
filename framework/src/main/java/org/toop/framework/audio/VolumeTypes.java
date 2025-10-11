@@ -36,7 +36,7 @@ public enum VolumeTypes {
         managers.stream()
                 .filter(Objects::nonNull)
                 .forEach(manager -> manager.getActiveAudio()
-                        .forEach(aud -> aud.updateVolume(effectiveVolume)));
+                .forEach(aud -> aud.updateVolume(effectiveVolume)));
     }
 
     private double clamp(double vol) {
