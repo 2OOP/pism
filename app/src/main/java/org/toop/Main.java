@@ -26,8 +26,8 @@ public final class Main {
                         mm,
                         sem,
                         new AudioVolumeManager()
-                                .registerManager(VolumeTypes.VOLUME, mm)
-                                .registerManager(VolumeTypes.VOLUME, sem)
+                                .registerManager(VolumeTypes.MASTERVOLUME, mm)
+                                .registerManager(VolumeTypes.MASTERVOLUME, sem)
                                 .registerManager(VolumeTypes.FX, sem)
                                 .registerManager(VolumeTypes.MUSIC, mm)
                     ); a.initListeners();

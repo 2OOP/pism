@@ -56,7 +56,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleVolumeChange(AudioEvents.ChangeVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.VOLUME);
+        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.MASTERVOLUME);
         this.audioVolumeManager.updateAllVolumes();
     }
 
@@ -74,7 +74,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         new EventFlow()
             .addPostEvent(
                     new AudioEvents.GetCurrentVolumeResponse(
-                            audioVolumeManager.getVolume(VolumeTypes.VOLUME),
+                            audioVolumeManager.getVolume(VolumeTypes.MASTERVOLUME),
                             event.snowflakeId()))
             .asyncPostEvent();
     }

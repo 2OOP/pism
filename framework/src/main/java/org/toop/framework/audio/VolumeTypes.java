@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 public enum VolumeTypes {
-    VOLUME(),
+    MASTERVOLUME(),
     FX(),
     MUSIC();
 
@@ -20,7 +20,7 @@ public enum VolumeTypes {
     public void setVolume(double newVolume, double currentMasterVolume) {
         this.volume = clamp(newVolume);
 
-        if (this != VOLUME) {
+        if (this != MASTERVOLUME) {
             this.masterVolume = clamp(currentMasterVolume);
         }
 
@@ -29,7 +29,7 @@ public enum VolumeTypes {
     }
 
     private double computeEffectiveVolume() {
-        return (this == VOLUME) ? volume : volume * masterVolume;
+        return (this == MASTERVOLUME) ? volume : volume * masterVolume;
     }
 
     private void broadcastVolume(double effectiveVolume) {

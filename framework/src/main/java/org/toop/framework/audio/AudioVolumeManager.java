@@ -7,7 +7,7 @@ import org.toop.framework.resource.types.AudioResource;
 public class AudioVolumeManager implements VolumeManager {
 
     public void setVolume(double newVolume, VolumeTypes type) {
-        type.setVolume(newVolume, VolumeTypes.VOLUME.getVolume());
+        type.setVolume(newVolume, VolumeTypes.MASTERVOLUME.getVolume());
     }
 
     public double getVolume(VolumeTypes type) {
@@ -23,10 +23,10 @@ public class AudioVolumeManager implements VolumeManager {
 
     @Override
     public void updateAllVolumes() {
-        double masterVolume = VolumeTypes.VOLUME.getVolume();
+        double masterVolume = VolumeTypes.MASTERVOLUME.getVolume();
 
         for (VolumeTypes type : VolumeTypes.values()) {
-            if (type != VolumeTypes.VOLUME) { // skip master itself
+            if (type != VolumeTypes.MASTERVOLUME) { // skip master itself
                 type.setVolume(type.getVolume(), masterVolume);
             }
         }

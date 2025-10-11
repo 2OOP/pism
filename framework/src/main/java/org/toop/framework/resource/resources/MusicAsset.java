@@ -11,7 +11,6 @@ import org.toop.framework.resource.types.LoadableResource;
 public class MusicAsset extends BaseResource implements LoadableResource, AudioResource {
     private MediaPlayer mediaPlayer;
     private double volume;
-    private boolean isPlaying = false;
 
     public MusicAsset(final File audioFile) {
         super(audioFile);
@@ -25,7 +24,7 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
     private void initPlayer() {
         mediaPlayer.setOnEndOfMedia(this::stop);
         mediaPlayer.setOnError(this::stop);
-        mediaPlayer.setOnStopped(() -> isPlaying = false);
+        mediaPlayer.setOnStopped(null);
     }
 
     @Override
@@ -74,12 +73,10 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
     @Override
     public void play() {
         getMediaPlayer().play();
-        isPlaying = true;
     }
 
     @Override
     public void stop() {
         getMediaPlayer().stop();
-        isPlaying = false;
     }
 }
