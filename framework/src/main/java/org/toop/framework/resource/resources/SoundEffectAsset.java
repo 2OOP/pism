@@ -15,6 +15,8 @@ import static javax.sound.sampled.LineEvent.Type.STOP;
 public class SoundEffectAsset extends BaseResource implements LoadableResource, AudioResource {
     private final Clip clip = AudioSystem.getClip();
 
+    private double volume = 100; // TODO: Find a better way to set volume on clip load
+
     public SoundEffectAsset(final File audioFile) throws LineUnavailableException {
         super(audioFile);
     }
@@ -54,6 +56,7 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
             if (baseFormat.getSampleSizeInBits() > 16)
                 inputStream = downSampleAudio(inputStream, baseFormat);
             this.clip.open(inputStream); // ^ Clip can only run 16 bit and lower, thus downsampling necessary.
+            this.updateVolume(this.volume);
             this.isLoaded = true;
         } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
             throw new RuntimeException(e);
@@ -79,6 +82,7 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
     @Override
     public void updateVolume(double volume) {
         {
+            this.volume = volume;
             if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 FloatControl volumeControl =
                         (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
