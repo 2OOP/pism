@@ -217,10 +217,10 @@ public final class TicTacToeLayer extends Layer {
 
     private void handleServerGameStart(NetworkEvents.GameMatchResponse resp) {
         // Meneer Bas de Jong. Dit functie wordt niet aangeroepen als je de challenger bent.
-        // Ik heb veel dingen geprobeert. FUCKING veel dingen. Hij doet het niet.
-        // Ik heb zelfs in jou code gekeken en unsubscribeAfterSuccess op false gezet. (zie
+        // Ik heb veel dingen geprobeerd. FUCKING veel dingen. Hij doet het niet.
+        // Ik heb zelfs in jouw code gekeken en unsubscribeAfterSuccess op false gezet. (zie
         // ConnectedLayer).
-        // Alle andere functies worden wel gecalt. Behalve dit.
+        // Alle andere functies worden wel gecalld. Behalve dit.
 
         // Ben jij gehandicapt of ik? Want het moet 1 van de 2 zijn. Ik ben dit al 2 uur aan het
         // debuggen.
