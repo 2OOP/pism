@@ -2,6 +2,7 @@ package org.toop;
 
 import org.toop.app.App;
 import org.toop.framework.audio.*;
+import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
 import org.toop.framework.resource.ResourceLoader;
@@ -18,11 +19,17 @@ public final class Main {
         ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
         new Thread(NetworkingClientManager::new).start();
         new Thread(() -> {
+            var mm = new MusicManager<>(MusicAsset.class);
+            var sem = new SoundEffectManager();
             AudioEventListener<?, ?> a =
                     new AudioEventListener<>(
-                        new MusicManager<>(MusicAsset.class),
-                        new SoundEffectManager(),
+                        mm,
+                        sem,
                         new AudioVolumeManager()
+                                .registerManager(VolumeTypes.VOLUME, mm)
+                                .registerManager(VolumeTypes.VOLUME, sem)
+                                .registerManager(VolumeTypes.FX, sem)
+                                .registerManager(VolumeTypes.MUSIC, mm)
                     ); a.initListeners();
         }).start();
     }

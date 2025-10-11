@@ -7,10 +7,6 @@ import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.types.AudioResource;
 
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.IOException;
-
 public class AudioEventListener<T extends AudioResource, K extends AudioResource> {
     private final MusicManager<T> musicManager;
     private final SoundEffectManager<K> soundEffectManager;
@@ -60,22 +56,25 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleVolumeChange(AudioEvents.ChangeVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume(), VolumeTypes.VOLUME, soundEffectManager, musicManager);
+        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.VOLUME);
+        this.audioVolumeManager.updateAllVolumes();
     }
 
     private void handleFxVolumeChange(AudioEvents.ChangeFxVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume(), VolumeTypes.FX, soundEffectManager);
+        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.FX);
+        this.audioVolumeManager.updateAllVolumes();
     }
 
     private void handleMusicVolumeChange(AudioEvents.ChangeMusicVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume(), VolumeTypes.MUSIC, musicManager);
+        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.MUSIC);
+        this.audioVolumeManager.updateAllVolumes();
     }
 
     private void handleGetVolume(AudioEvents.GetCurrentVolume event) {
         new EventFlow()
             .addPostEvent(
                     new AudioEvents.GetCurrentVolumeResponse(
-                            audioVolumeManager.getVolume(),
+                            audioVolumeManager.getVolume(VolumeTypes.VOLUME),
                             event.snowflakeId()))
             .asyncPostEvent();
     }
@@ -84,7 +83,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         new EventFlow()
             .addPostEvent(
                     new AudioEvents.GetCurrentFxVolumeResponse(
-                            audioVolumeManager.getFxVolume(),
+                            audioVolumeManager.getVolume(VolumeTypes.FX),
                             event.snowflakeId()))
             .asyncPostEvent();
     }
@@ -93,7 +92,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         new EventFlow()
             .addPostEvent(
                     new AudioEvents.GetCurrentMusicVolumeResponse(
-                            audioVolumeManager.getMusicVolume(),
+                            audioVolumeManager.getVolume(VolumeTypes.MUSIC),
                             event.snowflakeId()))
             .asyncPostEvent();
     }
