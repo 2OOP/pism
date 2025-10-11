@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import jdk.jfr.Event;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.layers.MainLayer;
 import org.toop.app.layer.layers.QuitPopup;
@@ -65,10 +66,11 @@ public final class App extends Application {
 
         App.isQuitting = false;
 
+        new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).postEvent();
+
         final AppSettings settings = new AppSettings();
         settings.applySettings();
 
-        new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
         activate(new MainLayer());
     }
 

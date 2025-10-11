@@ -54,9 +54,13 @@ public class AppSettings {
 
             File settingsFile =
                     new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
-//            this.settingsAsset = new SettingsAsset(settingsFile);
-            ResourceManager.addAsset(new ResourceMeta<>("settings.json", new SettingsAsset(settingsFile)));
+
+            return new SettingsAsset(settingsFile);
+//            this.settingsAsset = new SettingsAsset(settingsFile); // TODO
+//            ResourceManager.addAsset(new ResourceMeta<>("settings.json", new SettingsAsset(settingsFile))); // TODO
         }
-        return ResourceManager.get("settings.json");
+
+        return this.settingsAsset;
+//        return ResourceManager.get("settings.json"); // TODO
     }
 }

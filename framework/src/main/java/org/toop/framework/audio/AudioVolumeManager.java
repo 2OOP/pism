@@ -3,33 +3,21 @@ package org.toop.framework.audio;
 import javafx.scene.media.MediaPlayer;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
-import org.toop.framework.audio.events.AudioEvents;
-import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.audio.interfaces.AudioManager;
+import org.toop.framework.audio.interfaces.VolumeManager;
 
-public class AudioVolumeManager {
-    private final SoundManager sM;
+public class AudioVolumeManager implements VolumeManager {
+    private double volume = 0.0;
+    private double fxVolume = 0.0;
+    private double musicVolume = 0.0;
 
-    private double volume = 1.0;
-    private double fxVolume = 1.0;
-    private double musicVolume = 1.0;
+    public AudioVolumeManager() {}
 
-    public AudioVolumeManager(SoundManager soundManager) {
-        this.sM = soundManager;
-
-        new EventFlow()
-                .listen(this::handleVolumeChange)
-                .listen(this::handleFxVolumeChange)
-                .listen(this::handleMusicVolumeChange)
-                .listen(this::handleGetCurrentVolume)
-                .listen(this::handleGetCurrentFxVolume)
-                .listen(this::handleGetCurrentMusicVolume);
-    }
-
-    public void updateMusicVolume(MediaPlayer mediaPlayer) {
+    private <T extends MediaPlayer> void updateMusicVolume(T mediaPlayer) {
         mediaPlayer.setVolume(this.musicVolume * this.volume);
     }
 
-    public void updateSoundEffectVolume(Clip clip) {
+    private <T extends Clip> void updateSoundEffectVolume(T clip) {
         if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
             FloatControl volumeControl =
                     (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -49,50 +37,45 @@ public class AudioVolumeManager {
         else return Math.max(volume, 0.0);
     }
 
-    private void handleFxVolumeChange(AudioEvents.ChangeFxVolume event) {
-        this.fxVolume = limitVolume(event.newVolume() / 100);
-        for (Clip clip : sM.getActiveSoundEffects().values()) {
-            updateSoundEffectVolume(clip);
+    @Override
+    public void setVolume(double newVolume, AudioManager<?> sm, AudioManager<?> mm) {
+        this.volume = limitVolume(newVolume / 100);
+        for (var clip : sm.getActiveAudio()) {
+            this.updateSoundEffectVolume((Clip) clip);
+        }
+        for (var mediaPlayer : mm.getActiveAudio()) {
+            this.updateMusicVolume((MediaPlayer) mediaPlayer);
         }
     }
 
-    private void handleVolumeChange(AudioEvents.ChangeVolume event) {
-        this.volume = limitVolume(event.newVolume() / 100);
-        for (MediaPlayer mediaPlayer : sM.getActiveMusic()) {
-            this.updateMusicVolume(mediaPlayer);
-        }
-        for (Clip clip : sM.getActiveSoundEffects().values()) {
-            updateSoundEffectVolume(clip);
+    @Override
+    public void setFxVolume(double newVolume, AudioManager<?> sm) {
+        this.fxVolume = limitVolume(newVolume / 100);
+        for (var clip : sm.getActiveAudio()) {
+            this.updateSoundEffectVolume((Clip) clip); // TODO: What if not clip
         }
     }
 
-    private void handleMusicVolumeChange(AudioEvents.ChangeMusicVolume event) {
-        this.musicVolume = limitVolume(event.newVolume() / 100);
-        for (MediaPlayer mediaPlayer : sM.getActiveMusic()) {
-            this.updateMusicVolume(mediaPlayer);
+    @Override
+    public void setMusicVolume(double newVolume, AudioManager<?> mm) {
+        this.musicVolume = limitVolume(newVolume / 100);
+        for (var mediaPlayer : mm.getActiveAudio()) {
+            this.updateMusicVolume((MediaPlayer) mediaPlayer); // TODO; What if not MediaPlayer
         }
     }
 
-    private void handleGetCurrentVolume(AudioEvents.GetCurrentVolume event) {
-        new EventFlow()
-                .addPostEvent(
-                        new AudioEvents.GetCurrentVolumeResponse(volume * 100, event.snowflakeId()))
-                .asyncPostEvent();
+    @Override
+    public double getVolume() {
+        return volume * 100;
     }
 
-    private void handleGetCurrentFxVolume(AudioEvents.GetCurrentFxVolume event) {
-        new EventFlow()
-                .addPostEvent(
-                        new AudioEvents.GetCurrentFxVolumeResponse(
-                                fxVolume * 100, event.snowflakeId()))
-                .asyncPostEvent();
+    @Override
+    public double getFxVolume() {
+        return fxVolume * 100;
     }
 
-    private void handleGetCurrentMusicVolume(AudioEvents.GetCurrentMusicVolume event) {
-        new EventFlow()
-                .addPostEvent(
-                        new AudioEvents.GetCurrentMusicVolumeResponse(
-                                musicVolume * 100, event.snowflakeId()))
-                .asyncPostEvent();
+    @Override
+    public double getMusicVolume() {
+        return musicVolume * 100;
     }
 }
