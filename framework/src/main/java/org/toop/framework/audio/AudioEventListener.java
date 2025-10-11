@@ -22,7 +22,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         this.audioVolumeManager = audioVolumeManager;
     }
 
-    public void initListeners() {
+    public AudioEventListener<?, ?> initListeners() {
         new EventFlow()
                 .listen(this::handleStopMusicManager)
                 .listen(this::handlePlaySound)
@@ -34,9 +34,10 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
                 .listen(this::handleGetVolume)
                 .listen(this::handleGetFxVolume)
                 .listen(this::handleGetMusicVolume)
-                .listen(AudioEvents.ClickButton.class, _ -> {
-                    soundEffectManager.play("medium-button-click.wav", false);
-                });
+                .listen(AudioEvents.ClickButton.class, _ ->
+                        soundEffectManager.play("medium-button-click.wav", false));
+
+        return this;
     }
 
     private void handleStopMusicManager(AudioEvents.StopAudioManager event) {

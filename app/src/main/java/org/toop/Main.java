@@ -19,18 +19,17 @@ public final class Main {
         ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
         new Thread(NetworkingClientManager::new).start();
         new Thread(() -> {
-            var mm = new MusicManager<>(MusicAsset.class);
-            var sem = new SoundEffectManager();
-            AudioEventListener<?, ?> a =
-                    new AudioEventListener<>(
-                        mm,
-                        sem,
-                        new AudioVolumeManager()
-                                .registerManager(VolumeTypes.MASTERVOLUME, mm)
-                                .registerManager(VolumeTypes.MASTERVOLUME, sem)
-                                .registerManager(VolumeTypes.FX, sem)
-                                .registerManager(VolumeTypes.MUSIC, mm)
-                    ); a.initListeners();
+            MusicManager<MusicAsset> musicManager = new MusicManager<>(MusicAsset.class);
+            SoundEffectManager soundEffectManager = new SoundEffectManager();
+                new AudioEventListener<>(
+                    musicManager,
+                    soundEffectManager,
+                    new AudioVolumeManager()
+                            .registerManager(VolumeTypes.MASTERVOLUME, musicManager)
+                            .registerManager(VolumeTypes.MASTERVOLUME, soundEffectManager)
+                            .registerManager(VolumeTypes.FX, soundEffectManager)
+                            .registerManager(VolumeTypes.MUSIC, musicManager)
+                ).initListeners();
         }).start();
     }
 }
