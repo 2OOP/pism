@@ -53,6 +53,12 @@ public enum VolumeTypes {
         }
     }
 
+    public void removeManager(AudioManager<? extends AudioResource> manager) {
+        if (manager != null) {
+            managers.remove(manager);
+        }
+    }
+
     public List<AudioManager<? extends AudioResource>> getManagers() {
         return Collections.unmodifiableList(managers);
     }
