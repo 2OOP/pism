@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.resource.exceptions.ResourceNotFoundException;
 import org.toop.framework.resource.resources.*;
+import org.toop.framework.resource.types.AudioResource;
 
 /**
  * Centralized manager for all loaded assets in the application.
@@ -96,16 +97,19 @@ public class ResourceManager {
      * @param <T> the resource type
      * @return a list of assets matching the type
      */
-    public static <T extends BaseResource> ArrayList<ResourceMeta<T>> getAllOfType(Class<T> type) {
-        ArrayList<ResourceMeta<T>> list = new ArrayList<>();
-        for (ResourceMeta<? extends BaseResource> asset : assets.values()) {
-            if (type.isInstance(asset.getResource())) {
+    public static <T extends BaseResource> List<ResourceMeta<T>> getAllOfType(Class<T> type) {
+        List<ResourceMeta<T>> result = new ArrayList<>();
+
+        for (ResourceMeta<? extends BaseResource> meta : assets.values()) {
+            BaseResource res = meta.getResource();
+            if (type.isInstance(res)) {
                 @SuppressWarnings("unchecked")
-                ResourceMeta<T> typed = (ResourceMeta<T>) asset;
-                list.add(typed);
+                ResourceMeta<T> typed = (ResourceMeta<T>) meta;
+                result.add(typed);
             }
         }
-        return list;
+
+        return result;
     }
 
     /**

@@ -1,81 +1,88 @@
 package org.toop.framework.audio;
 
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.resource.ResourceManager;
-import org.toop.framework.resource.resources.MusicAsset;
+import org.toop.framework.resource.resources.BaseResource;
+import org.toop.framework.resource.types.AudioResource;
 
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class MusicManager implements org.toop.framework.audio.interfaces.MusicManager<MusicAsset> {
+public class MusicManager<T extends AudioResource> implements org.toop.framework.audio.interfaces.MusicManager<T> {
     private static final Logger logger = LogManager.getLogger(MusicManager.class);
-    private final List<MusicAsset> backgroundMusic = new LinkedList<>();
+    private final Class<T> type;
+    private final List<T> backgroundMusic = new LinkedList<>();
     private int playingIndex = 0;
-    private boolean playing = false;
+    private ScheduledExecutorService scheduler;
 
-    public MusicManager() {}
+    public MusicManager(Class<T> type) {
+        this.type = type;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownScheduler));
+    }
+
+    private void increasePlayingIndex() {
+        playingIndex = (playingIndex + 1) % backgroundMusic.size();
+    }
 
     @Override
-    public Collection<MusicAsset> getActiveAudio() {
+    public Collection<T> getActiveAudio() {
         return backgroundMusic;
     }
 
-    private void addBackgroundMusic(MusicAsset musicAsset) {
+    private void addBackgroundMusic(T musicAsset) {
         backgroundMusic.add(musicAsset);
     }
 
+    private void shutdownScheduler() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdownNow();
+            scheduler = null;
+            logger.debug("MusicManager scheduler shut down.");
+        }
+    }
+
+    @Override
+    public void stop() {
+        shutdownScheduler();
+        Platform.runLater(() -> backgroundMusic.forEach(T::stop));
+    }
+
     public void play() {
-        if (playing) {
-            logger.warn("MusicManager is already playing.");
-            return;
-        }
         backgroundMusic.clear();
-        List<MusicAsset> shuffledArray =
-                new ArrayList<>(
-                        ResourceManager.getAllOfType(MusicAsset.class).stream()
-                                .map(ma ->
-                                        initMediaPlayer(ma.getResource()))
-                                .toList());
-        Collections.shuffle(shuffledArray);
-        backgroundMusic.addAll(shuffledArray);
-        backgroundMusicPlayer();
-    }
+        @SuppressWarnings("unchecked")
+        List<T> resources = new ArrayList<>(ResourceManager.getAllOfType((Class<? extends BaseResource>) type)
+                .stream()
+                .map(e -> (T) e.getResource())
+                .toList());
+        Collections.shuffle(resources);
+        backgroundMusic.addAll(resources);
 
-    private void backgroundMusicPlayer() {
+        if (backgroundMusic.isEmpty()) return;
 
-        if (playingIndex >= backgroundMusic.size()) {
-            playingIndex = 0;
-        }
+        shutdownScheduler();
+        scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        MusicAsset ma = backgroundMusic.get(playingIndex);
+        AtomicReference<T> current = new AtomicReference<>(backgroundMusic.get(playingIndex));
 
-        if (ma == null) {
-            logger.error("Background music player is null. Queue: {}",
-                    backgroundMusic.stream().map(e -> e.getMediaPlayer().getMedia().getSource()));
-            return;
-        }
-
-        logger.info("Background music player is playing: {}", ma.getMediaPlayer().getMedia().getSource()); //TODO shorten to name
-        ma.getMediaPlayer().play();
-        this.playing = true;
-    }
-
-    private MusicAsset initMediaPlayer(MusicAsset ma) {
-        ma.getMediaPlayer().setOnEndOfMedia(() -> ma.getMediaPlayer().stop());
-
-        ma.getMediaPlayer().setOnError( () -> {
-            logger.error("Error playing music: {}", ma.getMediaPlayer().getError()); // TODO
-            backgroundMusic.remove(ma);
-            ma.getMediaPlayer().stop();
+        Platform.runLater(() -> {
+            T first = current.get();
+            if (!first.isPlaying()) first.play();
         });
 
-        ma.getMediaPlayer().setOnStopped( () -> {
-            ma.getMediaPlayer().stop();
-            playingIndex++;
-            this.playing = false;
-            backgroundMusicPlayer();
-        });
-
-        return ma;
+        scheduler.scheduleAtFixedRate(() -> {
+            T track = current.get();
+            if (!track.isPlaying()) {
+                increasePlayingIndex();
+                T next = backgroundMusic.get(playingIndex);
+                current.set(next);
+                Platform.runLater(() -> {
+                    if (!next.isPlaying()) next.play();
+                });
+            }
+        }, 500, 500, TimeUnit.MILLISECONDS);
     }
 }

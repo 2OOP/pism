@@ -4,6 +4,9 @@ import org.toop.framework.audio.interfaces.AudioManager;
 import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.resource.types.AudioResource;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class AudioVolumeManager implements VolumeManager {
     private double volume = 0.0;
     private double fxVolume = 0.0;
@@ -19,32 +22,28 @@ public class AudioVolumeManager implements VolumeManager {
         return Math.min(1.0, Math.max(0.0, volume / 100));
     }
 
+    @SafeVarargs
     @Override
-    public <T extends AudioResource, K extends AudioResource> void setVolume(
-            double newVolume, AudioManager<T> sm, AudioManager<K> mm) {
-        this.volume = limitVolume(newVolume);
-        for (T clip : sm.getActiveAudio()) {
-            this.updateVolume(clip, fxVolume * volume);
-        }
-        for (K mediaPlayer : mm.getActiveAudio()) {
-            this.updateVolume(mediaPlayer, musicVolume * volume);
-        }
-    }
+    public final void setVolume(double newVolume, VolumeTypes type, AudioManager<? extends AudioResource>... managers) {
+        double limitedVolume = limitVolume(newVolume);
 
-    @Override
-    public <T extends AudioResource> void setFxVolume(double newVolume, AudioManager<T> sm) {
-        this.fxVolume = limitVolume(newVolume);
-        for (T clip : sm.getActiveAudio()) {
-            this.updateVolume(clip, fxVolume * volume);
+        switch (type) {
+            case FX -> fxVolume = limitedVolume;
+            case MUSIC -> musicVolume = limitedVolume;
+            default -> volume = limitedVolume;
         }
-    }
 
-    @Override
-    public <T extends AudioResource> void setMusicVolume(double newVolume, AudioManager<T> mm) {
-        this.musicVolume = limitVolume(newVolume);
-        for (T mediaPlayer : mm.getActiveAudio()) {
-            this.updateVolume(mediaPlayer, musicVolume * volume);
-        }
+        double effectiveVolume = switch (type) {
+            case FX -> fxVolume * volume;
+            case MUSIC -> musicVolume * volume;
+            default -> volume;
+        };
+
+        Arrays.stream(managers)
+                .filter(Objects::nonNull)
+                .forEach(manager ->
+                        manager.getActiveAudio().forEach(aud -> updateVolume(aud, effectiveVolume))
+                );
     }
 
     @Override

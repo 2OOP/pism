@@ -10,6 +10,8 @@ import org.toop.framework.resource.types.LoadableResource;
 @FileExtension({"mp3"})
 public class MusicAsset extends BaseResource implements LoadableResource, AudioResource {
     private MediaPlayer mediaPlayer;
+    private double volume;
+    private boolean isPlaying = false;
 
     public MusicAsset(final File audioFile) {
         super(audioFile);
@@ -20,10 +22,18 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
         return mediaPlayer;
     }
 
+    private void initPlayer() {
+        mediaPlayer.setOnEndOfMedia(this::stop);
+        mediaPlayer.setOnError(this::stop);
+        mediaPlayer.setOnStopped(() -> isPlaying = false);
+    }
+
     @Override
     public void load() {
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer(new Media(file.toURI().toString()));
+            initPlayer();
+            mediaPlayer.setVolume(volume);
         }
         this.isLoaded = true;
     }
@@ -48,5 +58,23 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
         if (mediaPlayer != null) {
             mediaPlayer.setVolume(volume);
         }
+        this.volume = volume;
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    @Override
+    public void play() {
+        getMediaPlayer().play();
+        isPlaying = true;
+    }
+
+    @Override
+    public void stop() {
+        getMediaPlayer().stop();
+        isPlaying = false;
     }
 }

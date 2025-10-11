@@ -126,6 +126,7 @@ public final class App extends Application {
     }
 
     public static void quit() {
+        new EventFlow().addPostEvent(new AudioEvents.StopAudioManager()).postEvent();
         stage.close();
     }
 

@@ -6,6 +6,8 @@ import org.toop.framework.eventbus.events.EventWithoutSnowflake;
 import org.toop.framework.eventbus.events.EventsBase;
 
 public class AudioEvents extends EventsBase {
+    public record StopAudioManager() implements EventWithoutSnowflake {}
+
     /** Starts playing a sound. */
     public record PlayEffect(String fileName, boolean loop) implements EventWithoutSnowflake {}
 

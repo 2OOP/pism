@@ -10,6 +10,8 @@ import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.resources.MusicAsset;
+import org.toop.framework.resource.resources.SoundEffectAsset;
 
 public final class Main {
     static void main(String[] args) {
@@ -23,7 +25,7 @@ public final class Main {
         new Thread(() -> {
             AudioEventListener<?, ?> a =
                     new AudioEventListener<>(
-                        new MusicManager(),
+                        new MusicManager<>(MusicAsset.class),
                         new SoundEffectManager(),
                         new AudioVolumeManager()
                     ); a.initListeners();

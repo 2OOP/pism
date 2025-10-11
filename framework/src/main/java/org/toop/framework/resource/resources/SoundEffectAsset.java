@@ -99,4 +99,21 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
             }
         }
     }
+
+    @Override
+    public boolean isPlaying() {
+        // TODO
+        return false;
+    }
+
+    @Override
+    public void play() {
+        // TODO
+    }
+
+    @Override
+    public void stop() {
+        // TODO
+    }
+
 }

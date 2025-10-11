@@ -24,6 +24,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
 
     public void initListeners() {
         new EventFlow()
+                .listen(this::handleStopMusicManager)
                 .listen(this::handlePlaySound)
                 .listen(this::handleStopSound)
                 .listen(this::handleMusicStart)
@@ -33,6 +34,10 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
                 .listen(this::handleGetVolume)
                 .listen(this::handleGetFxVolume)
                 .listen(this::handleGetMusicVolume);
+    }
+
+    private void handleStopMusicManager(AudioEvents.StopAudioManager event) {
+        this.musicManager.stop();
     }
 
     private void handlePlaySound(AudioEvents.PlayEffect event) {
@@ -48,15 +53,15 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleVolumeChange(AudioEvents.ChangeVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume(), soundEffectManager, musicManager);
+        this.audioVolumeManager.setVolume(event.newVolume(), VolumeTypes.VOLUME, soundEffectManager, musicManager);
     }
 
     private void handleFxVolumeChange(AudioEvents.ChangeFxVolume event) {
-        this.audioVolumeManager.setFxVolume(event.newVolume(), soundEffectManager);
+        this.audioVolumeManager.setVolume(event.newVolume(), VolumeTypes.FX, soundEffectManager);
     }
 
     private void handleMusicVolumeChange(AudioEvents.ChangeMusicVolume event) {
-        this.audioVolumeManager.setMusicVolume(event.newVolume(), musicManager);
+        this.audioVolumeManager.setVolume(event.newVolume(), VolumeTypes.MUSIC, musicManager);
     }
 
     private void handleGetVolume(AudioEvents.GetCurrentVolume event) {
