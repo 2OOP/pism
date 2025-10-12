@@ -1,9 +1,8 @@
-package org.toop.framework.audio;
+package org.toop.framework.dispatch;
 
 import javafx.application.Platform;
-import org.toop.framework.audio.interfaces.Dispatcher;
+import org.toop.framework.dispatch.interfaces.Dispatcher;
 
-// TODO isn't specific to audio
 public class JavaFXDispatcher implements Dispatcher {
     @Override
     public void run(Runnable task) {
