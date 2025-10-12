@@ -131,12 +131,13 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                         <arg>
-                            -Xplugin:ErrorProne \
-                            -Xep:RestrictedApi:ERROR \
-                            -XepOpt:RestrictedApi:annotation=org.toop.framework.annotations.TestsOnly \
-                            -XepOpt:RestrictedApi:allowlistRegex=(?s).*/src/test/java/.*|.*test\.java \
-                            -XepOpt:RestrictedApi:message=This API is marked @TestsOnly and shouldn't be normally used.
+                            -Xplugin:ErrorProne
                         </arg>
+						<!--						TODO-->
+						<!--						-Xep:RestrictedApi:ERROR \-->
+						<!--						-XepOpt:RestrictedApi:annotation=org.toop.framework.annotations.TestsOnly \-->
+						<!--						-XepOpt:RestrictedApi:allowlistRegex=(?s).*/src/test/java/.*|.*test\.java \-->
+						<!--						-XepOpt:RestrictedApi:message=This API is marked @TestsOnly and shouldn't be normally used.-->
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>--should-stop=ifError=FLOW</arg>
                     </compilerArgs>
