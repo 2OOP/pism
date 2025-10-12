@@ -2,7 +2,7 @@ package org.toop.framework.audio;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.framework.audio.interfaces.Dispatcher;
+import org.toop.framework.dispatch.interfaces.Dispatcher;
 import org.toop.framework.resource.resources.BaseResource;
 import org.toop.framework.resource.types.AudioResource;
 
