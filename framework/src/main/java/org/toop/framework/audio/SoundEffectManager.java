@@ -21,8 +21,6 @@ public class SoundEffectManager implements org.toop.framework.audio.interfaces.S
     private final HashMap<String, SoundEffectAsset> soundEffectResources;
 
     public SoundEffectManager(){
-        MusicAsset[] abcd = {};
-        new MusicManager<>(Arrays.stream(abcd).toList(), new JavaFXDispatcher());
         // If there are duplicates, takes discards the first
         soundEffectResources = ResourceManager.getAllOfType(SoundEffectAsset.class).stream()
                 .collect(Collectors.toMap(ResourceMeta::getName, ResourceMeta::getResource, (a, b) -> b, HashMap::new));
