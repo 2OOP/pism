@@ -2,6 +2,7 @@ package org.toop.framework.audio;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.annotations.TestsOnly;
 import org.toop.framework.audio.interfaces.Dispatcher;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.BaseResource;
@@ -12,7 +13,7 @@ import java.util.*;
 public class MusicManager<T extends AudioResource> implements org.toop.framework.audio.interfaces.MusicManager<T> {
     private static final Logger logger = LogManager.getLogger(MusicManager.class);
 
-    private final List<T> backgroundMusic = new LinkedList<>();
+    private final List<T> backgroundMusic = new ArrayList<>();
     private final Dispatcher dispatcher;
     private final List<T> resources;
     private int playingIndex = 0;
@@ -27,8 +28,11 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         createShuffled();
     }
 
-    // Used in unit testing
-    MusicManager(List<T> resources, Dispatcher dispatcher) {
+    /**
+     * {@code @TestsOnly} DO NOT USE
+     */
+    @TestsOnly
+    public MusicManager(List<T> resources, Dispatcher dispatcher) {
         this.dispatcher = dispatcher;
         this.resources = new ArrayList<>(resources);
         backgroundMusic.addAll(resources);
@@ -49,6 +53,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         backgroundMusic.addAll(resources);
     }
 
+    @Override
     public void play() {
         if (playing) {
             logger.warn("MusicManager is already playing.");
@@ -114,6 +119,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         });
     }
 
+    @Override
     public void stop() {
         if (!playing) return;
 

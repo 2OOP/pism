@@ -9,10 +9,10 @@ public class EventsBase {
     /**
      * WIP, DO NOT USE!
      *
-     * @param eventName
-     * @param args
-     * @return
-     * @throws Exception
+     * @param eventName todo
+     * @param args todo
+     * @return todo
+     * @throws Exception todo
      */
     public static Object get(String eventName, Object... args) throws Exception {
         Class<?> clazz = Class.forName("org.toop.framework.eventbus.events.Events$ServerEvents$" + eventName);
@@ -24,11 +24,11 @@ public class EventsBase {
     /**
      * WIP, DO NOT USE!
      *
-     * @param eventCategory
-     * @param eventName
-     * @param args
-     * @return
-     * @throws Exception
+     * @param eventCategory todo
+     * @param eventName todo
+     * @param args todo
+     * @return todo
+     * @throws Exception todo
      */
     public static Object get(String eventCategory, String eventName, Object... args)
             throws Exception {
@@ -42,10 +42,10 @@ public class EventsBase {
     /**
      * WIP, DO NOT USE!
      *
-     * @param eventName
-     * @param args
-     * @return
-     * @throws Exception
+     * @param eventName todo
+     * @param args todo
+     * @return todo
+     * @throws Exception todo
      */
     public static Object get2(String eventName, Object... args) throws Exception {
         // Fully qualified class name

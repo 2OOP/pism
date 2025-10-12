@@ -52,8 +52,11 @@ public enum VolumeControl {
     FX(),
     MUSIC();
 
+    @SuppressWarnings("ImmutableEnumChecker")
     private final List<AudioManager<? extends AudioResource>> managers = new CopyOnWriteArrayList<>();
+    @SuppressWarnings("ImmutableEnumChecker")
     private double volume = 1.0;
+    @SuppressWarnings("ImmutableEnumChecker")
     private double masterVolume = 1.0;
 
     /**
