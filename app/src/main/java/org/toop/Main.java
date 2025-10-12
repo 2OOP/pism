@@ -7,6 +7,9 @@ import org.toop.framework.networking.NetworkingInitializationException;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.MusicAsset;
+import org.toop.framework.resource.resources.SoundEffectAsset;
+
+import java.util.Arrays;
 
 public final class Main {
     static void main(String[] args) {

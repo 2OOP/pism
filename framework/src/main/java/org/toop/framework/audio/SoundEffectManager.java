@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.ResourceMeta;
 import org.toop.framework.resource.resources.BaseResource;
+import org.toop.framework.resource.resources.MusicAsset;
 import org.toop.framework.resource.resources.SoundEffectAsset;
 
 import javax.sound.sampled.Clip;
@@ -12,10 +13,7 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SoundEffectManager implements org.toop.framework.audio.interfaces.SoundEffectManager<SoundEffectAsset> {
