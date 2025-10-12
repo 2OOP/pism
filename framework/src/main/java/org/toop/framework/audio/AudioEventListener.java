@@ -57,25 +57,22 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleVolumeChange(AudioEvents.ChangeVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.MASTERVOLUME);
-        this.audioVolumeManager.updateAllVolumes();
+        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeControl.MASTERVOLUME);
     }
 
     private void handleFxVolumeChange(AudioEvents.ChangeFxVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.FX);
-        this.audioVolumeManager.updateAllVolumes();
+        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeControl.FX);
     }
 
     private void handleMusicVolumeChange(AudioEvents.ChangeMusicVolume event) {
-        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeTypes.MUSIC);
-        this.audioVolumeManager.updateAllVolumes();
+        this.audioVolumeManager.setVolume(event.newVolume() / 100, VolumeControl.MUSIC);
     }
 
     private void handleGetVolume(AudioEvents.GetCurrentVolume event) {
         new EventFlow()
             .addPostEvent(
                     new AudioEvents.GetCurrentVolumeResponse(
-                            audioVolumeManager.getVolume(VolumeTypes.MASTERVOLUME),
+                            audioVolumeManager.getVolume(VolumeControl.MASTERVOLUME),
                             event.snowflakeId()))
             .asyncPostEvent();
     }
@@ -84,7 +81,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         new EventFlow()
             .addPostEvent(
                     new AudioEvents.GetCurrentFxVolumeResponse(
-                            audioVolumeManager.getVolume(VolumeTypes.FX),
+                            audioVolumeManager.getVolume(VolumeControl.FX),
                             event.snowflakeId()))
             .asyncPostEvent();
     }
@@ -93,7 +90,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         new EventFlow()
             .addPostEvent(
                     new AudioEvents.GetCurrentMusicVolumeResponse(
-                            audioVolumeManager.getVolume(VolumeTypes.MUSIC),
+                            audioVolumeManager.getVolume(VolumeControl.MUSIC),
                             event.snowflakeId()))
             .asyncPostEvent();
     }

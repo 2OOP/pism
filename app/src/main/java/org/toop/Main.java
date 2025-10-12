@@ -2,7 +2,6 @@ package org.toop;
 
 import org.toop.app.App;
 import org.toop.framework.audio.*;
-import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.networking.NetworkingInitializationException;
 import org.toop.framework.resource.ResourceLoader;
@@ -25,10 +24,10 @@ public final class Main {
                     musicManager,
                     soundEffectManager,
                     new AudioVolumeManager()
-                            .registerManager(VolumeTypes.MASTERVOLUME, musicManager)
-                            .registerManager(VolumeTypes.MASTERVOLUME, soundEffectManager)
-                            .registerManager(VolumeTypes.FX, soundEffectManager)
-                            .registerManager(VolumeTypes.MUSIC, musicManager)
+                            .registerManager(VolumeControl.MASTERVOLUME, musicManager)
+                            .registerManager(VolumeControl.MASTERVOLUME, soundEffectManager)
+                            .registerManager(VolumeControl.FX, soundEffectManager)
+                            .registerManager(VolumeControl.MUSIC, musicManager)
                 ).initListeners();
         }).start();
     }
