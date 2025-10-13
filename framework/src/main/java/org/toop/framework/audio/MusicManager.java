@@ -20,12 +20,9 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
     private int playingIndex = 0;
     private boolean playing = false;
 
-    public MusicManager(Class<T> type) {
+    public MusicManager(List<T> resources) {
         this.dispatcher = new JavaFXDispatcher();
-        this.resources = new ArrayList<>(ResourceManager.getAllOfType((Class<? extends BaseResource>) type)
-                .stream()
-                .map(e -> (T) e.getResource())
-                .toList());
+        this.resources = resources;
         createShuffled();
     }
 

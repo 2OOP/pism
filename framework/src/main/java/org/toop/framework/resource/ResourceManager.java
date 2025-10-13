@@ -119,6 +119,19 @@ public class ResourceManager {
         return result;
     }
 
+    public static <T extends BaseResource> List<T> getAllOfTypeAndRemoveWrapper(Class<T> type) {
+        List<T> result = new ArrayList<>();
+
+        for (ResourceMeta<? extends BaseResource> meta : assets.values()) {
+            BaseResource res = meta.getResource();
+            if (type.isInstance(res)) {
+                result.add((T) res);
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Retrieve an asset by its unique ID.
      *

@@ -21,10 +21,9 @@ public class SoundEffectManager<T extends AudioResource> implements org.toop.fra
     private static final Logger logger = LogManager.getLogger(SoundEffectManager.class);
     private final HashMap<String, T> soundEffectResources;
 
-    public SoundEffectManager(Class<T> type){
+    public <K extends BaseResource & AudioResource> SoundEffectManager(List<ResourceMeta<K>> resources) {
         // If there are duplicates, takes discards the first
-        soundEffectResources = (HashMap<String, T>) ResourceManager
-                .getAllOfType((Class<? extends BaseResource>) type)
+        this.soundEffectResources = (HashMap<String, T>) resources
                 .stream()
                 .collect(Collectors.
                         toMap(ResourceMeta::getName, ResourceMeta::getResource, (a, b) -> b, HashMap::new));
