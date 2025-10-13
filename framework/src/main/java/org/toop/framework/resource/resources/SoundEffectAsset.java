@@ -99,6 +99,11 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
     }
 
     @Override
+    public String getName() {
+        return this.getFile().getName();
+    }
+
+    @Override
     public void setOnEnd(Runnable run) {
         // TODO
     }

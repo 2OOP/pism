@@ -35,6 +35,11 @@ class MockAudioResource extends BaseResource implements AudioResource {
     }
 
     @Override
+    public String getName() {
+        return super.getFile().getName();
+    }
+
+    @Override
     public void play() {
         played = true;
     }

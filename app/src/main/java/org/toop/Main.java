@@ -22,7 +22,7 @@ public final class Main {
         new Thread(NetworkingClientManager::new).start();
         new Thread(() -> {
             MusicManager<MusicAsset> musicManager = new MusicManager<>(MusicAsset.class);
-            SoundEffectManager soundEffectManager = new SoundEffectManager();
+            SoundEffectManager<SoundEffectAsset> soundEffectManager = new SoundEffectManager<>(SoundEffectAsset.class);
                 new AudioEventListener<>(
                     musicManager,
                     soundEffectManager,
@@ -31,7 +31,7 @@ public final class Main {
                             .registerManager(VolumeControl.MASTERVOLUME, soundEffectManager)
                             .registerManager(VolumeControl.FX, soundEffectManager)
                             .registerManager(VolumeControl.MUSIC, musicManager)
-                ).initListeners();
+                ).initListeners("medium-button-click.wav");
         }).start();
     }
 }

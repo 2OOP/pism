@@ -7,6 +7,7 @@ import org.toop.framework.resource.ResourceMeta;
 import org.toop.framework.resource.resources.BaseResource;
 import org.toop.framework.resource.resources.MusicAsset;
 import org.toop.framework.resource.resources.SoundEffectAsset;
+import org.toop.framework.resource.types.AudioResource;
 
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent;
@@ -16,25 +17,28 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SoundEffectManager implements org.toop.framework.audio.interfaces.SoundEffectManager<SoundEffectAsset> {
+public class SoundEffectManager<T extends AudioResource> implements org.toop.framework.audio.interfaces.SoundEffectManager<T> {
     private static final Logger logger = LogManager.getLogger(SoundEffectManager.class);
-    private final HashMap<String, SoundEffectAsset> soundEffectResources;
+    private final HashMap<String, T> soundEffectResources;
 
-    public SoundEffectManager(){
+    public SoundEffectManager(Class<T> type){
         // If there are duplicates, takes discards the first
-        soundEffectResources = ResourceManager.getAllOfType(SoundEffectAsset.class).stream()
-                .collect(Collectors.toMap(ResourceMeta::getName, ResourceMeta::getResource, (a, b) -> b, HashMap::new));
+        soundEffectResources = (HashMap<String, T>) ResourceManager
+                .getAllOfType((Class<? extends BaseResource>) type)
+                .stream()
+                .collect(Collectors.
+                        toMap(ResourceMeta::getName, ResourceMeta::getResource, (a, b) -> b, HashMap::new));
 
     }
 
     @Override
-    public Collection<SoundEffectAsset> getActiveAudio() {
+    public Collection<T> getActiveAudio() {
         return this.soundEffectResources.values();
     }
 
     @Override
     public void play(String name, boolean loop) {
-        SoundEffectAsset asset = soundEffectResources.get(name);
+        T asset = soundEffectResources.get(name);
 
         if (asset == null) {
             logger.warn("Unable to load audio asset: {}", name);
@@ -43,12 +47,12 @@ public class SoundEffectManager implements org.toop.framework.audio.interfaces.S
 
         asset.play();
 
-        logger.debug("Playing sound: {}", asset.getFile().getName());
+        logger.debug("Playing sound: {}", asset.getName());
     }
 
     @Override
     public void stop(String name){
-        SoundEffectAsset asset = soundEffectResources.get(name);
+        T asset = soundEffectResources.get(name);
 
         if (asset == null) {
             logger.warn("Unable to load audio asset: {}", name);
@@ -57,6 +61,6 @@ public class SoundEffectManager implements org.toop.framework.audio.interfaces.S
 
         asset.stop();
 
-        logger.debug("Stopped sound: {}", asset.getFile().getName());
+        logger.debug("Stopped sound: {}", asset.getName());
     }
 }

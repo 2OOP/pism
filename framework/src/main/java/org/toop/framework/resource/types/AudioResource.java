@@ -1,6 +1,7 @@
 package org.toop.framework.resource.types;
 
 public interface AudioResource {
+    String getName();
     void updateVolume(double volume);
 //    boolean isPlaying();
     void play();

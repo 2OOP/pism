@@ -61,6 +61,9 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
     }
 
     @Override
+    public String getName() { return super.getFile().getName(); }
+
+    @Override
     public void setOnEnd(Runnable run) {
         mediaPlayer.setOnEndOfMedia(run);
     }
