@@ -1,19 +1,18 @@
 package org.toop.framework.resource.resources;
 
 import java.io.*;
-import java.nio.file.Files;
 import javax.sound.sampled.*;
 
 import org.toop.framework.resource.types.AudioResource;
 import org.toop.framework.resource.types.FileExtension;
 import org.toop.framework.resource.types.LoadableResource;
 
-import static javax.sound.sampled.LineEvent.Type.CLOSE;
-import static javax.sound.sampled.LineEvent.Type.STOP;
-
 @FileExtension({"wav"})
 public class SoundEffectAsset extends BaseResource implements LoadableResource, AudioResource {
     private final Clip clip = AudioSystem.getClip();
+
+    private LineListener onEnd = null;
+    private LineListener onError = null;
 
     private double volume = 100; // TODO: Find a better way to set volume on clip load
 
@@ -71,6 +70,12 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
 
         clip.close(); // Releases native resources (empties buffer)
 
+        this.getClip().removeLineListener(this.onEnd);
+        this.getClip().removeLineListener(this.onError);
+
+        this.onEnd = null;
+        this.onError = null;
+
         this.isLoaded = false;
     }
 
@@ -105,12 +110,25 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
 
     @Override
     public void setOnEnd(Runnable run) {
-        // TODO
+        this.onEnd = event -> {
+            if (event.getType() == LineEvent.Type.STOP) {
+                run.run();
+            }
+        };
+
+        this.getClip().addLineListener(this.onEnd);
     }
 
     @Override
     public void setOnError(Runnable run) {
-        // TODO
+//        this.onError = event -> {
+//            if (event.getType() == LineEvent.Type.STOP) {
+//                run.run();
+//            }
+//        }; TODO
+//
+//        this.getClip().addLineListener(this.onEnd);
+
     }
 
     @Override
