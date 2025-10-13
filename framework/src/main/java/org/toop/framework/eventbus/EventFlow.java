@@ -11,13 +11,14 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.events.EventWithSnowflake;
+import org.toop.framework.eventbus.events.ResponseToUniqueEvent;
+import org.toop.framework.eventbus.events.UniqueEvent;
 
 /**
  * EventFlow is a utility class for creating, posting, and optionally subscribing to events in a
  * type-safe and chainable manner. It is designed to work with the {@link GlobalEventBus}.
  *
- * <p>This class supports automatic UUID assignment for {@link EventWithSnowflake} events, and
+ * <p>This class supports automatic UUID assignment for {@link UniqueEvent} events, and
  * allows filtering subscribers so they only respond to events with a specific UUID. All
  * subscription methods are chainable, and you can configure automatic unsubscription after an event
  * has been successfully handled.
@@ -30,7 +31,7 @@ public class EventFlow {
     /** Cache of constructor handles for event classes to avoid repeated reflection lookups. */
     private static final Map<Class<?>, MethodHandle> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
 
-    /** Automatically assigned UUID for {@link EventWithSnowflake} events. */
+    /** Automatically assigned UUID for {@link UniqueEvent} events. */
     private long eventSnowflake = -1;
 
     /** The event instance created by this publisher. */
@@ -40,7 +41,7 @@ public class EventFlow {
     private final List<ListenerHandler> listeners = new ArrayList<>();
 
     /** Holds the results returned from the subscribed event, if any. */
-    private Map<String, Object> result = null;
+    private Map<String, ?> result = null;
 
     /** Empty constructor (event must be added via {@link #addPostEvent(Class, Object...)}). */
     public EventFlow() {}
@@ -60,7 +61,7 @@ public class EventFlow {
     // Keep the old class+args version if needed
     public <T extends EventType> EventFlow addPostEvent(Class<T> eventClass, Object... args) {
         try {
-            boolean isUuidEvent = EventWithSnowflake.class.isAssignableFrom(eventClass);
+            boolean isUuidEvent = UniqueEvent.class.isAssignableFrom(eventClass);
 
             MethodHandle ctorHandle =
                     CONSTRUCTOR_CACHE.computeIfAbsent(
@@ -81,7 +82,7 @@ public class EventFlow {
             int expectedParamCount = ctorHandle.type().parameterCount();
 
             if (isUuidEvent && args.length < expectedParamCount) {
-                this.eventSnowflake = new SnowflakeGenerator().nextId();
+                this.eventSnowflake = SnowflakeGenerator.nextId();
                 finalArgs = new Object[args.length + 1];
                 System.arraycopy(args, 0, finalArgs, 0, args.length);
                 finalArgs[args.length] = this.eventSnowflake;
@@ -100,13 +101,8 @@ public class EventFlow {
         }
     }
 
-    //    public EventFlow addSnowflake() {
-    //        this.eventSnowflake = new SnowflakeGenerator(1).nextId();
-    //        return this;
-    //    }
-
     /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
-    public <TT extends EventWithSnowflake> EventFlow onResponse(
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(
             Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
         ListenerHandler[] listenerHolder = new ListenerHandler[1];
         listenerHolder[0] =
@@ -114,7 +110,7 @@ public class EventFlow {
                         GlobalEventBus.subscribe(
                                 eventClass,
                                 event -> {
-                                    if (event.eventSnowflake() != this.eventSnowflake) return;
+                                    if (event.getIdentifier() != this.eventSnowflake) return;
 
                                     action.accept(event);
 
@@ -130,22 +126,21 @@ public class EventFlow {
     }
 
     /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
-    public <TT extends EventWithSnowflake> EventFlow onResponse(
-            Class<TT> eventClass, Consumer<TT> action) {
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action) {
         return this.onResponse(eventClass, action, true);
     }
 
     /** Subscribe by ID without explicit class. */
     @SuppressWarnings("unchecked")
-    public <TT extends EventWithSnowflake> EventFlow onResponse(
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(
             Consumer<TT> action, boolean unsubscribeAfterSuccess) {
         ListenerHandler[] listenerHolder = new ListenerHandler[1];
         listenerHolder[0] =
                 new ListenerHandler(
                         GlobalEventBus.subscribe(
                                 event -> {
-                                    if (!(event instanceof EventWithSnowflake uuidEvent)) return;
-                                    if (uuidEvent.eventSnowflake() == this.eventSnowflake) {
+                                    if (!(event instanceof UniqueEvent uuidEvent)) return;
+                                    if (uuidEvent.getIdentifier() == this.eventSnowflake) {
                                         try {
                                             TT typedEvent = (TT) uuidEvent;
                                             action.accept(typedEvent);
@@ -159,7 +154,7 @@ public class EventFlow {
                                             throw new ClassCastException(
                                                     "Cannot cast "
                                                             + event.getClass().getName()
-                                                            + " to EventWithSnowflake");
+                                                            + " to UniqueEvent");
                                         }
                                     }
                                 }));
@@ -167,7 +162,7 @@ public class EventFlow {
         return this;
     }
 
-    public <TT extends EventWithSnowflake> EventFlow onResponse(Consumer<TT> action) {
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Consumer<TT> action) {
         return this.onResponse(action, true);
     }
 
@@ -214,7 +209,7 @@ public class EventFlow {
                                         throw new ClassCastException(
                                                 "Cannot cast "
                                                         + event.getClass().getName()
-                                                        + " to EventWithSnowflake");
+                                                        + " to UniqueEvent");
                                     }
                                 }));
         this.listeners.add(listenerHolder[0]);
@@ -237,7 +232,13 @@ public class EventFlow {
         return this;
     }
 
-    public Map<String, Object> getResult() {
+    private void clean() {
+        this.listeners.clear();
+        this.event = null;
+        this.result = null;
+    } // TODO
+
+    public Map<String, ?> getResult() {
         return this.result;
     }
 

@@ -10,6 +10,7 @@ import org.toop.app.layer.Container;
 import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.Popup;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.resources.SettingsAsset;
@@ -116,7 +117,7 @@ public final class OptionsPopup extends Popup {
                 (volume) -> {
                     settings.setVolume(volume);
                     new EventFlow()
-                            .addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue()))
+                            .addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue(), VolumeControl.MASTERVOLUME))
                             .asyncPostEvent();
                 });
     }
@@ -128,7 +129,7 @@ public final class OptionsPopup extends Popup {
                 (volume) -> {
                     settings.setFxVolume(volume);
                     new EventFlow()
-                            .addPostEvent(new AudioEvents.ChangeFxVolume(volume.doubleValue()))
+                            .addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue(), VolumeControl.FX))
                             .asyncPostEvent();
                 });
     }
@@ -140,7 +141,7 @@ public final class OptionsPopup extends Popup {
                 (volume) -> {
                     settings.setMusicVolume(volume);
                     new EventFlow()
-                            .addPostEvent(new AudioEvents.ChangeMusicVolume(volume.doubleValue()))
+                            .addPostEvent(new AudioEvents.ChangeVolume(volume.doubleValue(), VolumeControl.MUSIC))
                             .asyncPostEvent();
                 });
     }

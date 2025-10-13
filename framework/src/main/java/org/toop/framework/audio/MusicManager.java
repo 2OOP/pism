@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.dispatch.interfaces.Dispatcher;
 import org.toop.framework.dispatch.JavaFXDispatcher;
-import org.toop.framework.annotations.TestsOnly;
+import org.toop.annotations.TestsOnly;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.BaseResource;
 import org.toop.framework.resource.types.AudioResource;

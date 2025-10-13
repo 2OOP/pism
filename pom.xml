@@ -135,7 +135,7 @@
                         </arg>
 						<!--						TODO-->
 						<!--						-Xep:RestrictedApi:ERROR \-->
-						<!--						-XepOpt:RestrictedApi:annotation=org.toop.framework.annotations.TestsOnly \-->
+						<!--						-XepOpt:RestrictedApi:annotation=org.toop.annotations.TestsOnly \-->
 						<!--						-XepOpt:RestrictedApi:allowlistRegex=(?s).*/src/test/java/.*|.*test\.java \-->
 						<!--						-XepOpt:RestrictedApi:message=This API is marked @TestsOnly and shouldn't be normally used.-->
                         <arg>-XDcompilePolicy=simple</arg>
@@ -161,8 +161,9 @@
 	</build>
 
 	<modules>
+		<module>processors</module>
 		<module>framework</module>
 		<module>game</module>
 		<module>app</module>
-	</modules>
+    </modules>
 </project>

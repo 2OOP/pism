@@ -1,4 +1,4 @@
-package org.toop.framework.annotations;
+package org.toop.annotations;
 
 import java.lang.annotation.*;
 

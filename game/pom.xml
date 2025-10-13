@@ -1,8 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.toop</groupId>
-	<artifactId>pism_game</artifactId>
+	<parent>
+		<groupId>org.toop</groupId>
+		<artifactId>pism</artifactId>
+		<version>0.1</version>
+	</parent>
+
+	<artifactId>game</artifactId>
 	<version>0.1</version>
 
 	<properties>
@@ -127,7 +132,7 @@
                         </arg>
 						<!--						TODO-->
 						<!--						-Xep:RestrictedApi:ERROR \-->
-						<!--						-XepOpt:RestrictedApi:annotation=org.toop.framework.annotations.TestsOnly \-->
+						<!--						-XepOpt:RestrictedApi:annotation=org.toop.annotations.TestsOnly \-->
 						<!--						-XepOpt:RestrictedApi:allowlistRegex=(?s).*/src/test/java/.*|.*test\.java \-->
 						<!--						-XepOpt:RestrictedApi:message=This API is marked @TestsOnly and shouldn't be normally used.-->
                         <arg>-XDcompilePolicy=simple</arg>

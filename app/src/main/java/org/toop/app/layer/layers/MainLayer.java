@@ -6,6 +6,9 @@ import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.containers.VerticalContainer;
+import org.toop.framework.audio.VolumeControl;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
 
 public final class MainLayer extends Layer {

@@ -1,8 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.toop</groupId>
-	<artifactId>pism_framework</artifactId>
+	<parent>
+		<groupId>org.toop</groupId>
+		<artifactId>pism</artifactId>
+		<version>0.1</version>
+	</parent>
+
+	<artifactId>framework</artifactId>
 	<version>0.1</version>
 
 	<properties>
@@ -13,6 +18,14 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.toop</groupId>
+			<artifactId>processors</artifactId>
+			<version>0.1</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>com.diffplug.spotless</groupId>
 			<artifactId>spotless-maven-plugin</artifactId>
@@ -133,7 +146,7 @@
             <artifactId>error_prone_annotations</artifactId>
             <version>2.42.0</version>
         </dependency>
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -165,13 +178,36 @@
                         </arg>
 <!--						TODO-->
 <!--						-Xep:RestrictedApi:ERROR \-->
-<!--						-XepOpt:RestrictedApi:annotation=org.toop.framework.annotations.TestsOnly \-->
+<!--						-XepOpt:RestrictedApi:annotation=org.toop.annotations.TestsOnly \-->
 <!--						-XepOpt:RestrictedApi:allowlistRegex=(?s).*/src/test/java/.*|.*test\.java \-->
 <!--						-XepOpt:RestrictedApi:message=This API is marked @TestsOnly and shouldn't be normally used.-->
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>--should-stop=ifError=FLOW</arg>
                     </compilerArgs>
+<!--					<generatedSourcesDirectory>-->
+<!--						${project.build.directory}/generated-sources/-->
+<!--					</generatedSourcesDirectory>-->
+<!--					<annotationProcessors>-->
+<!--						<annotationProcessor>-->
+<!--							org.toop.processors.AutoResponseResultProcessor-->
+<!--						</annotationProcessor>-->
+<!--					</annotationProcessors>-->
                     <annotationProcessorPaths>
+						<path>
+							<groupId>org.toop</groupId>
+							<artifactId>processors</artifactId>
+							<version>0.1</version>
+						</path>
+						<path>
+							<groupId>com.google.auto.service</groupId>
+							<artifactId>auto-service</artifactId>
+							<version>1.1.1</version>
+						</path>
+						<path>
+							<groupId>com.squareup</groupId>
+							<artifactId>javapoet</artifactId>
+							<version>1.13.0</version>
+						</path>
                         <path>
                             <groupId>com.google.errorprone</groupId>
                             <artifactId>error_prone_core</artifactId>

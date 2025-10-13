@@ -3,6 +3,7 @@ package org.toop.local;
 import java.io.File;
 import java.util.Locale;
 import org.toop.app.App;
+import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.ResourceManager;
@@ -25,13 +26,13 @@ public class AppSettings {
         AppContext.setLocale(Locale.of(settingsData.locale));
         App.setFullscreen(settingsData.fullScreen);
         new EventFlow()
-                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume))
+                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume, VolumeControl.MASTERVOLUME))
                 .asyncPostEvent();
         new EventFlow()
-                .addPostEvent(new AudioEvents.ChangeFxVolume(settingsData.fxVolume))
+                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.fxVolume, VolumeControl.FX))
                 .asyncPostEvent();
         new EventFlow()
-                .addPostEvent(new AudioEvents.ChangeMusicVolume(settingsData.musicVolume))
+                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.musicVolume, VolumeControl.MUSIC))
                 .asyncPostEvent();
         App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
     }
