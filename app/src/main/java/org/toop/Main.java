@@ -10,9 +10,8 @@ import org.toop.framework.resource.resources.MusicAsset;
 import org.toop.framework.resource.resources.SoundEffectAsset;
 
 public final class Main {
-    static void main(String[] args) throws InterruptedException {
+    static void main(String[] args) {
         initSystems();
-        Thread.sleep(200);
         App.run(args);
     }
 
