@@ -2,7 +2,7 @@
 //
 // import org.junit.jupiter.api.Tag;
 // import org.junit.jupiter.api.Test;
-// import org.toop.framework.eventbus.events.EventWithSnowflake;
+// import org.toop.framework.eventbus.events.UniqueEvent;
 //
 // import java.math.BigInteger;
 // import java.util.concurrent.*;
@@ -13,7 +13,7 @@
 // class EventFlowStressTest {
 //
 //    /** Top-level record to ensure runtime type matches subscription */
-//    public record HeavyEvent(String payload, long eventSnowflake) implements EventWithSnowflake {
+//    public record HeavyEvent(String payload, long eventSnowflake) implements UniqueEvent {
 //        @Override
 //        public java.util.Map<String, Object> result() {
 //            return java.util.Map.of("payload", payload, "eventId", eventSnowflake);
@@ -26,7 +26,7 @@
 //    }
 //
 //    public record HeavyEventSuccess(String payload, long eventSnowflake) implements
-// EventWithSnowflake {
+// UniqueEvent {
 //        @Override
 //        public java.util.Map<String, Object> result() {
 //            return java.util.Map.of("payload", payload, "eventId", eventSnowflake);

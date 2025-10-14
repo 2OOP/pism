@@ -1,48 +1,31 @@
 package org.toop.framework.resource.resources;
 
 import java.io.*;
-import java.nio.file.Files;
 import javax.sound.sampled.*;
+
+import org.toop.framework.resource.types.AudioResource;
 import org.toop.framework.resource.types.FileExtension;
 import org.toop.framework.resource.types.LoadableResource;
 
 @FileExtension({"wav"})
-public class SoundEffectAsset extends BaseResource implements LoadableResource {
-    private byte[] rawData;
+public class SoundEffectAsset extends BaseResource implements LoadableResource, AudioResource {
+    private final Clip clip = AudioSystem.getClip();
 
-    public SoundEffectAsset(final File audioFile) {
+    private LineListener onEnd = null;
+    private LineListener onError = null;
+
+    private double volume = 100; // TODO: Find a better way to set volume on clip load
+
+    public SoundEffectAsset(final File audioFile) throws LineUnavailableException {
         super(audioFile);
     }
 
     // Gets a new clip to play
-    public Clip getNewClip()
-            throws LineUnavailableException, UnsupportedAudioFileException, IOException {
-        // Get a new clip from audio system
-        Clip clip = AudioSystem.getClip();
-
-        // Insert a new audio stream into the clip
-        AudioInputStream inputStream = this.getAudioStream();
-        AudioFormat baseFormat = inputStream.getFormat();
-        if (baseFormat.getSampleSizeInBits() > 16)
-            inputStream = downSampleAudio(inputStream, baseFormat);
-        clip.open(
-                inputStream); // ^ Clip can only run 16 bit and lower, thus downsampling necessary.
-        return clip;
+    public Clip getClip() {
+        if (!this.isLoaded()) {this.load();} return this.clip;
     }
 
-    // Generates a new audio stream from byte array
-    private AudioInputStream getAudioStream() throws UnsupportedAudioFileException, IOException {
-        // Check if raw data is loaded into memory
-        if (!this.isLoaded()) {
-            this.load();
-        }
-
-        // Turn rawData into an input stream and turn that into an audio input stream;
-        return AudioSystem.getAudioInputStream(new ByteArrayInputStream(this.rawData));
-    }
-
-    private AudioInputStream downSampleAudio(
-            AudioInputStream audioInputStream, AudioFormat baseFormat) {
+    private AudioInputStream downSampleAudio(AudioInputStream audioInputStream, AudioFormat baseFormat) {
         AudioFormat decodedFormat =
                 new AudioFormat(
                         AudioFormat.Encoding.PCM_SIGNED,
@@ -57,19 +40,42 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
         return AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
     }
 
+
+
     @Override
     public void load() {
         try {
-            this.rawData = Files.readAllBytes(file.toPath());
+            if (this.isLoaded){
+                return; // Return if it is already loaded
+            }
+
+            // Insert a new audio stream into the clip
+            AudioInputStream inputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(new FileInputStream(this.getFile())));
+            AudioFormat baseFormat = inputStream.getFormat();
+            if (baseFormat.getSampleSizeInBits() > 16)
+                inputStream = downSampleAudio(inputStream, baseFormat);
+            this.clip.open(inputStream); // ^ Clip can only run 16 bit and lower, thus downsampling necessary.
+            this.updateVolume(this.volume);
             this.isLoaded = true;
-        } catch (IOException e) {
+        } catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public void unload() {
-        this.rawData = null;
+        if (!this.isLoaded) return; // Return if already unloaded
+
+        if (clip.isRunning()) clip.stop(); // Stops playback of the clip
+
+        clip.close(); // Releases native resources (empties buffer)
+
+        this.getClip().removeLineListener(this.onEnd);
+        this.getClip().removeLineListener(this.onError);
+
+        this.onEnd = null;
+        this.onError = null;
+
         this.isLoaded = false;
     }
 
@@ -77,4 +83,65 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource {
     public boolean isLoaded() {
         return this.isLoaded;
     }
+
+    @Override
+    public void updateVolume(double volume) {
+        {
+            this.volume = volume;
+            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl volumeControl =
+                        (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                float min = volumeControl.getMinimum();
+                float max = volumeControl.getMaximum();
+                float dB =
+                        (float)
+                                (Math.log10(Math.max(volume, 0.0001))
+                                        * 20.0); // convert linear to dB
+                dB = Math.max(min, Math.min(max, dB));
+                volumeControl.setValue(dB);
+            }
+        }
+    }
+
+    @Override
+    public String getName() {
+        return this.getFile().getName();
+    }
+
+    @Override
+    public void setOnEnd(Runnable run) {
+        this.onEnd = event -> {
+            if (event.getType() == LineEvent.Type.STOP) {
+                run.run();
+            }
+        };
+
+        this.getClip().addLineListener(this.onEnd);
+    }
+
+    @Override
+    public void setOnError(Runnable run) {
+//        this.onError = event -> {
+//            if (event.getType() == LineEvent.Type.STOP) {
+//                run.run();
+//            }
+//        }; TODO
+//
+//        this.getClip().addLineListener(this.onEnd);
+
+    }
+
+    @Override
+    public void play() {
+        if (!isLoaded()) load();
+
+        this.clip.setFramePosition(0); // rewind to the start
+        this.clip.start();
+    }
+
+    @Override
+    public void stop() {
+        if (this.clip.isRunning()) this.clip.stop();
+    }
+
 }

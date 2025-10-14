@@ -6,6 +6,8 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
+import java.util.Locale;
+
 /**
  * Utility class for configuring logging levels dynamically at runtime using Log4j 2.
  *
@@ -144,7 +146,7 @@ public final class Logging {
      * @param levelToLog name of the logging level (e.g., "DEBUG", "INFO")
      */
     public static void enableLogsForClass(String className, String levelToLog) {
-        Level level = Level.valueOf(levelToLog.trim().toUpperCase());
+        Level level = Level.valueOf(levelToLog.trim().toUpperCase(Locale.ROOT));
         if (level != null && verifyStringIsActualClass(className)) {
             enableLogsForClassInternal(className, level);
         }

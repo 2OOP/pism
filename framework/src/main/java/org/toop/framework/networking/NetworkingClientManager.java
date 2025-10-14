@@ -45,7 +45,7 @@ public class NetworkingClientManager {
     }
 
     long startClientRequest(String ip, int port) {
-        long connectionId = new SnowflakeGenerator().nextId();
+        long connectionId = SnowflakeGenerator.nextId();
         try {
             NetworkingClient client =
                     new NetworkingClient(

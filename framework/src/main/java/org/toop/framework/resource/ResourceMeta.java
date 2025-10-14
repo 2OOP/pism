@@ -9,7 +9,7 @@ public class ResourceMeta<T extends BaseResource> {
     private final T resource;
 
     public ResourceMeta(String name, T resource) {
-        this.id = new SnowflakeGenerator().nextId();
+        this.id = SnowflakeGenerator.nextId();
         this.name = name;
         this.resource = resource;
     }
