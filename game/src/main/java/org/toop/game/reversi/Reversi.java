@@ -141,6 +141,7 @@ public final class Reversi extends TurnBasedGame {
         if (moveIsLegal) {
             Move[] moves = getFlipsForPotentialMove(new Point(move.position()%8,move.position()/8), makeBoardAGrid(), move.value());
             board[move.position()] = move.value();
+            IO.println(move.position() +" "+ move.value());
             for (Move m : moves) {
                 board[m.position()] = m.value();
             }
