@@ -1,32 +1,40 @@
 package org.toop.local;
 
-import jdk.jfr.Event;
-import org.toop.app.App;
-import org.toop.framework.asset.resources.SettingsAsset;
-import org.toop.framework.audio.events.AudioEvents;
-import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.settings.Settings;
-
 import java.io.File;
 import java.util.Locale;
+import org.toop.app.App;
+import org.toop.framework.audio.VolumeControl;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.ResourceMeta;
+import org.toop.framework.resource.resources.SettingsAsset;
+import org.toop.framework.settings.Settings;
 
 public class AppSettings {
 
     private SettingsAsset settingsAsset;
 
     public void applySettings() {
-        SettingsAsset settings = getPath();
-        if (!settings.isLoaded()) {
-            settings.load();
+        this.settingsAsset = getPath();
+        if (!this.settingsAsset.isLoaded()) {
+            this.settingsAsset.load();
         }
-        Settings settingsData = settings.getContent();
+
+        Settings settingsData = this.settingsAsset.getContent();
 
         AppContext.setLocale(Locale.of(settingsData.locale));
         App.setFullscreen(settingsData.fullScreen);
-        new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume)).asyncPostEvent();
-        new EventFlow().addPostEvent(new AudioEvents.ChangeFxVolume(settingsData.fxVolume)).asyncPostEvent();
-        new EventFlow().addPostEvent(new AudioEvents.ChangeMusicVolume(settingsData.musicVolume)).asyncPostEvent();
-		App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
+        new EventFlow()
+                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume, VolumeControl.MASTERVOLUME))
+                .asyncPostEvent();
+        new EventFlow()
+                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.fxVolume, VolumeControl.FX))
+                .asyncPostEvent();
+        new EventFlow()
+                .addPostEvent(new AudioEvents.ChangeVolume(settingsData.musicVolume, VolumeControl.MUSIC))
+                .asyncPostEvent();
+        App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
     }
 
     public SettingsAsset getPath() {
@@ -45,9 +53,15 @@ public class AppSettings {
                 basePath = System.getProperty("user.home") + "/.config";
             }
 
-            File settingsFile = new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
-            this.settingsAsset = new SettingsAsset(settingsFile);
+            File settingsFile =
+                    new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
+
+            return new SettingsAsset(settingsFile);
+//            this.settingsAsset = new SettingsAsset(settingsFile); // TODO
+//            ResourceManager.addAsset(new ResourceMeta<>("settings.json", new SettingsAsset(settingsFile))); // TODO
         }
+
         return this.settingsAsset;
+//        return ResourceManager.get("settings.json"); // TODO
     }
 }

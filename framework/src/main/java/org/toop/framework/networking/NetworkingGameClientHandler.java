@@ -74,7 +74,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                     gameWinConditionHandler(recSrvRemoved);
                     return;
                 default:
-                    return;
+                    // return
             }
         } else {
 
@@ -93,10 +93,10 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                         helpHandler(recSrvRemoved);
                         return;
                     default:
-                        return;
+                        // return
                 }
             } else {
-                return; // TODO: Should be an error.
+                logger.error("Could not parse: {}", rec);
             }
         }
     }
@@ -119,6 +119,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void gameWinConditionHandler(String rec) {
+        @SuppressWarnings("StreamToString")
         String condition =
                 Pattern.compile("\\b(win|draw|lose)\\b", Pattern.CASE_INSENSITIVE)
                         .matcher(rec)
@@ -136,7 +137,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
         try {
             String[] msg =
                     Pattern.compile(
-                                    "(?:CHALLENGER|GAMETYPE|CHALLENGENUMBER):\\s*\"?(.*?)\"?\\s*(?:,|})")
+                                    "(?:CHALLENGER|GAMETYPE|CHALLENGENUMBER):\\s*\"?(.*?)\"?\\s*[,}]")
                             .matcher(rec)
                             .results()
                             .map(m -> m.group().trim())
@@ -180,6 +181,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void gameYourTurnHandler(String rec) {
+        @SuppressWarnings("StreamToString")
         String msg =
                 Pattern.compile("TURNMESSAGE:\\s*\"([^\"]*)\"")
                         .matcher(rec)

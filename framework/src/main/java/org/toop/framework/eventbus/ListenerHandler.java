@@ -1,7 +1,7 @@
 package org.toop.framework.eventbus;
 
 public class ListenerHandler {
-    private Object listener = null;
+    private Object listener;
 
     //    private boolean unsubscribeAfterSuccess = true;
 

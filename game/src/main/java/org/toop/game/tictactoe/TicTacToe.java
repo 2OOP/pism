@@ -1,8 +1,7 @@
 package org.toop.game.tictactoe;
 
-import org.toop.game.TurnBasedGame;
-
 import java.util.ArrayList;
+import org.toop.game.TurnBasedGame;
 
 public final class TicTacToe extends TurnBasedGame {
     private int movesLeft;
@@ -19,8 +18,8 @@ public final class TicTacToe extends TurnBasedGame {
 
     @Override
     public Move[] getLegalMoves() {
-	    final ArrayList<Move> legalMoves = new ArrayList<>();
-	    final char currentValue = getCurrentValue();
+        final ArrayList<Move> legalMoves = new ArrayList<>();
+        final char currentValue = getCurrentValue();
 
         for (int i = 0; i < board.length; i++) {
             if (board[i] == EMPTY) {
@@ -44,12 +43,12 @@ public final class TicTacToe extends TurnBasedGame {
             return State.WIN;
         }
 
-		nextTurn();
+        nextTurn();
 
         if (movesLeft <= 2) {
-			if (movesLeft <= 0 || checkForEarlyDraw(this)) {
-				return State.DRAW;
-			}
+            if (movesLeft <= 0 || checkForEarlyDraw(this)) {
+                return State.DRAW;
+            }
         }
 
         return State.NORMAL;
@@ -60,7 +59,9 @@ public final class TicTacToe extends TurnBasedGame {
         for (int i = 0; i < 3; i++) {
             final int index = i * 3;
 
-            if (board[index] != EMPTY && board[index] == board[index + 1] && board[index] == board[index + 2]) {
+            if (board[index] != EMPTY
+                    && board[index] == board[index + 1]
+                    && board[index] == board[index + 2]) {
                 return true;
             }
         }
@@ -83,7 +84,7 @@ public final class TicTacToe extends TurnBasedGame {
 
     private boolean checkForEarlyDraw(TicTacToe game) {
         for (final Move move : game.getLegalMoves()) {
-	        final TicTacToe copy = new TicTacToe(game);
+            final TicTacToe copy = new TicTacToe(game);
 
             if (copy.play(move) == State.WIN || !checkForEarlyDraw(copy)) {
                 return false;
@@ -93,7 +94,7 @@ public final class TicTacToe extends TurnBasedGame {
         return true;
     }
 
-	private char getCurrentValue() {
-		return currentTurn == 0? 'X' : 'O';
-	}
+    private char getCurrentValue() {
+        return currentTurn == 0 ? 'X' : 'O';
+    }
 }
