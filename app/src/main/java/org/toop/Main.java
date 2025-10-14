@@ -23,7 +23,7 @@ public final class Main {
         ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
         new Thread(NetworkingClientManager::new).start();
         new Thread(() -> {
-            MusicManager<MusicAsset> musicManager = new MusicManager<>(ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class));
+            MusicManager<MusicAsset> musicManager = new MusicManager<>(ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class), true);
             SoundEffectManager<SoundEffectAsset> soundEffectManager = new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));
             AudioVolumeManager audioVolumeManager = new AudioVolumeManager()
                     .registerManager(VolumeControl.MASTERVOLUME, musicManager)
