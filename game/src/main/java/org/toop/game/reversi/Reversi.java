@@ -158,6 +158,7 @@ public final class Reversi extends TurnBasedGame {
     }
 
     public void skipMyTurn(){
+        IO.println("TURN " + getCurrentPlayer() + "  SKIPPED");
         nextTurn();
     }
 
@@ -181,7 +182,7 @@ public final class Reversi extends TurnBasedGame {
 
     public Game.Score getScore(){
         int player1Score = 0, player2Score = 0;
-        for (int count = 0; count < 63; count++) {
+        for (int count = 0; count < rowSize * columnSize; count++) {
             if (board[count] == 'W') {
                 player1Score += 1;
             }
