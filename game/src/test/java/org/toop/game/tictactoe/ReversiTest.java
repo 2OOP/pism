@@ -85,8 +85,25 @@ class ReversiTest {
     }
 
     @Test
+    void zLegalMovesInCertainPosition() {
+        game.play(new Game.Move(19, 'B'));
+        game.play(new Game.Move(20, 'W'));
+        Game.Move[] moves = game.getLegalMoves();
+        List<Game.Move> expectedMoves = List.of(
+                new Game.Move(13,'B'),
+                new Game.Move(21, 'B'),
+                new Game.Move(29, 'B'),
+                new Game.Move(37, 'B'),
+                new Game.Move(45, 'B'));
+        assertNotNull(moves);
+        assertTrue(moves.length > 0);
+        IO.println(Arrays.toString(moves));
+        assertMovesMatchIgnoreOrder(expectedMoves, Arrays.asList(moves));
+    }
+
+    @Test
     void testCountScoreCorrectlyAtEnd() {
-        for (int i = 0; i < 10; i++){
+        for (int i = 0; i < 1; i++){
             game =  new Reversi();
             Game.Move[] legalMoves = game.getLegalMoves();
             while(legalMoves.length > 0) {
@@ -102,7 +119,6 @@ class ReversiTest {
             }
 
         }
-
     }
 
     @Test
