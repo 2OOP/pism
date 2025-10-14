@@ -2,11 +2,11 @@ package org.toop.app.view.views;
 
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
-import org.toop.local.AppContext;
 
 public final class GameView extends View {
 	private static class GameOverView extends View {

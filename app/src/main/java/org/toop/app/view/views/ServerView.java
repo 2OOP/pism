@@ -1,14 +1,14 @@
 package org.toop.app.view.views;
 
-import javafx.application.Platform;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.local.AppContext;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.text.Text;
-import org.toop.local.AppContext;
 
 import java.util.List;
 import java.util.function.Consumer;

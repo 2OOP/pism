@@ -4,13 +4,13 @@ import org.toop.app.GameInformation;
 import org.toop.app.Server;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.text.Text;
-import org.toop.local.AppContext;
 
 import java.util.ArrayList;
 import java.util.List;

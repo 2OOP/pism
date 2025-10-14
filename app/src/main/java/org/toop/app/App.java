@@ -3,10 +3,10 @@ package org.toop.app;
 import org.toop.app.view.ViewStack;
 import org.toop.app.view.views.MainView;
 import org.toop.app.view.views.QuitView;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.resources.CssAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.resources.CssAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 
