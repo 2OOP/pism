@@ -106,6 +106,34 @@ class ReversiTest {
     }
 
     @Test
+    void testPlayerMustSkipTurnIfNoValidMoves() {
+        game.play(new Game.Move(19, 'B'));
+        game.play(new Game.Move(34, 'W'));
+        game.play(new Game.Move(45, 'B'));
+        game.play(new Game.Move(11, 'W'));
+        game.play(new Game.Move(42, 'B'));
+        game.play(new Game.Move(54, 'W'));
+        game.play(new Game.Move(37, 'B'));
+        game.play(new Game.Move(46, 'W'));
+        game.play(new Game.Move(63, 'B'));
+        game.play(new Game.Move(62, 'W'));
+        game.play(new Game.Move(29, 'B'));
+        game.play(new Game.Move(50, 'W'));
+        game.play(new Game.Move(55, 'B'));
+        game.play(new Game.Move(30, 'W'));
+        game.play(new Game.Move(53, 'B'));
+        game.play(new Game.Move(38, 'W'));
+        game.play(new Game.Move(61, 'B'));
+        game.play(new Game.Move(52, 'W'));
+        game.play(new Game.Move(51, 'B'));
+        game.play(new Game.Move(60, 'W'));
+        game.play(new Game.Move(59, 'B'));
+        assertEquals('B', game.getCurrentPlayer());
+        game.play(ai.findBestMove(game,5));
+        game.play(ai.findBestMove(game,5));
+    }
+
+    @Test
     void testAISelectsLegalMove() {
         Game.Move move = ai.findBestMove(game,4);
         assertNotNull(move);

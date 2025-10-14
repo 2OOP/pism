@@ -6,9 +6,6 @@ import org.toop.app.layer.Container;
 import org.toop.app.layer.Layer;
 import org.toop.app.layer.NodeBuilder;
 import org.toop.app.layer.containers.VerticalContainer;
-import org.toop.framework.audio.VolumeControl;
-import org.toop.framework.audio.events.AudioEvents;
-import org.toop.framework.eventbus.EventFlow;
 import org.toop.app.layer.layers.game.ReversiLayer;
 import org.toop.local.AppContext;
 
@@ -29,9 +26,9 @@ public final class MainLayer extends Layer {
                             App.activate(new MultiplayerLayer());
                         });
 
-		final var othelloButton =
+		final var reversiButton =
                 NodeBuilder.button(
-                        AppContext.getString("othello"),
+                        AppContext.getString("reversi"),
                         () -> {
                             App.activate(new ReversiLayer());
 		});
@@ -58,7 +55,7 @@ public final class MainLayer extends Layer {
                         });
 
         final Container gamesContainer = new VerticalContainer(5);
-        gamesContainer.addNodes(tictactoeButton, othelloButton);
+        gamesContainer.addNodes(tictactoeButton, reversiButton);
 
         final Container controlContainer = new VerticalContainer(5);
         controlContainer.addNodes(creditsButton, optionsButton, quitButton);

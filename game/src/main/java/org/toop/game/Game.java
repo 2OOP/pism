@@ -7,6 +7,7 @@ public abstract class Game {
         NORMAL,
         DRAW,
         WIN,
+        MOVE_SKIPPED,
     }
 
     public record Move(int position, char value) {}
