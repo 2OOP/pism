@@ -1,0 +1,41 @@
+.combo-box .list-cell {
+	-fx-alignment: CENTER;
+	-fx-padding: 0;
+}
+
+.container,
+.credits-container {
+	-fx-alignment: TOP_CENTER;
+}
+
+.fit {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+}
+
+.fit .scroll-bar .decrement-arrow,
+.fit .scroll-bar .decrement-button,
+.fit .scroll-bar .increment-arrow,
+.fit .scroll-bar .increment-button {
+	-fx-padding: 0;
+	-fx-pref-height: 0;
+	-fx-pref-width: 0;
+	-fx-shape: "";
+}
+
+.fit .scroll-bar .thumb {
+	-fx-background-color: #888;
+	-fx-background-insets: 0;
+	-fx-background-radius: 1px;
+}
+
+.fit .scroll-bar:horizontal,
+.fit .scroll-bar:vertical {
+	-fx-pref-height: 4px;
+	-fx-pref-width: 4px;
+}
+
+.header,
+.text {
+	-fx-font-family: "Arial";
+}

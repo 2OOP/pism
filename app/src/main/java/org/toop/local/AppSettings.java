@@ -1,6 +1,5 @@
 package org.toop.local;
 
-import jdk.jfr.Event;
 import org.toop.app.App;
 import org.toop.framework.asset.resources.SettingsAsset;
 import org.toop.framework.audio.events.AudioEvents;
@@ -11,10 +10,9 @@ import java.io.File;
 import java.util.Locale;
 
 public class AppSettings {
+    private static SettingsAsset settingsAsset;
 
-    private SettingsAsset settingsAsset;
-
-    public void applySettings() {
+    public static void applySettings() {
         SettingsAsset settings = getPath();
         if (!settings.isLoaded()) {
             settings.load();
@@ -29,8 +27,8 @@ public class AppSettings {
 		App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
     }
 
-    public SettingsAsset getPath() {
-        if (this.settingsAsset == null) {
+    public static SettingsAsset getPath() {
+        if (settingsAsset == null) {
             String os = System.getProperty("os.name").toLowerCase();
             String basePath;
 
@@ -46,8 +44,13 @@ public class AppSettings {
             }
 
             File settingsFile = new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
-            this.settingsAsset = new SettingsAsset(settingsFile);
+            settingsAsset = new SettingsAsset(settingsFile);
         }
-        return this.settingsAsset;
+        return settingsAsset;
     }
+
+	public static SettingsAsset getSettings() {
+		assert settingsAsset != null;
+		return settingsAsset;
+	}
 }

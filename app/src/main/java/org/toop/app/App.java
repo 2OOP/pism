@@ -1,29 +1,24 @@
 package org.toop.app;
 
-import javafx.application.Platform;
-import org.toop.app.layer.Layer;
-import org.toop.app.layer.layers.MainLayer;
-import org.toop.app.layer.layers.QuitPopup;
+import org.toop.app.view.ViewStack;
+import org.toop.app.view.views.MainView;
+import org.toop.app.view.views.QuitView;
 import org.toop.framework.asset.ResourceManager;
 import org.toop.framework.asset.resources.CssAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
+import org.toop.local.AppSettings;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.toop.local.AppSettings;
-
-import java.util.Stack;
 
 public final class App extends Application {
 	private static Stage stage;
 	private static Scene scene;
-	private static StackPane root;
 
-	private static Stack<Layer> stack;
     private static int height;
     private static int width;
 
@@ -37,17 +32,15 @@ public final class App extends Application {
 	public void start(Stage stage) throws Exception {
         final StackPane root = new StackPane();
 		final Scene scene = new Scene(root);
+		ViewStack.setup(scene);
 
-		stage.setTitle(AppContext.getString("appTitle"));
+		stage.setTitle(AppContext.getString("app-title"));
 		stage.setWidth(1080);
 		stage.setHeight(720);
 
 		stage.setOnCloseRequest(event -> {
 			event.consume();
-
-			if (!isQuitting) {
-				quitPopup();
-			}
+			startQuit();
 		});
 
 		stage.setScene(scene);
@@ -57,78 +50,40 @@ public final class App extends Application {
 
 		App.stage = stage;
 		App.scene = scene;
-		App.root = root;
 
-		App.stack = new Stack<>();
-
-		App.width = (int) stage.getWidth();
-		App.height = (int) stage.getHeight();
+		App.width = (int)stage.getWidth();
+		App.height = (int)stage.getHeight();
 
 		App.isQuitting = false;
 
-		final AppSettings settings = new AppSettings();
-		settings.applySettings();
-
+		AppSettings.applySettings();
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
-		activate(new MainLayer());
+
+		ViewStack.push(new MainView());
 	}
 
-	public static void activate(Layer layer) {
-		Platform.runLater(() -> {
-			popAll();
-			push(layer);
-		});
+	public static void startQuit() {
+		if (isQuitting) {
+			return;
+		}
+
+		ViewStack.push(new QuitView());
+		isQuitting = true;
 	}
 
-	public static void push(Layer layer) {
-		Platform.runLater(() -> {
-			root.getChildren().addLast(layer.getLayer());
-			stack.push(layer);
-		});
-	}
-
-	public static void pop() {
-		Platform.runLater(() -> {
-			root.getChildren().removeLast();
-			stack.pop();
-
-			isQuitting = false;
-		});
-	}
-
-	public static void popAll() {
-		Platform.runLater(() -> {
-			final int childrenCount = root.getChildren().size();
-
-			for (int i = 0; i < childrenCount; i++) {
-				try {
-					root.getChildren().removeLast();
-				} catch (Exception e) {
-					IO.println(e);
-				}
-			}
-
-			stack.removeAllElements();
-		});
-	}
-
-	public static void quitPopup() {
-		Platform.runLater(() -> {
-			push(new QuitPopup());
-			isQuitting = true;
-		});
+	public static void stopQuit() {
+		ViewStack.pop();
+		isQuitting = false;
 	}
 
 	public static void quit() {
+		ViewStack.cleanup();
 		stage.close();
 	}
 
-	public static void reloadAll() {
-		stage.setTitle(AppContext.getString("appTitle"));
-
-		for (final Layer layer : stack) {
-			layer.reload();
-		}
+	public static void reload() {
+		stage.setTitle(AppContext.getString("app-title"));
+		ViewStack.reload();
 	}
 
 	public static void setFullscreen(boolean fullscreen) {
@@ -137,7 +92,7 @@ public final class App extends Application {
 		width = (int) stage.getWidth();
 		height = (int) stage.getHeight();
 
-		reloadAll();
+		reload();
 	}
 
 	public static void setStyle(String theme, String layoutSize) {
@@ -147,10 +102,11 @@ public final class App extends Application {
 			scene.getStylesheets().removeLast();
 		}
 
+		scene.getStylesheets().add(ResourceManager.<CssAsset>get("general.css").getUrl());
 		scene.getStylesheets().add(ResourceManager.<CssAsset>get(theme + ".css").getUrl());
 		scene.getStylesheets().add(ResourceManager.<CssAsset>get(layoutSize + ".css").getUrl());
 
-		reloadAll();
+		reload();
 	}
 
 	public static int getWidth() {

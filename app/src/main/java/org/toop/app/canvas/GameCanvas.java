@@ -16,8 +16,8 @@ public abstract class GameCanvas {
 
 	protected final Color color;
 
-	protected int width;
-	protected int height;
+	protected final int width;
+	protected final int height;
 
 	protected final int rows;
 	protected final int columns;
@@ -28,6 +28,9 @@ public abstract class GameCanvas {
 	protected final Cell[] cells;
 
 	protected GameCanvas(Color color, int width, int height, int rows, int columns, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
+		width += gapSize * 2;
+		height += gapSize * 2;
+
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
 
@@ -44,14 +47,14 @@ public abstract class GameCanvas {
 
 		cells = new Cell[rows * columns];
 
-		final float cellWidth = ((float) width - (rows - 1) * gapSize) / rows;
-		final float cellHeight = ((float) height - (columns - 1) * gapSize) / columns;
+		final float cellWidth = ((float) width - gapSize * rows) / rows;
+		final float cellHeight = ((float) height - gapSize * columns) / columns;
 
 		for (int y = 0; y < columns; y++) {
-			final float startY = y * cellHeight + y * gapSize;
+			final float startY = gapSize + y * cellHeight + y * gapSize;
 
 			for (int x = 0; x < rows; x++) {
-				final float startX = x * cellWidth + x * gapSize;
+				final float startX = gapSize + x * cellWidth + x * gapSize;
 				cells[y * rows + x] = new Cell(startX, startY, cellWidth, cellHeight);
 			}
 		}
@@ -61,11 +64,11 @@ public abstract class GameCanvas {
 				return;
 			}
 
-			final int column = (int) ((event.getX() / width) * rows);
-			final int row = (int) ((event.getY() / height) * columns);
+			final int column = (int)((event.getX() / this.width) * rows);
+			final int row = (int)((event.getY() / this.height) * columns);
 
 			event.consume();
-			onCellClicked.accept(row * rows + column);
+			onCellClicked.accept(column + row * rows);
 		});
 
 		render();
@@ -79,42 +82,31 @@ public abstract class GameCanvas {
 		graphics.setFill(color);
 
 		for (int x = 1; x < rows; x++) {
-			graphics.fillRect(cells[x].x() - gapSize, 0, gapSize, height);
+			graphics.fillRect(cells[x].x() - gapSize, 0, gapSize, height + gapSize);
 		}
 
 		for (int y = 1; y < columns; y++) {
-			graphics.fillRect(0, cells[y * rows].y() - gapSize, width, gapSize);
+			graphics.fillRect(0, cells[y * rows].y() - gapSize, width + gapSize, gapSize);
 		}
 
 		if (edges) {
-			graphics.fillRect(-gapSize, 0, gapSize, height);
-			graphics.fillRect(0, -gapSize, width, gapSize);
+			graphics.fillRect(0, 0, gapSize, height + gapSize);
+			graphics.fillRect(0, 0, width + gapSize, gapSize);
 
-			graphics.fillRect(width - gapSize, 0, gapSize, height);
-			graphics.fillRect(0, height - gapSize, width, gapSize);
+			graphics.fillRect(width + gapSize, 0, gapSize, height + gapSize * 2);
+			graphics.fillRect(0, height + gapSize, width + gapSize * 2, gapSize);
 		}
 	}
 
-	public void draw(Color color, int cell) {
-		final float x = cells[cell].x() + gapSize;
-		final float y = cells[cell].y() + gapSize;
+	public void fill(Color color, int cell) {
+		final float x = cells[cell].x();
+		final float y = cells[cell].y();
 
-		final float width = cells[cell].width() - gapSize * 2;
-		final float height = cells[cell].height() - gapSize * 2;
+		final float width = cells[cell].width();
+		final float height = cells[cell].height();
 
 		graphics.setFill(color);
 		graphics.fillRect(x, y, width, height);
-	}
-
-	public void resize(int width, int height) {
-		canvas.setWidth(width);
-		canvas.setHeight(height);
-
-		this.width = width;
-		this.height = height;
-
-		clear();
-		render();
 	}
 
 	public Canvas getCanvas() {

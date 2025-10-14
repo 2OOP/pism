@@ -1,215 +1,139 @@
-/* ----------------------------
-	.background
------------------------------ */
 .bg-primary {
-	-fx-background-color: #f5f5f5;
+	-fx-background-color: linear-gradient(to bottom, #f0f6f4, #dbe9e5);
 }
 
 .bg-secondary {
-	-fx-background-color: #e0e0e0;
+	-fx-background-color: linear-gradient(to bottom, #d0e0db, #b7cdc6);
 }
 
 .bg-popup {
-	-fx-background-color: #f5f5f57f;
+	-fx-background-color: rgba(240, 248, 250, 0.9);
+	-fx-background-radius: 8;
+	-fx-effect: dropshadow(gaussian, #a0c4b088, 6, 0, 0, 2);
 }
 
-/* ----------------------------
-	.button
------------------------------ */
 .button {
-	/* Layout */
-	-fx-padding: 10 20;
-	-fx-background-radius: 6;
+	-fx-background-color: linear-gradient(to bottom, #7ac27a, #90d090);
+	-fx-background-radius: 8;
+	-fx-border-color: #5caf5c;
 	-fx-cursor: hand;
-
-	/* Color */
-	-fx-background-color: #e0e0e0;
-	-fx-text-fill: #1a1a1a;
-	-fx-border-color: #cccccc;
-	-fx-border-width: 1;
-
-	/* Effects */
-	-fx-effect: dropshadow(gaussian, #00000026, 4, 0, 0, 1);
+	-fx-effect: dropshadow(gaussian, #7abf7aaa, 5, 0, 0, 2);
+	-fx-text-fill: #2a3a2a;
+	-fx-font-weight: bold;
 }
 
 .button:hover {
-	-fx-background-color: #d5d5d5;
-	-fx-border-color: #4caf50;
+	-fx-background-color: linear-gradient(to bottom, #a2d1a1, #b8e3b9);
+	-fx-border-color: #4a784a;
 }
 
-/* ----------------------------
-	.choice-box
------------------------------ */
-.choice-box {
-	/* Layout */
-	-fx-padding: 6;
-	-fx-background-radius: 4;
-
-	/* Color */
-	-fx-background-color: #e0e0e0;
-	-fx-border-color: #cccccc;
-	-fx-border-width: 1;
-	-fx-mark-color: #1a1a1a;
+.combo-box {
+	-fx-background-color: linear-gradient(to bottom, #d9e6e1, #b8ccc5);
+	-fx-background-radius: 6;
+	-fx-border-color: #5caf5c;
+	-fx-cursor: hand;
 }
 
-.choice-box:hover {
-	-fx-border-color: #4caf50;
+.combo-box:hover {
+	-fx-border-color: #81b581;
 }
 
-.choice-box:focused {
-	-fx-border-color: #81c784;
+.combo-box:focused {
+	-fx-border-color: #aad3aa;
+	-fx-effect: dropshadow(gaussian, #aad3aa99, 4, 0, 0, 1);
 }
 
-.choice-box .label {
-	-fx-text-fill: #1a1a1a;
+.combo-box .arrow,
+.combo-box .arrow-button {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
 }
 
-/* ----------------------------
-	.choice-box popup styling
------------------------------ */
-.choice-box .context-menu {
-	/* Layout */
-	-fx-padding: 4;
-	-fx-background-radius: 4;
-
-	/* Color */
-	-fx-background-color: #ffffff;
-	-fx-border-color: #cccccc;
-	-fx-border-width: 1;
+.combo-box .list-cell {
+	-fx-background-color: transparent;
+	-fx-text-fill: #588758;
 }
 
-.choice-box .menu-item {
-	/* Layout */
-	-fx-padding: 6 12;
+.combo-box .list-view {
+	-fx-background-color: #d3e4d7;
+	-fx-background-radius: 6;
+	-fx-border-color: #5caf5c;
 }
 
-.choice-box .menu-item .label {
-	-fx-text-fill: #333333;
+.combo-box-popup .list-cell {
+	-fx-text-fill: #588758;
 }
 
-.choice-box .menu-item:hover {
-	-fx-background-color: #eeeeee;
+.combo-box-popup .list-cell:hover {
+	-fx-background-color: #90d090;
 }
 
-.choice-box .menu-item:focused {
-	-fx-background-color: #4caf50;
-	-fx-text-fill: #ffffff;
+.combo-box-popup .list-cell:selected {
+	-fx-background-color: #7ac27a;
+	-fx-text-fill: #f0faf0;
 }
 
-/* ----------------------------
-	.container
------------------------------ */
 .container {
-	/* Layout */
-	-fx-padding: 10;
-	-fx-alignment: center;
-
-	/* Color */
-	-fx-background-color: #e0e0e0;
+	-fx-background-color: linear-gradient(to bottom, #e9f2ee, #cde3d9);
+	-fx-background-radius: 6;
 }
 
-/* ----------------------------
-	.input
------------------------------ */
 .input {
-	/* Layout */
-	-fx-padding: 8;
-	-fx-background-radius: 4;
-
-	/* Color */
-	-fx-background-color: #ffffff;
-	-fx-text-fill: #1a1a1a;
-	-fx-border-color: #cccccc;
-	-fx-border-width: 1;
+	-fx-background-color: linear-gradient(to bottom, #e6f0ec, #c8dbcd);
+	-fx-background-radius: 6;
+	-fx-border-color: #5caf5c;
+	-fx-text-fill: #588758;
+	-fx-font-weight: normal;
 }
 
 .input:hover {
-	-fx-border-color: #4caf50;
+	-fx-border-color: #81b581;
 }
 
 .input:focused {
-	-fx-border-color: #81c784;
+	-fx-border-color: #aad3aa;
+	-fx-effect: dropshadow(gaussian, #aad3aa99, 4, 0, 0, 1);
 }
 
-/* ----------------------------
-	.separator
------------------------------ */
-.separator {
-	/* Layout */
-	-fx-padding: 10 0;
+.my-turn {
+	-fx-fill: #d14b4b;
+	-fx-font-weight: bold;
 }
 
 .separator .line {
-	/* Color */
-	-fx-border-color: #cccccc;
-	-fx-border-width: 0 0 1 0;
+	-fx-border-color: #81b581;
+	-fx-opacity: 1;
 }
 
-/* ----------------------------
-	.slider
------------------------------ */
 .slider {
-	/* Layout */
-	-fx-padding: 6 0;
-
-	/* Color */
 	-fx-background-color: transparent;
 }
 
-.slider .track {
-	/* Color */
-	-fx-background-color: linear-gradient(to left, #4caf50, #f44336);
-	-fx-background-insets: 0;
-	-fx-background-radius: 2;
-	-fx-pref-height: 4;
-}
-
 .slider .thumb {
-	/* Color */
-	-fx-background-color: #1a1a1a;
+	-fx-background-color: linear-gradient(to bottom, #7ac27a, #90d090);
 	-fx-background-radius: 50%;
-
-	/* Effects */
-	-fx-effect: dropshadow(gaussian, #00000033, 4, 0, 0, 1);
+	-fx-effect: dropshadow(gaussian, #7abf7faa, 5, 0, 0, 1);
 }
 
 .slider .thumb:hover {
-	-fx-scale-x: 1.2;
-	-fx-scale-y: 1.2;
+	-fx-scale-x: 1.15;
+	-fx-scale-y: 1.15;
 }
 
-/* ----------------------------
-	.text-header
------------------------------ */
-.text-header {
-	-fx-fill: #1a1a1a;
-	-fx-text-fill: #1a1a1a;
-}
-
-/* ----------------------------
-	.text-normal
------------------------------ */
-.text-normal {
-	-fx-fill: #333333;
-	-fx-text-fill: #333333;
-}
-
-/* ----------------------------
-	.toggle-button
------------------------------ */
-.toggle {
-	/* Layout */
-	-fx-padding: 8 16;
+.slider .track {
+	-fx-background-color: linear-gradient(to left, #b8e3b9, #d05c5c);
+	-fx-background-insets: 0;
 	-fx-background-radius: 6;
-
-	/* Color */
-	-fx-background-color: #d0d0d0;
-	-fx-text-fill: #1a1a1a;
-	-fx-border-color: #b0b0b0;
 }
 
-.toggle:hover {
-	-fx-background-color: #4caf50;
-	-fx-text-fill: #ffffff;
-	-fx-border-color: #4caf50;
+.text {
+	-fx-fill: #588758;
+	-fx-font-weight: normal;
+	-fx-text-fill: #588758;
+}
+
+.header {
+	-fx-fill: #aad3aa;
+	-fx-font-weight: bold;
+	-fx-text-fill: #aad3aa;
 }
