@@ -45,8 +45,8 @@ public class NetworkingClientManager {
     }
 
     long startClientRequest(String ip, int port) {
-        long connectionId = new SnowflakeGenerator().nextId(); // TODO: Maybe use the one generated
-        try { //        With EventFlow
+        long connectionId = new SnowflakeGenerator().nextId();
+        try {
             NetworkingClient client =
                     new NetworkingClient(
                             () -> new NetworkingGameClientHandler(connectionId),
@@ -81,19 +81,13 @@ public class NetworkingClientManager {
     void handleStartClient(NetworkEvents.StartClient event) {
         long id = this.startClientRequest(event.ip(), event.port());
         new Thread(
-                        () -> {
-                            try {
-                                Thread.sleep(100); // TODO: Is this a good idea?
+                        () ->
                                 new EventFlow()
                                         .addPostEvent(
                                                 NetworkEvents.StartClientResponse.class,
                                                 id,
                                                 event.eventSnowflake())
-                                        .asyncPostEvent();
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
+                                        .asyncPostEvent())
                 .start();
     }
 
@@ -185,7 +179,7 @@ public class NetworkingClientManager {
 
     void handleCloseClient(NetworkEvents.CloseClient event) {
         NetworkingClient client = this.networkClients.get(event.clientId());
-        client.closeConnection(); // TODO: Check if not blocking, what if error, mb not remove?
+        client.closeConnection();
         this.networkClients.remove(event.clientId());
         logger.info("Client {} closed successfully.", event.clientId());
     }

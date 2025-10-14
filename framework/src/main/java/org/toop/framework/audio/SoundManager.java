@@ -1,20 +1,18 @@
 package org.toop.framework.audio;
 
+import java.io.*;
+import java.util.*;
+import javafx.scene.media.MediaPlayer;
+import javax.sound.sampled.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.asset.ResourceManager;
-import org.toop.framework.asset.ResourceMeta;
-import org.toop.framework.asset.resources.MusicAsset;
-import org.toop.framework.asset.resources.SoundEffectAsset;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
-
-import javafx.scene.media.MediaPlayer;
-
-import java.io.*;
-import java.util.*;
-import javax.sound.sampled.*;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.ResourceMeta;
+import org.toop.framework.resource.resources.MusicAsset;
+import org.toop.framework.resource.resources.SoundEffectAsset;
 
 public class SoundManager {
     private static final Logger logger = LogManager.getLogger(SoundManager.class);
@@ -22,13 +20,12 @@ public class SoundManager {
     private final Queue<MusicAsset> backgroundMusicQueue = new LinkedList<>();
     private final Map<Long, Clip> activeSoundEffects = new HashMap<>();
     private final HashMap<String, SoundEffectAsset> audioResources = new HashMap<>();
-    private final SnowflakeGenerator idGenerator = new SnowflakeGenerator(); // TODO: Don't create a new generator
     private final AudioVolumeManager audioVolumeManager = new AudioVolumeManager(this);
-
 
     public SoundManager() {
         // Get all Audio Resources and add them to a list.
-        for (ResourceMeta<SoundEffectAsset> asset : ResourceManager.getAllOfType(SoundEffectAsset.class)) {
+        for (ResourceMeta<SoundEffectAsset> asset :
+                ResourceManager.getAllOfType(SoundEffectAsset.class)) {
             try {
                 this.addAudioResource(asset);
             } catch (IOException | LineUnavailableException | UnsupportedAudioFileException e) {
@@ -39,13 +36,17 @@ public class SoundManager {
                 .listen(this::handlePlaySound)
                 .listen(this::handleStopSound)
                 .listen(this::handleMusicStart)
-                .listen(AudioEvents.ClickButton.class, _ -> {
-                    try {
-                        playSound("medium-button-click.wav", false);
-                    } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
-                        logger.error(e);
-                    }
-                });
+                .listen(
+                        AudioEvents.ClickButton.class,
+                        _ -> {
+                            try {
+                                playSound("medium-button-click.wav", false);
+                            } catch (UnsupportedAudioFileException
+                                    | LineUnavailableException
+                                    | IOException e) {
+                                logger.error(e);
+                            }
+                        });
     }
 
     private void handlePlaySound(AudioEvents.PlayEffect event) {
@@ -68,14 +69,13 @@ public class SoundManager {
 
     private void handleMusicStart(AudioEvents.StartBackgroundMusic e) {
         backgroundMusicQueue.clear();
-        List<MusicAsset> shuffledArray = new ArrayList<>(ResourceManager.getAllOfType(MusicAsset.class)
-                .stream()
-                .map(ResourceMeta::getResource)
-                .toList());
+        List<MusicAsset> shuffledArray =
+                new ArrayList<>(
+                        ResourceManager.getAllOfType(MusicAsset.class).stream()
+                                .map(ResourceMeta::getResource)
+                                .toList());
         Collections.shuffle(shuffledArray);
-        backgroundMusicQueue.addAll(
-            shuffledArray
-        );
+        backgroundMusicQueue.addAll(shuffledArray);
         backgroundMusicPlayer();
     }
 
@@ -89,34 +89,42 @@ public class SoundManager {
 
         MediaPlayer mediaPlayer = new MediaPlayer(ma.getMedia());
 
-        mediaPlayer.setOnEndOfMedia(() -> {
-            addBackgroundMusic(ma);
-            activeMusic.remove(mediaPlayer);
-            mediaPlayer.dispose();
-            ma.unload();
-            backgroundMusicPlayer(); // play next
-        });
+        mediaPlayer.setOnEndOfMedia(
+                () -> {
+                    addBackgroundMusic(ma);
+                    activeMusic.remove(mediaPlayer);
+                    mediaPlayer.dispose();
+                    ma.unload();
+                    backgroundMusicPlayer(); // play next
+                });
 
-        mediaPlayer.setOnStopped(() -> {
-            addBackgroundMusic(ma);
-            activeMusic.remove(mediaPlayer);
-            ma.unload();
-        });
+        mediaPlayer.setOnStopped(
+                () -> {
+                    addBackgroundMusic(ma);
+                    activeMusic.remove(mediaPlayer);
+                    ma.unload();
+                });
 
-        mediaPlayer.setOnError(() -> {
-            addBackgroundMusic(ma);
-            activeMusic.remove(mediaPlayer);
-            ma.unload();
-        });
+        mediaPlayer.setOnError(
+                () -> {
+                    addBackgroundMusic(ma);
+                    activeMusic.remove(mediaPlayer);
+                    ma.unload();
+                });
 
         audioVolumeManager.updateMusicVolume(mediaPlayer);
         mediaPlayer.play();
         activeMusic.add(mediaPlayer);
         logger.info("Playing background music: {}", ma.getFile().getName());
-        logger.info("Background music next in line: {}", backgroundMusicQueue.peek().getFile().getName());
+        logger.info(
+                "Background music next in line: {}",
+                backgroundMusicQueue.peek() != null
+                        ? backgroundMusicQueue.peek().getFile().getName()
+                        : null);
     }
 
-    private long playSound(String audioFileName, boolean loop) throws UnsupportedAudioFileException, LineUnavailableException, IOException {
+    private long playSound(String audioFileName, boolean loop)
+            throws UnsupportedAudioFileException, LineUnavailableException, IOException {
         SoundEffectAsset asset = audioResources.get(audioFileName);
 
         // Return -1 which indicates resource wasn't available
@@ -134,26 +142,26 @@ public class SoundManager {
         // If supposed to loop make it loop, else just start it once
         if (loop) {
             clip.loop(Clip.LOOP_CONTINUOUSLY);
-        }
-        else {
+        } else {
             clip.start();
         }
 
         logger.debug("Playing sound: {}", asset.getFile().getName());
 
         // Generate id for clip
-        long clipId = idGenerator.nextId();
+        long clipId = new SnowflakeGenerator().nextId();
 
         // store it so we can stop it later
-        activeSoundEffects.put(clipId, clip); // TODO: Do on snowflake for specific sound to stop
+        activeSoundEffects.put(clipId, clip);
 
         // remove when finished (only for non-looping sounds)
-        clip.addLineListener(event -> {
-            if (event.getType() == LineEvent.Type.STOP && !clip.isRunning()) {
-                activeSoundEffects.remove(clipId);
-                clip.close();
-            }
-        });
+        clip.addLineListener(
+                event -> {
+                    if (event.getType() == LineEvent.Type.STOP && !clip.isRunning()) {
+                        activeSoundEffects.remove(clipId);
+                        clip.close();
+                    }
+                });
 
         // Return id so it can be stopped
         return clipId;
@@ -179,7 +187,11 @@ public class SoundManager {
         activeSoundEffects.clear();
     }
 
-    public Map<Long, Clip> getActiveSoundEffects(){ return this.activeSoundEffects; }
+    public Map<Long, Clip> getActiveSoundEffects() {
+        return this.activeSoundEffects;
+    }
 
-    public List<MediaPlayer> getActiveMusic() { return activeMusic; }
+    public List<MediaPlayer> getActiveMusic() {
+        return activeMusic;
+    }
 }
