@@ -1,4 +1,4 @@
-package org.toop.framework.networking;
+package org.toop.framework.networking.clients;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -9,27 +9,16 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
-import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.framework.networking.handlers.NetworkingGameClientHandler;
+import org.toop.framework.networking.interfaces.NetworkingClient;
 
-public class NetworkingClient {
-    private static final Logger logger = LogManager.getLogger(NetworkingClient.class);
-
-    private long connectionId;
-    private String host;
-    private int port;
+public class TournamentNetworkingClient implements NetworkingClient {
+    private static final Logger logger = LogManager.getLogger(TournamentNetworkingClient.class);
     private Channel channel;
-    private NetworkingGameClientHandler handler;
 
-    public NetworkingClient(
-            Supplier<NetworkingGameClientHandler> handlerFactory,
-            String host,
-            int port,
-            long connectionId) {
-        this.connectionId = connectionId;
+    public TournamentNetworkingClient(long clientId, String host, int port) {
         try {
             Bootstrap bootstrap = new Bootstrap();
             EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
@@ -40,7 +29,7 @@ public class NetworkingClient {
                     new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            handler = handlerFactory.get();
+                            NetworkingGameClientHandler handler = new NetworkingGameClientHandler(clientId);
 
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new LineBasedFrameDecoder(1024)); // split at \n
@@ -52,53 +41,28 @@ public class NetworkingClient {
                     });
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             this.channel = channelFuture.channel();
-            this.host = host;
-            this.port = port;
         } catch (Exception e) {
             logger.error("Failed to create networking client instance", e);
         }
     }
 
-    public NetworkingGameClientHandler getHandler() {
-        return this.handler;
-    }
-
-    public String getHost() {
-        return this.host;
-    }
-
-    public int getPort() {
-        return this.port;
-    }
-
-    public void setConnectionId(long connectionId) {
-        this.connectionId = connectionId;
-    }
-
-    public boolean isChannelActive() {
+    @Override
+    public boolean isActive() {
         return this.channel != null && this.channel.isActive();
     }
 
+    @Override
     public void writeAndFlush(String msg) {
         String literalMsg = msg.replace("\n", "\\n").replace("\r", "\\r");
-        if (isChannelActive()) {
+        if (isActive()) {
             this.channel.writeAndFlush(msg);
-            logger.info(
-                    "Connection {} sent message: '{}' ", this.channel.remoteAddress(), literalMsg);
+            logger.info("Connection {} sent message: '{}' ", this.channel.remoteAddress(), literalMsg);
         } else {
             logger.warn("Cannot send message: '{}', connection inactive. ", literalMsg);
         }
     }
 
-    public void writeAndFlushnl(String msg) {
-        if (isChannelActive()) {
-            this.channel.writeAndFlush(msg + "\r\n");
-            logger.info("Connection {} sent message: '{}'", this.channel.remoteAddress(), msg);
-        } else {
-            logger.warn("Cannot send message: '{}', connection inactive.", msg);
-        }
-    }
-
+    @Override
     public void closeConnection() {
         if (this.channel != null && this.channel.isActive()) {
             this.channel
@@ -109,11 +73,6 @@ public class NetworkingClient {
                                     logger.info(
                                             "Connection {} closed successfully",
                                             this.channel.remoteAddress());
-                                    new EventFlow()
-                                            .addPostEvent(
-                                                    new NetworkEvents.ClosedConnection(
-                                                            this.connectionId))
-                                            .asyncPostEvent();
                                 } else {
                                     logger.error(
                                             "Error closing connection {}. Error: {}",
@@ -122,9 +81,5 @@ public class NetworkingClient {
                                 }
                             });
         }
-    }
-
-    public long getId() {
-        return this.connectionId;
     }
 }

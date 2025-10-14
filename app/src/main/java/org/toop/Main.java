@@ -2,26 +2,24 @@ package org.toop;
 
 import org.toop.app.App;
 import org.toop.framework.audio.*;
+import org.toop.framework.networking.NetworkingClientEventListener;
 import org.toop.framework.networking.NetworkingClientManager;
-import org.toop.framework.networking.NetworkingInitializationException;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
-import org.toop.framework.resource.ResourceMeta;
 import org.toop.framework.resource.resources.MusicAsset;
 import org.toop.framework.resource.resources.SoundEffectAsset;
 
-import java.util.Arrays;
-import java.util.List;
-
 public final class Main {
-    static void main(String[] args) {
+    static void main(String[] args) throws InterruptedException {
         initSystems();
+        Thread.sleep(200);
         App.run(args);
     }
 
-    private static void initSystems() throws NetworkingInitializationException {
+    private static void initSystems() {
         ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
-        new Thread(NetworkingClientManager::new).start();
+        new Thread(() -> new NetworkingClientEventListener(new NetworkingClientManager())).start();
+
         new Thread(() -> {
             MusicManager<MusicAsset> musicManager = new MusicManager<>(ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class), true);
             SoundEffectManager<SoundEffectAsset> soundEffectManager = new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));

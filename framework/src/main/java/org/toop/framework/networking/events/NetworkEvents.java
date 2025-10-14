@@ -8,7 +8,7 @@ import org.toop.framework.eventbus.events.ResponseToUniqueEvent;
 import org.toop.framework.eventbus.events.UniqueEvent;
 import org.toop.framework.eventbus.events.EventsBase;
 import org.toop.annotations.AutoResponseResult;
-import org.toop.framework.networking.NetworkingClient;
+import org.toop.framework.networking.interfaces.NetworkingClient;
 
 /**
  * A collection of networking-related event records for use with the {@link
@@ -106,11 +106,16 @@ public class NetworkEvents extends EventsBase {
      *
      * <p>Carries IP, port, and a unique event ID for correlation with responses.
      *
-     * @param ip Server IP address.
+     * @param networkingClientClass The type of networking client to create.
+     * @param host Server IP address.
      * @param port Server port.
      * @param eventSnowflake Unique event identifier for correlation.
      */
-    public record StartClient(String ip, int port, long eventSnowflake) implements UniqueEvent {}
+    public record StartClient<T extends NetworkingClient>(
+            Class<T> networkingClientClass,
+            String host,
+            int port,
+            long identifier) implements UniqueEvent {}
 
     /**
      * Response confirming a client was started.

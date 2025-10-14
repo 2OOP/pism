@@ -19,6 +19,7 @@ import org.toop.app.layer.containers.HorizontalContainer;
 import org.toop.app.layer.containers.VerticalContainer;
 import org.toop.app.layer.layers.game.TicTacToeLayer;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.local.AppContext;
 
@@ -111,6 +112,7 @@ public final class ConnectedLayer extends Layer {
         new EventFlow()
                 .addPostEvent(
                         NetworkEvents.StartClient.class,
+                        TournamentNetworkingClient.class,
                         information.serverIP(),
                         Integer.parseInt(information.serverPort()))
                 .onResponse(
