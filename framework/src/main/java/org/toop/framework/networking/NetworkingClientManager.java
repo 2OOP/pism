@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.networking.interfaces.NetworkingClient;
 
 public class NetworkingClientManager implements org.toop.framework.networking.interfaces.NetworkingClientManager {
@@ -14,18 +13,16 @@ public class NetworkingClientManager implements org.toop.framework.networking.in
     public NetworkingClientManager() {}
 
     @Override
-    public OptionalLong startClient(Class<? extends NetworkingClient> networkingClientClass, String host, int port) {
-        long clientId = SnowflakeGenerator.nextId();
+    public OptionalLong startClient(long id, NetworkingClient networkingClient, String host, int port) {
         try {
-            NetworkingClient networkingClient = networkingClientClass
-                    .getConstructor(long.class, String.class, int.class).newInstance(clientId, host, port);
-            this.networkClients.put(clientId, networkingClient);
+            networkingClient.connect(id, host, port);
+            this.networkClients.put(id, networkingClient);
             logger.info("New client started successfully for {}:{}", host, port);
         } catch (Exception e) {
             logger.error(e); // TODO Better error handling
             return OptionalLong.empty();
         }
-        return OptionalLong.of(clientId);
+        return OptionalLong.of(id);
     }
 
     @Override

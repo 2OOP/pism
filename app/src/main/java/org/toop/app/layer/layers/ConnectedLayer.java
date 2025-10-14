@@ -112,7 +112,7 @@ public final class ConnectedLayer extends Layer {
         new EventFlow()
                 .addPostEvent(
                         NetworkEvents.StartClient.class,
-                        TournamentNetworkingClient.class,
+                        new TournamentNetworkingClient(),
                         information.serverIP(),
                         Integer.parseInt(information.serverPort()))
                 .onResponse(

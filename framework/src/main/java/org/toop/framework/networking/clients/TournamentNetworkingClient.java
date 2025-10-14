@@ -18,7 +18,10 @@ public class TournamentNetworkingClient implements NetworkingClient {
     private static final Logger logger = LogManager.getLogger(TournamentNetworkingClient.class);
     private Channel channel;
 
-    public TournamentNetworkingClient(long clientId, String host, int port) {
+    public TournamentNetworkingClient() {}
+
+    @Override
+    public boolean connect(long clientId, String host, int port) {
         try {
             Bootstrap bootstrap = new Bootstrap();
             EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
@@ -43,7 +46,9 @@ public class TournamentNetworkingClient implements NetworkingClient {
             this.channel = channelFuture.channel();
         } catch (Exception e) {
             logger.error("Failed to create networking client instance", e);
+            return false;
         }
+        return true;
     }
 
     @Override

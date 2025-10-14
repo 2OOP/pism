@@ -36,8 +36,8 @@ public class NetworkingClientEventListener {
                 .listen(this::handleShutdownAll);
     }
 
-    void handleStartClient(NetworkEvents.StartClient<? extends NetworkingClient> event) {
-        long clientId = clientManager.startClient(event.networkingClientClass(), event.host(), event.port()).orElse(-1);
+    void handleStartClient(NetworkEvents.StartClient event) {
+        long clientId = clientManager.startClient(SnowflakeGenerator.nextId(), event.networkingClientClass(), event.host(), event.port()).orElse(-1);
         logger.info("Client {} started", clientId);
         try {
             new EventFlow()

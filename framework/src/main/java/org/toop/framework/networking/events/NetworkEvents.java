@@ -111,8 +111,8 @@ public class NetworkEvents extends EventsBase {
      * @param port Server port.
      * @param eventSnowflake Unique event identifier for correlation.
      */
-    public record StartClient<T extends NetworkingClient>(
-            Class<T> networkingClientClass,
+    public record StartClient(
+            NetworkingClient networkingClientClass,
             String host,
             int port,
             long identifier) implements UniqueEvent {}
