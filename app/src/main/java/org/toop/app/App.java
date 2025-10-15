@@ -1,8 +1,15 @@
 package org.toop.app;
 
-import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.MainView;
-import org.toop.app.view.views.QuitView;
+import java.util.Stack;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+import org.toop.app.layer.Layer;
+import org.toop.app.layer.layers.MainLayer;
+import org.toop.app.layer.layers.QuitPopup;
+import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.ResourceManager;
@@ -10,110 +17,154 @@ import org.toop.framework.resource.resources.CssAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
 public final class App extends Application {
-	private static Stage stage;
-	private static Scene scene;
+    private static Stage stage;
+    private static Scene scene;
+    private static StackPane root;
 
+    private static Stack<Layer> stack;
     private static int height;
     private static int width;
 
-	private static boolean isQuitting;
+    private static boolean isQuitting;
 
-	public static void run(String[] args) {
-		launch(args);
-	}
+    public static void run(String[] args) {
+        launch(args);
+    }
 
-	@Override
-	public void start(Stage stage) throws Exception {
+    @Override
+    public void start(Stage stage) throws Exception {
         final StackPane root = new StackPane();
-		final Scene scene = new Scene(root);
-		ViewStack.setup(scene);
+        final Scene scene = new Scene(root);
 
-		stage.setTitle(AppContext.getString("app-title"));
-		stage.setWidth(1080);
-		stage.setHeight(720);
+        stage.setTitle(AppContext.getString("appTitle"));
+        stage.setWidth(1080);
+        stage.setHeight(720);
 
-		stage.setOnCloseRequest(event -> {
-			event.consume();
-			startQuit();
-		});
+        stage.setOnCloseRequest(
+                event -> {
+                    event.consume();
 
-		stage.setScene(scene);
-		stage.setResizable(false);
+                    if (!isQuitting) {
+                        quitPopup();
+                    }
+                });
 
-		stage.show();
+        stage.setScene(scene);
+        stage.setResizable(false);
 
-		App.stage = stage;
-		App.scene = scene;
+        stage.show();
 
-		App.width = (int)stage.getWidth();
-		App.height = (int)stage.getHeight();
+        App.stage = stage;
+        App.scene = scene;
+        App.root = root;
 
-		App.isQuitting = false;
+        App.stack = new Stack<>();
 
-		AppSettings.applySettings();
-		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
+        App.width = (int) stage.getWidth();
+        App.height = (int) stage.getHeight();
 
-		ViewStack.push(new MainView());
-	}
+        App.isQuitting = false;
 
-	public static void startQuit() {
-		if (isQuitting) {
-			return;
-		}
+        new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).postEvent();
 
-		ViewStack.push(new QuitView());
-		isQuitting = true;
-	}
+        final AppSettings settings = new AppSettings();
+        settings.applySettings();
 
-	public static void stopQuit() {
-		ViewStack.pop();
-		isQuitting = false;
-	}
+        activate(new MainLayer());
+    }
 
-	public static void quit() {
-		ViewStack.cleanup();
-		stage.close();
-	}
+    public static void activate(Layer layer) {
+        Platform.runLater(
+                () -> {
+                    popAll();
+                    push(layer);
+                });
+    }
 
-	public static void reload() {
-		stage.setTitle(AppContext.getString("app-title"));
-		ViewStack.reload();
-	}
+    public static void push(Layer layer) {
+        Platform.runLater(
+                () -> {
+                    root.getChildren().addLast(layer.getLayer());
+                    stack.push(layer);
+                });
+    }
 
-	public static void setFullscreen(boolean fullscreen) {
-		stage.setFullScreen(fullscreen);
+    public static void pop() {
+        Platform.runLater(
+                () -> {
+                    root.getChildren().removeLast();
+                    stack.pop();
 
-		width = (int) stage.getWidth();
-		height = (int) stage.getHeight();
+                    isQuitting = false;
+                });
+    }
 
-		reload();
-	}
+    public static void popAll() {
+        Platform.runLater(
+                () -> {
+                    final int childrenCount = root.getChildren().size();
 
-	public static void setStyle(String theme, String layoutSize) {
-		final int stylesCount = scene.getStylesheets().size();
+                    for (int i = 0; i < childrenCount; i++) {
+                        try {
+                            root.getChildren().removeLast();
+                        } catch (Exception e) {
+                            IO.println(e); // TODO: Use logger
+                        }
+                    }
 
-		for (int i = 0; i < stylesCount; i++) {
-			scene.getStylesheets().removeLast();
-		}
+                    stack.removeAllElements();
+                });
+    }
 
-		scene.getStylesheets().add(ResourceManager.<CssAsset>get("general.css").getUrl());
-		scene.getStylesheets().add(ResourceManager.<CssAsset>get(theme + ".css").getUrl());
-		scene.getStylesheets().add(ResourceManager.<CssAsset>get(layoutSize + ".css").getUrl());
+    public static void quitPopup() {
+        Platform.runLater(
+                () -> {
+                    push(new QuitPopup());
+                    isQuitting = true;
+                });
+    }
 
-		reload();
-	}
+    public static void quit() {
+        new EventFlow().addPostEvent(new AudioEvents.StopAudioManager()).postEvent();
+        stage.close();
+    }
 
-	public static int getWidth() {
-		return width;
-	}
+    public static void reloadAll() {
+        stage.setTitle(AppContext.getString("appTitle"));
 
-	public static int getHeight() {
-		return height;
-	}
+        for (final Layer layer : stack) {
+            layer.reload();
+        }
+    }
+
+    public static void setFullscreen(boolean fullscreen) {
+        stage.setFullScreen(fullscreen);
+
+        width = (int) stage.getWidth();
+        height = (int) stage.getHeight();
+
+        reloadAll();
+    }
+
+    public static void setStyle(String theme, String layoutSize) {
+        final int stylesCount = scene.getStylesheets().size();
+
+        for (int i = 0; i < stylesCount; i++) {
+            scene.getStylesheets().removeLast();
+        }
+
+        scene.getStylesheets().add(ResourceManager.<CssAsset>get(theme + ".css").getUrl());
+        scene.getStylesheets().add(ResourceManager.<CssAsset>get(layoutSize + ".css").getUrl());
+
+        reloadAll();
+    }
+
+    public static int getWidth() {
+        return width;
+    }
+
+    public static int getHeight() {
+        return height;
+    }
 }

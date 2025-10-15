@@ -1,4 +1,4 @@
-package org.toop.framework.networking;
+package org.toop.framework.networking.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -119,6 +119,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void gameWinConditionHandler(String rec) {
+        @SuppressWarnings("StreamToString")
         String condition =
                 Pattern.compile("\\b(win|draw|lose)\\b", Pattern.CASE_INSENSITIVE)
                         .matcher(rec)
@@ -180,6 +181,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void gameYourTurnHandler(String rec) {
+        @SuppressWarnings("StreamToString")
         String msg =
                 Pattern.compile("TURNMESSAGE:\\s*\"([^\"]*)\"")
                         .matcher(rec)

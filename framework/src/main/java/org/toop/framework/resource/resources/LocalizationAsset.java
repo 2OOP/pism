@@ -32,7 +32,7 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
     private final Map<Locale, ResourceBundle> bundles = new HashMap<>();
 
     /** Flag indicating whether this asset has been loaded. */
-    private boolean isLoaded = false;
+    private boolean loaded = false;
 
     /** Basename of the given asset */
     private final String baseName = "localization";
@@ -53,14 +53,14 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
     @Override
     public void load() {
         loadFile(getFile());
-        isLoaded = true;
+        loaded = true;
     }
 
     /** Unloads all loaded resource bundles, freeing memory. */
     @Override
     public void unload() {
         bundles.clear();
-        isLoaded = false;
+        loaded = false;
     }
 
     /**
@@ -70,7 +70,7 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
      */
     @Override
     public boolean isLoaded() {
-        return isLoaded;
+        return loaded;
     }
 
     /**
@@ -131,7 +131,7 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
         } catch (IOException e) {
             throw new RuntimeException("Failed to load localization file: " + file, e);
         }
-        isLoaded = true;
+        loaded = true;
     }
 
     /**

@@ -51,11 +51,19 @@ import org.toop.framework.resource.resources.*;
  * </ul>
  */
 public class ResourceManager {
-        private static final Logger logger = LogManager.getLogger(ResourceManager.class);
+    private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     private static final Map<String, ResourceMeta<? extends BaseResource>> assets =
             new ConcurrentHashMap<>();
+    private static ResourceManager instance;
 
     private ResourceManager() {}
+
+    public static ResourceManager getInstance() {
+        if (instance == null) {
+            instance = new ResourceManager();
+        }
+        return instance;
+    }
 
     /**
      * Loads all assets from a given {@link ResourceLoader} into the manager.
@@ -96,16 +104,32 @@ public class ResourceManager {
      * @param <T> the resource type
      * @return a list of assets matching the type
      */
-    public static <T extends BaseResource> ArrayList<ResourceMeta<T>> getAllOfType(Class<T> type) {
-        ArrayList<ResourceMeta<T>> list = new ArrayList<>();
-        for (ResourceMeta<? extends BaseResource> asset : assets.values()) {
-            if (type.isInstance(asset.getResource())) {
+    public static <T extends BaseResource> List<ResourceMeta<T>> getAllOfType(Class<T> type) {
+        List<ResourceMeta<T>> result = new ArrayList<>();
+
+        for (ResourceMeta<? extends BaseResource> meta : assets.values()) {
+            BaseResource res = meta.getResource();
+            if (type.isInstance(res)) {
                 @SuppressWarnings("unchecked")
-                ResourceMeta<T> typed = (ResourceMeta<T>) asset;
-                list.add(typed);
+                ResourceMeta<T> typed = (ResourceMeta<T>) meta;
+                result.add(typed);
             }
         }
-        return list;
+
+        return result;
+    }
+
+    public static <T extends BaseResource> List<T> getAllOfTypeAndRemoveWrapper(Class<T> type) {
+        List<T> result = new ArrayList<>();
+
+        for (ResourceMeta<? extends BaseResource> meta : assets.values()) {
+            BaseResource res = meta.getResource();
+            if (type.isInstance(res)) {
+                result.add((T) res);
+            }
+        }
+
+        return result;
     }
 
     /**

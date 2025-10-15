@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.events.EventWithSnowflake;
+import org.toop.framework.eventbus.events.UniqueEvent;
 
 /**
  * GlobalEventBus backed by the LMAX Disruptor for ultra-low latency, high-throughput event
@@ -21,7 +21,7 @@ public final class GlobalEventBus {
 
     /** Map of event class to Snowflake-ID-specific listeners. */
     private static final Map<
-                    Class<?>, ConcurrentHashMap<Long, Consumer<? extends EventWithSnowflake>>>
+                    Class<?>, ConcurrentHashMap<Long, Consumer<? extends UniqueEvent>>>
             UUID_LISTENERS = new ConcurrentHashMap<>();
 
     /** Disruptor ring buffer size (must be power of two). */
@@ -90,7 +90,7 @@ public final class GlobalEventBus {
         return wrapper;
     }
 
-    public static <T extends EventWithSnowflake> void subscribeById(
+    public static <T extends UniqueEvent> void subscribeById(
             Class<T> eventClass, long eventId, Consumer<T> listener) {
         UUID_LISTENERS
                 .computeIfAbsent(eventClass, _ -> new ConcurrentHashMap<>())
@@ -101,9 +101,9 @@ public final class GlobalEventBus {
         LISTENERS.values().forEach(list -> list.remove(listener));
     }
 
-    public static <T extends EventWithSnowflake> void unsubscribeById(
+    public static <T extends UniqueEvent> void unsubscribeById(
             Class<T> eventClass, long eventId) {
-        Map<Long, Consumer<? extends EventWithSnowflake>> map = UUID_LISTENERS.get(eventClass);
+        Map<Long, Consumer<? extends UniqueEvent>> map = UUID_LISTENERS.get(eventClass);
         if (map != null) map.remove(eventId);
     }
 
@@ -134,7 +134,8 @@ public final class GlobalEventBus {
             for (Consumer<? super EventType> listener : classListeners) {
                 try {
                     listener.accept(event);
-                } catch (Throwable ignored) {
+                } catch (Throwable e) {
+//                    e.printStackTrace();
                 }
             }
         }
@@ -146,17 +147,18 @@ public final class GlobalEventBus {
             for (Consumer<? super EventType> listener : genericListeners) {
                 try {
                     listener.accept(event);
-                } catch (Throwable ignored) {
+                } catch (Throwable e) {
+                    // e.printStackTrace();
                 }
             }
         }
 
         // snowflake listeners
-        if (event instanceof EventWithSnowflake snowflakeEvent) {
-            Map<Long, Consumer<? extends EventWithSnowflake>> map = UUID_LISTENERS.get(clazz);
+        if (event instanceof UniqueEvent snowflakeEvent) {
+            Map<Long, Consumer<? extends UniqueEvent>> map = UUID_LISTENERS.get(clazz);
             if (map != null) {
-                Consumer<EventWithSnowflake> listener =
-                        (Consumer<EventWithSnowflake>) map.remove(snowflakeEvent.eventSnowflake());
+                Consumer<UniqueEvent> listener =
+                        (Consumer<UniqueEvent>) map.remove(snowflakeEvent.getIdentifier());
                 if (listener != null) {
                     try {
                         listener.accept(snowflakeEvent);
