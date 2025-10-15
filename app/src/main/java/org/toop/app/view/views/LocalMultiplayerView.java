@@ -1,6 +1,7 @@
 package org.toop.app.view.views;
 
 import org.toop.app.GameInformation;
+import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
@@ -42,8 +43,8 @@ public final class LocalMultiplayerView extends View {
 			}
 
 			switch (information.type) {
-				case TICTACTOE: new TicTacToeGame(information, 0, null, null);
-				case REVERSI: break;
+				case TICTACTOE: new TicTacToeGame(information); break;
+				case REVERSI: new ReversiGame(information); break;
 			}
 		});
 

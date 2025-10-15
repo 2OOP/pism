@@ -7,11 +7,14 @@ public abstract class Game {
         NORMAL,
         DRAW,
         WIN,
+        MOVE_SKIPPED,
     }
 
     public record Move(int position, char value) {}
 
-    public static final char EMPTY = (char) 0;
+    public record Score(int player1Score, int player2Score) {}
+
+	public static final char EMPTY = (char)0;
 
     public final int rowSize;
     public final int columnSize;

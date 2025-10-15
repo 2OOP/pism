@@ -1,13 +1,13 @@
 .bg-primary {
-	-fx-background-color: linear-gradient(to bottom, #f0f6f4, #dbe9e5);
+	-fx-background-color: linear-gradient(to bottom, #e8f1ef, #cfded9);
 }
 
 .bg-secondary {
-	-fx-background-color: linear-gradient(to bottom, #d0e0db, #b7cdc6);
+	-fx-background-color: linear-gradient(to bottom, #c3d6d1, #a9c2bb);
 }
 
 .bg-popup {
-	-fx-background-color: rgba(240, 248, 250, 0.9);
+	-fx-background-color: rgba(224, 240, 242, 0.95);
 	-fx-background-radius: 8;
 	-fx-effect: dropshadow(gaussian, #a0c4b088, 6, 0, 0, 2);
 }
@@ -18,7 +18,7 @@
 	-fx-border-color: #5caf5c;
 	-fx-cursor: hand;
 	-fx-effect: dropshadow(gaussian, #7abf7aaa, 5, 0, 0, 2);
-	-fx-text-fill: #2a3a2a;
+	-fx-text-fill: #2e4d2e;
 	-fx-font-weight: bold;
 }
 
@@ -51,7 +51,7 @@
 
 .combo-box .list-cell {
 	-fx-background-color: transparent;
-	-fx-text-fill: #588758;
+	-fx-text-fill: #2e4d2e;
 }
 
 .combo-box .list-view {
@@ -61,7 +61,7 @@
 }
 
 .combo-box-popup .list-cell {
-	-fx-text-fill: #588758;
+	-fx-text-fill: #2e4d2e;
 }
 
 .combo-box-popup .list-cell:hover {
@@ -70,19 +70,14 @@
 
 .combo-box-popup .list-cell:selected {
 	-fx-background-color: #7ac27a;
-	-fx-text-fill: #f0faf0;
-}
-
-.container {
-	-fx-background-color: linear-gradient(to bottom, #e9f2ee, #cde3d9);
-	-fx-background-radius: 6;
+	-fx-text-fill: #ffffff;
 }
 
 .input {
 	-fx-background-color: linear-gradient(to bottom, #e6f0ec, #c8dbcd);
 	-fx-background-radius: 6;
 	-fx-border-color: #5caf5c;
-	-fx-text-fill: #588758;
+	-fx-text-fill: #2e4d2e;
 	-fx-font-weight: normal;
 }
 
@@ -127,13 +122,13 @@
 }
 
 .text {
-	-fx-fill: #588758;
+	-fx-fill: #2e4d2e;
 	-fx-font-weight: normal;
-	-fx-text-fill: #588758;
+	-fx-text-fill: #2e4d2e;
 }
 
 .header {
-	-fx-fill: #aad3aa;
+	-fx-fill: #2b5c2b;
 	-fx-font-weight: bold;
-	-fx-text-fill: #aad3aa;
+	-fx-text-fill: #2b5c2b;
 }

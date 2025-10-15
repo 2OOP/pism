@@ -6,9 +6,11 @@
 .container,
 .credits-container {
 	-fx-alignment: TOP_CENTER;
+	-fx-background-color: transparent;
 }
 
-.fit {
+.fit,
+.fit .viewport {
 	-fx-background-color: transparent;
 	-fx-border-color: transparent;
 }

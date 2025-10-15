@@ -17,6 +17,8 @@ import javafx.scene.paint.Color;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public final class TicTacToeGame {
 	private final GameInformation information;
@@ -30,7 +32,9 @@ public final class TicTacToeGame {
 	private final GameView view;
 	private final TicTacToeCanvas canvas;
 
-	public TicTacToeGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit) {
+	private AtomicBoolean isRunning;
+
+	public TicTacToeGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		this.information = information;
 
 		this.myTurn = myTurn;
@@ -39,12 +43,18 @@ public final class TicTacToeGame {
 		game = new TicTacToe();
 		ai = new TicTacToeAI();
 
+		isRunning = new AtomicBoolean(true);
+
 		if (onForfeit == null || onExit == null) {
 			view = new GameView(null, () -> {
+				isRunning.set(false);
 				ViewStack.push(new LocalMultiplayerView(information));
-			});
+			}, null);
 		} else {
-			view = new GameView(onForfeit, onExit);
+			view = new GameView(onForfeit, () -> {
+				isRunning.set(false);
+				onExit.run();
+			}, onMessage);
 		}
 
 		canvas = new TicTacToeCanvas(Color.GRAY,
@@ -84,10 +94,12 @@ public final class TicTacToeGame {
 		}
 	}
 
-	private void localGameThread() {
-		boolean isRunning = true;
+	public TicTacToeGame(GameInformation information) {
+		this(information, 0, null, null, null);
+	}
 
-		while (isRunning) {
+	private void localGameThread() {
+		while (isRunning.get()) {
 			final int currentTurn = game.getCurrentTurn();
 			final char currentValue = currentTurn == 0? 'X' : 'O';
 			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
@@ -146,12 +158,16 @@ public final class TicTacToeGame {
 					view.gameOver(false, "");
 				}
 
-				isRunning = false;
+				isRunning.set(false);
 			}
 		}
 	}
 
  	private void onMoveResponse(NetworkEvents.GameMoveResponse response) {
+		if (!isRunning.get()) {
+			return;
+		}
+
 	    char playerChar;
 
 	    if (response.player().equalsIgnoreCase(information.players[0].name)) {
@@ -185,6 +201,10 @@ public final class TicTacToeGame {
     }
 
  	private void onYourTurnResponse(NetworkEvents.YourTurnResponse response) {
+	    if (!isRunning.get()) {
+		    return;
+	    }
+
 		moveQueue.clear();
 
  		int position = -1;
@@ -205,7 +225,11 @@ public final class TicTacToeGame {
     }
 
  	private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-		view.updateChat("anon", msg.message());
+	    if (!isRunning.get()) {
+		    return;
+	    }
+
+		view.updateChat(msg.message());
     }
 
 	private void setGameLabels(boolean isMe) {

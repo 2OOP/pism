@@ -73,11 +73,6 @@
 	-fx-text-fill: #e0f2e9;
 }
 
-.container {
-	-fx-background-color: linear-gradient(to bottom, #2b3a3e, #1a2224);
-	-fx-background-radius: 6;
-}
-
 .input {
 	-fx-background-color: linear-gradient(to bottom, #1f3a3b, #124040);
 	-fx-background-radius: 6;

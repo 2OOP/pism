@@ -14,8 +14,8 @@ public class GameInformation {
 
 		public static int maxDepth(Type type) {
 			return switch (type) {
-				case TICTACTOE -> 5;
-				case REVERSI -> 0; // Todo
+				case TICTACTOE -> 5; // Todo. 5 seems to always draw or win. could increase to 9 but that might affect performance
+				case REVERSI -> 10; // Todo. 10 is a guess. might be too slow or too bad.
 			};
 		}
 	}
@@ -23,7 +23,7 @@ public class GameInformation {
 	public static class Player {
 		public String name = "";
 		public boolean isHuman = true;
-		public int computerDifficulty = 0;
+		public int computerDifficulty = 1;
 		public int computerThinkTime = 1;
 	}
 

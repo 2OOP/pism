@@ -9,6 +9,10 @@ import java.util.function.Consumer;
 
 public abstract class GameCanvas {
 	protected record Cell(float x, float y, float width, float height) {
+		public boolean isInside(double x, double y) {
+			return x >= this.x && x <= this.x + width &&
+				y >= this.y && y <= this.y + height;
+		}
 	}
 
 	protected final Canvas canvas;
@@ -19,18 +23,15 @@ public abstract class GameCanvas {
 	protected final int width;
 	protected final int height;
 
-	protected final int rows;
-	protected final int columns;
+	protected final int rowSize;
+	protected final int columnSize;
 
 	protected final int gapSize;
 	protected final boolean edges;
 
 	protected final Cell[] cells;
 
-	protected GameCanvas(Color color, int width, int height, int rows, int columns, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
-		width += gapSize * 2;
-		height += gapSize * 2;
-
+	protected GameCanvas(Color color, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
 
@@ -39,23 +40,23 @@ public abstract class GameCanvas {
 		this.width = width;
 		this.height = height;
 
-		this.rows = rows;
-		this.columns = columns;
+		this.rowSize = rowSize;
+		this.columnSize = columnSize;
 
 		this.gapSize = gapSize;
 		this.edges = edges;
 
-		cells = new Cell[rows * columns];
+		cells = new Cell[rowSize * columnSize];
 
-		final float cellWidth = ((float) width - gapSize * rows) / rows;
-		final float cellHeight = ((float) height - gapSize * columns) / columns;
+		final float cellWidth = ((float)width - gapSize * rowSize - gapSize) / rowSize;
+		final float cellHeight = ((float)height - gapSize * columnSize - gapSize) / columnSize;
 
-		for (int y = 0; y < columns; y++) {
-			final float startY = gapSize + y * cellHeight + y * gapSize;
+		for (int y = 0; y < columnSize; y++) {
+			final float startY = y * cellHeight + y * gapSize + gapSize;
 
-			for (int x = 0; x < rows; x++) {
-				final float startX = gapSize + x * cellWidth + x * gapSize;
-				cells[y * rows + x] = new Cell(startX, startY, cellWidth, cellHeight);
+			for (int x = 0; x < rowSize; x++) {
+				final float startX = x * cellWidth + x * gapSize + gapSize;
+				cells[x + y * rowSize] = new Cell(startX, startY, cellWidth, cellHeight);
 			}
 		}
 
@@ -64,11 +65,15 @@ public abstract class GameCanvas {
 				return;
 			}
 
-			final int column = (int)((event.getX() / this.width) * rows);
-			final int row = (int)((event.getY() / this.height) * columns);
+			final int column = (int)((event.getX() / this.width) * rowSize);
+			final int row = (int)((event.getY() / this.height) * columnSize);
 
-			event.consume();
-			onCellClicked.accept(column + row * rows);
+			final Cell cell = cells[column + row * rowSize];
+
+			if (cell.isInside(event.getX(), event.getY())) {
+				event.consume();
+				onCellClicked.accept(column + row * rowSize);
+			}
 		});
 
 		render();
@@ -81,20 +86,22 @@ public abstract class GameCanvas {
 	public void render() {
 		graphics.setFill(color);
 
-		for (int x = 1; x < rows; x++) {
-			graphics.fillRect(cells[x].x() - gapSize, 0, gapSize, height + gapSize);
+		for (int x = 0; x < rowSize - 1; x++) {
+			final float start = cells[x].x + cells[x].width;
+			graphics.fillRect(start, gapSize, gapSize, height - gapSize * 2);
 		}
 
-		for (int y = 1; y < columns; y++) {
-			graphics.fillRect(0, cells[y * rows].y() - gapSize, width + gapSize, gapSize);
+		for (int y = 0; y < columnSize - 1; y++) {
+			final float start = cells[y * rowSize].y + cells[y * rowSize].height;
+			graphics.fillRect(gapSize, start, width - gapSize * 2, gapSize);
 		}
 
 		if (edges) {
-			graphics.fillRect(0, 0, gapSize, height + gapSize);
-			graphics.fillRect(0, 0, width + gapSize, gapSize);
+			graphics.fillRect(0, 0, width, gapSize);
+			graphics.fillRect(0, 0, gapSize, height);
 
-			graphics.fillRect(width + gapSize, 0, gapSize, height + gapSize * 2);
-			graphics.fillRect(0, height + gapSize, width + gapSize * 2, gapSize);
+			graphics.fillRect(width - gapSize, 0, gapSize, height);
+			graphics.fillRect(0, height - gapSize, width, gapSize);
 		}
 	}
 

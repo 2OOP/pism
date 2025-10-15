@@ -21,7 +21,7 @@ public final class LocalView extends View {
 
 		final Button reversiButton = button();
 		reversiButton.setText(AppContext.getString("reversi"));
-		reversiButton.setOnAction(_ -> {});
+		reversiButton.setOnAction(_ -> { ViewStack.push(new LocalMultiplayerView(GameInformation.Type.REVERSI)); });
 
 		add(Pos.CENTER,
 			fit(vboxFill(
