@@ -43,8 +43,8 @@ public final class LocalMultiplayerView extends View {
 			}
 
 			switch (information.type) {
-				case TICTACTOE: new TicTacToeGame(information, 0, null, null); break;
-				case REVERSI: new ReversiGame(information, 0, null, null); break;
+				case TICTACTOE: new TicTacToeGame(information); break;
+				case REVERSI: new ReversiGame(information); break;
 			}
 		});
 

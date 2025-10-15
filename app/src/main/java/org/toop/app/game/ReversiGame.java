@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 public final class ReversiGame {
 	private final GameInformation information;
@@ -30,7 +31,7 @@ public final class ReversiGame {
 	private final GameView view;
 	private final ReversiCanvas canvas;
 
-	public ReversiGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit) {
+	public ReversiGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		this.information = information;
 
 		this.myTurn = myTurn;
@@ -42,9 +43,9 @@ public final class ReversiGame {
 		if (onForfeit == null || onExit == null) {
 			view = new GameView(null, () -> {
 				ViewStack.push(new LocalMultiplayerView(information));
-			});
+			}, null);
 		} else {
-			view = new GameView(onForfeit, onExit);
+			view = new GameView(onForfeit, onExit, onMessage);
 		}
 
 		canvas = new ReversiCanvas(Color.GRAY,
@@ -84,6 +85,10 @@ public final class ReversiGame {
 		}
 
 		updateCanvas();
+	}
+
+	public ReversiGame(GameInformation information) {
+		this(information, 0, null, null, null);
 	}
 
 	private void localGameThread() {
@@ -197,7 +202,7 @@ public final class ReversiGame {
 	}
 
 	private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-		view.updateChat("anon", msg.message());
+		view.updateChat(msg.message());
 	}
 
 	private void updateCanvas() {

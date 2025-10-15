@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Consumer;
 
 public final class TicTacToeGame {
 	private final GameInformation information;
@@ -30,7 +31,7 @@ public final class TicTacToeGame {
 	private final GameView view;
 	private final TicTacToeCanvas canvas;
 
-	public TicTacToeGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit) {
+	public TicTacToeGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		this.information = information;
 
 		this.myTurn = myTurn;
@@ -42,9 +43,9 @@ public final class TicTacToeGame {
 		if (onForfeit == null || onExit == null) {
 			view = new GameView(null, () -> {
 				ViewStack.push(new LocalMultiplayerView(information));
-			});
+			}, null);
 		} else {
-			view = new GameView(onForfeit, onExit);
+			view = new GameView(onForfeit, onExit, onMessage);
 		}
 
 		canvas = new TicTacToeCanvas(Color.GRAY,
@@ -82,6 +83,10 @@ public final class TicTacToeGame {
 
 			setGameLabels(myTurn == 0);
 		}
+	}
+
+	public TicTacToeGame(GameInformation information) {
+		this(information, 0, null, null, null);
 	}
 
 	private void localGameThread() {
@@ -205,7 +210,7 @@ public final class TicTacToeGame {
     }
 
  	private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-		view.updateChat("anon", msg.message());
+		view.updateChat(msg.message());
     }
 
 	private void setGameLabels(boolean isMe) {

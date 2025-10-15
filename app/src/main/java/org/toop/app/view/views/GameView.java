@@ -6,7 +6,11 @@ import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+
+import java.util.function.Consumer;
 
 public final class GameView extends View {
 	private static class GameOverView extends View {
@@ -65,7 +69,10 @@ public final class GameView extends View {
 
 	private final Text nextPlayerHeader;
 
-	public GameView(Runnable onForfeit, Runnable onExit) {
+	private final ListView<Text> chatListView;
+	private final TextField chatInput;
+
+	public GameView(Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		assert onExit != null;
 
 		super(true, "bg-primary");
@@ -76,6 +83,16 @@ public final class GameView extends View {
 			forfeitButton.setOnAction(_ -> onForfeit.run());
 		} else {
 			forfeitButton = null;
+		}
+
+		if (onMessage != null) {
+			chatListView = new ListView<Text>();
+
+			chatInput = input();
+			chatInput.setOnAction(_ -> onMessage.accept(chatInput.getText()));
+		} else {
+			chatListView = null;
+			chatInput = null;
 		}
 
 		exitButton = button();
@@ -110,6 +127,15 @@ public final class GameView extends View {
 				exitButton
 			)
 		);
+
+		if (chatListView != null) {
+			add(Pos.BOTTOM_RIGHT,
+				fit(vboxFill(
+					chatListView,
+					chatInput
+				)
+			));
+		}
 	}
 
 	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer) {
@@ -125,8 +151,15 @@ public final class GameView extends View {
 		}
 	}
 
-	public void updateChat(String player, String message) {
-		// Todo
+	public void updateChat(String message) {
+		if (chatListView == null) {
+			return;
+		}
+
+		final Text messageText = text();
+		messageText.setText(message);
+
+		chatListView.getItems().add(messageText);
 	}
 
 	public void gameOver(boolean iWon, String winner) {

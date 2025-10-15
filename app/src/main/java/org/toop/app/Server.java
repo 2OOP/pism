@@ -116,8 +116,8 @@ public final class Server {
 						information.players[1].name = opponent;
 
 						switch (type) {
-							case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame); break;
-							case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame); break;
+							case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
+							case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
 						}
 					}
 				}).postEvent();
@@ -159,12 +159,16 @@ public final class Server {
 					information.players[1].name = e.opponent();
 
 					switch (type) {
-						case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame); break;
-						case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame); break;
+						case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
+						case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
 					}
 				}
 			});
 		}));
+	}
+
+	private void sendMessage(String message) {
+		new EventFlow().addPostEvent(new NetworkEvents.SendMessage(clientId, message)).postEvent();
 	}
 
 	private void disconnect() {
