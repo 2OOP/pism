@@ -9,7 +9,7 @@ import org.toop.framework.eventbus.events.UniqueEvent;
 import org.toop.framework.eventbus.events.EventsBase;
 import org.toop.annotations.AutoResponseResult;
 import org.toop.framework.networking.interfaces.NetworkingClient;
-import org.toop.framework.networking.types.NetworkingReconnect;
+import org.toop.framework.networking.types.NetworkingConnector;
 
 /**
  * A collection of networking-related event records for use with the {@link
@@ -118,16 +118,12 @@ public class NetworkEvents extends EventsBase {
      *
      * <p>Carries IP, port, and a unique event ID for correlation with responses.
      *
-     * @param networkingClientClass The type of networking client to create.
-     * @param host Server IP address.
-     * @param port Server port.
-     * @param identifier Unique event identifier for correlation.
+     * @param networkingClient
+     * @param networkingConnector
      */
     public record StartClient(
-            NetworkingClient networkingClientClass,
-            String host,
-            int port,
-            NetworkingReconnect networkingReconnect,
+            NetworkingClient networkingClient,
+            NetworkingConnector networkingConnector,
             long identifier) implements UniqueEvent {}
 
     /**
@@ -135,13 +131,12 @@ public class NetworkEvents extends EventsBase {
      *
      * @param clientId   The client ID assigned to the new connection.
      * @param successful If successfully connected or not. If not clientId will also be -1.
-     * @param identifier Event ID used for correlation.
      */
     @AutoResponseResult
     public record StartClientResponse(long clientId, boolean successful, long identifier) implements ResponseToUniqueEvent {}
 
     /** WIP (Not working) Request to reconnect a client to a previous address. */
-    public record Reconnect(long clientId, NetworkingReconnect networkingReconnect, long identifier)
+    public record Reconnect(long clientId, NetworkingClient networkingClient, NetworkingConnector networkingConnector, long identifier)
             implements UniqueEvent {}
 
     public record ReconnectResponse(boolean successful, long identifier) implements ResponseToUniqueEvent {}
@@ -150,10 +145,9 @@ public class NetworkEvents extends EventsBase {
      * Request to change a client connection to a new server.
      *
      * @param clientId The client connection ID.
-     * @param ip The new server IP.
-     * @param port The new server port.
+     * @param networkingConnector
      */
-    public record ChangeAddress(long clientId, String ip, int port, NetworkingReconnect networkingReconnect, long identifier)
+    public record ChangeAddress(long clientId, NetworkingClient networkingClient, NetworkingConnector networkingConnector, long identifier)
             implements UniqueEvent {}
 
     public record ChangeAddressResponse(boolean successful, long identifier) implements ResponseToUniqueEvent {}

@@ -39,12 +39,13 @@ public class NetworkingClientEventListener {
     }
 
     void handleStartClient(NetworkEvents.StartClient event) {
+        long clientId = SnowflakeGenerator.nextId();
         clientManager.startClient(
-                event.identifier(),
-                event.networkingClientClass(),
-                event.host(),
-                event.port(),
-                event.networkingReconnect()
+                clientId,
+                event.networkingClient(),
+                event.networkingConnector(),
+                () -> new EventFlow().addPostEvent(new NetworkEvents.StartClientResponse(clientId, true, event.identifier())).postEvent(),
+                () -> new EventFlow().addPostEvent(new NetworkEvents.StartClientResponse(clientId, false, event.identifier())).postEvent()
         );
     }
 
@@ -110,19 +111,23 @@ public class NetworkingClientEventListener {
     }
 
     private void handleReconnect(NetworkEvents.Reconnect event) {
-        try {
-            clientManager.reconnect(event.clientId(), event.networkingReconnect());
-        } catch (ClientNotFoundException e) {
-            logger.error(e);
-        }
+        clientManager.startClient(
+                event.clientId(),
+                event.networkingClient(),
+                event.networkingConnector(),
+                () -> new EventFlow().addPostEvent(new NetworkEvents.ReconnectResponse(true, event.identifier())).postEvent(),
+                () -> new EventFlow().addPostEvent(new NetworkEvents.ReconnectResponse(false, event.identifier())).postEvent()
+        );
     }
 
     private void handleChangeAddress(NetworkEvents.ChangeAddress event) {
-        try {
-            clientManager.changeAddress(event.clientId(), event.ip(),  event.port(), event.networkingReconnect());
-        } catch (ClientNotFoundException e) {
-            logger.error(e);
-        }
+        clientManager.startClient(
+                event.clientId(),
+                event.networkingClient(),
+                event.networkingConnector(),
+                () -> new EventFlow().addPostEvent(new NetworkEvents.ChangeAddressResponse(true, event.identifier())).postEvent(),
+                () -> new EventFlow().addPostEvent(new NetworkEvents.ChangeAddressResponse(false, event.identifier())).postEvent()
+        );
     }
 
     void handleCloseClient(NetworkEvents.CloseClient event) {
