@@ -114,7 +114,6 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
             }
         });
     }
-
     @Override
     public void stop() {
         if (!playing) return;

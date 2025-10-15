@@ -4,7 +4,7 @@ import org.toop.app.App;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
 import org.toop.local.AppContext;
-
+import org.toop.app.view.displays.SongDisplay;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 
@@ -34,6 +34,14 @@ public final class MainView extends View {
 		final Button quitButton = button();
 		quitButton.setText(AppContext.getString("quit"));
 		quitButton.setOnAction(_ -> { App.startQuit(); });
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+
+        add(Pos.BOTTOM_RIGHT,
+            fit(vboxFill(
+                    songdisplay
+                    )));
 
 		add(Pos.CENTER,
 			fit(vboxFill(
