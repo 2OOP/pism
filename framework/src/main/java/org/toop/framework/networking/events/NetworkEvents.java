@@ -133,11 +133,12 @@ public class NetworkEvents extends EventsBase {
     /**
      * Response confirming a client was started.
      *
-     * @param clientId The client ID assigned to the new connection.
+     * @param clientId   The client ID assigned to the new connection.
+     * @param successful If successfully connected or not. If not clientId will also be -1.
      * @param identifier Event ID used for correlation.
      */
     @AutoResponseResult
-    public record StartClientResponse(long clientId, long identifier) implements ResponseToUniqueEvent {}
+    public record StartClientResponse(long clientId, boolean successful, long identifier) implements ResponseToUniqueEvent {}
 
     /** WIP (Not working) Request to reconnect a client to a previous address. */
     public record Reconnect(long clientId, NetworkingReconnect networkingReconnect, long identifier)

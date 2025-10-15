@@ -40,7 +40,7 @@ public class NetworkingClientManager implements org.toop.framework.networking.in
                     networkingClient.connect(id, host, port);
                     networkClients.put(id, networkingClient);
                     logger.info("New client started successfully for {}:{}", host, port);
-                    new EventFlow().addPostEvent(new NetworkEvents.StartClientResponse(id, id)).postEvent();
+                    new EventFlow().addPostEvent(new NetworkEvents.StartClientResponse(id, false, id)).postEvent();
                     scheduler.shutdown();
                 } catch (CouldNotConnectException e) {
                     attempts++;
@@ -50,11 +50,12 @@ public class NetworkingClientManager implements org.toop.framework.networking.in
                         scheduler.schedule(this, networkingReconnect.timeout(), networkingReconnect.timeUnit());
                     } else {
                         logger.error("Failed to start client for {}:{} after {} attempts", host, port, attempts);
-                        new EventFlow().addPostEvent(new NetworkEvents.StartClientResponse(-1, id)).postEvent();
+                        new EventFlow().addPostEvent(new NetworkEvents.StartClientResponse(-1, false, id)).postEvent();
                         scheduler.shutdown();
                     }
                 } catch (Exception e) {
                     logger.error("Unexpected exception during startClient", e);
+                    new EventFlow().addPostEvent(new NetworkEvents.StartClientResponse(-1, false, id)).postEvent();
                     scheduler.shutdown();
                 }
             }
