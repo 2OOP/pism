@@ -116,15 +116,15 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         };
 
         track.setOnEnd(() -> {
-            playingIndex++;
             scheduler.shutdown();
+            playingIndex++;
             playCurrentTrack();
         });
 
         track.setOnError(() -> {
+            scheduler.shutdown();
             logger.error("Error playing track: {}", track);
             backgroundMusic.remove(track);
-            scheduler.shutdown();
 
             if (!backgroundMusic.isEmpty()) {
                 playCurrentTrack();
@@ -133,7 +133,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
             }
         });
 
-        scheduler.schedule(currentMusicTask, 0, TimeUnit.MILLISECONDS);
+        scheduler.schedule(currentMusicTask, 1, TimeUnit.SECONDS);
     }
 
     @Override
