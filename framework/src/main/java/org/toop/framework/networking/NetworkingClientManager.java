@@ -34,7 +34,9 @@ public class NetworkingClientManager implements org.toop.framework.networking.in
             @Override
             public void run() {
 
-                if (networkClients.get(id) != null) {
+                NetworkingClient qClient = networkClients.get(id);
+                if (qClient != null) {
+                    qClient.closeConnection();
                     networkClients.remove(id);
                 }
 
