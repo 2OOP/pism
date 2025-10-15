@@ -3,6 +3,7 @@ package org.toop.app.view.views;
 import org.toop.app.GameInformation;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.app.view.displays.SongDisplay;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -33,6 +34,14 @@ public final class LocalView extends View {
 		final Button backButton = button();
 		backButton.setText(AppContext.getString("back"));
 		backButton.setOnAction(_ -> { ViewStack.push(new MainView()); });
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+
+        add(Pos.BOTTOM_RIGHT,
+                fit(vboxFill(
+                        songdisplay
+                )));
 
 		add(Pos.BOTTOM_LEFT,
 			vboxFill(
