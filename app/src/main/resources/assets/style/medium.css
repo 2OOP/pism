@@ -23,11 +23,6 @@
 	-fx-spacing: 10;
 }
 
-.credits-container {
-	-fx-alignment: CENTER;
-	-fx-padding: 20;
-}
-
 .current-player {
 	-fx-font-size: 24px;
 }

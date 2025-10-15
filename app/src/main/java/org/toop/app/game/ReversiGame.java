@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public final class ReversiGame {
@@ -31,6 +32,8 @@ public final class ReversiGame {
 	private final GameView view;
 	private final ReversiCanvas canvas;
 
+	private final AtomicBoolean isRunning;
+
 	public ReversiGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		this.information = information;
 
@@ -40,12 +43,18 @@ public final class ReversiGame {
 		game = new Reversi();
 		ai = new ReversiAI();
 
+		isRunning = new AtomicBoolean(true);
+
 		if (onForfeit == null || onExit == null) {
 			view = new GameView(null, () -> {
+				isRunning.set(false);
 				ViewStack.push(new LocalMultiplayerView(information));
 			}, null);
 		} else {
-			view = new GameView(onForfeit, onExit, onMessage);
+			view = new GameView(onForfeit, () -> {
+				isRunning.set(false);
+				onExit.run();
+			}, onMessage);
 		}
 
 		canvas = new ReversiCanvas(Color.GRAY,
@@ -92,9 +101,7 @@ public final class ReversiGame {
 	}
 
 	private void localGameThread() {
-		boolean isRunning = true;
-
-		while (isRunning) {
+		while (isRunning.get()) {
 			final int currentTurn = game.getCurrentTurn();
 			final char currentValue = currentTurn == 0? 'B' : 'W';
 			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
@@ -148,12 +155,16 @@ public final class ReversiGame {
 					view.gameOver(false, "");
 				}
 
-				isRunning = false;
+				isRunning.set(false);
 			}
 		}
 	}
 
 	private void onMoveResponse(NetworkEvents.GameMoveResponse response) {
+		if (!isRunning.get()) {
+			return;
+		}
+
 		char playerChar;
 
 		if (response.player().equalsIgnoreCase(information.players[0].name)) {
@@ -182,6 +193,10 @@ public final class ReversiGame {
 	}
 
 	private void onYourTurnResponse(NetworkEvents.YourTurnResponse response) {
+		if (!isRunning.get()) {
+			return;
+		}
+
 		moveQueue.clear();
 
 		int position = -1;
@@ -202,6 +217,10 @@ public final class ReversiGame {
 	}
 
 	private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
+		if (!isRunning.get()) {
+			return;
+		}
+
 		view.updateChat(msg.message());
 	}
 

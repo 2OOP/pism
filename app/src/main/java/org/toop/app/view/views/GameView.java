@@ -89,7 +89,10 @@ public final class GameView extends View {
 			chatListView = new ListView<Text>();
 
 			chatInput = input();
-			chatInput.setOnAction(_ -> onMessage.accept(chatInput.getText()));
+			chatInput.setOnAction(_ -> {
+				onMessage.accept(chatInput.getText());
+				chatInput.setText("");
+			});
 		} else {
 			chatListView = null;
 			chatInput = null;
