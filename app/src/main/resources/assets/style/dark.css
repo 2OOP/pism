@@ -12,6 +12,34 @@
 	-fx-effect: dropshadow(gaussian, #224455cc, 8, 0, 0, 2);
 }
 
+.song-display {
+    -fx-background-color: rgba(30, 60, 30, 0.85);
+    -fx-background-radius: 10px;
+    -fx-padding: 8 12 8 12;
+    -fx-spacing: 6px;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.5, 0, 2);
+    -fx-min-width: 220px;
+    -fx-max-width: 260px;
+    -fx-text-fill: white;
+}
+
+.song-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.progress-bar {
+    -fx-pref-width: 150px;
+    -fx-accent: red;
+}
+
+.progress-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: white;
+}
+
 .button {
 	-fx-background-color: linear-gradient(to bottom, #1f5e20, #2e7d2e);
 	-fx-background-radius: 8;

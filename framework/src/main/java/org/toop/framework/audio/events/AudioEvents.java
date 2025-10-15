@@ -18,6 +18,7 @@ public class AudioEvents extends EventsBase {
     /** Start background music. */
     public record StartBackgroundMusic() implements GenericEvent {}
 
+    /** Gives back the name of the song, the position its currently at (in seconds) and how long it takes (in seconds) */
     public record PlayingMusic(String name, long currentPosition, long duration) implements GenericEvent {}
 
     /** Change volume, choose type with {@link VolumeControl}. */

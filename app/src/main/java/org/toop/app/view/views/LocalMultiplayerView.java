@@ -5,6 +5,7 @@ import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.app.view.displays.SongDisplay;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -47,6 +48,14 @@ public final class LocalMultiplayerView extends View {
 				case REVERSI: new ReversiGame(information); break;
 			}
 		});
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+
+        add(Pos.BOTTOM_RIGHT,
+                fit(vboxFill(
+                        songdisplay
+                )));
 
 		add(Pos.CENTER,
 			fit(vboxFill(

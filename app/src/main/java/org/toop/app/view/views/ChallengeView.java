@@ -4,6 +4,7 @@ import org.toop.app.GameInformation;
 import org.toop.app.Server;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.app.view.displays.SongDisplay;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -94,6 +95,14 @@ public final class ChallengeView extends View {
 
 			nodes.add(vbox(computerDifficultyText, computerDifficultySlider));
 		}
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+
+        add(Pos.BOTTOM_RIGHT,
+                fit(vboxFill(
+                        songdisplay
+                )));
 
 		add(Pos.CENTER,
 			fit(hboxFill(

@@ -21,6 +21,7 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.5, 0, 2);
     -fx-min-width: 220px;
     -fx-max-width: 260px;
+    -fx-text-fill: white;
 }
 
 .song-title {
@@ -30,17 +31,15 @@
 }
 
 .progress-bar {
-    -fx-pref-width: 200px;
-    -fx-pref-height: 6px;
-    -fx-accent: #ff4d4d;
-    -fx-background-color: rgba(255, 255, 255, 0.15);
-    -fx-background-radius: 4px;
+    -fx-pref-width: 150px;
+    -fx-accent: red;
 }
 
 .progress-text {
     -fx-font-size: 11px;
     -fx-text-fill: white;
 }
+
 .button {
 	-fx-background-color: linear-gradient(to bottom, #1b7a1b, #2da32d);
 	-fx-background-radius: 8;

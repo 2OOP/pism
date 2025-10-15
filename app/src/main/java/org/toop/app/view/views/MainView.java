@@ -37,7 +37,6 @@ public final class MainView extends View {
 
         final SongDisplay songdisplay = new SongDisplay();
 
-
         add(Pos.BOTTOM_RIGHT,
             fit(vboxFill(
                     songdisplay

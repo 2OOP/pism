@@ -2,6 +2,7 @@ package org.toop.app.view.views;
 
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.app.view.displays.SongDisplay;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -84,6 +85,14 @@ public final class GameView extends View {
 		} else {
 			forfeitButton = null;
 		}
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+
+        add(Pos.BOTTOM_RIGHT,
+                fit(vboxFill(
+                        songdisplay
+                )));
 
 		if (onMessage != null) {
 			chatListView = new ListView<Text>();

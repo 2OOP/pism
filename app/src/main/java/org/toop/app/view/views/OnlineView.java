@@ -3,6 +3,7 @@ package org.toop.app.view.views;
 import org.toop.app.Server;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.app.view.displays.SongDisplay;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -43,6 +44,13 @@ public class OnlineView extends View {
 		connectButton.setOnAction(_ -> {
 			new Server(serverIPInput.getText(), serverPortInput.getText(), playerNameInput.getText());
 		});
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+        add(Pos.BOTTOM_RIGHT,
+                fit(vboxFill(
+                        songdisplay
+                )));
 
 		add(Pos.CENTER,
 			fit(vboxFill(

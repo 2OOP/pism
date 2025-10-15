@@ -3,6 +3,7 @@ package org.toop.app.view.views;
 import org.toop.app.App;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.app.view.displays.SongDisplay;
 import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
@@ -98,6 +99,14 @@ public final class OptionsView extends View {
 		final Button backButton = button();
 		backButton.setText(AppContext.getString("back"));
 		backButton.setOnAction(_ -> { ViewStack.pop(); });
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+
+        add(Pos.BOTTOM_RIGHT,
+                fit(vboxFill(
+                        songdisplay
+                )));
 
 		add(Pos.BOTTOM_LEFT,
 			vboxFill(
