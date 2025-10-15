@@ -1,9 +1,11 @@
 package org.toop.app;
 
+import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
 import org.toop.app.view.ViewStack;
 import org.toop.app.view.views.ChallengeView;
 import org.toop.app.view.views.ErrorView;
+import org.toop.app.view.views.OnlineView;
 import org.toop.app.view.views.SendChallengeView;
 import org.toop.app.view.views.ServerView;
 import org.toop.framework.eventbus.EventFlow;
@@ -11,6 +13,7 @@ import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.local.AppContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -93,6 +96,10 @@ public final class Server {
 	}
 
 	private void sendChallenge(String opponent) {
+		if (!isPolling) {
+			return;
+		}
+
 		ViewStack.push(new SendChallengeView(this, opponent, (playerInformation, gameType) -> {
 			new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(clientId, opponent, gameType))
 				.listen(NetworkEvents.GameMatchResponse.class, e -> {
@@ -108,13 +115,20 @@ public final class Server {
 						information.players[0].name = user;
 						information.players[1].name = opponent;
 
-						new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame);
+						switch (type) {
+							case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame); break;
+							case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame); break;
+						}
 					}
 				}).postEvent();
 		}));
 	}
 
 	private void handleReceivedChallenge(NetworkEvents.ChallengeResponse response) {
+		if (!isPolling) {
+			return;
+		}
+
 		String challengerName = response.challengerName();
 		challengerName = challengerName.substring(challengerName.indexOf("\"") + 1);
 		challengerName = challengerName.substring(0, challengerName.indexOf("\""));
@@ -145,11 +159,8 @@ public final class Server {
 					information.players[1].name = e.opponent();
 
 					switch (type) {
-						case TICTACTOE:
-							new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame);
-							break;
-						case REVERSI:
-							break;
+						case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame); break;
+						case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame); break;
 					}
 				}
 			});
@@ -157,11 +168,12 @@ public final class Server {
 	}
 
 	private void disconnect() {
-		// Todo
+		new EventFlow().addPostEvent(new NetworkEvents.CloseClient(clientId)).postEvent();
+		ViewStack.push(new OnlineView());
 	}
 
 	private void forfeitGame() {
-		// Todo
+		new EventFlow().addPostEvent(new NetworkEvents.SendForfeit(clientId)).postEvent();
 	}
 
 	private void exitGame() {
@@ -182,6 +194,12 @@ public final class Server {
 	public List<String> getGamesList() {
 		final List<String> list = new ArrayList<String>();
 		list.add("tic-tac-toe"); // Todo: get games list from server and check if the game is supported
+		list.add("reversi");
+
+		new EventFlow().addPostEvent(new NetworkEvents.SendGetGamelist(clientId))
+			.listen(NetworkEvents.GamelistResponse.class, e -> {
+				System.out.println(Arrays.toString(e.gamelist()));
+			}).postEvent();
 
 		return list;
 	}

@@ -3,6 +3,7 @@ package org.toop.app.view.views;
 import org.toop.app.App;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
@@ -143,7 +144,7 @@ public final class OptionsView extends View {
 
 		masterVolumeSlider.valueProperty().addListener((_, _, newValue) -> {
 			AppSettings.getSettings().setVolume(newValue.intValue());
-			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(newValue.doubleValue())).asyncPostEvent();
+			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(newValue.doubleValue(), VolumeControl.MASTERVOLUME)).asyncPostEvent();
 		});
 	}
 
@@ -158,7 +159,7 @@ public final class OptionsView extends View {
 
 		effectsVolumeSlider.valueProperty().addListener((_, _, newValue) -> {
 			AppSettings.getSettings().setFxVolume(newValue.intValue());
-			new EventFlow().addPostEvent(new AudioEvents.ChangeFxVolume(newValue.doubleValue())).asyncPostEvent();
+			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(newValue.doubleValue(), VolumeControl.FX)).asyncPostEvent();
 		});
 	}
 
@@ -173,7 +174,7 @@ public final class OptionsView extends View {
 
 		musicVolumeSlider.valueProperty().addListener((_, _, newValue) -> {
 			AppSettings.getSettings().setMusicVolume(newValue.intValue());
-			new EventFlow().addPostEvent(new AudioEvents.ChangeMusicVolume(newValue.doubleValue())).asyncPostEvent();
+			new EventFlow().addPostEvent(new AudioEvents.ChangeVolume(newValue.doubleValue(), VolumeControl.MUSIC)).asyncPostEvent();
 		});
 	}
 

@@ -1,9 +1,6 @@
 package org.toop.app.canvas;
 
-import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
-import org.toop.game.Game;
-
 
 import java.util.function.Consumer;
 
@@ -12,15 +9,26 @@ public class ReversiCanvas extends GameCanvas{
         super(color, width, height, 8, 8, 10, true, onCellClicked);
         drawStartingDots();
     }
-    public void drawStartingDots(){
-        drawDot(Color.BLACK,28);
-        drawDot(Color.WHITE,36);
-        drawDot(Color.BLACK,35);
-        drawDot(Color.WHITE,27);
+
+	public void drawDot(Color color, int cell) {
+		final float x = cells[cell].x() + gapSize;
+		final float y = cells[cell].y() + gapSize;
+
+		final float width = cells[cell].width() - gapSize * 2;
+		final float height = cells[cell].height() - gapSize * 2;
+
+		graphics.setFill(color);
+		graphics.fillOval(x, y, width, height);
+	}
+
+    public void drawStartingDots() {
+        drawDot(Color.BLACK, 28);
+        drawDot(Color.WHITE, 36);
+        drawDot(Color.BLACK, 35);
+        drawDot(Color.WHITE, 27);
     }
-    public void drawLegalMoves(Game.Move[] moves){
-        for(Game.Move move : moves){
-            drawDot(new Color(1f,0,0,0.25f),move.position());
-        }
-    }
+
+	public void drawLegalPosition(int cell) {
+		drawDot(new Color(1.0f, 0.0f, 0.0f, 0.5f), cell);
+	}
 }
