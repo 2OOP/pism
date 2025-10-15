@@ -11,8 +11,11 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.networking.exceptions.CouldNotConnectException;
 import org.toop.framework.networking.handlers.NetworkingGameClientHandler;
 import org.toop.framework.networking.interfaces.NetworkingClient;
+
+import java.net.InetSocketAddress;
 
 public class TournamentNetworkingClient implements NetworkingClient {
     private static final Logger logger = LogManager.getLogger(TournamentNetworkingClient.class);
@@ -21,7 +24,12 @@ public class TournamentNetworkingClient implements NetworkingClient {
     public TournamentNetworkingClient() {}
 
     @Override
-    public boolean connect(long clientId, String host, int port) {
+    public InetSocketAddress getAddress() {
+        return (InetSocketAddress) channel.remoteAddress();
+    }
+
+    @Override
+    public void connect(long clientId, String host, int port) throws CouldNotConnectException {
         try {
             Bootstrap bootstrap = new Bootstrap();
             EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
@@ -44,11 +52,9 @@ public class TournamentNetworkingClient implements NetworkingClient {
                     });
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             this.channel = channelFuture.channel();
-        } catch (Exception e) {
-            logger.error("Failed to create networking client instance", e);
-            return false;
+        } catch (Exception _) {
+            throw new CouldNotConnectException(clientId);
         }
-        return true;
     }
 
     @Override

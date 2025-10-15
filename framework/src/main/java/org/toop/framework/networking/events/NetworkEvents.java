@@ -9,6 +9,7 @@ import org.toop.framework.eventbus.events.UniqueEvent;
 import org.toop.framework.eventbus.events.EventsBase;
 import org.toop.annotations.AutoResponseResult;
 import org.toop.framework.networking.interfaces.NetworkingClient;
+import org.toop.framework.networking.types.NetworkingReconnect;
 
 /**
  * A collection of networking-related event records for use with the {@link
@@ -101,31 +102,6 @@ public class NetworkEvents extends EventsBase {
     /** Request to close a specific client connection. */
     public record CloseClient(long clientId) implements GenericEvent {}
 
-    /**
-     * Event to start a new client connection.
-     *
-     * <p>Carries IP, port, and a unique event ID for correlation with responses.
-     *
-     * @param networkingClientClass The type of networking client to create.
-     * @param host Server IP address.
-     * @param port Server port.
-     * @param eventSnowflake Unique event identifier for correlation.
-     */
-    public record StartClient(
-            NetworkingClient networkingClientClass,
-            String host,
-            int port,
-            long identifier) implements UniqueEvent {}
-
-    /**
-     * Response confirming a client was started.
-     *
-     * @param clientId The client ID assigned to the new connection.
-     * @param identifier Event ID used for correlation.
-     */
-    @AutoResponseResult
-    public record StartClientResponse(long clientId, long identifier) implements ResponseToUniqueEvent {}
-
     /** Generic server response. */
     public record ServerResponse(long clientId) implements GenericEvent {}
 
@@ -137,16 +113,37 @@ public class NetworkEvents extends EventsBase {
      */
     public record SendCommand(long clientId, String... args) implements GenericEvent {}
 
-    /** WIP (Not working) Request to reconnect a client to a previous address. */
-    public record Reconnect(long clientId) implements GenericEvent {}
+    /**
+     * Event to start a new client connection.
+     *
+     * <p>Carries IP, port, and a unique event ID for correlation with responses.
+     *
+     * @param networkingClientClass The type of networking client to create.
+     * @param host Server IP address.
+     * @param port Server port.
+     * @param identifier Unique event identifier for correlation.
+     */
+    public record StartClient(
+            NetworkingClient networkingClientClass,
+            String host,
+            int port,
+            NetworkingReconnect networkingReconnect,
+            long identifier) implements UniqueEvent {}
 
     /**
-     * Response triggered when a message is received from a server.
+     * Response confirming a client was started.
      *
-     * @param clientId The connection ID that received the message.
-     * @param message The message content.
+     * @param clientId The client ID assigned to the new connection.
+     * @param identifier Event ID used for correlation.
      */
-    public record ReceivedMessage(long clientId, String message) implements GenericEvent {}
+    @AutoResponseResult
+    public record StartClientResponse(long clientId, long identifier) implements ResponseToUniqueEvent {}
+
+    /** WIP (Not working) Request to reconnect a client to a previous address. */
+    public record Reconnect(long clientId, NetworkingReconnect networkingReconnect, long identifier)
+            implements UniqueEvent {}
+
+    public record ReconnectResponse(boolean successful, long identifier) implements ResponseToUniqueEvent {}
 
     /**
      * Request to change a client connection to a new server.
@@ -155,10 +152,18 @@ public class NetworkEvents extends EventsBase {
      * @param ip The new server IP.
      * @param port The new server port.
      */
-    public record ChangeClientHost(long clientId, String ip, int port) implements GenericEvent {}
+    public record ChangeAddress(long clientId, String ip, int port, NetworkingReconnect networkingReconnect, long identifier)
+            implements UniqueEvent {}
 
-    /** WIP (Not working) Response indicating that the client could not connect. */
-    public record CouldNotConnect(long clientId) implements GenericEvent {}
+    public record ChangeAddressResponse(boolean successful, long identifier) implements ResponseToUniqueEvent {}
+
+    /**
+     * Response triggered when a message is received from a server.
+     *
+     * @param clientId The connection ID that received the message.
+     * @param message The message content.
+     */
+    public record ReceivedMessage(long clientId, String message) implements GenericEvent {}
 
     /** Event indicating a client connection was closed. */
     public record ClosedConnection(long clientId) implements GenericEvent {}

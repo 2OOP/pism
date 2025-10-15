@@ -2,9 +2,10 @@ package org.toop.framework.networking;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.networking.interfaces.NetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.framework.networking.exceptions.ClientNotFoundException;
 import org.toop.framework.networking.interfaces.NetworkingClientManager;
 
 public class NetworkingClientEventListener {
@@ -31,93 +32,111 @@ public class NetworkingClientEventListener {
                 .listen(this::handleSendHelp)
                 .listen(this::handleSendHelpForCommand)
                 .listen(this::handleCloseClient)
-                .listen(this::handleChangeClientHost)
+                .listen(this::handleReconnect)
+                .listen(this::handleChangeAddress)
                 .listen(this::handleGetAllConnections)
                 .listen(this::handleShutdownAll);
     }
 
     void handleStartClient(NetworkEvents.StartClient event) {
-        long clientId = clientManager.startClient(SnowflakeGenerator.nextId(), event.networkingClientClass(), event.host(), event.port()).orElse(-1);
-        logger.info("Client {} started", clientId);
+        clientManager.startClient(
+                event.identifier(),
+                event.networkingClientClass(),
+                event.host(),
+                event.port(),
+                event.networkingReconnect()
+        );
+    }
+
+    private void sendCommand(long clientId, String command) {
         try {
-            new EventFlow()
-                    .addPostEvent(new NetworkEvents.StartClientResponse(clientId, event.getIdentifier()))
-                    .asyncPostEvent();
-        } catch (Exception e) {
-            e.printStackTrace();
+            clientManager.sendCommand(clientId, command);
+        } catch (ClientNotFoundException e) {
+            logger.error(e);
         }
     }
 
-    void handleCommand(NetworkEvents.SendCommand event) {
+    private void handleCommand(NetworkEvents.SendCommand event) {
         String args = String.join(" ", event.args());
-        logger.error(args);
-        clientManager.sendCommand(event.clientId(), args);
+        sendCommand(event.clientId(), args);
     }
 
-    void handleSendLogin(NetworkEvents.SendLogin event) {
-        logger.error("{}", event.username());
-        clientManager.sendCommand(event.clientId(), String.format("LOGIN %s", event.username()));
+    private void handleSendLogin(NetworkEvents.SendLogin event) {
+        sendCommand(event.clientId(), String.format("LOGIN %s", event.username()));
     }
 
     private void handleSendLogout(NetworkEvents.SendLogout event) {
-        clientManager.sendCommand(event.clientId(), "LOGOUT");
+        sendCommand(event.clientId(), "LOGOUT");
     }
 
     private void handleSendGetPlayerlist(NetworkEvents.SendGetPlayerlist event) {
-        clientManager.sendCommand(event.clientId(), "GET PLAYERLIST");
+        sendCommand(event.clientId(), "GET PLAYERLIST");
     }
 
     private void handleSendGetGamelist(NetworkEvents.SendGetGamelist event) {
-        clientManager.sendCommand(event.clientId(), "GET GAMELIST");
+        sendCommand(event.clientId(), "GET GAMELIST");
     }
 
     private void handleSendSubscribe(NetworkEvents.SendSubscribe event) {
-        clientManager.sendCommand(event.clientId(), String.format("SUBSCRIBE %s", event.gameType()));
+        sendCommand(event.clientId(), String.format("SUBSCRIBE %s", event.gameType()));
     }
 
     private void handleSendMove(NetworkEvents.SendMove event) {
-        clientManager.sendCommand(event.clientId(), String.format("MOVE %d", event.moveNumber()));
+        sendCommand(event.clientId(), String.format("MOVE %d", event.moveNumber()));
     }
 
     private void handleSendChallenge(NetworkEvents.SendChallenge event) {
-        clientManager.sendCommand(
-                event.clientId(),
-                String.format("CHALLENGE %s %s", event.usernameToChallenge(), event.gameType()));
+        sendCommand(event.clientId(), String.format("CHALLENGE %s %s", event.usernameToChallenge(), event.gameType()));
     }
 
     private void handleSendAcceptChallenge(NetworkEvents.SendAcceptChallenge event) {
-        clientManager.sendCommand(event.clientId(), String.format("CHALLENGE ACCEPT %d", event.challengeId()));
+        sendCommand(event.clientId(), String.format("CHALLENGE ACCEPT %d", event.challengeId()));
     }
 
     private void handleSendForfeit(NetworkEvents.SendForfeit event) {
-        clientManager.sendCommand(event.clientId(), "FORFEIT");
+        sendCommand(event.clientId(), "FORFEIT");
     }
 
     private void handleSendMessage(NetworkEvents.SendMessage event) {
-        clientManager.sendCommand(event.clientId(), String.format("MESSAGE %s", event.message()));
+        sendCommand(event.clientId(), String.format("MESSAGE %s", event.message()));
     }
 
     private void handleSendHelp(NetworkEvents.SendHelp event) {
-        clientManager.sendCommand(event.clientId(), "HELP");
+        sendCommand(event.clientId(), "HELP");
     }
 
     private void handleSendHelpForCommand(NetworkEvents.SendHelpForCommand event) {
-        clientManager.sendCommand(event.clientId(), String.format("HELP %s", event.command()));
+        sendCommand(event.clientId(), String.format("HELP %s", event.command()));
     }
 
-    private void handleChangeClientHost(NetworkEvents.ChangeClientHost event) {
-//        NetworkingClient client = this.networkClients.get(event.clientId());
-//        client.closeConnection();
-//        startClientRequest(event.ip(), event.port(), event.clientId());
+    private void handleReconnect(NetworkEvents.Reconnect event) {
+        try {
+            clientManager.reconnect(event.clientId(), event.networkingReconnect());
+        } catch (ClientNotFoundException e) {
+            logger.error(e);
+        }
+    }
+
+    private void handleChangeAddress(NetworkEvents.ChangeAddress event) {
+        try {
+            clientManager.changeAddress(event.clientId(), event.ip(),  event.port(), event.networkingReconnect());
+        } catch (ClientNotFoundException e) {
+            logger.error(e);
+        }
     }
 
     void handleCloseClient(NetworkEvents.CloseClient event) {
-        this.clientManager.closeClient(event.clientId());
+        try {
+            this.clientManager.closeClient(event.clientId());
+        } catch (ClientNotFoundException e) {
+            logger.error(e);
+        }
     }
 
     void handleGetAllConnections(NetworkEvents.RequestsAllClients request) {
 //        List<NetworkingClient> a = new ArrayList<>(this.networkClients.values());
 //        request.future().complete(a);
+        // TODO
     }
 
     public void handleShutdownAll(NetworkEvents.ForceCloseAllClients request) {
