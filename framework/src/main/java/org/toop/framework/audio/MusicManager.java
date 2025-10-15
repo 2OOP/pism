@@ -2,12 +2,18 @@ package org.toop.framework.audio;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.dispatch.interfaces.Dispatcher;
 import org.toop.framework.dispatch.JavaFXDispatcher;
 import org.toop.annotations.TestsOnly;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.resource.types.AudioResource;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MusicManager<T extends AudioResource> implements org.toop.framework.audio.interfaces.MusicManager<T> {
     private static final Logger logger = LogManager.getLogger(MusicManager.class);
@@ -93,19 +99,32 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
             current.play();
 
             setTrackRunnable(current);
-
         });
     }
 
     private void setTrackRunnable(T track) {
+
+
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        Runnable currentMusicTask = new Runnable() {
+            @Override
+            public void run() {
+                GlobalEventBus.post(new AudioEvents.PlayingMusic(track.getName(), track.currentPosition(), track.duration()));
+                scheduler.schedule(this, 1, TimeUnit.SECONDS);
+            }
+        };
+
         track.setOnEnd(() -> {
             playingIndex++;
+            scheduler.shutdown();
             playCurrentTrack();
         });
 
         track.setOnError(() -> {
             logger.error("Error playing track: {}", track);
             backgroundMusic.remove(track);
+            scheduler.shutdown();
 
             if (!backgroundMusic.isEmpty()) {
                 playCurrentTrack();
@@ -113,7 +132,10 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
                 playing = false;
             }
         });
+
+        scheduler.schedule(currentMusicTask, 0, TimeUnit.MILLISECONDS);
     }
+
     @Override
     public void stop() {
         if (!playing) return;

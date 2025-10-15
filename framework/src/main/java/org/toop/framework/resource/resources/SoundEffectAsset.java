@@ -144,4 +144,15 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
         if (this.clip.isRunning()) this.clip.stop();
     }
 
+    @Override
+    public long duration() {
+        return 0; // TODO
+    }
+
+    @Override
+    public long currentPosition() {
+        return 0; // TODO
+    }
+
+
 }

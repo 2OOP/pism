@@ -18,6 +18,8 @@ public class AudioEvents extends EventsBase {
     /** Start background music. */
     public record StartBackgroundMusic() implements GenericEvent {}
 
+    public record PlayingMusic(String name, long currentPosition, long duration) implements GenericEvent {}
+
     /** Change volume, choose type with {@link VolumeControl}. */
     public record ChangeVolume(double newVolume, VolumeControl controlType) implements GenericEvent {}
 
