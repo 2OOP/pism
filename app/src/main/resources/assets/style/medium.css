@@ -1,11 +1,51 @@
-.text-header {
-	-fx-font-family: "Arial";
+.button {
+	-fx-background-radius: 6;
+	-fx-cursor: hand;
+	-fx-padding: 10 20;
+}
+
+.combo-box {
+	-fx-background-radius: 4;
+	-fx-cursor: hand;
+	-fx-padding: 8;
+}
+
+.combo-box .arrow-button {
+	-fx-padding: 0;
+}
+
+.combo-box-popup .list-cell {
+	-fx-padding: 5 0 5 0;
+}
+
+.container {
+	-fx-padding: 20;
+	-fx-spacing: 10;
+}
+
+.current-player {
+	-fx-font-size: 24px;
+}
+
+.header {
 	-fx-font-size: 20px;
 	-fx-font-weight: bold;
 }
 
-.text-normal {
-	-fx-font-family: "Arial";
+.input {
+	-fx-background-radius: 4;
+	-fx-padding: 8;
+}
+
+.separator {
+	-fx-padding: 10 0;
+}
+
+.slider {
+	-fx-padding: 6 0;
+}
+
+.text {
 	-fx-font-size: 16px;
 	-fx-font-weight: normal;
 }
