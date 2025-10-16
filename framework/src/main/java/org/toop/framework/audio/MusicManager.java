@@ -126,13 +126,13 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         };
 
         track.setOnEnd(() -> {
-            scheduler.shutdown();
+            scheduler.shutdownNow();
             playingIndex++;
             playCurrentTrack();
         });
 
         track.setOnError(() -> {
-            scheduler.shutdown();
+            scheduler.shutdownNow();
             logger.error("Error playing track: {}", track);
             backgroundMusic.remove(track);
 
