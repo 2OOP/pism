@@ -35,6 +35,8 @@ public class SongDisplay extends VBox {
         progressText = new Text("0:00/0:00");
         progressText.getStyleClass().add("progress-text");
 
+        // TODO ADD BETTER CSS FOR THE SKIPBUTTON WHERE ITS AT A NICER POSITION
+
         Button skipButton = new Button(">>");
         skipButton.getStyleClass().setAll("skip-button");
         skipButton.setOnAction( event -> {
