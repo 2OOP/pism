@@ -23,6 +23,8 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
     private final List<T> resources;
     private int playingIndex = 0;
     private boolean playing = false;
+    private ScheduledExecutorService scheduler;
+
 
     public MusicManager(List<T> resources) {
         this.dispatcher = new JavaFXDispatcher();
@@ -69,6 +71,15 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         playCurrentTrack();
     }
 
+    public void skip() {
+        if (backgroundMusic.isEmpty()) return;
+        stop();
+        scheduler.shutdownNow();
+        playingIndex = playingIndex + 1;
+        playing = true;
+        playCurrentTrack();
+    }
+
     // Used in testing
     void play(int index) {
         if (playing) {
@@ -104,8 +115,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
 
     private void setTrackRunnable(T track) {
 
-
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newSingleThreadScheduledExecutor();
 
         Runnable currentMusicTask = new Runnable() {
             @Override

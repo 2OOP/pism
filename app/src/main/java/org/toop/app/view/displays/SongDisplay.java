@@ -1,13 +1,16 @@
 package org.toop.app.view.displays;
 
 import javafx.application.Platform;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.toop.framework.audio.AudioEventListener;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import javafx.geometry.Pos;
 import javafx.scene.text.Text;
+import org.toop.framework.eventbus.GlobalEventBus;
 
 public class SongDisplay extends VBox {
 
@@ -19,27 +22,26 @@ public class SongDisplay extends VBox {
         new EventFlow()
                 .listen(this::updateTheSong);
 
-        //TODO ADD NICER CSS
-
         setAlignment(Pos.CENTER);
         getStyleClass().add("song-display");
 
-
         // TODO ADD GOOD SONG TITLES WITH ARTISTS DISPLAYED
         songTitle = new Text("song playing");
-        songTitle.setFill(Color.WHITE);
         songTitle.getStyleClass().add("song-title");
 
         progressBar = new ProgressBar(0);
         progressBar.getStyleClass().add("progress-bar");
 
         progressText = new Text("0:00/0:00");
-        progressText.setFill(Color.WHITE);
         progressText.getStyleClass().add("progress-text");
 
-        //TODO ADD SKIP BUTTON
+        Button skipButton = new Button(">>");
+        skipButton.getStyleClass().setAll("skip-button");
+        skipButton.setOnAction( event -> {
+            GlobalEventBus.post(new AudioEvents.SkipMusic());
+        });
 
-        getChildren().addAll(songTitle, progressBar, progressText);
+        getChildren().addAll(songTitle, progressBar, progressText, skipButton);
     }
 
     private void updateTheSong(AudioEvents.PlayingMusic event) {

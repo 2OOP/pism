@@ -26,6 +26,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         new EventFlow()
                 .listen(this::handleStopMusicManager)
                 .listen(this::handlePlaySound)
+                .listen(this::handleSkipSong)
                 .listen(this::handleStopSound)
                 .listen(this::handleMusicStart)
                 .listen(this::handleVolumeChange)
@@ -42,6 +43,10 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
 
     private void handlePlaySound(AudioEvents.PlayEffect event) {
         this.soundEffectManager.play(event.fileName(), event.loop());
+    }
+
+    private void handleSkipSong(AudioEvents.SkipMusic event) {
+        this.musicManager.skip();
     }
 
     private void handleStopSound(AudioEvents.StopEffect event) {
