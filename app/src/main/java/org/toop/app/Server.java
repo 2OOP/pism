@@ -29,6 +29,7 @@ public final class Server {
 
 	private long clientId = -1;
 	private List<String> onlinePlayers = new CopyOnWriteArrayList<String>();
+    private List<String> gameList = new CopyOnWriteArrayList<>();
 
 	private ServerView view;
 
@@ -80,6 +81,9 @@ public final class Server {
 				ViewStack.push(view);
 
 				startPopulateScheduler();
+
+                populateGameList();
+
 			}).postEvent();
 
 		new EventFlow().listen(this::handleReceivedChallenge);
@@ -207,16 +211,18 @@ public final class Server {
 		scheduler.schedule(() -> populatePlayerList(scheduler, getPlayerlistFlow::postEvent), 0, TimeUnit.MILLISECONDS);
 	}
 
-	public List<String> getGamesList() {
-		final List<String> list = new ArrayList<String>();
-		list.add("tic-tac-toe"); // Todo: get games list from server and check if the game is supported
-		list.add("reversi");
+    private void gamesListFromServerHandler(NetworkEvents.GamelistResponse event) {
+        gameList.addAll(List.of(event.gamelist()));
+    }
 
+	public void populateGameList() {
 		new EventFlow().addPostEvent(new NetworkEvents.SendGetGamelist(clientId))
-			.listen(NetworkEvents.GamelistResponse.class, e -> {
-				System.out.println(Arrays.toString(e.gamelist()));
-			}).postEvent();
-
-		return list;
+			.listen(NetworkEvents.GamelistResponse.class,
+				this::gamesListFromServerHandler, true
+			).postEvent();
 	}
+
+    public List<String> getGameList() {
+        return gameList;
+    }
 }
