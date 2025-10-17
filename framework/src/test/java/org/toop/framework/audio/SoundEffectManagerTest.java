@@ -40,6 +40,16 @@ class MockSoundEffectResource extends BaseResource implements AudioResource {
     }
 
     @Override
+    public long duration() {
+        return 0;
+    }
+
+    @Override
+    public long currentPosition() {
+        return 0;
+    }
+
+    @Override
     public void setOnEnd(Runnable callback) {}
 
     @Override
