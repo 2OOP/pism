@@ -143,7 +143,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
             }
         });
 
-        scheduler.schedule(currentMusicTask, 1, TimeUnit.SECONDS);
+        scheduler.schedule(currentMusicTask, 1, TimeUnit.MILLISECONDS);
     }
 
     @Override
