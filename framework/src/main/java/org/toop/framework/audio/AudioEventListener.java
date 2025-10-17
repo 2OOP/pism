@@ -5,6 +5,7 @@ import org.toop.framework.audio.interfaces.MusicManager;
 import org.toop.framework.audio.interfaces.SoundEffectManager;
 import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.resource.types.AudioResource;
 
 public class AudioEventListener<T extends AudioResource, K extends AudioResource> {
@@ -62,12 +63,9 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleGetVolume(AudioEvents.GetVolume event) {
-        new EventFlow()
-            .addPostEvent(
-                    new AudioEvents.GetVolumeResponse(
-                            audioVolumeManager.getVolume(event.controlType()),
-                            event.identifier()))
-            .asyncPostEvent();
+        GlobalEventBus.postAsync(new AudioEvents.GetVolumeResponse(
+                audioVolumeManager.getVolume(event.controlType()),
+                event.identifier()));
     }
 
 }
