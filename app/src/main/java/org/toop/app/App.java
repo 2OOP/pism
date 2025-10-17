@@ -79,6 +79,7 @@ public final class App extends Application {
 	public static void quit() {
 		ViewStack.cleanup();
 		stage.close();
+		System.exit(0); // TODO: This is like dropping a nuke
 	}
 
 	public static void reload() {

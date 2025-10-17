@@ -1,5 +1,6 @@
 package org.toop.app;
 
+import com.google.common.util.concurrent.AbstractScheduledService;
 import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
 import org.toop.app.view.ViewStack;
@@ -9,19 +10,26 @@ import org.toop.app.view.views.OnlineView;
 import org.toop.app.view.views.SendChallengeView;
 import org.toop.app.view.views.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.framework.networking.interfaces.NetworkingClient;
+import org.toop.framework.networking.types.NetworkingConnector;
 import org.toop.local.AppContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public final class Server {
 	private String user = "";
 
 	private long clientId = -1;
 	private List<String> onlinePlayers = new CopyOnWriteArrayList<String>();
+    private List<String> gameList = new CopyOnWriteArrayList<>();
 
 	private ServerView view;
 
@@ -58,8 +66,12 @@ public final class Server {
 		}
 
 		new EventFlow()
-			.addPostEvent(NetworkEvents.StartClient.class, ip, parsedPort)
+			.addPostEvent(NetworkEvents.StartClient.class,
+					new TournamentNetworkingClient(),
+					new NetworkingConnector(ip, parsedPort, 10, 1, TimeUnit.SECONDS)
+			)
 			.onResponse(NetworkEvents.StartClientResponse.class, e -> {
+				// TODO add if unsuccessful
 				this.user = user;
 				clientId = e.clientId();
 
@@ -68,30 +80,23 @@ public final class Server {
 				view = new ServerView(user, this::sendChallenge, this::disconnect);
 				ViewStack.push(view);
 
-				startPopulateThread();
+				startPopulateScheduler();
+
+                populateGameList();
+
 			}).postEvent();
 
 		new EventFlow().listen(this::handleReceivedChallenge);
 	}
 
-	private void populatePlayerList() {
-		new EventFlow().listen(NetworkEvents.PlayerlistResponse.class, e -> {
-			if (e.clientId() == clientId) {
-				onlinePlayers = new ArrayList<String>(List.of(e.playerlist()));
-				onlinePlayers.removeIf(name -> name.equalsIgnoreCase(user));
+	private void populatePlayerList(ScheduledExecutorService scheduler, Runnable populatingTask) {
 
-				view.update(onlinePlayers);
-			}
-		});
+		final long DELAY = 5;
 
-		final EventFlow sendGetPlayerList = new EventFlow().addPostEvent(new NetworkEvents.SendGetPlayerlist(clientId));
-
-		while (isPolling) {
-			sendGetPlayerList.postEvent();
-
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException _) {}
+		if (!isPolling) scheduler.shutdown();
+		else {
+			populatingTask.run();
+			scheduler.schedule(() -> populatePlayerList(scheduler, populatingTask), DELAY, TimeUnit.SECONDS);
 		}
 	}
 
@@ -173,6 +178,7 @@ public final class Server {
 
 	private void disconnect() {
 		new EventFlow().addPostEvent(new NetworkEvents.CloseClient(clientId)).postEvent();
+		isPolling = false;
 		ViewStack.push(new OnlineView());
 	}
 
@@ -184,27 +190,39 @@ public final class Server {
 		forfeitGame();
 
 		ViewStack.push(view);
-		startPopulateThread();
+		startPopulateScheduler();
 	}
 
-	private void startPopulateThread() {
+	private void startPopulateScheduler() {
 		isPolling = true;
 
-		final Thread populateThread = new Thread(this::populatePlayerList);
-		populateThread.setDaemon(false);
-		populateThread.start();
+		EventFlow getPlayerlistFlow = new EventFlow()
+			.addPostEvent(new NetworkEvents.SendGetPlayerlist(clientId))
+			.listen(NetworkEvents.PlayerlistResponse.class, e -> {
+			if (e.clientId() == clientId) {
+				onlinePlayers = new ArrayList<>(List.of(e.playerlist()));
+				onlinePlayers.removeIf(name -> name.equalsIgnoreCase(user));
+
+				view.update(onlinePlayers);
+			}
+		}, false);
+
+		final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.schedule(() -> populatePlayerList(scheduler, getPlayerlistFlow::postEvent), 0, TimeUnit.MILLISECONDS);
 	}
 
-	public List<String> getGamesList() {
-		final List<String> list = new ArrayList<String>();
-		list.add("tic-tac-toe"); // Todo: get games list from server and check if the game is supported
-		list.add("reversi");
+    private void gamesListFromServerHandler(NetworkEvents.GamelistResponse event) {
+        gameList.addAll(List.of(event.gamelist()));
+    }
 
+	public void populateGameList() {
 		new EventFlow().addPostEvent(new NetworkEvents.SendGetGamelist(clientId))
-			.listen(NetworkEvents.GamelistResponse.class, e -> {
-				System.out.println(Arrays.toString(e.gamelist()));
-			}).postEvent();
-
-		return list;
+			.listen(NetworkEvents.GamelistResponse.class,
+				this::gamesListFromServerHandler, true
+			).postEvent();
 	}
+
+    public List<String> getGameList() {
+        return gameList;
+    }
 }
