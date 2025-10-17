@@ -46,7 +46,7 @@ public final class SendChallengeView extends View {
 		gameText.setText(AppContext.getString("to-a-game-of"));
 
 		final ComboBox<String> gamesCombobox = combobox();
-		gamesCombobox.getItems().addAll(server.getGamesList());
+		gamesCombobox.getItems().addAll(server.getGameList());
 		gamesCombobox.setValue(gamesCombobox.getItems().getFirst());
 
 		final Button sendButton = button();

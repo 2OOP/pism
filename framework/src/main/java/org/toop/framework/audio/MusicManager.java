@@ -26,10 +26,13 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
     private ScheduledExecutorService scheduler;
 
 
-    public MusicManager(List<T> resources) {
+    public MusicManager(List<T> resources, boolean shuffleMusic) {
         this.dispatcher = new JavaFXDispatcher();
         this.resources = resources;
-        createShuffled();
+        // Shuffle if wanting to shuffle
+        if (shuffleMusic) createShuffled();
+        else backgroundMusic.addAll(resources);
+        // ------------------------------
     }
 
     /**

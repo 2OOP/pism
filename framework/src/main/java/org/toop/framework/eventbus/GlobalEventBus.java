@@ -134,7 +134,8 @@ public final class GlobalEventBus {
             for (Consumer<? super EventType> listener : classListeners) {
                 try {
                     listener.accept(event);
-                } catch (Throwable ignored) {
+                } catch (Throwable e) {
+//                    e.printStackTrace();
                 }
             }
         }
@@ -146,7 +147,8 @@ public final class GlobalEventBus {
             for (Consumer<? super EventType> listener : genericListeners) {
                 try {
                     listener.accept(event);
-                } catch (Throwable ignored) {
+                } catch (Throwable e) {
+                    // e.printStackTrace();
                 }
             }
         }

@@ -1,4 +1,4 @@
-package org.toop.framework.networking;
+package org.toop.framework.networking.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
