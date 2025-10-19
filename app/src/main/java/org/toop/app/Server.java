@@ -1,6 +1,7 @@
 package org.toop.app;
 
 import com.google.common.util.concurrent.AbstractScheduledService;
+import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
 import org.toop.app.view.ViewStack;
@@ -40,7 +41,11 @@ public final class Server {
 			return GameInformation.Type.TICTACTOE;
 		} else if (game.equalsIgnoreCase("reversi")) {
 			return GameInformation.Type.REVERSI;
-		}
+		} else if (game.equalsIgnoreCase("connect4")) {
+            return GameInformation.Type.CONNECT4;
+        } else if (game.equalsIgnoreCase("battleship")) {
+            return GameInformation.Type.BATTLESHIP;
+        }
 
 		return null;
 	}
@@ -123,6 +128,7 @@ public final class Server {
 						switch (type) {
 							case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
 							case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
+                            case CONNECT4: new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
 						}
 					}
 				}).postEvent();
@@ -166,6 +172,7 @@ public final class Server {
 					switch (type) {
 						case TICTACTOE: new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
 						case REVERSI: new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
+                        case CONNECT4: new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage); break;
 					}
 				}
 			});

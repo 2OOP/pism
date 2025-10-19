@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public abstract class GameCanvas {
@@ -48,31 +49,30 @@ public abstract class GameCanvas {
 
 		cells = new Cell[rowSize * columnSize];
 
-		final float cellWidth = ((float)width - gapSize * rowSize - gapSize) / rowSize;
-		final float cellHeight = ((float)height - gapSize * columnSize - gapSize) / columnSize;
+		final float cellWidth = ((float)width - gapSize * columnSize - gapSize) / columnSize;
+		final float cellHeight = ((float)height - gapSize * rowSize - gapSize) / rowSize;
 
-		for (int y = 0; y < columnSize; y++) {
+		for (int y = 0; y < rowSize; y++) {
 			final float startY = y * cellHeight + y * gapSize + gapSize;
 
-			for (int x = 0; x < rowSize; x++) {
+			for (int x = 0; x < columnSize; x++) {
 				final float startX = x * cellWidth + x * gapSize + gapSize;
-				cells[x + y * rowSize] = new Cell(startX, startY, cellWidth, cellHeight);
+				cells[x + y * columnSize] = new Cell(startX, startY, cellWidth, cellHeight);
 			}
 		}
-
 		canvas.setOnMouseClicked(event -> {
 			if (event.getButton() != MouseButton.PRIMARY) {
 				return;
 			}
 
-			final int column = (int)((event.getX() / this.width) * rowSize);
-			final int row = (int)((event.getY() / this.height) * columnSize);
+			final int column = (int)((event.getX() / this.width) * columnSize);
+			final int row = (int)((event.getY() / this.height) * rowSize);
 
-			final Cell cell = cells[column + row * rowSize];
+			final Cell cell = cells[column + row * columnSize];
 
 			if (cell.isInside(event.getX(), event.getY())) {
 				event.consume();
-				onCellClicked.accept(column + row * rowSize);
+				onCellClicked.accept(column + row * columnSize);
 			}
 		});
 
@@ -91,12 +91,12 @@ public abstract class GameCanvas {
 	public void render() {
 		graphics.setFill(color);
 
-		for (int x = 0; x < rowSize - 1; x++) {
+		for (int x = 0; x < columnSize - 1; x++) {
 			final float start = cells[x].x + cells[x].width;
 			graphics.fillRect(start, gapSize, gapSize, height - gapSize * 2);
 		}
 
-		for (int y = 0; y < columnSize - 1; y++) {
+		for (int y = 0; y < rowSize; y++) {
 			final float start = cells[y * rowSize].y + cells[y * rowSize].height;
 			graphics.fillRect(gapSize, start, width - gapSize * 2, gapSize);
 		}
@@ -120,6 +120,33 @@ public abstract class GameCanvas {
 		graphics.setFill(color);
 		graphics.fillRect(x, y, width, height);
 	}
+
+    public void drawX(Color color, int cell) {
+        graphics.setStroke(color);
+        graphics.setLineWidth(gapSize);
+
+        final float x = cells[cell].x() + gapSize;
+        final float y = cells[cell].y() + gapSize;
+
+        final float width = cells[cell].width() - gapSize * 2;
+        final float height = cells[cell].height() - gapSize * 2;
+
+        graphics.strokeLine(x, y, x + width, y + height);
+        graphics.strokeLine(x + width, y, x, y + height);
+    }
+
+    public void drawO(Color color, int cell) {
+        graphics.setStroke(color);
+        graphics.setLineWidth(gapSize);
+
+        final float x = cells[cell].x() + gapSize;
+        final float y = cells[cell].y() + gapSize;
+
+        final float width = cells[cell].width() - gapSize * 2;
+        final float height = cells[cell].height() - gapSize * 2;
+
+        graphics.strokeOval(x, y, width, height);
+    }
 
 	public Canvas getCanvas() {
 		return canvas;

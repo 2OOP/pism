@@ -23,10 +23,15 @@ public final class LocalView extends View {
 		reversiButton.setText(AppContext.getString("reversi"));
 		reversiButton.setOnAction(_ -> { ViewStack.push(new LocalMultiplayerView(GameInformation.Type.REVERSI)); });
 
-		add(Pos.CENTER,
+        final Button connect4Button = button();
+        connect4Button.setText(AppContext.getString("connect4"));
+        connect4Button.setOnAction(_ -> { ViewStack.push(new LocalMultiplayerView(GameInformation.Type.CONNECT4)); });
+
+        add(Pos.CENTER,
 			fit(vboxFill(
 				ticTacToeButton,
-				reversiButton
+				reversiButton,
+                connect4Button
 			))
 		);
 
