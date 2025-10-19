@@ -83,6 +83,11 @@ public abstract class GameCanvas {
 		graphics.clearRect(0, 0, width, height);
 	}
 
+    public void clearCell(int cellIndex) {
+        Cell cell =  cells[cellIndex];
+        graphics.clearRect(cell.x, cell.y, cell.width, cell.height);
+    }
+
 	public void render() {
 		graphics.setFill(color);
 

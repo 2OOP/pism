@@ -15,6 +15,7 @@ public final class Reversi extends TurnBasedGame {
     private int movesTaken;
     public static final char FIRST_MOVE = 'B';
     private Set<Point> filledCells = new HashSet<>();
+    private Move[] mostRecentlyFlippedPieces;
 
 	public Reversi() {
 		super(8, 8, 2);
@@ -138,14 +139,14 @@ public final class Reversi extends TurnBasedGame {
             }
         }
         if (moveIsLegal) {
-            Move[] moves = getFlipsForPotentialMove(new Point(move.position()%columnSize,move.position()/rowSize), makeBoardAGrid(), move.value());
+            Move[] moves = sortMovesFromCenter(getFlipsForPotentialMove(new Point(move.position()%columnSize,move.position()/rowSize), makeBoardAGrid(), move.value()),move);
+            mostRecentlyFlippedPieces = moves;
             board[move.position()] = move.value();
             IO.println(move.position() +" "+ move.value());
             for (Move m : moves) {
                 board[m.position()] = m.value();
             }
             filledCells.add(new Point(move.position() % rowSize, move.position() / columnSize));
-            //updateFilledCellsSet();
             nextTurn();
             if (getLegalMoves().length == 0) {
                 skipMyTurn();
@@ -153,12 +154,12 @@ public final class Reversi extends TurnBasedGame {
             }
             return State.NORMAL;
         }
-
         return null;
     }
 
     public void skipMyTurn(){
         IO.println("TURN " + getCurrentPlayer() + "  SKIPPED");
+        //todo notify user that a turn has been skipped
         nextTurn();
     }
 
@@ -192,5 +193,25 @@ public final class Reversi extends TurnBasedGame {
         }
         return new Game.Score(player1Score, player2Score);
     }
+    public Move[] sortMovesFromCenter(Move[] moves, Move center) {
+        int centerX = center.position()%columnSize;
+        int centerY = center.position()/rowSize;
+        IO.println("pre "+Arrays.toString(moves));
+        Arrays.sort(moves, (a, b) -> {
+            int dxA = a.position()%columnSize - centerX;
+            int dyA = a.position()/rowSize - centerY;
+            int dxB = b.position()%columnSize - centerX;
+            int dyB = b.position()/rowSize - centerY;
 
+            int distA = dxA * dxA + dyA * dyA;
+            int distB = dxB * dxB + dyB * dyB;
+
+            return Integer.compare(distA, distB);
+        });
+        IO.println("post "+Arrays.toString(moves));
+        return moves;
+    }
+    public Move[] getMostRecentlyFlippedPieces() {
+        return mostRecentlyFlippedPieces;
+    }
 }
