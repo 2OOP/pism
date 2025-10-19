@@ -150,7 +150,18 @@ public final class Reversi extends TurnBasedGame {
             nextTurn();
             if (getLegalMoves().length == 0) {
                 skipMyTurn();
-                return State.MOVE_SKIPPED;
+                if (getLegalMoves().length > 0) {
+                    return State.MOVE_SKIPPED;
+                }
+                else {
+                    Score score = getScore();
+                    if (score.player1Score() == score.player2Score()) {
+                        return State.DRAW;
+                    }
+                    else {
+                        return State.WIN;
+                    }
+                }
             }
             return State.NORMAL;
         }
@@ -184,10 +195,10 @@ public final class Reversi extends TurnBasedGame {
     public Game.Score getScore(){
         int player1Score = 0, player2Score = 0;
         for (int count = 0; count < rowSize * columnSize; count++) {
-            if (board[count] == 'W') {
+            if (board[count] == 'B') {
                 player1Score += 1;
             }
-            if (board[count] == 'B') {
+            if (board[count] == 'W') {
                 player2Score += 1;
             }
         }
