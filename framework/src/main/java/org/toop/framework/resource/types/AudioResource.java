@@ -9,4 +9,5 @@ public interface AudioResource {
     long currentPosition();
     void setOnEnd(Runnable run);
     void setOnError(Runnable run);
+    void pause();
 }

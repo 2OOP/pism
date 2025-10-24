@@ -6,4 +6,6 @@ public interface MusicManager<T extends AudioResource> extends AudioManager<T> {
     void play();
     void stop();
     void skip();
+    void previous();
+    void pause();
 }

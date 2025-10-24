@@ -3,6 +3,7 @@ package org.toop.app.view.displays;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.toop.framework.audio.AudioEventListener;
@@ -38,12 +39,30 @@ public class SongDisplay extends VBox {
         // TODO ADD BETTER CSS FOR THE SKIPBUTTON WHERE ITS AT A NICER POSITION
 
         Button skipButton = new Button(">>");
+        Button pauseButton = new Button("⏸");
+        Button previousButton = new Button("<<");
+
         skipButton.getStyleClass().setAll("skip-button");
+        pauseButton.getStyleClass().setAll("pause-button");
+        previousButton.getStyleClass().setAll("previous-button");
+
         skipButton.setOnAction( event -> {
             GlobalEventBus.post(new AudioEvents.SkipMusic());
         });
 
-        getChildren().addAll(songTitle, progressBar, progressText, skipButton);
+        pauseButton.setOnAction(event -> {
+            GlobalEventBus.post(new AudioEvents.PauseMusic());
+        });
+
+        previousButton.setOnAction( event -> {
+            GlobalEventBus.post(new AudioEvents.PreviousMusic());
+        });
+
+        HBox control = new HBox(10, previousButton, pauseButton, skipButton);
+        control.setAlignment(Pos.CENTER);
+        control.getStyleClass().add("controls");
+
+        getChildren().addAll(songTitle, progressBar, progressText, control);
     }
 
     private void updateTheSong(AudioEvents.PlayingMusic event) {

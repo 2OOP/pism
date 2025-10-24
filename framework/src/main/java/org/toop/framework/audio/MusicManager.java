@@ -23,6 +23,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
     private final List<T> resources;
     private int playingIndex = 0;
     private boolean playing = false;
+    private long pausedPosition = 0;
     private ScheduledExecutorService scheduler;
 
 
@@ -155,5 +156,30 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
 
         playing = false;
         dispatcher.run(() -> backgroundMusic.forEach(T::stop));
+    }
+
+    public void pause() {
+        T current = backgroundMusic.get(playingIndex);
+        if (this.playing) {
+            current.pause();
+            playing = false;
+        }
+        else {
+            this.playing = true;
+            dispatcher.run(() -> {
+                current.play();
+                setTrackRunnable(current);
+            });
+        }
+    }
+
+    public void previous() {
+        if (backgroundMusic.isEmpty()) return;
+        if (playingIndex == 0) return;
+        stop();
+        scheduler.shutdownNow();
+        playingIndex = playingIndex - 1;
+        playing = true;
+        playCurrentTrack();
     }
 }
