@@ -52,6 +52,12 @@ public class SongDisplay extends VBox {
 
         pauseButton.setOnAction(event -> {
             GlobalEventBus.post(new AudioEvents.PauseMusic());
+            if (pauseButton.getText().equals("⏸")) {
+                pauseButton.setText("▶");
+            }
+            else if (pauseButton.getText().equals("▶")) {
+                pauseButton.setText("⏸");
+            }
         });
 
         previousButton.setOnAction( event -> {
