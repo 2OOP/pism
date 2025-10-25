@@ -6,8 +6,6 @@ import java.util.function.Consumer;
 
 public class Connect4Canvas extends GameCanvas {
     public Connect4Canvas(Color color, int width, int height, Consumer<Integer> onCellClicked) {
-        super(color, width, height, 6, 7, 10, true, onCellClicked);
+        super(color, width, height, 7, 6, 10, true, onCellClicked);
     }
-
-
 }

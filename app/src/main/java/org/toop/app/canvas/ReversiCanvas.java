@@ -10,17 +10,6 @@ public final class ReversiCanvas extends GameCanvas {
 		drawStartingDots();
 	}
 
-	public void drawDot(Color color, int cell) {
-		final float x = cells[cell].x() + gapSize;
-		final float y = cells[cell].y() + gapSize;
-
-		final float width = cells[cell].width() - gapSize * 2;
-		final float height = cells[cell].height() - gapSize * 2;
-
-		graphics.setFill(color);
-		graphics.fillOval(x, y, width, height);
-	}
-
 	public void drawStartingDots() {
 		drawDot(Color.BLACK, 28);
 		drawDot(Color.WHITE, 36);

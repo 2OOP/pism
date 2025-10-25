@@ -1,11 +1,13 @@
 package org.toop.app.canvas;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 
 public abstract class GameCanvas {
@@ -49,54 +51,46 @@ public abstract class GameCanvas {
 
 		cells = new Cell[rowSize * columnSize];
 
-		final float cellWidth = ((float)width - gapSize * columnSize - gapSize) / columnSize;
-		final float cellHeight = ((float)height - gapSize * rowSize - gapSize) / rowSize;
+		final float cellWidth = ((float) width - gapSize * rowSize - gapSize) / rowSize;
+		final float cellHeight = ((float) height - gapSize * columnSize - gapSize) / columnSize;
 
-		for (int y = 0; y < rowSize; y++) {
+		for (int y = 0; y < columnSize; y++) {
 			final float startY = y * cellHeight + y * gapSize + gapSize;
 
-			for (int x = 0; x < columnSize; x++) {
+			for (int x = 0; x < rowSize; x++) {
 				final float startX = x * cellWidth + x * gapSize + gapSize;
-				cells[x + y * columnSize] = new Cell(startX, startY, cellWidth, cellHeight);
+				cells[x + y * rowSize] = new Cell(startX, startY, cellWidth, cellHeight);
 			}
 		}
+
 		canvas.setOnMouseClicked(event -> {
 			if (event.getButton() != MouseButton.PRIMARY) {
 				return;
 			}
 
-			final int column = (int)((event.getX() / this.width) * columnSize);
-			final int row = (int)((event.getY() / this.height) * rowSize);
+			final int column = (int) ((event.getX() / this.width) * rowSize);
+			final int row = (int) ((event.getY() / this.height) * columnSize);
 
-			final Cell cell = cells[column + row * columnSize];
+			final Cell cell = cells[column + row * rowSize];
 
 			if (cell.isInside(event.getX(), event.getY())) {
 				event.consume();
-				onCellClicked.accept(column + row * columnSize);
+				onCellClicked.accept(column + row * rowSize);
 			}
 		});
 
 		render();
 	}
 
-	public void clear() {
-		graphics.clearRect(0, 0, width, height);
-	}
-
-    public void clearCell(int cellIndex) {
-        Cell cell =  cells[cellIndex];
-        graphics.clearRect(cell.x, cell.y, cell.width, cell.height);
-    }
-
-	public void render() {
+	private void render() {
 		graphics.setFill(color);
 
-		for (int x = 0; x < columnSize - 1; x++) {
+		for (int x = 0; x < rowSize - 1; x++) {
 			final float start = cells[x].x + cells[x].width;
 			graphics.fillRect(start, gapSize, gapSize, height - gapSize * 2);
 		}
 
-		for (int y = 0; y < rowSize; y++) {
+		for (int y = 0; y < columnSize - 1; y++) {
 			final float start = cells[y * rowSize].y + cells[y * rowSize].height;
 			graphics.fillRect(gapSize, start, width - gapSize * 2, gapSize);
 		}
@@ -121,32 +115,72 @@ public abstract class GameCanvas {
 		graphics.fillRect(x, y, width, height);
 	}
 
-    public void drawX(Color color, int cell) {
-        graphics.setStroke(color);
-        graphics.setLineWidth(gapSize);
+	public void clear(int cell) {
+		final float x = cells[cell].x();
+		final float y = cells[cell].y();
 
-        final float x = cells[cell].x() + gapSize;
-        final float y = cells[cell].y() + gapSize;
+		final float width = cells[cell].width();
+		final float height = cells[cell].height();
 
-        final float width = cells[cell].width() - gapSize * 2;
-        final float height = cells[cell].height() - gapSize * 2;
+		graphics.clearRect(x, y, width, height);
+	}
 
-        graphics.strokeLine(x, y, x + width, y + height);
-        graphics.strokeLine(x + width, y, x, y + height);
-    }
+	public void clearAll() {
+		for (int i = 0; i < cells.length; i++) {
+			clear(i);
+		}
+	}
 
-    public void drawO(Color color, int cell) {
-        graphics.setStroke(color);
-        graphics.setLineWidth(gapSize);
+	public void drawDot(Color color, int cell) {
+		final float x = cells[cell].x() + gapSize;
+		final float y = cells[cell].y() + gapSize;
 
-        final float x = cells[cell].x() + gapSize;
-        final float y = cells[cell].y() + gapSize;
+		final float width = cells[cell].width() - gapSize * 2;
+		final float height = cells[cell].height() - gapSize * 2;
 
-        final float width = cells[cell].width() - gapSize * 2;
-        final float height = cells[cell].height() - gapSize * 2;
+		graphics.setFill(color);
+		graphics.fillOval(x, y, width, height);
+	}
 
-        graphics.strokeOval(x, y, width, height);
-    }
+	private void drawDotScaled(Color color, int cell, double scale) {
+		final float cx = cells[cell].x() + gapSize;
+		final float cy = cells[cell].y() + gapSize;
+
+		final float fullWidth = cells[cell].width() - gapSize * 2;
+		final float height = cells[cell].height() - gapSize * 2;
+
+		final float scaledWidth = (float)(fullWidth * scale);
+		final float offsetX = (fullWidth - scaledWidth) / 2;
+
+		graphics.setFill(color);
+		graphics.fillOval(cx + offsetX, cy, scaledWidth, height);
+	}
+
+	public Timeline flipDot(Color fromColor, Color toColor, int cell) {
+		final int steps = 60;
+		final long duration = 250;
+		final double interval = duration / (double) steps;
+
+		final Timeline timeline = new Timeline();
+
+		for (int i = 0; i <= steps; i++) {
+			final double t = i / (double) steps;
+			final KeyFrame keyFrame = new KeyFrame(Duration.millis(i * interval),
+				_ -> {
+					clear(cell);
+
+					final double scale = t <= 0.5 ? 1 - 2 * t : 2 * t - 1;
+					final Color currentColor = t < 0.5 ? fromColor : toColor;
+
+					drawDotScaled(currentColor, cell, scale);
+				}
+			);
+
+			timeline.getKeyFrames().add(keyFrame);
+		}
+
+		return timeline;
+	}
 
 	public Canvas getCanvas() {
 		return canvas;

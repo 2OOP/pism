@@ -1,5 +1,8 @@
 package org.toop.app.game;
 
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.ReversiCanvas;
@@ -33,6 +36,7 @@ public final class ReversiGame {
 	private final ReversiCanvas canvas;
 
 	private final AtomicBoolean isRunning;
+	private final AtomicBoolean isPaused;
 
 	public ReversiGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		this.information = information;
@@ -44,6 +48,7 @@ public final class ReversiGame {
 		ai = new ReversiAI();
 
 		isRunning = new AtomicBoolean(true);
+		isPaused = new AtomicBoolean(false);
 
 		if (onForfeit == null || onExit == null) {
 			view = new GameView(null, () -> {
@@ -93,7 +98,7 @@ public final class ReversiGame {
 			setGameLabels(myTurn == 0);
 		}
 
-		updateCanvas();
+		updateCanvas(false);
 	}
 
 	public ReversiGame(GameInformation information) {
@@ -102,14 +107,16 @@ public final class ReversiGame {
 
 	private void localGameThread() {
 		while (isRunning.get()) {
-			final int currentTurn = game.getCurrentTurn();
-			final char currentValue = currentTurn == 0? 'B' : 'W';
-			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
+			if (isPaused.get()) {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException _) {}
 
-			view.nextPlayer(information.players[currentTurn].isHuman,
-				information.players[currentTurn].name,
-				String.valueOf(currentValue),
-				information.players[nextTurn].name);
+				continue;
+			}
+
+			final int currentTurn = game.getCurrentTurn();
+			setGameLabels(information.players[currentTurn].isHuman);
 
 			Game.Move move = null;
 
@@ -146,7 +153,7 @@ public final class ReversiGame {
 			}
 
 			final Game.State state = game.play(move);
-			updateCanvas();
+			updateCanvas(true);
 
 			if (state != Game.State.NORMAL) {
 				if (state == Game.State.WIN) {
@@ -188,7 +195,7 @@ public final class ReversiGame {
 			}
 		}
 
-		updateCanvas();
+		updateCanvas(false);
 		setGameLabels(game.getCurrentTurn() == myTurn);
 	}
 
@@ -224,11 +231,9 @@ public final class ReversiGame {
 		view.updateChat(msg.message());
 	}
 
-	private void updateCanvas() {
+	private void updateCanvas(boolean animate) {
 		// Todo: this is very inefficient. still very fast but if the grid is bigger it might cause issues. improve.
-
-		canvas.clear();
-		canvas.render();
+		canvas.clearAll();
 
 		for (int i = 0; i < game.board.length; i++) {
 			if (game.board[i] == 'B') {
@@ -238,20 +243,44 @@ public final class ReversiGame {
 			}
 		}
 
-		final Game.Move[] legalMoves = game.getLegalMoves();
+		final Game.Move[] flipped = game.getMostRecentlyFlippedPieces();
 
-		for (final Game.Move legalMove : legalMoves) {
-			canvas.drawLegalPosition(legalMove.position());
+		final SequentialTransition animation = new SequentialTransition();
+		isPaused.set(true);
+
+		if (animate && flipped != null) {
+			for (final Game.Move flip : flipped) {
+				canvas.clear(flip.position());
+
+				final Color from = flip.value() == 'W' ? Color.BLACK : Color.WHITE;
+				final Color to = flip.value() == 'W' ? Color.WHITE : Color.BLACK;
+
+				canvas.drawDot(from, flip.position());
+
+				animation.getChildren().addFirst(canvas.flipDot(from, to, flip.position()));
+			}
 		}
+
+		animation.setOnFinished(_ -> {
+			isPaused.set(false);
+
+			final Game.Move[] legalMoves = game.getLegalMoves();
+
+			for (final Game.Move legalMove : legalMoves) {
+				canvas.drawLegalPosition(legalMove.position());
+			}
+		});
+
+		animation.play();
 	}
 
 	private void setGameLabels(boolean isMe) {
 		final int currentTurn = game.getCurrentTurn();
-		final char currentValue = currentTurn == 0? 'B' : 'W';
+		final String currentValue = currentTurn == 0? "BLACK" : "WHITE";
 
 		view.nextPlayer(isMe,
 			information.players[isMe? 0 : 1].name,
-			String.valueOf(currentValue),
+			currentValue,
 			information.players[isMe? 1 : 0].name);
 	}
 }

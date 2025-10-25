@@ -32,7 +32,7 @@ public final class TicTacToeGame {
 	private final GameView view;
 	private final TicTacToeCanvas canvas;
 
-	private AtomicBoolean isRunning;
+	private final AtomicBoolean isRunning;
 
 	public TicTacToeGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		this.information = information;
@@ -101,13 +101,7 @@ public final class TicTacToeGame {
 	private void localGameThread() {
 		while (isRunning.get()) {
 			final int currentTurn = game.getCurrentTurn();
-			final char currentValue = currentTurn == 0? 'X' : 'O';
-			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
-
-			view.nextPlayer(information.players[currentTurn].isHuman,
-				information.players[currentTurn].name,
-				String.valueOf(currentValue),
-				information.players[nextTurn].name);
+			setGameLabels(information.players[currentTurn].isHuman);
 
 			Game.Move move = null;
 
@@ -234,11 +228,11 @@ public final class TicTacToeGame {
 
 	private void setGameLabels(boolean isMe) {
 		final int currentTurn = game.getCurrentTurn();
-		final char currentValue = currentTurn == 0? 'X' : 'O';
+		final String currentValue = currentTurn == 0? "X" : "O";
 
 		view.nextPlayer(isMe,
 			information.players[isMe? 0 : 1].name,
-			String.valueOf(currentValue),
+			currentValue,
 			information.players[isMe? 1 : 0].name);
 	}
 }

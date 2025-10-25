@@ -33,7 +33,7 @@ public class Connect4Game {
     private final GameView view;
     private final Connect4Canvas canvas;
 
-    private AtomicBoolean isRunning;
+    private final AtomicBoolean isRunning;
 
     public Connect4Game(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
         this.information = information;
@@ -101,14 +101,8 @@ public class Connect4Game {
     }
     private void localGameThread() {
         while (isRunning.get()) {
-            final int currentTurn = game.getCurrentTurn();
-            final char currentValue = currentTurn == 0? 'X' : 'O';
-            final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
-
-            view.nextPlayer(information.players[currentTurn].isHuman,
-                    information.players[currentTurn].name,
-                    String.valueOf(currentValue),
-                    information.players[nextTurn].name);
+			final int currentTurn = game.getCurrentTurn();
+			setGameLabels(information.players[currentTurn].isHuman);
 
             Game.Move move = null;
 
@@ -194,9 +188,9 @@ public class Connect4Game {
         }
 
         if (move.value() == 'X') {
-            canvas.drawX(Color.INDIANRED, move.position());
+            canvas.drawDot(Color.INDIANRED, move.position());
         } else if (move.value() == 'O') {
-            canvas.drawO(Color.ROYALBLUE, move.position());
+            canvas.drawDot(Color.ROYALBLUE, move.position());
         }
 
         updateCanvas();
@@ -239,25 +233,24 @@ public class Connect4Game {
     }
 
     private void updateCanvas() {
-        canvas.clear();
-        canvas.render();
+        canvas.clearAll();
 
         for (int i = 0; i < game.board.length; i++) {
             if (game.board[i] == 'X') {
-                canvas.drawX(Color.RED, i);
+                canvas.drawDot(Color.RED, i);
             } else if (game.board[i] == 'O') {
-                canvas.drawO(Color.BLUE, i);
+                canvas.drawDot(Color.BLUE, i);
             }
         }
     }
 
     private void setGameLabels(boolean isMe) {
         final int currentTurn = game.getCurrentTurn();
-        final char currentValue = currentTurn == 0? 'X' : 'O';
+        final String currentValue = currentTurn == 0? "RED" : "BLUE";
 
         view.nextPlayer(isMe,
                 information.players[isMe? 0 : 1].name,
-                String.valueOf(currentValue),
+                currentValue,
                 information.players[isMe? 1 : 0].name);
     }
 }
