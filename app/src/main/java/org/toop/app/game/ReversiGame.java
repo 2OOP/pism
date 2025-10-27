@@ -27,7 +27,8 @@ public final class ReversiGame {
 	private final GameInformation information;
 
 	private final int myTurn;
-	private final BlockingQueue<Game.Move> moveQueue;
+    private Runnable onGameOver;
+    private final BlockingQueue<Game.Move> moveQueue;
 
 	private final Reversi game;
 	private final ReversiAI ai;
@@ -38,11 +39,12 @@ public final class ReversiGame {
 	private final AtomicBoolean isRunning;
 	private final AtomicBoolean isPaused;
 
-	public ReversiGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
+	public ReversiGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage, Runnable onGameOver) {
 		this.information = information;
 
 		this.myTurn = myTurn;
-		moveQueue = new LinkedBlockingQueue<Game.Move>();
+        this.onGameOver = onGameOver;
+        moveQueue = new LinkedBlockingQueue<Game.Move>();
 
 		game = new Reversi();
 		ai = new ReversiAI();
@@ -102,7 +104,7 @@ public final class ReversiGame {
 	}
 
 	public ReversiGame(GameInformation information) {
-		this(information, 0, null, null, null);
+		this(information, 0, null, null, null,null);
 	}
 
 	private void localGameThread() {
@@ -187,17 +189,28 @@ public final class ReversiGame {
 			if (state == Game.State.WIN) {
 				if (response.player().equalsIgnoreCase(information.players[0].name)) {
 					view.gameOver(true, information.players[0].name);
+                    gameOver();
 				} else {
 					view.gameOver(false, information.players[1].name);
+                    gameOver();
 				}
 			} else if (state == Game.State.DRAW) {
 				view.gameOver(false, "");
+                game.play(move);
 			}
 		}
 
 		updateCanvas(false);
 		setGameLabels(game.getCurrentTurn() == myTurn);
 	}
+
+    private void gameOver() {
+        if (onGameOver == null){
+            return;
+        }
+        isRunning.set(false);
+        onGameOver.run();
+    }
 
 	private void onYourTurnResponse(NetworkEvents.YourTurnResponse response) {
 		if (!isRunning.get()) {

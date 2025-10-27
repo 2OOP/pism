@@ -23,6 +23,7 @@ public class Connect4Game {
     private final GameInformation information;
 
     private final int myTurn;
+    private Runnable onGameOver;
     private final BlockingQueue<Game.Move> moveQueue;
 
     private final Connect4 game;
@@ -35,9 +36,10 @@ public class Connect4Game {
 
     private final AtomicBoolean isRunning;
 
-    public Connect4Game(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
+    public Connect4Game(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage, Runnable onGameOver) {
         this.information = information;
         this.myTurn = myTurn;
+        this.onGameOver = onGameOver;
         moveQueue = new LinkedBlockingQueue<Game.Move>();
 
 
@@ -97,7 +99,7 @@ public class Connect4Game {
     }
 
     public Connect4Game(GameInformation information) {
-        this(information, 0, null, null, null);
+        this(information, 0, null, null, null, null);
     }
     private void localGameThread() {
         while (isRunning.get()) {
@@ -179,11 +181,14 @@ public class Connect4Game {
             if (state == Game.State.WIN) {
                 if (response.player().equalsIgnoreCase(information.players[0].name)) {
                     view.gameOver(true, information.players[0].name);
+                    gameOver();
                 } else {
                     view.gameOver(false, information.players[1].name);
+                    gameOver();
                 }
             } else if (state == Game.State.DRAW) {
                 view.gameOver(false, "");
+                gameOver();
             }
         }
 
@@ -195,6 +200,14 @@ public class Connect4Game {
 
         updateCanvas();
         setGameLabels(game.getCurrentTurn() == myTurn);
+    }
+
+    private void gameOver() {
+        if (onGameOver == null){
+            return;
+        }
+        isRunning.set(false);
+        onGameOver.run();
     }
 
     private void onYourTurnResponse(NetworkEvents.YourTurnResponse response) {

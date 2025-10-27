@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
 	private String user = "";
@@ -30,6 +31,8 @@ public final class Server {
 
 	private ServerView view;
 	private boolean isPolling = true;
+
+    private AtomicBoolean isSingleGame = new AtomicBoolean(false);
 
 	private ScheduledExecutorService scheduler;
 
@@ -93,9 +96,10 @@ public final class Server {
 	private void sendChallenge(String opponent) {
 		if (!isPolling) return;
 
+
 		ViewStack.push(new SendChallengeView(this, opponent, (playerInformation, gameType) -> {
-			new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(clientId, opponent, gameType))
-				.listen(NetworkEvents.GameMatchResponse.class, e -> {
+			new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(clientId, opponent, gameType)).postEvent();
+	/*			.listen(NetworkEvents.GameMatchResponse.class, e -> {
 					if (e.clientId() == clientId) {
 						isPolling = false;
 						onlinePlayers.clear();
@@ -120,7 +124,9 @@ public final class Server {
 							default -> ViewStack.push(new ErrorView("Unsupported game type."));
 						}
 					}
-				}).postEvent();
+				}) */
+            ViewStack.pop();
+            isSingleGame.set(true);
 		}));
 	}
 
@@ -148,13 +154,16 @@ public final class Server {
             information.players[0].computerDifficulty = 5;
             information.players[1].name = response.opponent();
 
+            Runnable onGameOverRunnable = isSingleGame.get()? null: this::gameOver;
+
+
             switch (type) {
                 case TICTACTOE ->
-                        new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
+                        new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 case REVERSI ->
-                        new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
+                        new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 case CONNECT4 ->
-                        new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
+                        new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 default -> ViewStack.push(new ErrorView("Unsupported game type."));
             }
         }
@@ -166,11 +175,11 @@ public final class Server {
 		String challengerName = extractQuotedValue(response.challengerName());
 		String gameType = extractQuotedValue(response.gameType());
 		final String finalGameType = gameType;
-
 		ViewStack.push(new ChallengeView(challengerName, gameType, (playerInformation) -> {
 			final int challengeId = Integer.parseInt(response.challengeId().replaceAll("\\D", ""));
 			new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientId, challengeId)).postEvent();
 			ViewStack.pop();
+            isSingleGame.set(true);
 
 			//new EventFlow().listen(NetworkEvents.GameMatchResponse.class, e -> {
 
@@ -200,8 +209,16 @@ public final class Server {
 		startPopulateScheduler();
 	}
 
+    private void gameOver(){
+        ViewStack.pop();
+        ViewStack.push(view);
+        startPopulateScheduler();
+
+    }
+
 	private void startPopulateScheduler() {
 		isPolling = true;
+        isSingleGame.set(false);
 		stopScheduler();
 
 		new EventFlow()

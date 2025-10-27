@@ -11,7 +11,7 @@ public final class TicTacToeAI extends AI<TicTacToe> {
 
 		final Game.Move[] legalMoves = game.getLegalMoves();
 
-		if (legalMoves.length <= 0) {
+		if (legalMoves.length == 0) {
 			return null;
 		}
 
@@ -38,6 +38,24 @@ public final class TicTacToeAI extends AI<TicTacToe> {
 
 		return bestMove != null? bestMove : legalMoves[(int)(Math.random() * legalMoves.length)];
 	}
+    public Game.Move findWorstMove(TicTacToe game, int depth){
+
+
+        Game.Move[] legalMoves = game.getLegalMoves();
+
+        int bestScore = -depth;
+        Game.Move bestMove = null;
+
+        for (final Game.Move move : legalMoves) {
+            final int score = getMoveScore(game, depth, move, false);
+
+            if (score > bestScore) {
+                bestMove = move;
+                bestScore = score;
+            }
+        }
+        return bestMove;
+    }
 
 	private int getMoveScore(TicTacToe game, int depth, Game.Move move, boolean maximizing) {
 		final TicTacToe copy = new TicTacToe(game);

@@ -56,7 +56,7 @@ public final class ChallengeView extends View {
 		final Button denyButton = button();
 		denyButton.setText(AppContext.getString("deny"));
 		denyButton.setOnAction(_ -> {
-			ViewStack.pop();
+            ViewStack.pop();
 		});
 
 		final List<Node> nodes = new ArrayList<>();
