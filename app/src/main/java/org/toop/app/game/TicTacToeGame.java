@@ -101,7 +101,13 @@ public final class TicTacToeGame {
 	private void localGameThread() {
 		while (isRunning.get()) {
 			final int currentTurn = game.getCurrentTurn();
-			setGameLabels(information.players[currentTurn].isHuman);
+			final String currentValue = currentTurn == 0? "X" : "O";
+			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
+
+			view.nextPlayer(information.players[currentTurn].isHuman,
+				information.players[currentTurn].name,
+				currentValue,
+				information.players[nextTurn].name);
 
 			Game.Move move = null;
 
