@@ -211,8 +211,6 @@ public class Connect4Game {
     }
 
     private void onYourTurnResponse(NetworkEvents.YourTurnResponse response) {
-        new EventFlow().addPostEvent(new NetworkEvents.SendCommand(response.clientId(), "MESSAGE hoi"))
-                .postEvent();
 
         if (!isRunning.get()) {
             return;
