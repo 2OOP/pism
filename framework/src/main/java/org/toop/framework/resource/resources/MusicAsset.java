@@ -82,4 +82,21 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
     public void stop() {
         getMediaPlayer().stop();
     }
+
+    @Override
+    public long duration() {
+        if (mediaPlayer != null) {
+            return (long) this.mediaPlayer.getTotalDuration().toSeconds(); // Why is this a double? TODO: Fix cast
+        }
+        return 0;
+    }
+
+    @Override
+    public long currentPosition() {
+        if (mediaPlayer != null) {
+            return (long) this.mediaPlayer.getCurrentTime().toSeconds(); // Same here. TODO: Fix cast
+        }
+        return 0;
+    }
+
 }

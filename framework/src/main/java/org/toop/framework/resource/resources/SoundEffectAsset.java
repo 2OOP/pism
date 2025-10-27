@@ -40,8 +40,6 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
         return AudioSystem.getAudioInputStream(decodedFormat, audioInputStream);
     }
 
-
-
     @Override
     public void load() {
         try {
@@ -144,4 +142,19 @@ public class SoundEffectAsset extends BaseResource implements LoadableResource, 
         if (this.clip.isRunning()) this.clip.stop();
     }
 
+    @Override
+    public long duration() {
+        if (clip != null) {
+            return (long) (clip.getMicrosecondLength() / 1_000_000.0);
+        }
+        return 0;
+    }
+
+    @Override
+    public long currentPosition() {
+        if (clip != null) {
+            return (long) (clip.getMicrosecondPosition() / 1_000_000.0);
+        }
+        return 0;
+    }
 }
