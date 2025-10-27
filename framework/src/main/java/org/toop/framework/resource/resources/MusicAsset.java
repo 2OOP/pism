@@ -78,6 +78,10 @@ public class MusicAsset extends BaseResource implements LoadableResource, AudioR
         getMediaPlayer().play();
     }
 
+    public void pause() {
+        getMediaPlayer().pause();
+    }
+
     @Override
     public void stop() {
         getMediaPlayer().stop();
