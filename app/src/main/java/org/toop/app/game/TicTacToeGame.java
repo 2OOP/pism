@@ -230,9 +230,7 @@ public final class TicTacToeGame {
  			} catch (InterruptedException _) {}
  		} else {
              final Game.Move move;
-             IO.println(information.players[0].name + " " + information.players[1].name);
              if (information.players[1].name.equalsIgnoreCase("pism")) {
-                 IO.println("got worst move");
                  move = ai.findWorstMove(game,9);
              }else{
                  move = ai.findBestMove(game, information.players[0].computerDifficulty);

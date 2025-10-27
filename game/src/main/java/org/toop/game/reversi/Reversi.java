@@ -142,7 +142,6 @@ public final class Reversi extends TurnBasedGame {
             Move[] moves = sortMovesFromCenter(getFlipsForPotentialMove(new Point(move.position()%columnSize,move.position()/rowSize), makeBoardAGrid(), move.value()),move);
             mostRecentlyFlippedPieces = moves;
             board[move.position()] = move.value();
-            IO.println(move.position() +" "+ move.value());
             for (Move m : moves) {
                 board[m.position()] = m.value();
             }
@@ -207,7 +206,6 @@ public final class Reversi extends TurnBasedGame {
     public Move[] sortMovesFromCenter(Move[] moves, Move center) {
         int centerX = center.position()%columnSize;
         int centerY = center.position()/rowSize;
-        IO.println("pre "+Arrays.toString(moves));
         Arrays.sort(moves, (a, b) -> {
             int dxA = a.position()%columnSize - centerX;
             int dyA = a.position()/rowSize - centerY;
@@ -219,7 +217,6 @@ public final class Reversi extends TurnBasedGame {
 
             return Integer.compare(distA, distB);
         });
-        IO.println("post "+Arrays.toString(moves));
         return moves;
     }
     public Move[] getMostRecentlyFlippedPieces() {
