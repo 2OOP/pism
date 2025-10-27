@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MockSoundEffectResource extends BaseResource implements AudioResource {
     boolean played = false;
     boolean stopped = false;
+    boolean paused = false;
 
     public MockSoundEffectResource(String name) {
         super(new File(name));
@@ -38,6 +39,8 @@ class MockSoundEffectResource extends BaseResource implements AudioResource {
     public void stop() {
         stopped = true;
     }
+
+    public void pause() { paused = false; }
 
     @Override
     public long duration() {
