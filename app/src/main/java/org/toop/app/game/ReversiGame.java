@@ -91,6 +91,7 @@ public final class ReversiGame {
 
 		if (onForfeit == null || onExit == null) {
 			new Thread(this::localGameThread).start();
+			setGameLabels(information.players[0].isHuman);
 		} else {
 			new EventFlow()
 				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
@@ -118,7 +119,13 @@ public final class ReversiGame {
 			}
 
 			final int currentTurn = game.getCurrentTurn();
-			setGameLabels(information.players[currentTurn].isHuman);
+			final String currentValue = currentTurn == 0? "BLACK" : "WHITE";
+			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
+
+			view.nextPlayer(information.players[currentTurn].isHuman,
+				information.players[currentTurn].name,
+				currentValue,
+				information.players[nextTurn].name);
 
 			Game.Move move = null;
 
