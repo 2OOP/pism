@@ -24,6 +24,10 @@ public class AudioEvents extends EventsBase {
     /** Skips the song to the last second of the song resulting in a skip effect */
     public record SkipMusic() implements GenericEvent {}
 
+    public record PreviousMusic() implements GenericEvent {}
+
+    public record PauseMusic() implements GenericEvent {}
+
     /** Change volume, choose type with {@link VolumeControl}. */
     public record ChangeVolume(double newVolume, VolumeControl controlType) implements GenericEvent {}
 

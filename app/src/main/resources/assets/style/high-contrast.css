@@ -55,6 +55,28 @@
     -fx-fill: white;
 }
 
+.pause-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+ 	-fx-cursor: hand;
+ 	-fx-text-fill: white;
+ 	}
+
+.pause-button .text {
+    -fx-fill: white;
+}
+
+.previous-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+ 	-fx-cursor: hand;
+ 	-fx-text-fill: white;
+ 	}
+
+.previous-button .text {
+    -fx-fill: white;
+}
+
 .button {
 	-fx-background-color: linear-gradient(to bottom, #1b7a1b, #2da32d);
 	-fx-background-radius: 8;
