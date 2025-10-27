@@ -5,6 +5,7 @@ import org.toop.framework.audio.interfaces.MusicManager;
 import org.toop.framework.audio.interfaces.SoundEffectManager;
 import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.resource.types.AudioResource;
 
 public class AudioEventListener<T extends AudioResource, K extends AudioResource> {
@@ -26,6 +27,9 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         new EventFlow()
                 .listen(this::handleStopMusicManager)
                 .listen(this::handlePlaySound)
+                .listen(this::handleSkipSong)
+                .listen(this::handlePauseSong)
+                .listen(this::handlePreviousSong)
                 .listen(this::handleStopSound)
                 .listen(this::handleMusicStart)
                 .listen(this::handleVolumeChange)
@@ -44,6 +48,19 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
         this.soundEffectManager.play(event.fileName(), event.loop());
     }
 
+    private void handleSkipSong(AudioEvents.SkipMusic event) {
+        this.musicManager.skip();
+    }
+
+    private void handlePauseSong(AudioEvents.PauseMusic event) {
+        this.musicManager.pause();
+
+    }
+
+    private void handlePreviousSong(AudioEvents.PreviousMusic event) {
+        this.musicManager.previous();
+    }
+
     private void handleStopSound(AudioEvents.StopEffect event) {
         this.soundEffectManager.stop(event.fileName());
     }
@@ -57,12 +74,9 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleGetVolume(AudioEvents.GetVolume event) {
-        new EventFlow()
-            .addPostEvent(
-                    new AudioEvents.GetVolumeResponse(
-                            audioVolumeManager.getVolume(event.controlType()),
-                            event.identifier()))
-            .asyncPostEvent();
+        GlobalEventBus.postAsync(new AudioEvents.GetVolumeResponse(
+                audioVolumeManager.getVolume(event.controlType()),
+                event.identifier()));
     }
 
 }

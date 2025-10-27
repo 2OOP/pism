@@ -3,6 +3,7 @@ package org.toop.app.view.views;
 import org.toop.app.App;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
+import org.toop.app.view.displays.SongDisplay;
 import org.toop.local.AppContext;
 
 import javafx.animation.KeyFrame;
@@ -45,6 +46,14 @@ public final class CreditsView extends View {
 
 		final Text openglHeader = header();
 		openglHeader.setText(AppContext.getString("opengl") + ": Omar");
+
+        final SongDisplay songdisplay = new SongDisplay();
+
+
+        add(Pos.BOTTOM_RIGHT,
+                fit(vboxFill(
+                        songdisplay
+                )));
 
 		add(Pos.CENTER,
 			fit("credits-fit", vboxFill("credits-container", "credits-container",
