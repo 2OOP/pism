@@ -40,8 +40,8 @@ public final class Server {
 			return GameInformation.Type.REVERSI;
 		} else if (game.equalsIgnoreCase("connect4")) {
 			return GameInformation.Type.CONNECT4;
-		} else if (game.equalsIgnoreCase("battleship")) {
-			return GameInformation.Type.BATTLESHIP;
+//		} else if (game.equalsIgnoreCase("battleship")) {
+//			return GameInformation.Type.BATTLESHIP;
 		}
 
 		return null;
@@ -62,7 +62,7 @@ public final class Server {
 			return;
 		}
 
-		if (user.isEmpty()) {
+		if (user.isEmpty() || user.matches("^[0-9].*")) {
 			ViewStack.push(new ErrorView(AppContext.getString("invalid-username")));
 			return;
 		}
@@ -86,7 +86,8 @@ public final class Server {
 
 			}).postEvent();
 
-		new EventFlow().listen(this::handleReceivedChallenge);
+		new EventFlow().listen(this::handleReceivedChallenge)
+                .listen(this::handleMatchResponse);
 	}
 
 	private void sendChallenge(String opponent) {
@@ -123,8 +124,44 @@ public final class Server {
 		}));
 	}
 
+    private void handleMatchResponse(NetworkEvents.GameMatchResponse response) {
+        if (!isPolling) return;
+
+        String gameType = extractQuotedValue(response.gameType());
+
+        if (response.clientId() == clientId) {
+            isPolling = false;
+            onlinePlayers.clear();
+
+            final GameInformation.Type type = gameToType(gameType);
+            if (type == null) {
+                ViewStack.push(new ErrorView("Unsupported game type: " + gameType));
+                return;
+            }
+
+            final int myTurn = response.playerToMove().equalsIgnoreCase(response.opponent()) ? 1 : 0;
+
+            final GameInformation information = new GameInformation(type);
+            //information.players[0] = playerInformation;
+            information.players[0].name = user;
+            information.players[0].isHuman = false;
+            information.players[0].computerDifficulty = 5;
+            information.players[1].name = response.opponent();
+
+            switch (type) {
+                case TICTACTOE ->
+                        new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
+                case REVERSI ->
+                        new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
+                case CONNECT4 ->
+                        new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
+                default -> ViewStack.push(new ErrorView("Unsupported game type."));
+            }
+        }
+    }
+
 	private void handleReceivedChallenge(NetworkEvents.ChallengeResponse response) {
-		if (!isPolling) return;
+        if (!isPolling) return;
 
 		String challengerName = extractQuotedValue(response.challengerName());
 		String gameType = extractQuotedValue(response.gameType());
@@ -133,35 +170,12 @@ public final class Server {
 		ViewStack.push(new ChallengeView(challengerName, gameType, (playerInformation) -> {
 			final int challengeId = Integer.parseInt(response.challengeId().replaceAll("\\D", ""));
 			new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientId, challengeId)).postEvent();
-
 			ViewStack.pop();
 
-			new EventFlow().listen(NetworkEvents.GameMatchResponse.class, e -> {
-				if (e.clientId() == clientId) {
-					isPolling = false;
-					onlinePlayers.clear();
+			//new EventFlow().listen(NetworkEvents.GameMatchResponse.class, e -> {
 
-					final GameInformation.Type type = gameToType(finalGameType);
-					if (type == null) {
-						ViewStack.push(new ErrorView("Unsupported game type: " + finalGameType));
-						return;
-					}
 
-					final int myTurn = e.playerToMove().equalsIgnoreCase(e.opponent()) ? 1 : 0;
-
-					final GameInformation information = new GameInformation(type);
-					information.players[0] = playerInformation;
-					information.players[0].name = user;
-					information.players[1].name = e.opponent();
-
-					switch (type) {
-						case TICTACTOE -> new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
-						case REVERSI -> new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
-						case CONNECT4 -> new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
-						default -> ViewStack.push(new ErrorView("Unsupported game type."));
-					}
-				}
-			});
+			//});
 		}));
 	}
 

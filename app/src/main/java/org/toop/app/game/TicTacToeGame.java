@@ -181,7 +181,9 @@ public final class TicTacToeGame {
 				    view.gameOver(false, information.players[1].name);
 			    }
 		    } else if (state == Game.State.DRAW) {
-			    view.gameOver(false, "");
+                if(game.getLegalMoves().length == 0) { //only return draw in online multiplayer if the game is actually over.
+                    view.gameOver(false, "");
+                }
 		    }
 	    }
 
