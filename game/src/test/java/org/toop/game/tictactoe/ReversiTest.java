@@ -150,6 +150,34 @@ class ReversiTest {
     }
 
     @Test
+    void testGameShouldEndIfNoValidMoves() {
+        //European Grand Prix Ghent 2017: Replay Hassan - Verstuyft J. (3-17)
+        game.play(new Game.Move(19, 'B'));
+        game.play(new Game.Move(20, 'W'));
+        game.play(new Game.Move(29, 'B'));
+        game.play(new Game.Move(22, 'W'));
+        game.play(new Game.Move(21, 'B'));
+        game.play(new Game.Move(34, 'W'));
+        game.play(new Game.Move(23, 'B'));
+        game.play(new Game.Move(13, 'W'));
+        game.play(new Game.Move(26, 'B'));
+        game.play(new Game.Move(18, 'W'));
+        game.play(new Game.Move(12, 'B'));
+        game.play(new Game.Move(4, 'W'));
+        game.play(new Game.Move(17, 'B'));
+        game.play(new Game.Move(31, 'W'));
+        Game.State stateTurn15 = game.play(new Game.Move(39, 'B'));
+        assertEquals(Game.State.NORMAL, stateTurn15);
+        Game.State stateTurn16 = game.play(new Game.Move(16, 'W'));
+        assertEquals(Game.State.WIN, stateTurn16);
+        Game.State stateTurn17 = game.play(new Game.Move(5, 'B'));
+        assertNull(stateTurn17);
+        Game.Score score = game.getScore();
+        assertEquals(3, score.player1Score());
+        assertEquals(17, score.player2Score());
+    }
+
+    @Test
     void testAISelectsLegalMove() {
         Game.Move move = ai.findBestMove(game,4);
         assertNotNull(move);

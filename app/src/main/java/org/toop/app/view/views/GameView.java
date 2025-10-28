@@ -1,5 +1,6 @@
 package org.toop.app.view.views;
 
+import javafx.application.Platform;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
 import org.toop.app.view.displays.SongDisplay;
@@ -151,16 +152,19 @@ public final class GameView extends View {
 	}
 
 	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer) {
-		currentPlayerHeader.setText(currentPlayer);
-		currentMoveHeader.setText(currentMove);
+        Platform.runLater(() -> {
+            currentPlayerHeader.setText(currentPlayer);
+            currentMoveHeader.setText(currentMove);
 
-		nextPlayerHeader.setText(nextPlayer);
+            nextPlayerHeader.setText(nextPlayer);
 
-		if (isMe) {
-			currentPlayerHeader.getStyleClass().add("my-turn");
-		} else {
-			currentPlayerHeader.getStyleClass().remove("my-turn");
-		}
+            if (isMe) {
+                currentPlayerHeader.getStyleClass().add("my-turn");
+            } else {
+                currentPlayerHeader.getStyleClass().remove("my-turn");
+            }
+        });
+
 	}
 
 	public void updateChat(String message) {

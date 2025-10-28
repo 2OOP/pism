@@ -24,7 +24,8 @@ public final class TicTacToeGame {
 	private final GameInformation information;
 
 	private final int myTurn;
-	private final BlockingQueue<Game.Move> moveQueue;
+    private Runnable onGameOver;
+    private final BlockingQueue<Game.Move> moveQueue;
 
 	private final TicTacToe game;
 	private final TicTacToeAI ai;
@@ -32,13 +33,14 @@ public final class TicTacToeGame {
 	private final GameView view;
 	private final TicTacToeCanvas canvas;
 
-	private AtomicBoolean isRunning;
+	private final AtomicBoolean isRunning;
 
-	public TicTacToeGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
+	public TicTacToeGame(GameInformation information, int myTurn, Runnable onForfeit, Runnable onExit, Consumer<String> onMessage, Runnable onGameOver) {
 		this.information = information;
 
 		this.myTurn = myTurn;
-		moveQueue = new LinkedBlockingQueue<Game.Move>();
+        this.onGameOver = onGameOver;
+        moveQueue = new LinkedBlockingQueue<Game.Move>();
 
 		game = new TicTacToe();
 		ai = new TicTacToeAI();
@@ -95,18 +97,18 @@ public final class TicTacToeGame {
 	}
 
 	public TicTacToeGame(GameInformation information) {
-		this(information, 0, null, null, null);
+		this(information, 0, null, null, null, null);
 	}
 
 	private void localGameThread() {
 		while (isRunning.get()) {
 			final int currentTurn = game.getCurrentTurn();
-			final char currentValue = currentTurn == 0? 'X' : 'O';
+			final String currentValue = currentTurn == 0? "X" : "O";
 			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
 
 			view.nextPlayer(information.players[currentTurn].isHuman,
 				information.players[currentTurn].name,
-				String.valueOf(currentValue),
+				currentValue,
 				information.players[nextTurn].name);
 
 			Game.Move move = null;
@@ -183,11 +185,16 @@ public final class TicTacToeGame {
 		    if (state == Game.State.WIN) {
 			    if (response.player().equalsIgnoreCase(information.players[0].name)) {
 					view.gameOver(true, information.players[0].name);
+                    gameOver();
 			    } else {
 				    view.gameOver(false, information.players[1].name);
+                    gameOver();
 			    }
 		    } else if (state == Game.State.DRAW) {
-			    view.gameOver(false, "");
+                if(game.getLegalMoves().length == 0) { //only return draw in online multiplayer if the game is actually over.
+                    view.gameOver(false, "");
+                    gameOver();
+                }
 		    }
 	    }
 
@@ -198,6 +205,14 @@ public final class TicTacToeGame {
 	    }
 
 		setGameLabels(game.getCurrentTurn() == myTurn);
+    }
+
+    private void gameOver() {
+        if (onGameOver == null){
+            return;
+        }
+        isRunning.set(false);
+        onGameOver.run();
     }
 
  	private void onYourTurnResponse(NetworkEvents.YourTurnResponse response) {
@@ -214,7 +229,12 @@ public final class TicTacToeGame {
  				position = moveQueue.take().position();
  			} catch (InterruptedException _) {}
  		} else {
-		    final Game.Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
+             final Game.Move move;
+             if (information.players[1].name.equalsIgnoreCase("pism")) {
+                 move = ai.findWorstMove(game,9);
+             }else{
+                 move = ai.findBestMove(game, information.players[0].computerDifficulty);
+             }
 
 			assert move != null;
  			position = move.position();
@@ -234,11 +254,11 @@ public final class TicTacToeGame {
 
 	private void setGameLabels(boolean isMe) {
 		final int currentTurn = game.getCurrentTurn();
-		final char currentValue = currentTurn == 0? 'X' : 'O';
+		final String currentValue = currentTurn == 0? "X" : "O";
 
 		view.nextPlayer(isMe,
 			information.players[isMe? 0 : 1].name,
-			String.valueOf(currentValue),
+			currentValue,
 			information.players[isMe? 1 : 0].name);
 	}
 }

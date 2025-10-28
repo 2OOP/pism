@@ -3,12 +3,17 @@ package org.toop.app;
 public class GameInformation {
 	public enum Type {
 		TICTACTOE,
-		REVERSI;
+		REVERSI,
+        CONNECT4,
+        BATTLESHIP;
+
 
 		public static int playerCount(Type type) {
 			return switch (type) {
 				case TICTACTOE -> 2;
 				case REVERSI -> 2;
+                case CONNECT4 -> 2;
+                case BATTLESHIP -> 2;
 			};
 		}
 
@@ -16,6 +21,8 @@ public class GameInformation {
 			return switch (type) {
 				case TICTACTOE -> 5; // Todo. 5 seems to always draw or win. could increase to 9 but that might affect performance
 				case REVERSI -> 10; // Todo. 10 is a guess. might be too slow or too bad.
+                case CONNECT4 -> 7;
+                case BATTLESHIP -> 5;
 			};
 		}
 	}

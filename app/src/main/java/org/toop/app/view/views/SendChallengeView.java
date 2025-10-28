@@ -55,7 +55,8 @@ public final class SendChallengeView extends View {
 
 		final Button cancelButton = button();
 		cancelButton.setText(AppContext.getString("cancel"));
-		cancelButton.setOnAction(_ -> { ViewStack.pop(); });
+		cancelButton.setOnAction(_ -> {
+            ViewStack.pop(); });
 
 		final List<Node> nodes = new ArrayList<>();
 

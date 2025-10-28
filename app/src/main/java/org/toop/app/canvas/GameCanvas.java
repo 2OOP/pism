@@ -1,9 +1,12 @@
 package org.toop.app.canvas;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 import java.util.function.Consumer;
 
@@ -19,6 +22,7 @@ public abstract class GameCanvas {
 	protected final GraphicsContext graphics;
 
 	protected final Color color;
+	protected final Color backgroundColor;
 
 	protected final int width;
 	protected final int height;
@@ -31,11 +35,12 @@ public abstract class GameCanvas {
 
 	protected final Cell[] cells;
 
-	protected GameCanvas(Color color, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
+	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
 
 		this.color = color;
+		this.backgroundColor = backgroundColor;
 
 		this.width = width;
 		this.height = height;
@@ -48,8 +53,8 @@ public abstract class GameCanvas {
 
 		cells = new Cell[rowSize * columnSize];
 
-		final float cellWidth = ((float)width - gapSize * rowSize - gapSize) / rowSize;
-		final float cellHeight = ((float)height - gapSize * columnSize - gapSize) / columnSize;
+		final float cellWidth = ((float) width - gapSize * rowSize - gapSize) / rowSize;
+		final float cellHeight = ((float) height - gapSize * columnSize - gapSize) / columnSize;
 
 		for (int y = 0; y < columnSize; y++) {
 			final float startY = y * cellHeight + y * gapSize + gapSize;
@@ -65,8 +70,8 @@ public abstract class GameCanvas {
 				return;
 			}
 
-			final int column = (int)((event.getX() / this.width) * rowSize);
-			final int row = (int)((event.getY() / this.height) * columnSize);
+			final int column = (int) ((event.getX() / this.width) * rowSize);
+			final int row = (int) ((event.getY() / this.height) * columnSize);
 
 			final Cell cell = cells[column + row * rowSize];
 
@@ -79,11 +84,10 @@ public abstract class GameCanvas {
 		render();
 	}
 
-	public void clear() {
-		graphics.clearRect(0, 0, width, height);
-	}
+	private void render() {
+		graphics.setFill(backgroundColor);
+		graphics.fillRect(0, 0, width, height);
 
-	public void render() {
 		graphics.setFill(color);
 
 		for (int x = 0; x < rowSize - 1; x++) {
@@ -114,6 +118,76 @@ public abstract class GameCanvas {
 
 		graphics.setFill(color);
 		graphics.fillRect(x, y, width, height);
+	}
+
+	public void clear(int cell) {
+		final float x = cells[cell].x();
+		final float y = cells[cell].y();
+
+		final float width = cells[cell].width();
+		final float height = cells[cell].height();
+
+		graphics.clearRect(x, y, width, height);
+
+		graphics.setFill(backgroundColor);
+		graphics.fillRect(x, y, width, height);
+	}
+
+	public void clearAll() {
+		for (int i = 0; i < cells.length; i++) {
+			clear(i);
+		}
+	}
+
+	public void drawDot(Color color, int cell) {
+		final float x = cells[cell].x() + gapSize;
+		final float y = cells[cell].y() + gapSize;
+
+		final float width = cells[cell].width() - gapSize * 2;
+		final float height = cells[cell].height() - gapSize * 2;
+
+		graphics.setFill(color);
+		graphics.fillOval(x, y, width, height);
+	}
+
+	private void drawDotScaled(Color color, int cell, double scale) {
+		final float cx = cells[cell].x() + gapSize;
+		final float cy = cells[cell].y() + gapSize;
+
+		final float fullWidth = cells[cell].width() - gapSize * 2;
+		final float height = cells[cell].height() - gapSize * 2;
+
+		final float scaledWidth = (float)(fullWidth * scale);
+		final float offsetX = (fullWidth - scaledWidth) / 2;
+
+		graphics.setFill(color);
+		graphics.fillOval(cx + offsetX, cy, scaledWidth, height);
+	}
+
+	public Timeline flipDot(Color fromColor, Color toColor, int cell) {
+		final int steps = 60;
+		final long duration = 250;
+		final double interval = duration / (double) steps;
+
+		final Timeline timeline = new Timeline();
+
+		for (int i = 0; i <= steps; i++) {
+			final double t = i / (double) steps;
+			final KeyFrame keyFrame = new KeyFrame(Duration.millis(i * interval),
+				_ -> {
+					clear(cell);
+
+					final double scale = t <= 0.5 ? 1 - 2 * t : 2 * t - 1;
+					final Color currentColor = t < 0.5 ? fromColor : toColor;
+
+					drawDotScaled(currentColor, cell, scale);
+				}
+			);
+
+			timeline.getKeyFrames().add(keyFrame);
+		}
+
+		return timeline;
 	}
 
 	public Canvas getCanvas() {

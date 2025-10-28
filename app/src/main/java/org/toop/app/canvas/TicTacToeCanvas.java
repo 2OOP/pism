@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public final class TicTacToeCanvas extends GameCanvas {
 	public TicTacToeCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked) {
-		super(color, width, height, 3, 3, 30, false, onCellClicked);
+		super(color, Color.TRANSPARENT, width, height, 3, 3, 30, false, onCellClicked);
 	}
 
 	public void drawX(Color color, int cell) {
