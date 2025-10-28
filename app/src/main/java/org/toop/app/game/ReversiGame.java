@@ -1,8 +1,6 @@
 package org.toop.app.game;
 
 import javafx.animation.SequentialTransition;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.ReversiCanvas;
@@ -64,7 +62,7 @@ public final class ReversiGame {
 			}, onMessage);
 		}
 
-		canvas = new ReversiCanvas(Color.GRAY,
+		canvas = new ReversiCanvas(Color.BLACK,
 			(App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,
 			(cell) -> {
 				if (onForfeit == null || onExit == null) {

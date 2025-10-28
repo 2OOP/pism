@@ -22,6 +22,7 @@ public abstract class GameCanvas {
 	protected final GraphicsContext graphics;
 
 	protected final Color color;
+	protected final Color backgroundColor;
 
 	protected final int width;
 	protected final int height;
@@ -34,11 +35,12 @@ public abstract class GameCanvas {
 
 	protected final Cell[] cells;
 
-	protected GameCanvas(Color color, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
+	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
 
 		this.color = color;
+		this.backgroundColor = backgroundColor;
 
 		this.width = width;
 		this.height = height;
@@ -83,6 +85,9 @@ public abstract class GameCanvas {
 	}
 
 	private void render() {
+		graphics.setFill(backgroundColor);
+		graphics.fillRect(0, 0, width, height);
+
 		graphics.setFill(color);
 
 		for (int x = 0; x < rowSize - 1; x++) {
@@ -123,6 +128,9 @@ public abstract class GameCanvas {
 		final float height = cells[cell].height();
 
 		graphics.clearRect(x, y, width, height);
+
+		graphics.setFill(backgroundColor);
+		graphics.fillRect(x, y, width, height);
 	}
 
 	public void clearAll() {

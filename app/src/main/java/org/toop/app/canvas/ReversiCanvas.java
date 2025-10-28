@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public final class ReversiCanvas extends GameCanvas {
 	public ReversiCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked) {
-		super(color, width, height, 8, 8, 10, true, onCellClicked);
+		super(color, Color.GREEN, width, height, 8, 8, 5, true, onCellClicked);
 		drawStartingDots();
 	}
 
