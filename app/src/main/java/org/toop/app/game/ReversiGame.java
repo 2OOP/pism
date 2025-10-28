@@ -266,16 +266,14 @@ public final class ReversiGame {
 		final SequentialTransition animation = new SequentialTransition();
 		isPaused.set(true);
 
+		final Color fromColor = game.getCurrentPlayer() == 0? Color.WHITE : Color.BLACK;
+		final Color toColor = game.getCurrentPlayer() == 0? Color.BLACK : Color.WHITE;
+
 		if (animate && flipped != null) {
 			for (final Game.Move flip : flipped) {
 				canvas.clear(flip.position());
-
-				final Color from = flip.value() == 'W' ? Color.BLACK : Color.WHITE;
-				final Color to = flip.value() == 'W' ? Color.WHITE : Color.BLACK;
-
-				canvas.drawDot(from, flip.position());
-
-				animation.getChildren().addFirst(canvas.flipDot(from, to, flip.position()));
+				canvas.drawDot(fromColor, flip.position());
+				animation.getChildren().addFirst(canvas.flipDot(fromColor, toColor, flip.position()));
 			}
 		}
 
@@ -285,7 +283,7 @@ public final class ReversiGame {
 			final Game.Move[] legalMoves = game.getLegalMoves();
 
 			for (final Game.Move legalMove : legalMoves) {
-				canvas.drawLegalPosition(legalMove.position());
+				canvas.drawLegalPosition(toColor, legalMove.position());
 			}
 		});
 

@@ -3,6 +3,7 @@ package org.toop.app;
 import org.toop.app.view.ViewStack;
 import org.toop.app.view.views.MainView;
 import org.toop.app.view.views.QuitView;
+import org.toop.app.widget.WidgetSystem;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.ResourceManager;
@@ -30,13 +31,17 @@ public final class App extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-        final StackPane root = new StackPane();
+        final StackPane root = WidgetSystem.setup();
+
 		final Scene scene = new Scene(root);
 		ViewStack.setup(scene);
+		scene.setRoot(root);
 
 		stage.setTitle(AppContext.getString("app-title"));
 		stage.setWidth(1080);
 		stage.setHeight(720);
+
+		scene.getRoot();
 
 		stage.setOnCloseRequest(event -> {
 			event.consume();
@@ -59,7 +64,7 @@ public final class App extends Application {
 		AppSettings.applySettings();
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 
-		ViewStack.push(new MainView());
+		// ViewStack.push(new MainView());
 	}
 
 	public static void startQuit() {
