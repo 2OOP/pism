@@ -152,6 +152,7 @@ public final class Server {
             information.players[0].name = user;
             information.players[0].isHuman = false;
             information.players[0].computerDifficulty = 5;
+            information.players[0].computerThinkTime = 1;
             information.players[1].name = response.opponent();
 
             Runnable onGameOverRunnable = isSingleGame.get()? null: this::gameOver;
