@@ -3,7 +3,7 @@ package org.toop.app.widget;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 
-public final class WidgetSystem {
+public final class WidgetContainer {
 	private static StackPane root;
 
 	public static StackPane setup() {

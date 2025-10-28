@@ -1,9 +1,11 @@
 package org.toop.app;
 
+import javafx.geometry.Pos;
 import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.MainView;
 import org.toop.app.view.views.QuitView;
-import org.toop.app.widget.WidgetSystem;
+import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.complex.ConfirmWidget;
+import org.toop.app.widget.complex.PopupWidget;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.ResourceManager;
@@ -15,6 +17,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+import java.util.HashMap;
 
 public final class App extends Application {
 	private static Stage stage;
@@ -31,11 +35,8 @@ public final class App extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-        final StackPane root = WidgetSystem.setup();
-
+        final StackPane root = WidgetContainer.setup();
 		final Scene scene = new Scene(root);
-		ViewStack.setup(scene);
-		scene.setRoot(root);
 
 		stage.setTitle(AppContext.getString("app-title"));
 		stage.setWidth(1080);
@@ -64,7 +65,22 @@ public final class App extends Application {
 		AppSettings.applySettings();
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 
-		// ViewStack.push(new MainView());
+        var abc = new ConfirmWidget("abc");
+        var cab = new ConfirmWidget("cab");
+
+        abc.addButton("test", () -> {
+            WidgetContainer.add(Pos.CENTER, cab);
+            WidgetContainer.remove(abc);
+        });
+        abc.addButton("test3333", () -> IO.println("Second test works!"));
+
+        cab.addButton("cab321312", () -> IO.println("Third test"));
+        cab.addButton("cab31232132131", () -> {
+            IO.println("Fourth test");
+            WidgetContainer.remove(cab);
+        });
+
+        WidgetContainer.add(Pos.CENTER, abc);
 	}
 
 	public static void startQuit() {
@@ -89,7 +105,7 @@ public final class App extends Application {
 
 	public static void reload() {
 		stage.setTitle(AppContext.getString("app-title"));
-		ViewStack.reload();
+		//ViewStack.reload();
 	}
 
 	public static void setFullscreen(boolean fullscreen) {

@@ -1,7 +1,16 @@
 package org.toop.app.widget;
 
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 
 public interface Widget<T extends Node> {
 	T getNode();
+
+    default void show(Pos position) {
+        WidgetContainer.add(position, this);
+    }
+
+    default void hide() {
+        WidgetContainer.remove(this);
+    }
 }

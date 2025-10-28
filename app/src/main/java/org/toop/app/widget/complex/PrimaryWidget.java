@@ -1,16 +1,16 @@
 package org.toop.app.widget.complex;
 
-import org.toop.app.widget.WidgetSystem;
-
 import javafx.geometry.Pos;
+import org.toop.app.widget.WidgetContainer;
 
-public abstract class PrimaryWidget extends ViewWidget {
-	public PrimaryWidget() {
-		super("bg-primary");
-	}
+public abstract class PrimaryWidget extends ViewWidget implements TransitionAnimation {
+    public PrimaryWidget() {
+        super("bg-primary");
+    }
 
-	public void transition(PrimaryWidget primary) {
-		WidgetSystem.add(Pos.CENTER, primary);
-		WidgetSystem.remove(this);
-	}
+    @Override
+    public void transition(PrimaryWidget primary) {
+        WidgetContainer.add(Pos.CENTER, primary);
+        WidgetContainer.remove(this);
+    }
 }

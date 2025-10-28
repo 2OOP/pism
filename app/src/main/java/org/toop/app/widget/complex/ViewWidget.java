@@ -5,23 +5,22 @@ import org.toop.app.widget.Widget;
 
 import javafx.scene.layout.StackPane;
 
-public abstract class ViewWidget extends StackPane implements Widget<StackPane> {
+public abstract class ViewWidget implements Widget<StackPane> {
+    private final StackPane container;
+
 	public ViewWidget(String cssClass) {
-		getStyleClass().add(cssClass);
+        container = new StackPane();
+		container.getStyleClass().add(cssClass);
 	}
 
 	public void add(Pos position, Widget<?> widget) {
-		setAlignment(widget.getNode(), position);
-		getChildren().add(widget.getNode());
+		StackPane.setAlignment(widget.getNode(), position);
+		container.getChildren().add(widget.getNode());
 	}
 
 	@Override
 	public StackPane getNode() {
-		return this;
-	}
-
-	public void show() {
-
+		return container;
 	}
 
 	public abstract void reload();
