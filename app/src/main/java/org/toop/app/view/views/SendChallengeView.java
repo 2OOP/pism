@@ -25,7 +25,7 @@ public final class SendChallengeView extends View {
 	private final GameInformation.Player playerInformation;
 
 	public SendChallengeView(Server server, String opponent, BiConsumer<GameInformation.Player, String> onSend) {
-		super(true, "bg-popup");
+		super(false, "bg-popup");
 
 		this.server = server;
 		this.opponent = opponent;

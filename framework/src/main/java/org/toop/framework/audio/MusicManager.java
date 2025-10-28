@@ -175,7 +175,9 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
 
     public void previous() {
         if (backgroundMusic.isEmpty()) return;
-        if (playingIndex == 0) return;
+        if (playingIndex == 0) {
+            playingIndex = backgroundMusic.size();
+        }
         stop();
         scheduler.shutdownNow();
         playingIndex = playingIndex - 1;
