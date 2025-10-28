@@ -17,9 +17,9 @@ public final class TicTacToeAI extends AI<TicTacToe> {
 
 		if (legalMoves.length == 9) {
 			return switch ((int)(Math.random() * 4)) {
-				case 1 -> legalMoves[2];
-				case 2 -> legalMoves[6];
-				case 3 -> legalMoves[8];
+				case 0 -> legalMoves[2];
+				case 1 -> legalMoves[6];
+				case 2 -> legalMoves[8];
 				default -> legalMoves[0];
 			};
 		}
