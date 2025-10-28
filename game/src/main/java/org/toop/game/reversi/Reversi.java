@@ -2,7 +2,6 @@ package org.toop.game.reversi;
 
 import org.toop.game.Game;
 import org.toop.game.TurnBasedGame;
-import org.toop.game.tictactoe.TicTacToe;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -16,6 +15,8 @@ public final class Reversi extends TurnBasedGame {
     public static final char FIRST_MOVE = 'B';
     private Set<Point> filledCells = new HashSet<>();
     private Move[] mostRecentlyFlippedPieces;
+
+	public record Score(int player1Score, int player2Score) {}
 
 	public Reversi() {
 		super(8, 8, 2);
@@ -150,7 +151,7 @@ public final class Reversi extends TurnBasedGame {
             if (getLegalMoves().length == 0) {
                 skipMyTurn();
                 if (getLegalMoves().length > 0) {
-                    return State.MOVE_SKIPPED;
+                    return State.TURN_SKIPPED;
                 }
                 else {
                     Score score = getScore();
@@ -191,7 +192,7 @@ public final class Reversi extends TurnBasedGame {
         }
     }
 
-    public Game.Score getScore(){
+    public Score getScore(){
         int player1Score = 0, player2Score = 0;
         for (int count = 0; count < rowSize * columnSize; count++) {
             if (board[count] == 'B') {
@@ -201,7 +202,7 @@ public final class Reversi extends TurnBasedGame {
                 player2Score += 1;
             }
         }
-        return new Game.Score(player1Score, player2Score);
+        return new Score(player1Score, player2Score);
     }
     public Move[] sortMovesFromCenter(Move[] moves, Move center) {
         int centerX = center.position()%columnSize;
