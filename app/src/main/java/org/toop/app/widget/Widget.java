@@ -13,4 +13,9 @@ public interface Widget<T extends Node> {
     default void hide() {
         WidgetContainer.remove(this);
     }
+
+    default void replace(Widget<?> newWidget, Pos newWidgetPosition) {
+        this.hide();
+        newWidget.show(newWidgetPosition);
+    }
 }

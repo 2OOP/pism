@@ -69,15 +69,14 @@ public final class App extends Application {
         var cab = new ConfirmWidget("cab");
 
         abc.addButton("test", () -> {
-            WidgetContainer.add(Pos.CENTER, cab);
-            WidgetContainer.remove(abc);
+            abc.replace(cab, Pos.CENTER);
         });
+
         abc.addButton("test3333", () -> IO.println("Second test works!"));
 
         cab.addButton("cab321312", () -> IO.println("Third test"));
         cab.addButton("cab31232132131", () -> {
             IO.println("Fourth test");
-            WidgetContainer.remove(cab);
         });
 
         WidgetContainer.add(Pos.CENTER, abc);
