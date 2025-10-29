@@ -1,7 +1,5 @@
 package org.toop.game.tictactoe;
 
-import org.toop.game.Game;
-
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
