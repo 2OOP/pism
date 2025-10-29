@@ -49,7 +49,7 @@ public final class TicTacToe extends TurnBasedGame {
         nextTurn();
 
         if (movesLeft <= 2) {
-            if (movesLeft <= 0 || checkForEarlyDraw(this)) {
+            if (movesLeft <= 0 || checkForEarlyDraw()) {
                 return GameState.DRAW;
             }
         }
@@ -85,11 +85,11 @@ public final class TicTacToe extends TurnBasedGame {
         return this.getBoard()[2] != EMPTY && this.getBoard()[2] == this.getBoard()[4] && this.getBoard()[2] == this.getBoard()[6];
     }
 
-    private boolean checkForEarlyDraw(TicTacToe game) {
-        for (final Move move : game.getLegalMoves()) {
-            final TicTacToe copy = new TicTacToe(game);
+    private boolean checkForEarlyDraw() {
+        for (final Move move : this.getLegalMoves()) {
+            final TicTacToe copy = new TicTacToe(this);
 
-            if (copy.play(move) == GameState.WIN || !checkForEarlyDraw(copy)) {
+            if (copy.play(move) == GameState.WIN || !copy.checkForEarlyDraw()) {
                 return false;
             }
         }
