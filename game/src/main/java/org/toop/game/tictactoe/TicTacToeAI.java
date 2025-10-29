@@ -2,6 +2,7 @@ package org.toop.game.tictactoe;
 
 import org.toop.game.AI;
 import org.toop.game.Game;
+import org.toop.game.enumerators.GameState;
 
 public final class TicTacToeAI extends AI<TicTacToe> {
 	@Override
@@ -59,11 +60,11 @@ public final class TicTacToeAI extends AI<TicTacToe> {
 
 	private int getMoveScore(TicTacToe game, int depth, Game.Move move, boolean maximizing) {
 		final TicTacToe copy = new TicTacToe(game);
-		final Game.State state = copy.play(move);
+		final GameState state = copy.play(move);
 
 		switch (state) {
-			case Game.State.DRAW: return 0;
-			case Game.State.WIN: return maximizing? depth + 1 : -depth - 1;
+			case GameState.DRAW: return 0;
+			case GameState.WIN: return maximizing? depth + 1 : -depth - 1;
 		}
 
 		if (depth <= 0) {

@@ -1,6 +1,7 @@
 package org.toop.game.Connect4;
 
 import org.toop.game.TurnBasedGame;
+import org.toop.game.enumerators.GameState;
 
 import java.util.ArrayList;
 
@@ -31,7 +32,7 @@ public class Connect4 extends TurnBasedGame {
     }
 
     @Override
-    public State play(Move move) {
+    public GameState play(Move move) {
         assert move != null;
         assert move.position() >= 0 && move.position() < board.length;
         assert move.value() == getCurrentValue();
@@ -49,13 +50,13 @@ public class Connect4 extends TurnBasedGame {
         movesLeft--;
 
         if (checkForWin()) {
-            return State.WIN;
+            return GameState.WIN;
         }
 
         nextTurn();
 
 
-        return State.NORMAL;
+        return GameState.NORMAL;
     }
 
     private boolean checkForWin() {

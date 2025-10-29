@@ -10,6 +10,7 @@ import org.toop.app.view.views.LocalMultiplayerView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
+import org.toop.game.enumerators.GameState;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
 
@@ -163,13 +164,13 @@ public final class ReversiGame {
 			}
 
             canvas.setCurrentlyHighlightedMovesNull();
-			final Game.State state = game.play(move);
+			final GameState state = game.play(move);
 			updateCanvas(true);
 
-			if (state != Game.State.NORMAL) {
-				if (state == Game.State.WIN) {
+			if (state != GameState.NORMAL) {
+				if (state == GameState.WIN) {
 					view.gameOver(true, information.players[currentTurn].name);
-				} else if (state == Game.State.DRAW) {
+				} else if (state == GameState.DRAW) {
 					view.gameOver(false, "");
 				}
 
@@ -192,10 +193,10 @@ public final class ReversiGame {
 		}
 
 		final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
-		final Game.State state = game.play(move);
+		final GameState state = game.play(move);
 
-		if (state != Game.State.NORMAL) {
-			if (state == Game.State.WIN) {
+		if (state != GameState.NORMAL) {
+			if (state == GameState.WIN) {
 				if (response.player().equalsIgnoreCase(information.players[0].name)) {
 					view.gameOver(true, information.players[0].name);
                     gameOver();
@@ -203,7 +204,7 @@ public final class ReversiGame {
 					view.gameOver(false, information.players[1].name);
                     gameOver();
 				}
-			} else if (state == Game.State.DRAW) {
+			} else if (state == GameState.DRAW) {
 				view.gameOver(false, "");
                 game.play(move);
 			}

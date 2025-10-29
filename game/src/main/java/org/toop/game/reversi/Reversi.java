@@ -2,6 +2,7 @@ package org.toop.game.reversi;
 
 import org.toop.game.Game;
 import org.toop.game.TurnBasedGame;
+import org.toop.game.enumerators.GameState;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -130,7 +131,7 @@ public final class Reversi extends TurnBasedGame {
         return  boardGrid;
     }
     @Override
-    public State play(Move move) {
+    public GameState play(Move move) {
         Move[] legalMoves = getLegalMoves();
         boolean moveIsLegal = false;
         for (Move legalMove : legalMoves) {
@@ -151,19 +152,19 @@ public final class Reversi extends TurnBasedGame {
             if (getLegalMoves().length == 0) {
                 skipMyTurn();
                 if (getLegalMoves().length > 0) {
-                    return State.TURN_SKIPPED;
+                    return GameState.TURN_SKIPPED;
                 }
                 else {
                     Score score = getScore();
                     if (score.player1Score() == score.player2Score()) {
-                        return State.DRAW;
+                        return GameState.DRAW;
                     }
                     else {
-                        return State.WIN;
+                        return GameState.WIN;
                     }
                 }
             }
-            return State.NORMAL;
+            return GameState.NORMAL;
         }
         return null;
     }

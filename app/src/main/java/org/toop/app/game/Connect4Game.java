@@ -13,6 +13,7 @@ import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Connect4.Connect4;
 import org.toop.game.Connect4.Connect4AI;
 import org.toop.game.Game;
+import org.toop.game.enumerators.GameState;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -147,7 +148,7 @@ public class Connect4Game {
                 continue;
             }
 
-            final Game.State state = game.play(move);
+            final GameState state = game.play(move);
             updateCanvas();
 /*
             if (move.value() == 'X') {
@@ -156,10 +157,10 @@ public class Connect4Game {
                 canvas.drawO(Color.ROYALBLUE, move.position());
             }
 */
-            if (state != Game.State.NORMAL) {
-                if (state == Game.State.WIN) {
+            if (state != GameState.NORMAL) {
+                if (state == GameState.WIN) {
                     view.gameOver(true, information.players[currentTurn].name);
-                } else if (state == Game.State.DRAW) {
+                } else if (state == GameState.DRAW) {
                     view.gameOver(false, "");
                 }
 
@@ -182,10 +183,10 @@ public class Connect4Game {
         }
 
         final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
-        final Game.State state = game.play(move);
+        final GameState state = game.play(move);
 
-        if (state != Game.State.NORMAL) {
-            if (state == Game.State.WIN) {
+        if (state != GameState.NORMAL) {
+            if (state == GameState.WIN) {
                 if (response.player().equalsIgnoreCase(information.players[0].name)) {
                     view.gameOver(true, information.players[0].name);
                     gameOver();
@@ -193,7 +194,7 @@ public class Connect4Game {
                     view.gameOver(false, information.players[1].name);
                     gameOver();
                 }
-            } else if (state == Game.State.DRAW) {
+            } else if (state == GameState.DRAW) {
                 view.gameOver(false, "");
                 gameOver();
             }

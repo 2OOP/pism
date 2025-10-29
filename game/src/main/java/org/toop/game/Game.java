@@ -1,16 +1,10 @@
 package org.toop.game;
 
+import org.toop.game.enumerators.GameState;
+
 import java.util.Arrays;
 
 public abstract class Game {
-    public enum State {
-        NORMAL,
-        DRAW,
-        WIN,
-
-		TURN_SKIPPED,
-    }
-
     public record Move(int position, char value) {}
 
 	public static final char EMPTY = (char)0;
@@ -37,5 +31,5 @@ public abstract class Game {
 
     public abstract Move[] getLegalMoves();
 
-    public abstract State play(Move move);
+    public abstract GameState play(Move move);
 }

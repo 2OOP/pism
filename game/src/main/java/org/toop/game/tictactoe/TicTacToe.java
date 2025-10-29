@@ -2,6 +2,7 @@ package org.toop.game.tictactoe;
 
 import java.util.ArrayList;
 import org.toop.game.TurnBasedGame;
+import org.toop.game.enumerators.GameState;
 
 public final class TicTacToe extends TurnBasedGame {
     private int movesLeft;
@@ -31,7 +32,7 @@ public final class TicTacToe extends TurnBasedGame {
     }
 
     @Override
-    public State play(Move move) {
+    public GameState play(Move move) {
         assert move != null;
         assert move.position() >= 0 && move.position() < board.length;
         assert move.value() == getCurrentValue();
@@ -40,18 +41,18 @@ public final class TicTacToe extends TurnBasedGame {
         movesLeft--;
 
         if (checkForWin()) {
-            return State.WIN;
+            return GameState.WIN;
         }
 
         nextTurn();
 
         if (movesLeft <= 2) {
             if (movesLeft <= 0 || checkForEarlyDraw(this)) {
-                return State.DRAW;
+                return GameState.DRAW;
             }
         }
 
-        return State.NORMAL;
+        return GameState.NORMAL;
     }
 
     private boolean checkForWin() {
@@ -86,7 +87,7 @@ public final class TicTacToe extends TurnBasedGame {
         for (final Move move : game.getLegalMoves()) {
             final TicTacToe copy = new TicTacToe(game);
 
-            if (copy.play(move) == State.WIN || !checkForEarlyDraw(copy)) {
+            if (copy.play(move) == GameState.WIN || !checkForEarlyDraw(copy)) {
                 return false;
             }
         }

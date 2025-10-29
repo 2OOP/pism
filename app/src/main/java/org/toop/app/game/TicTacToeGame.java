@@ -9,6 +9,7 @@ import org.toop.app.view.views.LocalMultiplayerView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
+import org.toop.game.enumerators.GameState;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
 
@@ -145,7 +146,7 @@ public final class TicTacToeGame {
 				continue;
 			}
 
-			final Game.State state = game.play(move);
+			final GameState state = game.play(move);
 
 			if (move.value() == 'X') {
 				canvas.drawX(Color.INDIANRED, move.position());
@@ -153,10 +154,10 @@ public final class TicTacToeGame {
 				canvas.drawO(Color.ROYALBLUE, move.position());
 			}
 
-			if (state != Game.State.NORMAL) {
-				if (state == Game.State.WIN) {
+			if (state != GameState.NORMAL) {
+				if (state == GameState.WIN) {
 					view.gameOver(true, information.players[currentTurn].name);
-				} else if (state == Game.State.DRAW) {
+				} else if (state == GameState.DRAW) {
 					view.gameOver(false, "");
 				}
 
@@ -179,10 +180,10 @@ public final class TicTacToeGame {
 	    }
 
 	    final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
-	    final Game.State state = game.play(move);
+	    final GameState state = game.play(move);
 
-	    if (state != Game.State.NORMAL) {
-		    if (state == Game.State.WIN) {
+	    if (state != GameState.NORMAL) {
+		    if (state == GameState.WIN) {
 			    if (response.player().equalsIgnoreCase(information.players[0].name)) {
 					view.gameOver(true, information.players[0].name);
                     gameOver();
@@ -190,7 +191,7 @@ public final class TicTacToeGame {
 				    view.gameOver(false, information.players[1].name);
                     gameOver();
 			    }
-		    } else if (state == Game.State.DRAW) {
+		    } else if (state == GameState.DRAW) {
                 if(game.getLegalMoves().length == 0) { //only return draw in online multiplayer if the game is actually over.
                     view.gameOver(false, "");
                     gameOver();
