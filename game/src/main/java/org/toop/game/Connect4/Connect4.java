@@ -100,7 +100,7 @@ public class Connect4 extends TurnBasedGame {
         return false;
     }
 
-    public char[][] makeBoardAGrid() {
+    private char[][] makeBoardAGrid() {
         char[][] boardGrid = new char[this.getRowSize()][this.getColumnSize()];
         for (int i = 0; i < this.getRowSize()*this.getColumnSize(); i++) {
             boardGrid[i / this.getColumnSize()][i % this.getColumnSize()] = this.getBoard()[i];     //this.getBoard()Grid[y -> row] [x -> column]
