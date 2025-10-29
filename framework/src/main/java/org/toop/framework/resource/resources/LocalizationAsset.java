@@ -63,6 +63,9 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
         loaded = false;
     }
 
+    /** Returns the fallback locale used when locale is missing argument*/
+    public Locale getFallback() {return this.fallback;}
+
     /**
      * Checks whether this asset has been loaded.
      *

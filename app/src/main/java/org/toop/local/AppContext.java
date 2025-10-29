@@ -1,12 +1,19 @@
 package org.toop.local;
 
 import java.util.Locale;
+import java.util.MissingResourceException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.LocalizationAsset;
 
 public class AppContext {
     private static final LocalizationAsset localization = ResourceManager.get("localization");
     private static Locale locale = Locale.forLanguageTag("en");
+
+    private static final Logger logger = LogManager.getLogger(AppContext.class);
 
     public static LocalizationAsset getLocalization() {
         return localization;
@@ -22,6 +29,24 @@ public class AppContext {
 
     public static String getString(String key) {
         assert localization != null;
-        return localization.getString(key, locale);
+
+        // TODO: Gebruik ResourceBundle.getBundle() zodat de fallback automatisch gaat.
+        //          Hiervoor zou de assetManager aangepast moeten worden.
+
+        try{ // Main return
+            return localization.getString(key, locale);
+        }
+        catch (MissingResourceException e) {
+            logger.error("Missing resource key: {}, in bundle: {}. ", key, locale, e);
+        }
+
+        try{ // Fallback return
+            return localization.getString(key, localization.getFallback());
+        }
+        catch (MissingResourceException e) {
+            logger.error("Missing resource key: {}, in default bundle!", key, e);
+        }
+        // Default return
+        return "MISSING RESOURCE";
     }
 }
