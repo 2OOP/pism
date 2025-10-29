@@ -98,6 +98,6 @@ public final class TicTacToe extends TurnBasedGame {
     }
 
     private char getCurrentValue() {
-        return currentTurn == 0 ? 'X' : 'O';
+        return this.getCurrentTurn() == 0 ? 'X' : 'O';
     }
 }

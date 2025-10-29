@@ -109,7 +109,7 @@ public class Connect4 extends TurnBasedGame {
     }
 
     private char getCurrentValue() {
-        return currentTurn == 0 ? 'X' : 'O';
+        return this.getCurrentTurn() == 0 ? 'X' : 'O';
     }
 }
 

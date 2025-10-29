@@ -50,7 +50,7 @@ public final class Reversi extends TurnBasedGame {
 	public Move[] getLegalMoves() {
         final ArrayList<Move> legalMoves = new ArrayList<>();
         char[][] boardGrid = makeBoardAGrid();
-        char currentPlayer = (currentTurn==0) ? 'B' : 'W';
+        char currentPlayer = (this.getCurrentTurn()==0) ? 'B' : 'W';
         Set<Point> adjCell = getAdjacentCells(boardGrid);
         for (Point point : adjCell){
             Move[] moves = getFlipsForPotentialMove(point,boardGrid,currentPlayer);
@@ -176,7 +176,7 @@ public final class Reversi extends TurnBasedGame {
     }
 
     public char getCurrentPlayer() {
-        if (currentTurn == 0){
+        if (this.getCurrentTurn() == 0){
             return 'B';
         }
         else {

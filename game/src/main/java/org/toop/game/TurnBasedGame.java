@@ -1,9 +1,8 @@
 package org.toop.game;
 
 public abstract class TurnBasedGame extends Game {
-    public final int turns;
-
-    protected int currentTurn;
+    private final int turns;
+    private int currentTurn;
 
     protected TurnBasedGame(int rowSize, int columnSize, int turns) {
         super(rowSize, columnSize);
