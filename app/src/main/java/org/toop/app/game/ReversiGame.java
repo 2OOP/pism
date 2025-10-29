@@ -322,7 +322,6 @@ public final class ReversiGame {
             if (isLegalMove) {
                 moves = game.getFlipsForPotentialMove(
                         new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
-                        game.makeBoardAGrid(),
                         game.getCurrentPlayer());
             }
             canvas.drawHighlightDots(moves);

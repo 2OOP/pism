@@ -113,11 +113,11 @@ class ReversiTest {
             Reversi.Score score = game.getScore();
             IO.println(score.player1Score());
             IO.println(score.player2Score());
-            char[][] grid = game.makeBoardAGrid();
-            for (char[] chars : grid) {
-                IO.println(Arrays.toString(chars));
-            }
 
+            for (int r = 0; r < game.getRowSize(); r++) {
+                char[] row = Arrays.copyOfRange(game.getBoard(), r * game.getColumnSize(), (r + 1) * game.getColumnSize());
+                IO.println(Arrays.toString(row));
+            }
         }
     }
 
