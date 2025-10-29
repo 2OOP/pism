@@ -1,10 +1,10 @@
 package org.toop.game;
 
-import org.toop.game.enumerators.GameState;
+import org.toop.game.interfaces.Playable;
 
 import java.util.Arrays;
 
-public abstract class Game {
+public abstract class Game implements Playable {
     public record Move(int position, char value) {}
 
 	public static final char EMPTY = (char)0;
@@ -28,8 +28,4 @@ public abstract class Game {
         columnSize = other.columnSize;
         board = Arrays.copyOf(other.board, other.board.length);
     }
-
-    public abstract Move[] getLegalMoves();
-
-    public abstract GameState play(Move move);
 }
