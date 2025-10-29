@@ -10,7 +10,7 @@ public final class TicTacToe extends TurnBasedGame {
 
     public TicTacToe() {
         super(3, 3, 2);
-        movesLeft = board.length;
+        movesLeft = this.getBoard().length;
     }
 
     public TicTacToe(TicTacToe other) {
@@ -23,8 +23,8 @@ public final class TicTacToe extends TurnBasedGame {
         final ArrayList<Move> legalMoves = new ArrayList<>();
         final char currentValue = getCurrentValue();
 
-        for (int i = 0; i < board.length; i++) {
-            if (board[i] == EMPTY) {
+        for (int i = 0; i < this.getBoard().length; i++) {
+            if (this.getBoard()[i] == EMPTY) {
                 legalMoves.add(new Move(i, currentValue));
             }
         }
@@ -35,10 +35,11 @@ public final class TicTacToe extends TurnBasedGame {
     @Override
     public GameState play(Move move) {
         assert move != null;
-        assert move.position() >= 0 && move.position() < board.length;
+        assert move.position() >= 0 && move.position() < this.getBoard().length;
         assert move.value() == getCurrentValue();
 
-        board[move.position()] = move.value();
+        // TODO: Make sure this move is allowed, maybe on the board side?
+        this.setBoard(move);
         movesLeft--;
 
         if (checkForWin()) {
@@ -61,27 +62,27 @@ public final class TicTacToe extends TurnBasedGame {
         for (int i = 0; i < 3; i++) {
             final int index = i * 3;
 
-            if (board[index] != EMPTY
-                    && board[index] == board[index + 1]
-                    && board[index] == board[index + 2]) {
+            if (this.getBoard()[index] != EMPTY
+                    && this.getBoard()[index] == this.getBoard()[index + 1]
+                    && this.getBoard()[index] == this.getBoard()[index + 2]) {
                 return true;
             }
         }
 
         // Vertical
         for (int i = 0; i < 3; i++) {
-            if (board[i] != EMPTY && board[i] == board[i + 3] && board[i] == board[i + 6]) {
+            if (this.getBoard()[i] != EMPTY && this.getBoard()[i] == this.getBoard()[i + 3] && this.getBoard()[i] == this.getBoard()[i + 6]) {
                 return true;
             }
         }
 
         // B-Slash
-        if (board[0] != EMPTY && board[0] == board[4] && board[0] == board[8]) {
+        if (this.getBoard()[0] != EMPTY && this.getBoard()[0] == this.getBoard()[4] && this.getBoard()[0] == this.getBoard()[8]) {
             return true;
         }
 
         // F-Slash
-        return board[2] != EMPTY && board[2] == board[4] && board[2] == board[6];
+        return this.getBoard()[2] != EMPTY && this.getBoard()[2] == this.getBoard()[4] && this.getBoard()[2] == this.getBoard()[6];
     }
 
     private boolean checkForEarlyDraw(TicTacToe game) {

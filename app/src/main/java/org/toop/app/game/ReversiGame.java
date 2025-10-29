@@ -258,10 +258,10 @@ public final class ReversiGame {
 		// Todo: this is very inefficient. still very fast but if the grid is bigger it might cause issues. improve.
 		canvas.clearAll();
 
-		for (int i = 0; i < game.board.length; i++) {
-			if (game.board[i] == 'B') {
+		for (int i = 0; i < game.getBoard().length; i++) {
+			if (game.getBoard()[i] == 'B') {
 				canvas.drawDot(Color.BLACK, i);
-			} else if (game.board[i] == 'W') {
+			} else if (game.getBoard()[i] == 'W') {
 				canvas.drawDot(Color.WHITE, i);
 			}
 		}
@@ -321,7 +321,7 @@ public final class ReversiGame {
             Move[] moves = null;
             if (isLegalMove) {
                 moves = game.getFlipsForPotentialMove(
-                        new Point(cellEntered%game.columnSize,cellEntered/game.rowSize),
+                        new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
                         game.makeBoardAGrid(),
                         game.getCurrentPlayer());
             }

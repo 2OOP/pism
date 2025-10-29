@@ -254,10 +254,10 @@ public class Connect4Game {
     private void updateCanvas() {
         canvas.clearAll();
 
-        for (int i = 0; i < game.board.length; i++) {
-            if (game.board[i] == 'X') {
+        for (int i = 0; i < game.getBoard().length; i++) {
+            if (game.getBoard()[i] == 'X') {
                 canvas.drawDot(Color.RED, i);
-            } else if (game.board[i] == 'O') {
+            } else if (game.getBoard()[i] == 'O') {
                 canvas.drawDot(Color.BLUE, i);
             }
         }
