@@ -206,7 +206,7 @@ public final class Reversi extends TurnBasedGame {
         }
         return new Score(player1Score, player2Score);
     }
-    public Move[] sortMovesFromCenter(Move[] moves, Move center) {
+    private Move[] sortMovesFromCenter(Move[] moves, Move center) {
         int centerX = center.position()%this.getColumnSize();
         int centerY = center.position()/this.getRowSize();
         Arrays.sort(moves, (a, b) -> {
