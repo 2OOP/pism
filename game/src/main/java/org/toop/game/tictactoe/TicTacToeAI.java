@@ -1,16 +1,16 @@
 package org.toop.game.tictactoe;
 
 import org.toop.game.AI;
-import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 
 public final class TicTacToeAI extends AI<TicTacToe> {
 	@Override
-	public Game.Move findBestMove(TicTacToe game, int depth) {
+	public Move findBestMove(TicTacToe game, int depth) {
 		assert game != null;
 		assert depth >= 0;
 
-		final Game.Move[] legalMoves = game.getLegalMoves();
+		final Move[] legalMoves = game.getLegalMoves();
 
 		if (legalMoves.length == 0) {
 			return null;
@@ -26,9 +26,9 @@ public final class TicTacToeAI extends AI<TicTacToe> {
 		}
 
 		int bestScore = -depth;
-		Game.Move bestMove = null;
+		Move bestMove = null;
 
-		for (final Game.Move move : legalMoves) {
+		for (final Move move : legalMoves) {
 			final int score = getMoveScore(game, depth, move, true);
 
 			if (score > bestScore) {
@@ -39,15 +39,15 @@ public final class TicTacToeAI extends AI<TicTacToe> {
 
 		return bestMove != null? bestMove : legalMoves[(int)(Math.random() * legalMoves.length)];
 	}
-    public Game.Move findWorstMove(TicTacToe game, int depth){
+    public Move findWorstMove(TicTacToe game, int depth){
 
 
-        Game.Move[] legalMoves = game.getLegalMoves();
+        Move[] legalMoves = game.getLegalMoves();
 
         int bestScore = -depth;
-        Game.Move bestMove = null;
+        Move bestMove = null;
 
-        for (final Game.Move move : legalMoves) {
+        for (final Move move : legalMoves) {
             final int score = getMoveScore(game, depth, move, false);
 
             if (score > bestScore) {
@@ -58,7 +58,7 @@ public final class TicTacToeAI extends AI<TicTacToe> {
         return bestMove;
     }
 
-	private int getMoveScore(TicTacToe game, int depth, Game.Move move, boolean maximizing) {
+	private int getMoveScore(TicTacToe game, int depth, Move move, boolean maximizing) {
 		final TicTacToe copy = new TicTacToe(game);
 		final GameState state = copy.play(move);
 
@@ -71,10 +71,10 @@ public final class TicTacToeAI extends AI<TicTacToe> {
 			return 0;
 		}
 
-		final Game.Move[] legalMoves = copy.getLegalMoves();
+		final Move[] legalMoves = copy.getLegalMoves();
 		int score = maximizing? depth + 1 : -depth - 1;
 
-		for (final Game.Move next : legalMoves) {
+		for (final Move next : legalMoves) {
 			if (maximizing) {
 				score = Math.min(score, getMoveScore(copy, depth - 1, next, false));
 			} else {

@@ -11,6 +11,7 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
 
@@ -28,7 +29,7 @@ public final class ReversiGame {
 
 	private final int myTurn;
     private Runnable onGameOver;
-    private final BlockingQueue<Game.Move> moveQueue;
+    private final BlockingQueue<Move> moveQueue;
 
 	private final Reversi game;
 	private final ReversiAI ai;
@@ -44,7 +45,7 @@ public final class ReversiGame {
 
 		this.myTurn = myTurn;
         this.onGameOver = onGameOver;
-        moveQueue = new LinkedBlockingQueue<Game.Move>();
+        moveQueue = new LinkedBlockingQueue<Move>();
 
 		game = new Reversi();
 		ai = new ReversiAI();
@@ -72,7 +73,7 @@ public final class ReversiGame {
 						final char value = game.getCurrentTurn() == 0? 'B' : 'W';
 
 						try {
-							moveQueue.put(new Game.Move(cell, value));
+							moveQueue.put(new Move(cell, value));
 						} catch (InterruptedException _) {}
 					}
 				} else {
@@ -80,7 +81,7 @@ public final class ReversiGame {
 						final char value = myTurn == 0? 'B' : 'W';
 
 						try {
-							moveQueue.put(new Game.Move(cell, value));
+							moveQueue.put(new Move(cell, value));
 						} catch (InterruptedException _) {}
 					}
 				}
@@ -129,14 +130,14 @@ public final class ReversiGame {
 				currentValue,
 				information.players[nextTurn].name);
 
-			Game.Move move = null;
+			Move move = null;
 
 			if (information.players[currentTurn].isHuman) {
 				try {
-					final Game.Move wants = moveQueue.take();
-					final Game.Move[] legalMoves = game.getLegalMoves();
+					final Move wants = moveQueue.take();
+					final Move[] legalMoves = game.getLegalMoves();
 
-					for (final Game.Move legalMove : legalMoves) {
+					for (final Move legalMove : legalMoves) {
 						if (legalMove.position() == wants.position() &&
 							legalMove.value() == wants.value()) {
 							move = wants;
@@ -192,7 +193,7 @@ public final class ReversiGame {
 			playerChar = myTurn == 0? 'W' : 'B';
 		}
 
-		final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
+		final Move move = new Move(Integer.parseInt(response.move()), playerChar);
 		final GameState state = game.play(move);
 
 		if (state != GameState.NORMAL) {
@@ -236,7 +237,7 @@ public final class ReversiGame {
 				position = moveQueue.take().position();
 			} catch (InterruptedException _) {}
 		} else {
-			final Game.Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
+			final Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
 
 			assert move != null;
 			position = move.position();
@@ -266,13 +267,13 @@ public final class ReversiGame {
 			}
 		}
 
-		final Game.Move[] flipped = game.getMostRecentlyFlippedPieces();
+		final Move[] flipped = game.getMostRecentlyFlippedPieces();
 
 		final SequentialTransition animation = new SequentialTransition();
 		isPaused.set(true);
 
 		if (animate && flipped != null) {
-			for (final Game.Move flip : flipped) {
+			for (final Move flip : flipped) {
 				canvas.clear(flip.position());
 
 				final Color from = flip.value() == 'W' ? Color.BLACK : Color.WHITE;
@@ -287,9 +288,9 @@ public final class ReversiGame {
 		animation.setOnFinished(_ -> {
 			isPaused.set(false);
 
-			final Game.Move[] legalMoves = game.getLegalMoves();
+			final Move[] legalMoves = game.getLegalMoves();
 
-			for (final Game.Move legalMove : legalMoves) {
+			for (final Move legalMove : legalMoves) {
 				canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
 			}
 		});
@@ -308,9 +309,9 @@ public final class ReversiGame {
 	}
 
     private void highlightCells(int cellEntered) {
-        Game.Move[] legalMoves = game.getLegalMoves();
+        Move[] legalMoves = game.getLegalMoves();
         boolean isLegalMove = false;
-        for (Game.Move move : legalMoves) {
+        for (Move move : legalMoves) {
             if (move.position() == cellEntered){
                 isLegalMove = true;
                 break;
@@ -318,7 +319,7 @@ public final class ReversiGame {
         }
 
         if (cellEntered >= 0){
-            Game.Move[] moves = null;
+            Move[] moves = null;
             if (isLegalMove) {
                 moves = game.getFlipsForPotentialMove(
                         new Point(cellEntered%game.columnSize,cellEntered/game.rowSize),

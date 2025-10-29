@@ -5,7 +5,6 @@ import org.toop.game.interfaces.Playable;
 import java.util.Arrays;
 
 public abstract class Game implements Playable {
-    public record Move(int position, char value) {}
 
 	public static final char EMPTY = (char)0;
 

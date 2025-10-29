@@ -1,9 +1,9 @@
 package org.toop.game.interfaces;
 
-import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 
 public interface Playable {
-    Game.Move[] getLegalMoves();
-    GameState play(Game.Move move);
+    Move[] getLegalMoves();
+    GameState play(Move move);
 }

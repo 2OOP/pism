@@ -10,6 +10,7 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
 
@@ -26,7 +27,7 @@ public final class TicTacToeGame {
 
 	private final int myTurn;
     private Runnable onGameOver;
-    private final BlockingQueue<Game.Move> moveQueue;
+    private final BlockingQueue<Move> moveQueue;
 
 	private final TicTacToe game;
 	private final TicTacToeAI ai;
@@ -41,7 +42,7 @@ public final class TicTacToeGame {
 
 		this.myTurn = myTurn;
         this.onGameOver = onGameOver;
-        moveQueue = new LinkedBlockingQueue<Game.Move>();
+        moveQueue = new LinkedBlockingQueue<Move>();
 
 		game = new TicTacToe();
 		ai = new TicTacToeAI();
@@ -68,7 +69,7 @@ public final class TicTacToeGame {
 						final char value = game.getCurrentTurn() == 0? 'X' : 'O';
 
 						try {
-							moveQueue.put(new Game.Move(cell, value));
+							moveQueue.put(new Move(cell, value));
 						} catch (InterruptedException _) {}
 					}
 				} else {
@@ -76,7 +77,7 @@ public final class TicTacToeGame {
 						final char value = myTurn == 0? 'X' : 'O';
 
 						try {
-							moveQueue.put(new Game.Move(cell, value));
+							moveQueue.put(new Move(cell, value));
 						} catch (InterruptedException _) {}
 					}
 				}
@@ -112,14 +113,14 @@ public final class TicTacToeGame {
 				currentValue,
 				information.players[nextTurn].name);
 
-			Game.Move move = null;
+			Move move = null;
 
 			if (information.players[currentTurn].isHuman) {
 				try {
-					final Game.Move wants = moveQueue.take();
-					final Game.Move[] legalMoves = game.getLegalMoves();
+					final Move wants = moveQueue.take();
+					final Move[] legalMoves = game.getLegalMoves();
 
-					for (final Game.Move legalMove : legalMoves) {
+					for (final Move legalMove : legalMoves) {
 						if (legalMove.position() == wants.position() &&
 							legalMove.value() == wants.value()) {
 							move = wants;
@@ -179,7 +180,7 @@ public final class TicTacToeGame {
 		    playerChar = myTurn == 0? 'O' : 'X';
 	    }
 
-	    final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
+	    final Move move = new Move(Integer.parseInt(response.move()), playerChar);
 	    final GameState state = game.play(move);
 
 	    if (state != GameState.NORMAL) {
@@ -230,7 +231,7 @@ public final class TicTacToeGame {
  				position = moveQueue.take().position();
  			} catch (InterruptedException _) {}
  		} else {
-             final Game.Move move;
+             final Move move;
              move = ai.findBestMove(game, information.players[0].computerDifficulty);
 			assert move != null;
  			position = move.position();

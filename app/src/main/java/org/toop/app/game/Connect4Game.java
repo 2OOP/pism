@@ -14,6 +14,7 @@ import org.toop.game.Connect4.Connect4;
 import org.toop.game.Connect4.Connect4AI;
 import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,7 +26,7 @@ public class Connect4Game {
 
     private final int myTurn;
     private Runnable onGameOver;
-    private final BlockingQueue<Game.Move> moveQueue;
+    private final BlockingQueue<Move> moveQueue;
 
     private final Connect4 game;
     private final Connect4AI ai;
@@ -41,7 +42,7 @@ public class Connect4Game {
         this.information = information;
         this.myTurn = myTurn;
         this.onGameOver = onGameOver;
-        moveQueue = new LinkedBlockingQueue<Game.Move>();
+        moveQueue = new LinkedBlockingQueue<Move>();
 
 
         game = new Connect4();
@@ -69,7 +70,7 @@ public class Connect4Game {
                             final char value = game.getCurrentTurn() == 0? 'X' : 'O';
 
                             try {
-                                moveQueue.put(new Game.Move(cell%columnSize, value));
+                                moveQueue.put(new Move(cell%columnSize, value));
                             } catch (InterruptedException _) {}
                         }
                     } else {
@@ -77,7 +78,7 @@ public class Connect4Game {
                             final char value = myTurn == 0? 'X' : 'O';
 
                             try {
-                                moveQueue.put(new Game.Move(cell%columnSize, value));
+                                moveQueue.put(new Move(cell%columnSize, value));
                             } catch (InterruptedException _) {}
                         }
                     }
@@ -114,14 +115,14 @@ public class Connect4Game {
 				currentValue,
 				information.players[nextTurn].name);
 
-            Game.Move move = null;
+            Move move = null;
 
             if (information.players[currentTurn].isHuman) {
                 try {
-                    final Game.Move wants = moveQueue.take();
-                    final Game.Move[] legalMoves = game.getLegalMoves();
+                    final Move wants = moveQueue.take();
+                    final Move[] legalMoves = game.getLegalMoves();
 
-                    for (final Game.Move legalMove : legalMoves) {
+                    for (final Move legalMove : legalMoves) {
                         if (legalMove.position() == wants.position() &&
                                 legalMove.value() == wants.value()) {
                             move = wants;
@@ -182,7 +183,7 @@ public class Connect4Game {
             playerChar = myTurn == 0? 'O' : 'X';
         }
 
-        final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
+        final Move move = new Move(Integer.parseInt(response.move()), playerChar);
         final GameState state = game.play(move);
 
         if (state != GameState.NORMAL) {
@@ -233,7 +234,7 @@ public class Connect4Game {
                 position = moveQueue.take().position();
             } catch (InterruptedException _) {}
         } else {
-            final Game.Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
+            final Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
 
             assert move != null;
             position = move.position();

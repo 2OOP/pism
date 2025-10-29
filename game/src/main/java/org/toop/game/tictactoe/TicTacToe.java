@@ -3,6 +3,7 @@ package org.toop.game.tictactoe;
 import java.util.ArrayList;
 import org.toop.game.TurnBasedGame;
 import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 
 public final class TicTacToe extends TurnBasedGame {
     private int movesLeft;

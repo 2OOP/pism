@@ -2,12 +2,13 @@ package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
 import org.toop.game.Game;
+import org.toop.game.records.Move;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public final class ReversiCanvas extends GameCanvas {
-    private Game.Move[] currentlyHighlightedMoves = null;
+    private Move[] currentlyHighlightedMoves = null;
 	public ReversiCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked,  Consumer<Integer> newCellEntered) {
 		super(color, new Color(0f,0.4f,0.2f,1f), width, height, 8, 8, 5, true, onCellClicked,  newCellEntered);
 		drawStartingDots();
@@ -41,16 +42,16 @@ public final class ReversiCanvas extends GameCanvas {
         currentlyHighlightedMoves = null;
     }
 
-    public void drawHighlightDots(Game.Move[] moves){
+    public void drawHighlightDots(Move[] moves){
         if (currentlyHighlightedMoves != null){
-            for (final Game.Move move : currentlyHighlightedMoves){
+            for (final Move move : currentlyHighlightedMoves){
                 Color color = move.value() == 'W'? Color.BLACK: Color.WHITE;
                 drawInnerDot(color, move.position(), true);
             }
         }
         currentlyHighlightedMoves = moves;
         if (moves != null) {
-            for (Game.Move move : moves) {
+            for (Move move : moves) {
                 Color color = move.value() == 'B' ? Color.BLACK : Color.WHITE;
                 drawInnerDot(color, move.position(), false);
             }
