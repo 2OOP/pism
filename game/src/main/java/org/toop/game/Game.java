@@ -1,10 +1,10 @@
 package org.toop.game;
 
-import org.toop.game.interfaces.Playable;
+import org.toop.game.interfaces.IPlayable;
 
 import java.util.Arrays;
 
-public abstract class Game implements Playable {
+public abstract class Game implements IPlayable {
 
 	public static final char EMPTY = (char)0;
 
