@@ -129,7 +129,7 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
     public void loadFile(File file) {
         try (InputStreamReader reader =
                 new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-            Locale locale = extractLocale(file.getName(), baseName);
+            Locale locale = extractLocale(file.getName());
             bundles.put(locale, new PropertyResourceBundle(reader));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load localization file: " + file, e);
@@ -169,10 +169,9 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
      * Extracts a locale from a file name based on the pattern "base_LOCALE.properties".
      *
      * @param fileName the file name
-     * @param baseName the base name
      * @return extracted locale, or fallback if none found
      */
-    private Locale extractLocale(String fileName, String baseName) {
+    private Locale extractLocale(String fileName) {
         int underscoreIndex = fileName.indexOf('_');
         int dotIndex = fileName.lastIndexOf('.');
         if (underscoreIndex > 0 && dotIndex > underscoreIndex) {
