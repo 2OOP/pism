@@ -13,7 +13,6 @@ import java.util.Set;
 
 public final class Reversi extends TurnBasedGame {
     private int movesTaken;
-    public static final char FIRST_MOVE = 'B';
     private Set<Point> filledCells = new HashSet<>();
     private Move[] mostRecentlyFlippedPieces;
 
@@ -28,6 +27,7 @@ public final class Reversi extends TurnBasedGame {
         super(other);
         this.movesTaken = other.movesTaken;
         this.filledCells = other.filledCells;
+        this.mostRecentlyFlippedPieces = other.mostRecentlyFlippedPieces;
     }
 
 
