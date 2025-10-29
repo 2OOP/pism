@@ -3,7 +3,6 @@ package org.toop.game.Connect4;
 import org.toop.game.AI;
 import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
-import org.toop.game.tictactoe.TicTacToe;
 
 public class Connect4AI extends AI<Connect4> {
 
