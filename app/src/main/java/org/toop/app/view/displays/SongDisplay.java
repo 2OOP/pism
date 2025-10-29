@@ -18,6 +18,7 @@ public class SongDisplay extends VBox {
     private final Text songTitle;
     private final ProgressBar progressBar;
     private final Text progressText;
+    private boolean paused = false;
 
     public SongDisplay() {
         new EventFlow()
@@ -26,7 +27,6 @@ public class SongDisplay extends VBox {
         setAlignment(Pos.CENTER);
         getStyleClass().add("song-display");
 
-        // TODO ADD GOOD SONG TITLES WITH ARTISTS DISPLAYED
         songTitle = new Text("song playing");
         songTitle.getStyleClass().add("song-title");
 
@@ -35,8 +35,6 @@ public class SongDisplay extends VBox {
 
         progressText = new Text("0:00/0:00");
         progressText.getStyleClass().add("progress-text");
-
-        // TODO ADD BETTER CSS FOR THE SKIPBUTTON WHERE ITS AT A NICER POSITION
 
         Button skipButton = new Button(">>");
         Button pauseButton = new Button("⏸");
@@ -48,20 +46,20 @@ public class SongDisplay extends VBox {
 
         skipButton.setOnAction( event -> {
             GlobalEventBus.post(new AudioEvents.SkipMusic());
+            paused = false;
+            pauseButton.setText(getPlayString(paused));
         });
 
         pauseButton.setOnAction(event -> {
             GlobalEventBus.post(new AudioEvents.PauseMusic());
-            if (pauseButton.getText().equals("⏸")) {
-                pauseButton.setText("▶");
-            }
-            else if (pauseButton.getText().equals("▶")) {
-                pauseButton.setText("⏸");
-            }
+            paused = !paused;
+            pauseButton.setText(getPlayString(paused));
         });
 
         previousButton.setOnAction( event -> {
             GlobalEventBus.post(new AudioEvents.PreviousMusic());
+            paused = false;
+            pauseButton.setText(getPlayString(paused));
         });
 
         HBox control = new HBox(10, previousButton, pauseButton, skipButton);
@@ -106,6 +104,15 @@ public class SongDisplay extends VBox {
 
         String time = positionMinutes + ":" + positionSecondsStr + " / " + durationMinutes + ":" + durationSecondsStr;
         return time;
+    }
+
+    private String getPlayString(boolean paused) {
+        if (paused) {
+            return "▶";
+        }
+        else {
+            return "⏸";
+        }
     }
 }
 
