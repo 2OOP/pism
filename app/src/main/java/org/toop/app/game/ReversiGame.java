@@ -16,6 +16,7 @@ import org.toop.game.reversi.ReversiAI;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -82,7 +83,9 @@ public final class ReversiGame {
 						} catch (InterruptedException _) {}
 					}
 				}
-			});
+			},this::highlightCells);
+
+
 
 		view.add(Pos.CENTER, canvas.getCanvas());
 		ViewStack.push(view);
@@ -159,6 +162,7 @@ public final class ReversiGame {
 				continue;
 			}
 
+            canvas.setCurrentlyHighlightedMovesNull();
 			final Game.State state = game.play(move);
 			updateCanvas(true);
 
@@ -285,7 +289,7 @@ public final class ReversiGame {
 			final Game.Move[] legalMoves = game.getLegalMoves();
 
 			for (final Game.Move legalMove : legalMoves) {
-				canvas.drawLegalPosition(legalMove.position());
+				canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
 			}
 		});
 
@@ -301,4 +305,26 @@ public final class ReversiGame {
 			currentValue,
 			information.players[isMe? 1 : 0].name);
 	}
+
+    private void highlightCells(int cellEntered) {
+        Game.Move[] legalMoves = game.getLegalMoves();
+        boolean isLegalMove = false;
+        for (Game.Move move : legalMoves) {
+            if (move.position() == cellEntered){
+                isLegalMove = true;
+                break;
+            }
+        }
+
+        if (cellEntered >= 0){
+            Game.Move[] moves = null;
+            if (isLegalMove) {
+                moves = game.getFlipsForPotentialMove(
+                        new Point(cellEntered%game.columnSize,cellEntered/game.rowSize),
+                        game.makeBoardAGrid(),
+                        game.getCurrentPlayer());
+            }
+            canvas.drawHighlightDots(moves);
+        }
+    }
 }
