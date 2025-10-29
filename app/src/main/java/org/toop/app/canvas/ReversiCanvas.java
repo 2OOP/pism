@@ -1,7 +1,6 @@
 package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
-import org.toop.game.Game;
 import org.toop.game.records.Move;
 
 import java.util.concurrent.atomic.AtomicReference;

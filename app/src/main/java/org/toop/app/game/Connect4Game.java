@@ -12,7 +12,6 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Connect4.Connect4;
 import org.toop.game.Connect4.Connect4AI;
-import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
 import org.toop.game.records.Move;
 

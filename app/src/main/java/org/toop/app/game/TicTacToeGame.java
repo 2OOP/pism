@@ -8,7 +8,6 @@ import org.toop.app.view.views.GameView;
 import org.toop.app.view.views.LocalMultiplayerView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.tictactoe.TicTacToe;
