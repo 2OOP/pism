@@ -126,7 +126,6 @@ public final class OptionsView extends View {
 		languageCombobox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			AppSettings.getSettings().setLocale(newValue.toString());
 			AppContext.setLocale(newValue);
-			App.reload();
 		});
 
 		languageCombobox.setConverter(new StringConverter<>() {
