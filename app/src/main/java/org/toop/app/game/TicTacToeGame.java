@@ -3,9 +3,8 @@ package org.toop.app.game;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.TicTacToeCanvas;
-import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.GameView;
-import org.toop.app.view.views.LocalMultiplayerView;
+import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
@@ -24,13 +23,13 @@ public final class TicTacToeGame {
 	private final GameInformation information;
 
 	private final int myTurn;
-    private Runnable onGameOver;
+    private final Runnable onGameOver;
     private final BlockingQueue<Game.Move> moveQueue;
 
 	private final TicTacToe game;
 	private final TicTacToeAI ai;
 
-	private final GameView view;
+	private final GameView primary;
 	private final TicTacToeCanvas canvas;
 
 	private final AtomicBoolean isRunning;
@@ -48,12 +47,12 @@ public final class TicTacToeGame {
 		isRunning = new AtomicBoolean(true);
 
 		if (onForfeit == null || onExit == null) {
-			view = new GameView(null, () -> {
+			primary = new GameView(null, () -> {
 				isRunning.set(false);
-				ViewStack.push(new LocalMultiplayerView(information));
+				WidgetContainer.getCurrentView().transitionPrevious();
 			}, null);
 		} else {
-			view = new GameView(onForfeit, () -> {
+			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
 			}, onMessage);
@@ -81,16 +80,15 @@ public final class TicTacToeGame {
 				}
 			});
 
-		view.add(Pos.CENTER, canvas.getCanvas());
-		ViewStack.push(view);
+		primary.add(Pos.CENTER, canvas.getCanvas());
+		WidgetContainer.getCurrentView().transitionNext(primary);
 
 		if (onForfeit == null || onExit == null) {
 			new Thread(this::localGameThread).start();
 		} else {
 			new EventFlow()
 				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
-				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse)
-				.listen(NetworkEvents.ReceivedMessage.class, this::onReceivedMessage);
+				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse);
 
 			setGameLabels(myTurn == 0);
 		}
@@ -106,7 +104,7 @@ public final class TicTacToeGame {
 			final String currentValue = currentTurn == 0? "X" : "O";
 			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
 
-			view.nextPlayer(information.players[currentTurn].isHuman,
+			primary.nextPlayer(information.players[currentTurn].isHuman,
 				information.players[currentTurn].name,
 				currentValue,
 				information.players[nextTurn].name);
@@ -155,9 +153,9 @@ public final class TicTacToeGame {
 
 			if (state != Game.State.NORMAL) {
 				if (state == Game.State.WIN) {
-					view.gameOver(true, information.players[currentTurn].name);
+					primary.gameOver(true, information.players[currentTurn].name);
 				} else if (state == Game.State.DRAW) {
-					view.gameOver(false, "");
+					primary.gameOver(false, "");
 				}
 
 				isRunning.set(false);
@@ -184,15 +182,15 @@ public final class TicTacToeGame {
 	    if (state != Game.State.NORMAL) {
 		    if (state == Game.State.WIN) {
 			    if (response.player().equalsIgnoreCase(information.players[0].name)) {
-					view.gameOver(true, information.players[0].name);
+					primary.gameOver(true, information.players[0].name);
                     gameOver();
 			    } else {
-				    view.gameOver(false, information.players[1].name);
+				    primary.gameOver(false, information.players[1].name);
                     gameOver();
 			    }
 		    } else if (state == Game.State.DRAW) {
                 if(game.getLegalMoves().length == 0) { //only return draw in online multiplayer if the game is actually over.
-                    view.gameOver(false, "");
+                    primary.gameOver(false, "");
                     gameOver();
                 }
 		    }
@@ -244,19 +242,11 @@ public final class TicTacToeGame {
  				.postEvent();
     }
 
- 	private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-	    if (!isRunning.get()) {
-		    return;
-	    }
-
-		view.updateChat(msg.message());
-    }
-
 	private void setGameLabels(boolean isMe) {
 		final int currentTurn = game.getCurrentTurn();
 		final String currentValue = currentTurn == 0? "X" : "O";
 
-		view.nextPlayer(isMe,
+		primary.nextPlayer(isMe,
 			information.players[isMe? 0 : 1].name,
 			currentValue,
 			information.players[isMe? 1 : 0].name);

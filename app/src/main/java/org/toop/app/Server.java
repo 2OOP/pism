@@ -3,12 +3,11 @@ package org.toop.app;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
-import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.ChallengeView;
-import org.toop.app.view.views.ErrorView;
-import org.toop.app.view.views.OnlineView;
-import org.toop.app.view.views.SendChallengeView;
-import org.toop.app.view.views.ServerView;
+import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.popup.ChallengePopup;
+import org.toop.app.widget.popup.ErrorPopup;
+import org.toop.app.widget.popup.SendChallengePopup;
+import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
@@ -29,10 +28,10 @@ public final class Server {
 	private final List<String> onlinePlayers = new CopyOnWriteArrayList<>();
 	private final List<String> gameList = new CopyOnWriteArrayList<>();
 
-	private ServerView view;
+	private ServerView primary;
 	private boolean isPolling = true;
 
-    private AtomicBoolean isSingleGame = new AtomicBoolean(false);
+    private final AtomicBoolean isSingleGame = new AtomicBoolean(false);
 
 	private ScheduledExecutorService scheduler;
 
@@ -52,7 +51,7 @@ public final class Server {
 
 	public Server(String ip, String port, String user) {
 		if (ip.split("\\.").length < 4) {
-			ViewStack.push(new ErrorView("\"" + ip + "\" " + AppContext.getString("is-not-a-valid-ip-address")));
+			new ErrorPopup("\"" + ip + "\" " + AppContext.getString("is-not-a-valid-ip-address"));
 			return;
 		}
 
@@ -61,12 +60,12 @@ public final class Server {
 		try {
 			parsedPort = Integer.parseInt(port);
 		} catch (NumberFormatException _) {
-			ViewStack.push(new ErrorView("\"" + port + "\" " + AppContext.getString("is-not-a-valid-port")));
+			new ErrorPopup("\"" + port + "\" " + AppContext.getString("is-not-a-valid-port"));
 			return;
 		}
 
 		if (user.isEmpty() || user.matches("^[0-9].*")) {
-			ViewStack.push(new ErrorView(AppContext.getString("invalid-username")));
+			new ErrorPopup(AppContext.getString("invalid-username"));
 			return;
 		}
 
@@ -81,8 +80,8 @@ public final class Server {
 
 				new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, user)).postEvent();
 
-				view = new ServerView(user, this::sendChallenge, this::disconnect);
-				ViewStack.push(view);
+				primary = new ServerView(user, this::sendChallenge, this::disconnect);
+				WidgetContainer.getCurrentView().transitionNext(primary);
 
 				startPopulateScheduler();
 				populateGameList();
@@ -96,38 +95,10 @@ public final class Server {
 	private void sendChallenge(String opponent) {
 		if (!isPolling) return;
 
-
-		ViewStack.push(new SendChallengeView(this, opponent, (playerInformation, gameType) -> {
+		new SendChallengePopup(this, opponent, (playerInformation, gameType) -> {
 			new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(clientId, opponent, gameType)).postEvent();
-	/*			.listen(NetworkEvents.GameMatchResponse.class, e -> {
-					if (e.clientId() == clientId) {
-						isPolling = false;
-						onlinePlayers.clear();
-
-						final GameInformation.Type type = gameToType(gameType);
-						if (type == null) {
-							ViewStack.push(new ErrorView("Unsupported game type: " + gameType));
-							return;
-						}
-
-						final int myTurn = e.playerToMove().equalsIgnoreCase(e.opponent()) ? 1 : 0;
-
-						final GameInformation information = new GameInformation(type);
-						information.players[0] = playerInformation;
-						information.players[0].name = user;
-						information.players[1].name = opponent;
-
-						switch (type) {
-							case TICTACTOE -> new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
-							case REVERSI -> new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
-							case CONNECT4 -> new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage);
-							default -> ViewStack.push(new ErrorView("Unsupported game type."));
-						}
-					}
-				}) */
-            ViewStack.pop();
             isSingleGame.set(true);
-		}));
+		});
 	}
 
     private void handleMatchResponse(NetworkEvents.GameMatchResponse response) {
@@ -141,7 +112,7 @@ public final class Server {
 
             final GameInformation.Type type = gameToType(gameType);
             if (type == null) {
-                ViewStack.push(new ErrorView("Unsupported game type: " + gameType));
+                new ErrorPopup("Unsupported game type: " + gameType);
                 return;
             }
 
@@ -164,7 +135,7 @@ public final class Server {
                         new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 case CONNECT4 ->
                         new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
-                default -> ViewStack.push(new ErrorView("Unsupported game type."));
+                default -> new ErrorPopup("Unsupported game type.");
             }
         }
     }
@@ -175,17 +146,11 @@ public final class Server {
 		String challengerName = extractQuotedValue(response.challengerName());
 		String gameType = extractQuotedValue(response.gameType());
 		final String finalGameType = gameType;
-		ViewStack.push(new ChallengeView(challengerName, gameType, (playerInformation) -> {
+		new ChallengePopup(challengerName, gameType, (playerInformation) -> {
 			final int challengeId = Integer.parseInt(response.challengeId().replaceAll("\\D", ""));
 			new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientId, challengeId)).postEvent();
-			ViewStack.pop();
             isSingleGame.set(true);
-
-			//new EventFlow().listen(NetworkEvents.GameMatchResponse.class, e -> {
-
-
-			//});
-		}));
+		});
 	}
 
 	private void sendMessage(String message) {
@@ -196,7 +161,7 @@ public final class Server {
 		new EventFlow().addPostEvent(new NetworkEvents.CloseClient(clientId)).postEvent();
 		isPolling = false;
 		stopScheduler();
-		ViewStack.push(new OnlineView());
+		primary.transitionPrevious();
 	}
 
 	private void forfeitGame() {
@@ -205,15 +170,11 @@ public final class Server {
 
 	private void exitGame() {
 		forfeitGame();
-		ViewStack.push(view);
 		startPopulateScheduler();
 	}
 
     private void gameOver(){
-        ViewStack.pop();
-        ViewStack.push(view);
         startPopulateScheduler();
-
     }
 
 	private void startPopulateScheduler() {
@@ -227,7 +188,7 @@ public final class Server {
 					onlinePlayers.clear();
 					onlinePlayers.addAll(List.of(e.playerlist()));
 					onlinePlayers.removeIf(name -> name.equalsIgnoreCase(user));
-					view.update(onlinePlayers);
+					primary.update(onlinePlayers);
 				}
 			}, false);
 

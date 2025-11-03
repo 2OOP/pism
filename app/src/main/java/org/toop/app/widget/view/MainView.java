@@ -1,27 +1,27 @@
-package org.toop.app.widget.primary;
+package org.toop.app.widget.view;
 
 import org.toop.app.App;
 import org.toop.app.widget.Primitive;
-import org.toop.app.widget.complex.PrimaryWidget;
+import org.toop.app.widget.complex.ViewWidget;
 
 import javafx.geometry.Pos;
 
-public class MainPrimary extends PrimaryWidget {
-	public MainPrimary() {
+public class MainView extends ViewWidget {
+	public MainView() {
 		var localButton = Primitive.button("local", () -> {
-			transitionNext(new LocalPrimary());
+			transitionNext(new LocalView());
 		});
 
 		var onlineButton = Primitive.button("online", () -> {
-			transitionNext(new OnlinePrimary());
+			transitionNext(new OnlineView());
 		});
 
 		var creditsButton = Primitive.button("credits", () -> {
-			transitionNext(new CreditsPrimary());
+			transitionNext(new CreditsView());
 		});
 
 		var optionsButton = Primitive.button("options", () -> {
-			transitionNext(new OptionsPrimary());
+			transitionNext(new OptionsView());
 		});
 
 		var quitButton = Primitive.button("quit", () -> {

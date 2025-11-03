@@ -4,9 +4,8 @@ import javafx.animation.SequentialTransition;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.ReversiCanvas;
-import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.GameView;
-import org.toop.app.view.views.LocalMultiplayerView;
+import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
@@ -25,13 +24,13 @@ public final class ReversiGame {
 	private final GameInformation information;
 
 	private final int myTurn;
-    private Runnable onGameOver;
+    private final Runnable onGameOver;
     private final BlockingQueue<Game.Move> moveQueue;
 
 	private final Reversi game;
 	private final ReversiAI ai;
 
-	private final GameView view;
+	private final GameView primary;
 	private final ReversiCanvas canvas;
 
 	private final AtomicBoolean isRunning;
@@ -42,7 +41,7 @@ public final class ReversiGame {
 
 		this.myTurn = myTurn;
         this.onGameOver = onGameOver;
-        moveQueue = new LinkedBlockingQueue<Game.Move>();
+        moveQueue = new LinkedBlockingQueue<>();
 
 		game = new Reversi();
 		ai = new ReversiAI();
@@ -51,12 +50,12 @@ public final class ReversiGame {
 		isPaused = new AtomicBoolean(false);
 
 		if (onForfeit == null || onExit == null) {
-			view = new GameView(null, () -> {
+			primary = new GameView(null, () -> {
 				isRunning.set(false);
-				ViewStack.push(new LocalMultiplayerView(information));
+				WidgetContainer.getCurrentView().transitionPrevious();
 			}, null);
 		} else {
-			view = new GameView(onForfeit, () -> {
+			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
 			}, onMessage);
@@ -84,8 +83,8 @@ public final class ReversiGame {
 				}
 			});
 
-		view.add(Pos.CENTER, canvas.getCanvas());
-		ViewStack.push(view);
+		primary.add(Pos.CENTER, canvas.getCanvas());
+		WidgetContainer.getCurrentView().transitionNext(primary);
 
 		if (onForfeit == null || onExit == null) {
 			new Thread(this::localGameThread).start();
@@ -93,8 +92,7 @@ public final class ReversiGame {
 		} else {
 			new EventFlow()
 				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
-				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse)
-				.listen(NetworkEvents.ReceivedMessage.class, this::onReceivedMessage);
+				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse);
 
 			setGameLabels(myTurn == 0);
 		}
@@ -120,7 +118,7 @@ public final class ReversiGame {
 			final String currentValue = currentTurn == 0? "BLACK" : "WHITE";
 			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
 
-			view.nextPlayer(information.players[currentTurn].isHuman,
+			primary.nextPlayer(information.players[currentTurn].isHuman,
 				information.players[currentTurn].name,
 				currentValue,
 				information.players[nextTurn].name);
@@ -164,9 +162,9 @@ public final class ReversiGame {
 
 			if (state != Game.State.NORMAL) {
 				if (state == Game.State.WIN) {
-					view.gameOver(true, information.players[currentTurn].name);
+					primary.gameOver(true, information.players[currentTurn].name);
 				} else if (state == Game.State.DRAW) {
-					view.gameOver(false, "");
+					primary.gameOver(false, "");
 				}
 
 				isRunning.set(false);
@@ -193,14 +191,14 @@ public final class ReversiGame {
 		if (state != Game.State.NORMAL) {
 			if (state == Game.State.WIN) {
 				if (response.player().equalsIgnoreCase(information.players[0].name)) {
-					view.gameOver(true, information.players[0].name);
+					primary.gameOver(true, information.players[0].name);
                     gameOver();
 				} else {
-					view.gameOver(false, information.players[1].name);
+					primary.gameOver(false, information.players[1].name);
                     gameOver();
 				}
 			} else if (state == Game.State.DRAW) {
-				view.gameOver(false, "");
+				primary.gameOver(false, "");
                 game.play(move);
 			}
 		}
@@ -241,14 +239,6 @@ public final class ReversiGame {
 			.postEvent();
 	}
 
-	private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-		if (!isRunning.get()) {
-			return;
-		}
-
-		view.updateChat(msg.message());
-	}
-
 	private void updateCanvas(boolean animate) {
 		// Todo: this is very inefficient. still very fast but if the grid is bigger it might cause issues. improve.
 		canvas.clearAll();
@@ -266,8 +256,8 @@ public final class ReversiGame {
 		final SequentialTransition animation = new SequentialTransition();
 		isPaused.set(true);
 
-		final Color fromColor = game.getCurrentPlayer() == 0? Color.WHITE : Color.BLACK;
-		final Color toColor = game.getCurrentPlayer() == 0? Color.BLACK : Color.WHITE;
+		final Color fromColor = game.getCurrentPlayer() == 'W'? Color.WHITE : Color.BLACK;
+		final Color toColor = game.getCurrentPlayer() == 'W'? Color.BLACK : Color.WHITE;
 
 		if (animate && flipped != null) {
 			for (final Game.Move flip : flipped) {
@@ -283,7 +273,7 @@ public final class ReversiGame {
 			final Game.Move[] legalMoves = game.getLegalMoves();
 
 			for (final Game.Move legalMove : legalMoves) {
-				canvas.drawLegalPosition(toColor, legalMove.position());
+				canvas.drawLegalPosition(fromColor, legalMove.position());
 			}
 		});
 
@@ -294,7 +284,7 @@ public final class ReversiGame {
 		final int currentTurn = game.getCurrentTurn();
 		final String currentValue = currentTurn == 0? "BLACK" : "WHITE";
 
-		view.nextPlayer(isMe,
+		primary.nextPlayer(isMe,
 			information.players[isMe? 0 : 1].name,
 			currentValue,
 			information.players[isMe? 1 : 0].name);

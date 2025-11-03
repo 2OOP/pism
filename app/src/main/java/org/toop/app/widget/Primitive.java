@@ -23,8 +23,10 @@ public final class Primitive {
 		var header = new Text();
 		header.getStyleClass().add("header");
 
-		header.setText(AppContext.getString(key));
-		header.textProperty().bind(AppContext.bindToKey(key));
+		if (!key.isEmpty()) {
+			header.setText(AppContext.getString(key));
+			header.textProperty().bind(AppContext.bindToKey(key));
+		}
 
 		return header;
 	}
@@ -33,8 +35,10 @@ public final class Primitive {
 		var text = new Text();
 		text.getStyleClass().add("text");
 
-		text.setText(AppContext.getString(key));
-		text.textProperty().bind(AppContext.bindToKey(key));
+		if (!key.isEmpty()) {
+			text.setText(AppContext.getString(key));
+			text.textProperty().bind(AppContext.bindToKey(key));
+		}
 
 		return text;
 	}
@@ -43,8 +47,10 @@ public final class Primitive {
 		var button = new Button();
 		button.getStyleClass().add("button");
 
-		button.setText(AppContext.getString(key));
-		button.textProperty().bind(AppContext.bindToKey(key));
+		if (!key.isEmpty()) {
+			button.setText(AppContext.getString(key));
+			button.textProperty().bind(AppContext.bindToKey(key));
+		}
 
 		if (onAction != null) {
 			button.setOnAction(_ ->
@@ -58,8 +64,10 @@ public final class Primitive {
 		var input = new TextField();
 		input.getStyleClass().add("input");
 
-		input.setPromptText(AppContext.getString(promptKey));
-		input.promptTextProperty().bind(AppContext.bindToKey(promptKey));
+		if (!promptKey.isEmpty()) {
+			input.setPromptText(AppContext.getString(promptKey));
+			input.promptTextProperty().bind(AppContext.bindToKey(promptKey));
+		}
 
 		input.setText(text);
 
@@ -133,7 +141,11 @@ public final class Primitive {
 		hbox.getStyleClass().add("container");
 		hbox.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-		hbox.getChildren().addAll(nodes);
+		for (var node : nodes) {
+			if (node != null) {
+				hbox.getChildren().add(node);
+			}
+		}
 
 		return hbox;
 	}
@@ -143,7 +155,11 @@ public final class Primitive {
 		vbox.getStyleClass().add("container");
 		vbox.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-		vbox.getChildren().addAll(nodes);
+		for (var node : nodes) {
+			if (node != null) {
+				vbox.getChildren().add(node);
+			}
+		}
 
 		return vbox;
 	}

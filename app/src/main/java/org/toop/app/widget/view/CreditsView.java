@@ -1,8 +1,8 @@
-package org.toop.app.widget.primary;
+package org.toop.app.widget.view;
 
 import org.toop.app.App;
 import org.toop.app.widget.Primitive;
-import org.toop.app.widget.complex.PrimaryWidget;
+import org.toop.app.widget.complex.ViewWidget;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -14,8 +14,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class CreditsPrimary extends PrimaryWidget {
-	public CreditsPrimary() {
+public class CreditsView extends ViewWidget {
+	public CreditsView() {
 		var scrumMasterCredit = newCredit("scrum-master", "Stef");
 		var productOwnerCredit = newCredit("product-owner", "Omar");
 		var mergeCommanderCredit = newCredit("merge-commander", "Bas");

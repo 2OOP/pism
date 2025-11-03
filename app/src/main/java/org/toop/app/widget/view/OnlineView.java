@@ -1,14 +1,14 @@
-package org.toop.app.widget.primary;
+package org.toop.app.widget.view;
 
 import org.toop.app.Server;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.LabeledInputWidget;
-import org.toop.app.widget.complex.PrimaryWidget;
+import org.toop.app.widget.complex.ViewWidget;
 
 import javafx.geometry.Pos;
 
-public class OnlinePrimary extends PrimaryWidget {
-	public OnlinePrimary() {
+public class OnlineView extends ViewWidget {
+	public OnlineView() {
 		var serverInformationHeader = Primitive.header("server-information");
 
 		var serverIPInput = new LabeledInputWidget("ip-address", "enter-the-server-ip", "", _ -> {});

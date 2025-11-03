@@ -18,7 +18,6 @@ public final class ReversiCanvas extends GameCanvas {
 	}
 
 	public void drawLegalPosition(Color color, int cell) {
-		fill(new Color(color.getRed() * 0.25, color.getGreen() * 0.25, color.getBlue() * 0.25, 1.0), cell);
-		drawDot(new Color(color.getRed() * 0.5, color.getGreen() * 0.5, color.getBlue() * 0.5, 1.0), cell);
+		drawDot(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.25), cell);
 	}
 }

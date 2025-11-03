@@ -3,7 +3,7 @@ package org.toop.app.view.views;
 import org.toop.app.GameInformation;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
-import org.toop.app.game.TicTacToeGame;
+import org.toop.app.game.TicTacToeGameThread;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
 import org.toop.app.view.displays.SongDisplay;
@@ -45,10 +45,10 @@ public final class LocalMultiplayerView extends View {
 			}
 
 			switch (information.type) {
-				case TICTACTOE: new TicTacToeGame(information); break;
+				case TICTACTOE: new TicTacToeGameThread(information); break;
 				case REVERSI: new ReversiGame(information); break;
                 case CONNECT4: new Connect4Game(information); break;
-                //case BATTLESHIP: new BattleshipGame(information); break;
+                // case BATTLESHIP: new BattleshipGame(information); break;
 			}
 		});
 

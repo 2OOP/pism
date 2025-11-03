@@ -1,10 +1,9 @@
 package org.toop.app;
 
-import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.display.SongDisplay;
 import org.toop.app.widget.popup.QuitPopup;
-import org.toop.app.widget.primary.MainPrimary;
+import org.toop.app.widget.view.MainView;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.ResourceManager;
@@ -65,7 +64,7 @@ public final class App extends Application {
 		AppSettings.applySettings();
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 
-        WidgetContainer.add(Pos.CENTER, new MainPrimary());
+        WidgetContainer.add(Pos.CENTER, new MainView());
 		WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
 	}
 

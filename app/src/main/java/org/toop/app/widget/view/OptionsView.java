@@ -1,10 +1,10 @@
-package org.toop.app.widget.primary;
+package org.toop.app.widget.view;
 
 import org.toop.app.App;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.LabeledChoiceWidget;
 import org.toop.app.widget.complex.LabeledSliderWidget;
-import org.toop.app.widget.complex.PrimaryWidget;
+import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.complex.ToggleWidget;
 import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.audio.events.AudioEvents;
@@ -18,8 +18,8 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 
-public class OptionsPrimary extends PrimaryWidget {
-	public OptionsPrimary() {
+public class OptionsView extends ViewWidget {
+	public OptionsView() {
 		add(Pos.CENTER, Primitive.hbox(
 			generalSection(),
 			volumeSection(),
@@ -42,7 +42,7 @@ public class OptionsPrimary extends PrimaryWidget {
 			newLocale -> {
 				AppSettings.getSettings().setLocale(newLocale.toString());
 				AppContext.setLocale(newLocale);
-				reload(new OptionsPrimary());
+				reload(new OptionsView());
 			},
 			AppContext.getLocalization().getAvailableLocales().toArray(new Locale[0])
 		);
