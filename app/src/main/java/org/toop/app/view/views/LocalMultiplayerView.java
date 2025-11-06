@@ -83,7 +83,7 @@ public final class LocalMultiplayerView extends View {
 	}
 
 	private VBox[] setupPlayers() {
-		final VBox[] playerBoxes = new VBox[GameInformation.Type.playerCount(information.type)];
+		final VBox[] playerBoxes = new VBox[information.type.getPlayerCount()];
 
 		for (int i = 0; i < playerBoxes.length; i++) {
 			final int index = i;
@@ -141,7 +141,7 @@ public final class LocalMultiplayerView extends View {
 
 				final Slider computerDifficultySlider = slider();
 				computerDifficultySlider.setMin(0);
-				computerDifficultySlider.setMax(GameInformation.Type.maxDepth(information.type));
+				computerDifficultySlider.setMax(information.type.getMaxDepth());
 				computerDifficultySlider.setValue(information.players[i].computerDifficulty);
 				computerDifficultySlider.valueProperty().addListener((_, _, newValue) -> {
 					information.players[index].computerDifficulty = newValue.intValue();

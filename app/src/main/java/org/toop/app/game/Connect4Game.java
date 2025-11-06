@@ -106,7 +106,7 @@ public class Connect4Game {
         while (isRunning.get()) {
 			final int currentTurn = game.getCurrentTurn();
 			final String currentValue = currentTurn == 0? "RED" : "BLUE";
-			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
+			final int nextTurn = (currentTurn + 1) % information.type.getPlayerCount();
 
 			view.nextPlayer(information.players[currentTurn].isHuman,
 				information.players[currentTurn].name,

@@ -49,7 +49,7 @@ public class LocalMultiplayerView extends ViewWidget {
 	}
 
 	private ScrollPane setupPlayerSections() {
-		int playerCount = GameInformation.Type.playerCount(information.type);
+		int playerCount = information.type.getPlayerCount();
 		VBox[] playerBoxes = new VBox[playerCount];
 
 		for (int i = 0; i < playerCount; i++) {

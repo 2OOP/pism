@@ -86,7 +86,7 @@ public final class SendChallengeView extends View {
 
 			final Slider computerDifficultySlider = slider();
 			computerDifficultySlider.setMin(0);
-			computerDifficultySlider.setMax(GameInformation.Type.maxDepth(Server.gameToType(gamesCombobox.getValue())));
+			computerDifficultySlider.setMax(Server.gameToType(gamesCombobox.getValue()).getMaxDepth());
 			computerDifficultySlider.setValue(playerInformation.computerDifficulty);
 			computerDifficultySlider.valueProperty().addListener((_, _, newValue) -> {
 				playerInformation.computerDifficulty = newValue.intValue();

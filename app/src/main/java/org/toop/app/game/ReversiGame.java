@@ -116,7 +116,7 @@ public final class ReversiGame {
 
 			final int currentTurn = game.getCurrentTurn();
 			final String currentValue = currentTurn == 0? "BLACK" : "WHITE";
-			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
+			final int nextTurn = (currentTurn + 1) % information.type.getPlayerCount();
 
 			primary.nextPlayer(information.players[currentTurn].isHuman,
 				information.players[currentTurn].name,

@@ -53,9 +53,9 @@ public final class SendChallengePopup extends PopupWidget {
 			newGame -> {
 				playerInformation.computerDifficulty = Math.min(
 					playerInformation.computerDifficulty,
-					GameInformation.Type.maxDepth(Server.gameToType(newGame))
+					Server.gameToType(newGame).getMaxDepth()
 				);
-			},
+            },
 			games.toArray(new String[0])
 		);
 
