@@ -1,19 +1,23 @@
 package org.toop.app.widget.view;
 
+import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGameThread;
 import org.toop.app.widget.Primitive;
+import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
+import org.toop.app.widget.tutorial.BaseTutorialWidget;
+import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
-
+import org.toop.local.AppSettings;
 public class LocalMultiplayerView extends ViewWidget {
 	private final GameInformation information;
 
@@ -32,9 +36,39 @@ public class LocalMultiplayerView extends ViewWidget {
 			}
 
 			switch (information.type) {
-				case TICTACTOE -> new TicTacToeGameThread(information);
-				case REVERSI -> new ReversiGame(information);
-				case CONNECT4 -> new Connect4Game(information);
+                case TICTACTOE:
+                    System.out.println(AppSettings.getSettings().getTutorialFlag());
+                    System.out.println(AppSettings.getSettings().getFirstTTT());
+                    if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
+                         BaseTutorialWidget a = new BaseTutorialWidget(
+                                "tutorial",
+                                () -> {
+                                    AppSettings.getSettings().setFirstTTT(false);
+                                    Platform.runLater(() -> {
+                                        new TicTacToeGameThread(information);
+                                    });
+                                },
+                                () -> {
+                                    Platform.runLater(() -> {
+                                        ViewWidget c = new TicTacToeTutorialWidget();
+                                        transitionNext(c);
+                                        WidgetContainer.setCurrentView(c);
+                                    });
+                                    },
+                                () -> {
+                                    AppSettings.getSettings().setTutorialFlag(false);
+                                    Platform.runLater(() -> {
+                                        new TicTacToeGameThread(information);
+                                    });
+                                }
+                        );
+                         transitionNext(a);
+                         break;
+                    }
+                    new TicTacToeGameThread(information);
+                    break;
+                case REVERSI: new ReversiGame(information);
+                case CONNECT4: new Connect4Game(information);
 				// case BATTLESHIP -> new BattleshipGame(information);
 			}
 		});

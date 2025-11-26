@@ -16,11 +16,10 @@ public final class GameView extends ViewWidget {
 	private final Text currentPlayerHeader;
 	private final Text currentMoveHeader;
 	private final Text nextPlayerHeader;
-
 	private final Button forfeitButton;
 	private final Button exitButton;
 
-	private final TextField chatInput;
+    private final TextField chatInput;
 
 	public GameView(Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		currentPlayerHeader = Primitive.header("");
