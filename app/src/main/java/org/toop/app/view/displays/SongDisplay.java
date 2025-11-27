@@ -108,6 +108,10 @@ public class SongDisplay extends VBox implements Widget {
         return time;
     }
 
+	@Override
+	public Node getNode() {
+		return this;
+	}
     private String getPlayString(boolean paused) {
         if (paused) {
             return "▶";
@@ -116,11 +120,6 @@ public class SongDisplay extends VBox implements Widget {
             return "⏸";
         }
     }
-
-	@Override
-	public Node getNode() {
-		return this;
-	}
 }
 
 

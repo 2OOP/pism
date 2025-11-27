@@ -1,5 +1,10 @@
 package org.toop.local;
 
+import java.util.Locale;
+import java.util.MissingResourceException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.LocalizationAsset;
 
@@ -14,9 +19,8 @@ public class AppContext {
     private static final LocalizationAsset localization = ResourceManager.get("localization");
     private static Locale locale = Locale.forLanguageTag("en");
 
-    private static final Logger logger = LogManager.getLogger(AppContext.class);
-
 	private static final ObjectProperty<Locale> localeProperty = new SimpleObjectProperty<>(locale);
+    private static final Logger logger = LogManager.getLogger(AppContext.class);
 
     public static LocalizationAsset getLocalization() {
         return localization;

@@ -24,8 +24,8 @@ public final class TicTacToeGame {
 	private final GameInformation information;
 
 	private final int myTurn;
-    private Runnable onGameOver;
-    private final BlockingQueue<Move> moveQueue;
+    private final Runnable onGameOver;
+    private final BlockingQueue<Game.Move> moveQueue;
 
 	private final TicTacToe game;
 	private final TicTacToeAI ai;
@@ -152,10 +152,10 @@ public final class TicTacToeGame {
 				canvas.drawO(Color.ROYALBLUE, move.position());
 			}
 
-			if (state != GameState.NORMAL) {
-				if (state == GameState.WIN) {
+			if (state != Game.State.NORMAL) {
+				if (state == Game.State.WIN) {
 					primary.gameOver(true, information.players[currentTurn].name);
-				} else if (state == GameState.DRAW) {
+				} else if (state == Game.State.DRAW) {
 					primary.gameOver(false, "");
 				}
 

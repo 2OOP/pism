@@ -28,8 +28,6 @@ public final class ReversiGame {
 	private final int myTurn;
     private final Runnable onGameOver;
     private final BlockingQueue<Game.Move> moveQueue;
-    private Runnable onGameOver;
-    private final BlockingQueue<Move> moveQueue;
 
 	private final Reversi game;
 	private final ReversiAI ai;
@@ -167,22 +165,28 @@ public final class ReversiGame {
 			final GameState state = game.play(move);
 			updateCanvas(true);
 
-			if (state != Game.State.NORMAL) {
-				if (state == Game.State.WIN) {
-					primary.gameOver(true, information.players[currentTurn].name);
-				} else if (state == Game.State.DRAW) {
-					primary.gameOver(false, "");
 			if (state != GameState.NORMAL) {
-				if (state == GameState.WIN) {
-					view.gameOver(true, information.players[currentTurn].name);
-				} else if (state == GameState.DRAW) {
-					view.gameOver(false, "");
+                if (state == GameState.TURN_SKIPPED){
+                    continue;
+                }
+                int winningPLayerNumber = getPlayerNumberWithHighestScore();
+				if (state == GameState.WIN && winningPLayerNumber > -1) {
+					primary.gameOver(true, information.players[winningPLayerNumber].name);
+				} else if (state == GameState.DRAW || winningPLayerNumber == -1) {
+					primary.gameOver(false, "");
 				}
 
 				isRunning.set(false);
 			}
 		}
 	}
+
+    private int getPlayerNumberWithHighestScore(){
+        Reversi.Score score = game.getScore();
+        if (score.player1Score() > score.player2Score()) return 0;
+        if (score.player1Score() < score.player2Score()) return 1;
+        return -1;
+    }
 
 	private void onMoveResponse(NetworkEvents.GameMoveResponse response) {
 		if (!isRunning.get()) {
@@ -209,8 +213,8 @@ public final class ReversiGame {
 					primary.gameOver(false, information.players[1].name);
                     gameOver();
 				}
-			} else if (state == GameState.DRAW) {
-				view.gameOver(false, "");
+			} else if (state == Game.State.DRAW) {
+				primary.gameOver(false, "");
                 game.play(move);
 			}
 		}
@@ -282,13 +286,13 @@ public final class ReversiGame {
 		animation.setOnFinished(_ -> {
 			isPaused.set(false);
 
-			final Move[] legalMoves = game.getLegalMoves();
+            if (information.players[game.getCurrentTurn()].isHuman) {
+                final Move[] legalMoves = game.getLegalMoves();
 
-			for (final Move legalMove : legalMoves) {
-				canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
-			for (final Game.Move legalMove : legalMoves) {
-				canvas.drawLegalPosition(fromColor, legalMove.position());
-			}
+                for (final Game.Move legalMove : legalMoves) {
+                    canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
+                }
+            }
 		});
 
 		animation.play();
@@ -305,23 +309,25 @@ public final class ReversiGame {
 	}
 
     private void highlightCells(int cellEntered) {
-        Move[] legalMoves = game.getLegalMoves();
-        boolean isLegalMove = false;
-        for (Move move : legalMoves) {
-            if (move.position() == cellEntered){
-                isLegalMove = true;
-                break;
+        if (information.players[game.getCurrentTurn()].isHuman) {
+            Move[] legalMoves = game.getLegalMoves();
+            boolean isLegalMove = false;
+            for (Move move : legalMoves) {
+                if (move.position() == cellEntered){
+                    isLegalMove = true;
+                    break;
+                }
             }
-        }
 
-        if (cellEntered >= 0){
-            Move[] moves = null;
-            if (isLegalMove) {
-                moves = game.getFlipsForPotentialMove(
-                        new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
-                        game.getCurrentPlayer());
+            if (cellEntered >= 0){
+                Move[] moves = null;
+                if (isLegalMove) {
+                    moves = game.getFlipsForPotentialMove(
+                            new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
+                            game.getCurrentPlayer());
+                }
+                canvas.drawHighlightDots(moves);
             }
-            canvas.drawHighlightDots(moves);
         }
     }
 }
