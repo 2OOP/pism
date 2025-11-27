@@ -8,6 +8,7 @@ public final class ReversiAI extends AI<Reversi> {
 	public Move findBestMove(Reversi game, int depth) {
         Move[] moves = game.getLegalMoves();
         int inty = (int)(Math.random() * moves.length-.5f);
+        if (moves.length == 0) return null;
 		return moves[inty];
 	}
 }
