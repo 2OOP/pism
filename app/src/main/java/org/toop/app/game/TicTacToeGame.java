@@ -7,6 +7,7 @@ import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.game.Game;
 import org.toop.game.enumerators.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.tictactoe.TicTacToe;
@@ -25,7 +26,7 @@ public final class TicTacToeGame {
 
 	private final int myTurn;
     private final Runnable onGameOver;
-    private final BlockingQueue<Game.Move> moveQueue;
+    private final BlockingQueue<Move> moveQueue;
 
 	private final TicTacToe game;
 	private final TicTacToeAI ai;
@@ -40,7 +41,7 @@ public final class TicTacToeGame {
 
 		this.myTurn = myTurn;
         this.onGameOver = onGameOver;
-        moveQueue = new LinkedBlockingQueue<Move>();
+        moveQueue = new LinkedBlockingQueue<>();
 
 		game = new TicTacToe();
 		ai = new TicTacToeAI();
@@ -152,10 +153,10 @@ public final class TicTacToeGame {
 				canvas.drawO(Color.ROYALBLUE, move.position());
 			}
 
-			if (state != Game.State.NORMAL) {
-				if (state == Game.State.WIN) {
+			if (state != GameState.NORMAL) {
+				if (state == GameState.WIN) {
 					primary.gameOver(true, information.players[currentTurn].name);
-				} else if (state == Game.State.DRAW) {
+				} else if (state == GameState.DRAW) {
 					primary.gameOver(false, "");
 				}
 

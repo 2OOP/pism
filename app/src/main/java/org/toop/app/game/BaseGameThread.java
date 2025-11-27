@@ -6,6 +6,7 @@ import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
+import org.toop.game.records.Move;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,7 +19,7 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 	protected final GameInformation information;
 	protected final int myTurn;
 	protected final Runnable onGameOver;
-	protected final BlockingQueue<Game.Move> moveQueue;
+	protected final BlockingQueue<Move> moveQueue;
 
 	protected final TGame game;
 	protected final TAI ai;
@@ -84,7 +85,7 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 		final char value = getSymbolForTurn(currentTurn);
 
 		try {
-			moveQueue.put(new Game.Move(cell, value));
+			moveQueue.put(new Move(cell, value));
 		} catch (InterruptedException _) {}
 	}
 

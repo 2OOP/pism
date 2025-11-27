@@ -22,7 +22,7 @@ public final class WidgetContainer {
 		return root;
 	}
 
-	public static void add(Pos position, Widget widget) {
+	public static void add(Pos anchor, Widget widget) {
 		if (root == null || widget == null) {
 			return;
 		}
@@ -32,7 +32,7 @@ public final class WidgetContainer {
 				return;
 			}
 
-			StackPane.setAlignment(widget.getNode(), position);
+			StackPane.setAlignment(widget.getNode(), anchor);
 
 			if (widget instanceof ViewWidget view) {
 				root.getChildren().addFirst(view.getNode());
