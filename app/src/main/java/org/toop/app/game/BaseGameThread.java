@@ -6,6 +6,7 @@ import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Game;
+import org.toop.game.records.Move;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,7 +19,7 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 	protected final GameInformation information;
 	protected final int myTurn;
 	protected final Runnable onGameOver;
-	protected final BlockingQueue<Game.Move> moveQueue;
+	protected final BlockingQueue<Move> moveQueue;
 
 	protected final TGame game;
 	protected final TAI ai;
@@ -27,6 +28,7 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 	protected final TCanvas canvas;
 
 	protected final AtomicBoolean isRunning = new AtomicBoolean(true);
+	protected final AtomicBoolean isPaused = new AtomicBoolean(false);
 
 	protected BaseGameThread(
 		GameInformation information,
@@ -76,7 +78,7 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 	}
 
 	private void onCellClicked(int cell) {
-		if (!isRunning.get()) return;
+		if (!isRunning.get() || isPaused.get()) return;
 
 		final int currentTurn = getCurrentTurn();
 		if (!information.players[currentTurn].isHuman) return;
@@ -84,8 +86,9 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 		final char value = getSymbolForTurn(currentTurn);
 
 		try {
-			moveQueue.put(new Game.Move(cell, value));
-		} catch (InterruptedException _) {}
+			moveQueue.put(new Move(cell, value));
+		} catch (InterruptedException _) {
+		}
 	}
 
 	protected void gameOver() {
@@ -110,10 +113,13 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 	protected abstract void addCanvasToPrimary();
 
 	protected abstract int getCurrentTurn();
+
 	protected abstract char getSymbolForTurn(int turn);
+
 	protected abstract String getNameForTurn(int turn);
 
 	protected abstract void onMoveResponse(NetworkEvents.GameMoveResponse response);
+
 	protected abstract void onYourTurnResponse(NetworkEvents.YourTurnResponse response);
 
 	protected abstract void localGameThread();

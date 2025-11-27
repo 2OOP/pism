@@ -7,61 +7,38 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public final class ReversiCanvas extends GameCanvas {
-    private Move[] currentlyHighlightedMoves = null;
-	public ReversiCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked,  Consumer<Integer> newCellEntered) {
-		super(color, new Color(0f,0.4f,0.2f,1f), width, height, 8, 8, 5, true, onCellClicked,  newCellEntered);
+	private Move[] currentlyHighlightedMoves = null;
+
+	public ReversiCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked) {
+		super(color, new Color(0f, 0.4f, 0.2f, 1f), width, height, 8, 8, 5, true, onCellClicked);
 		drawStartingDots();
-
-        final AtomicReference<Cell> lastHoveredCell = new AtomicReference<>(null);
-
-        canvas.setOnMouseMoved(event -> {
-            double mouseX = event.getX();
-            double mouseY = event.getY();
-            int cellId = -1;
-
-            Cell hovered = null;
-            for (Cell cell : cells) {
-                if (cell.isInside(mouseX, mouseY)) {
-                    hovered = cell;
-                    cellId = turnCoordsIntoCellId(mouseX, mouseY);
-                    break;
-                }
-            }
-
-            Cell previous = lastHoveredCell.get();
-
-            if (hovered != previous) {
-                lastHoveredCell.set(hovered);
-                newCellEntered.accept(cellId);
-            }
-        });
 	}
 
-    public void setCurrentlyHighlightedMovesNull() {
-        currentlyHighlightedMoves = null;
-    }
+	public void setCurrentlyHighlightedMovesNull() {
+		currentlyHighlightedMoves = null;
+	}
 
-    public void drawHighlightDots(Move[] moves){
-        if (currentlyHighlightedMoves != null){
-            for (final Move move : currentlyHighlightedMoves){
-                Color color = move.value() == 'W'? Color.BLACK: Color.WHITE;
-                drawInnerDot(color, move.position(), true);
-            }
-        }
-        currentlyHighlightedMoves = moves;
-        if (moves != null) {
-            for (Move move : moves) {
-                Color color = move.value() == 'B' ? Color.BLACK : Color.WHITE;
-                drawInnerDot(color, move.position(), false);
-            }
-        }
-    }
+	public void drawHighlightDots(Move[] moves) {
+		if (currentlyHighlightedMoves != null) {
+			for (final Move move : currentlyHighlightedMoves) {
+				Color color = move.value() == 'W' ? Color.BLACK : Color.WHITE;
+				drawInnerDot(color, move.position(), true);
+			}
+		}
+		currentlyHighlightedMoves = moves;
+		if (moves != null) {
+			for (Move move : moves) {
+				Color color = move.value() == 'B' ? Color.BLACK : Color.WHITE;
+				drawInnerDot(color, move.position(), false);
+			}
+		}
+	}
 
-    private int turnCoordsIntoCellId(double x, double y) {
-        final int column = (int) ((x / this.width) * rowSize);
-        final int row = (int) ((y / this.height) * columnSize);
-        return column + row * rowSize;
-    }
+	private int turnCoordsIntoCellId(double x, double y) {
+		final int column = (int) ((x / this.width) * rowSize);
+		final int row = (int) ((y / this.height) * columnSize);
+		return column + row * rowSize;
+	}
 
 	public void drawStartingDots() {
 		drawDot(Color.BLACK, 28);
@@ -71,16 +48,14 @@ public final class ReversiCanvas extends GameCanvas {
 	}
 
 	public void drawLegalPosition(int cell, char player) {
+		Color innerColor;
 
-        Color innerColor;
-        if (player == 'B') {
-            innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
-        }
-        else {
-            innerColor = new Color(1.0f, 1.0f, 1.0f, 0.75f);
-        }
-        drawInnerDot(innerColor, cell,false);
-	public void drawLegalPosition(Color color, int cell) {
-		drawDot(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.25), cell);
+		if (player == 'B') {
+			innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
+		} else {
+			innerColor = new Color(1.0f, 1.0f, 1.0f, 0.75f);
+		}
+
+		drawInnerDot(innerColor, cell, false);
 	}
 }
