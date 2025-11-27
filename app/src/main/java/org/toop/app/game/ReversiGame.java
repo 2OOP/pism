@@ -168,9 +168,13 @@ public final class ReversiGame {
 			updateCanvas(true);
 
 			if (state != GameState.NORMAL) {
-				if (state == GameState.WIN) {
-					view.gameOver(true, information.players[currentTurn].name);
-				} else if (state == GameState.DRAW) {
+                if (state == GameState.TURN_SKIPPED){
+                    continue;
+                }
+                int winningPLayerNumber = getPlayerNumberWithHighestScore();
+				if (state == GameState.WIN && winningPLayerNumber > -1) {
+					view.gameOver(true, information.players[winningPLayerNumber].name);
+				} else if (state == GameState.DRAW || winningPLayerNumber == -1) {
 					view.gameOver(false, "");
 				}
 
@@ -178,6 +182,13 @@ public final class ReversiGame {
 			}
 		}
 	}
+
+    private int getPlayerNumberWithHighestScore(){
+        Reversi.Score score = game.getScore();
+        if (score.player1Score() > score.player2Score()) return 0;
+        if (score.player1Score() < score.player2Score()) return 1;
+        return -1;
+    }
 
 	private void onMoveResponse(NetworkEvents.GameMoveResponse response) {
 		if (!isRunning.get()) {
@@ -287,11 +298,13 @@ public final class ReversiGame {
 		animation.setOnFinished(_ -> {
 			isPaused.set(false);
 
-			final Move[] legalMoves = game.getLegalMoves();
+            if (information.players[game.getCurrentTurn()].isHuman) {
+                final Move[] legalMoves = game.getLegalMoves();
 
-			for (final Move legalMove : legalMoves) {
-				canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
-			}
+                for (final Move legalMove : legalMoves) {
+                    canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
+                }
+            }
 		});
 
 		animation.play();
@@ -308,23 +321,25 @@ public final class ReversiGame {
 	}
 
     private void highlightCells(int cellEntered) {
-        Move[] legalMoves = game.getLegalMoves();
-        boolean isLegalMove = false;
-        for (Move move : legalMoves) {
-            if (move.position() == cellEntered){
-                isLegalMove = true;
-                break;
+        if (information.players[game.getCurrentTurn()].isHuman) {
+            Move[] legalMoves = game.getLegalMoves();
+            boolean isLegalMove = false;
+            for (Move move : legalMoves) {
+                if (move.position() == cellEntered){
+                    isLegalMove = true;
+                    break;
+                }
             }
-        }
 
-        if (cellEntered >= 0){
-            Move[] moves = null;
-            if (isLegalMove) {
-                moves = game.getFlipsForPotentialMove(
-                        new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
-                        game.getCurrentPlayer());
+            if (cellEntered >= 0){
+                Move[] moves = null;
+                if (isLegalMove) {
+                    moves = game.getFlipsForPotentialMove(
+                            new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
+                            game.getCurrentPlayer());
+                }
+                canvas.drawHighlightDots(moves);
             }
-            canvas.drawHighlightDots(moves);
         }
     }
 }
