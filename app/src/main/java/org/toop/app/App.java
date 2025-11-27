@@ -38,13 +38,15 @@ public final class App extends Application {
 		stage.setWidth(1080);
 		stage.setHeight(720);
 
+        stage.setMinWidth(1080);
+        stage.setMinHeight(720);
 		stage.setOnCloseRequest(event -> {
 			event.consume();
 			startQuit();
 		});
 
 		stage.setScene(scene);
-		stage.setResizable(false);
+		stage.setResizable(true);
 
 		stage.show();
 
