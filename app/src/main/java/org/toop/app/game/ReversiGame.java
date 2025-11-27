@@ -27,7 +27,7 @@ public final class ReversiGame {
 
 	private final int myTurn;
     private final Runnable onGameOver;
-    private final BlockingQueue<Game.Move> moveQueue;
+    private final BlockingQueue<Move> moveQueue;
 
 	private final Reversi game;
 	private final ReversiAI ai;
@@ -213,7 +213,7 @@ public final class ReversiGame {
 					primary.gameOver(false, information.players[1].name);
                     gameOver();
 				}
-			} else if (state == Game.State.DRAW) {
+			} else if (state == GameState.DRAW) {
 				primary.gameOver(false, "");
                 game.play(move);
 			}
@@ -289,7 +289,7 @@ public final class ReversiGame {
             if (information.players[game.getCurrentTurn()].isHuman) {
                 final Move[] legalMoves = game.getLegalMoves();
 
-                for (final Game.Move legalMove : legalMoves) {
+                for (final Move legalMove : legalMoves) {
                     canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
                 }
             }
