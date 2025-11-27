@@ -21,7 +21,7 @@ public class AppSettings {
 			settingsAsset.load();
 		}
 
-        doDefaultSettings();
+        checkSettings();
 
 		Settings settingsData = settingsAsset.getContent();
 

@@ -15,7 +15,6 @@ public class TicTacToeTutorialWidget extends ViewWidget {
     private BaseTutorialWidget tutorialWidget;
 
     public TicTacToeTutorialWidget() {
-        System.out.println("Hi, I got here!");
         this.state = new TState(keys.length);
         tutorialWidget = new BaseTutorialWidget(
             state,
@@ -34,7 +33,6 @@ public class TicTacToeTutorialWidget extends ViewWidget {
                 }
             }
         );
-        System.out.println("Hi, I got to the end!");
         add(Pos.CENTER, tutorialWidget);
     }
 

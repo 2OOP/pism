@@ -50,12 +50,12 @@ public final class TicTacToeGame {
 			primary = new GameView(null, () -> {
 				isRunning.set(false);
 				WidgetContainer.getCurrentView().transitionPrevious();
-			}, null);
+			}, null, "TicTacToe");
 		} else {
 			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
-			}, onMessage);
+			}, onMessage, "TicTacToe");
 		}
 
 		canvas = new TicTacToeCanvas(Color.GRAY,

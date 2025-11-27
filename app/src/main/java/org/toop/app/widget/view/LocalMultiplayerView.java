@@ -11,6 +11,8 @@ import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.BaseTutorialWidget;
+import org.toop.app.widget.tutorial.Connect4TutorialWidget;
+import org.toop.app.widget.tutorial.ReversiTutorialWidget;
 import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
 import org.toop.local.AppContext;
 
@@ -37,8 +39,6 @@ public class LocalMultiplayerView extends ViewWidget {
 
 			switch (information.type) {
                 case TICTACTOE:
-                    System.out.println(AppSettings.getSettings().getTutorialFlag());
-                    System.out.println(AppSettings.getSettings().getFirstTTT());
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                          BaseTutorialWidget a = new BaseTutorialWidget(
                                 "tutorial",
@@ -49,11 +49,10 @@ public class LocalMultiplayerView extends ViewWidget {
                                     });
                                 },
                                 () -> {
-                                    Platform.runLater(() -> {
                                         ViewWidget c = new TicTacToeTutorialWidget();
                                         transitionNext(c);
                                         WidgetContainer.setCurrentView(c);
-                                    });
+                                        AppSettings.getSettings().setFirstTTT(false);
                                     },
                                 () -> {
                                     AppSettings.getSettings().setTutorialFlag(false);
@@ -67,11 +66,65 @@ public class LocalMultiplayerView extends ViewWidget {
                     }
                     new TicTacToeGameThread(information);
                     break;
-                case REVERSI: new ReversiGame(information);
-                case CONNECT4: new Connect4Game(information);
+                case REVERSI:
+                    if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
+                        BaseTutorialWidget a = new BaseTutorialWidget(
+                                "tutorial",
+                                () -> { Platform.runLater(() -> {
+                                    AppSettings.getSettings().setFirstReversi(false);
+                                    new ReversiGame(information);
+                                });
+                                },
+                                () -> {
+                                    Platform.runLater(() -> {
+                                        ViewWidget c = new ReversiTutorialWidget();
+                                        transitionNext(c);
+                                        WidgetContainer.setCurrentView(c);
+                                        AppSettings.getSettings().setFirstReversi(false);
+                                    });
+                                },
+                                () -> {
+                                    Platform.runLater(() -> {
+                                        AppSettings.getSettings().setTutorialFlag(false);
+                                        new ReversiGame(information);
+                                    });
+                                });
+                        transitionNext(a);
+                        break;
+                    }
+                    new ReversiGame(information);
+                    break;
+                case CONNECT4:
+                    if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstConnect4()) {
+                        BaseTutorialWidget a = new BaseTutorialWidget(
+                                "tutorial",
+                                () -> { Platform.runLater(() -> {
+                                    AppSettings.getSettings().setFirstConnect4(false);
+                                    new Connect4Game(information);
+                                });
+                                },
+                                () -> {
+                                    Platform.runLater(() -> {
+                                        ViewWidget c = new Connect4TutorialWidget();
+                                        transitionNext(c);
+                                        WidgetContainer.setCurrentView(c);
+                                        AppSettings.getSettings().setFirstConnect4(false);
+                                    });
+                                },
+                                () -> {
+                                    Platform.runLater(() -> {
+                                        AppSettings.getSettings().setTutorialFlag(false);
+                                        new Connect4Game(information);
+                                    });
+                                    });
+                        transitionNext(a);
+                        break;
+                    }
+                    new Connect4Game(information);
+                    break;
+                    }
 				// case BATTLESHIP -> new BattleshipGame(information);
-			}
-		});
+			});
 
 		var playerSection = setupPlayerSections();
 
