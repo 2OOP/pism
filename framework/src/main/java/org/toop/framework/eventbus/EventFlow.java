@@ -46,19 +46,16 @@ public class EventFlow {
     /** Empty constructor (event must be added via {@link #addPostEvent(Class, Object...)}). */
     public EventFlow() {}
 
-    // New: accept an event instance directly
     public EventFlow addPostEvent(EventType event) {
         this.event = event;
         return this;
     }
 
-    // Optional: accept a Supplier<EventType> to defer construction
     public EventFlow addPostEvent(Supplier<? extends EventType> eventSupplier) {
         this.event = eventSupplier.get();
         return this;
     }
 
-    // Keep the old class+args version if needed
     public <T extends EventType> EventFlow addPostEvent(Class<T> eventClass, Object... args) {
         try {
             boolean isUuidEvent = UniqueEvent.class.isAssignableFrom(eventClass);

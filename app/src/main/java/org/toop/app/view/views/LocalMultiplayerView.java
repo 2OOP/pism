@@ -3,7 +3,7 @@ package org.toop.app.view.views;
 import org.toop.app.GameInformation;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
-import org.toop.app.game.TicTacToeGame;
+import org.toop.app.game.TicTacToeGameThread;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
 import org.toop.app.view.displays.SongDisplay;
@@ -45,10 +45,10 @@ public final class LocalMultiplayerView extends View {
 			}
 
 			switch (information.type) {
-				case TICTACTOE: new TicTacToeGame(information); break;
+				case TICTACTOE: new TicTacToeGameThread(information); break;
 				case REVERSI: new ReversiGame(information); break;
                 case CONNECT4: new Connect4Game(information); break;
-                //case BATTLESHIP: new BattleshipGame(information); break;
+                // case BATTLESHIP: new BattleshipGame(information); break;
 			}
 		});
 
@@ -83,7 +83,7 @@ public final class LocalMultiplayerView extends View {
 	}
 
 	private VBox[] setupPlayers() {
-		final VBox[] playerBoxes = new VBox[GameInformation.Type.playerCount(information.type)];
+		final VBox[] playerBoxes = new VBox[information.type.getPlayerCount()];
 
 		for (int i = 0; i < playerBoxes.length; i++) {
 			final int index = i;
@@ -141,7 +141,7 @@ public final class LocalMultiplayerView extends View {
 
 				final Slider computerDifficultySlider = slider();
 				computerDifficultySlider.setMin(0);
-				computerDifficultySlider.setMax(GameInformation.Type.maxDepth(information.type));
+				computerDifficultySlider.setMax(information.type.getMaxDepth());
 				computerDifficultySlider.setValue(information.players[i].computerDifficulty);
 				computerDifficultySlider.valueProperty().addListener((_, _, newValue) -> {
 					information.players[index].computerDifficulty = newValue.intValue();

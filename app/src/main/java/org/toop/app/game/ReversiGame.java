@@ -4,9 +4,8 @@ import javafx.animation.SequentialTransition;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.ReversiCanvas;
-import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.GameView;
-import org.toop.app.view.views.LocalMultiplayerView;
+import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.enumerators.GameState;
@@ -27,13 +26,15 @@ public final class ReversiGame {
 	private final GameInformation information;
 
 	private final int myTurn;
+    private final Runnable onGameOver;
+    private final BlockingQueue<Game.Move> moveQueue;
     private Runnable onGameOver;
     private final BlockingQueue<Move> moveQueue;
 
 	private final Reversi game;
 	private final ReversiAI ai;
 
-	private final GameView view;
+	private final GameView primary;
 	private final ReversiCanvas canvas;
 
 	private final AtomicBoolean isRunning;
@@ -44,7 +45,7 @@ public final class ReversiGame {
 
 		this.myTurn = myTurn;
         this.onGameOver = onGameOver;
-        moveQueue = new LinkedBlockingQueue<Move>();
+        moveQueue = new LinkedBlockingQueue<>();
 
 		game = new Reversi();
 		ai = new ReversiAI();
@@ -53,12 +54,12 @@ public final class ReversiGame {
 		isPaused = new AtomicBoolean(false);
 
 		if (onForfeit == null || onExit == null) {
-			view = new GameView(null, () -> {
+			primary = new GameView(null, () -> {
 				isRunning.set(false);
-				ViewStack.push(new LocalMultiplayerView(information));
+				WidgetContainer.getCurrentView().transitionPrevious();
 			}, null);
 		} else {
-			view = new GameView(onForfeit, () -> {
+			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
 			}, onMessage);
@@ -88,8 +89,8 @@ public final class ReversiGame {
 
 
 
-		view.add(Pos.CENTER, canvas.getCanvas());
-		ViewStack.push(view);
+		primary.add(Pos.CENTER, canvas.getCanvas());
+		WidgetContainer.getCurrentView().transitionNext(primary);
 
 		if (onForfeit == null || onExit == null) {
 			new Thread(this::localGameThread).start();
@@ -97,8 +98,7 @@ public final class ReversiGame {
 		} else {
 			new EventFlow()
 				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
-				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse)
-				.listen(NetworkEvents.ReceivedMessage.class, this::onReceivedMessage);
+				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse);
 
 			setGameLabels(myTurn == 0);
 		}
@@ -122,9 +122,9 @@ public final class ReversiGame {
 
 			final int currentTurn = game.getCurrentTurn();
 			final String currentValue = currentTurn == 0? "BLACK" : "WHITE";
-			final int nextTurn = (currentTurn + 1) % GameInformation.Type.playerCount(information.type);
+			final int nextTurn = (currentTurn + 1) % information.type.getPlayerCount();
 
-			view.nextPlayer(information.players[currentTurn].isHuman,
+			primary.nextPlayer(information.players[currentTurn].isHuman,
 				information.players[currentTurn].name,
 				currentValue,
 				information.players[nextTurn].name);
@@ -167,6 +167,11 @@ public final class ReversiGame {
 			final GameState state = game.play(move);
 			updateCanvas(true);
 
+			if (state != Game.State.NORMAL) {
+				if (state == Game.State.WIN) {
+					primary.gameOver(true, information.players[currentTurn].name);
+				} else if (state == Game.State.DRAW) {
+					primary.gameOver(false, "");
 			if (state != GameState.NORMAL) {
 				if (state == GameState.WIN) {
 					view.gameOver(true, information.players[currentTurn].name);
@@ -198,10 +203,10 @@ public final class ReversiGame {
 		if (state != GameState.NORMAL) {
 			if (state == GameState.WIN) {
 				if (response.player().equalsIgnoreCase(information.players[0].name)) {
-					view.gameOver(true, information.players[0].name);
+					primary.gameOver(true, information.players[0].name);
                     gameOver();
 				} else {
-					view.gameOver(false, information.players[1].name);
+					primary.gameOver(false, information.players[1].name);
                     gameOver();
 				}
 			} else if (state == GameState.DRAW) {
@@ -246,14 +251,6 @@ public final class ReversiGame {
 			.postEvent();
 	}
 
-	private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-		if (!isRunning.get()) {
-			return;
-		}
-
-		view.updateChat(msg.message());
-	}
-
 	private void updateCanvas(boolean animate) {
 		// Todo: this is very inefficient. still very fast but if the grid is bigger it might cause issues. improve.
 		canvas.clearAll();
@@ -271,16 +268,14 @@ public final class ReversiGame {
 		final SequentialTransition animation = new SequentialTransition();
 		isPaused.set(true);
 
+		final Color fromColor = game.getCurrentPlayer() == 'W'? Color.WHITE : Color.BLACK;
+		final Color toColor = game.getCurrentPlayer() == 'W'? Color.BLACK : Color.WHITE;
+
 		if (animate && flipped != null) {
 			for (final Move flip : flipped) {
 				canvas.clear(flip.position());
-
-				final Color from = flip.value() == 'W' ? Color.BLACK : Color.WHITE;
-				final Color to = flip.value() == 'W' ? Color.WHITE : Color.BLACK;
-
-				canvas.drawDot(from, flip.position());
-
-				animation.getChildren().addFirst(canvas.flipDot(from, to, flip.position()));
+				canvas.drawDot(fromColor, flip.position());
+				animation.getChildren().addFirst(canvas.flipDot(fromColor, toColor, flip.position()));
 			}
 		}
 
@@ -291,6 +286,8 @@ public final class ReversiGame {
 
 			for (final Move legalMove : legalMoves) {
 				canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
+			for (final Game.Move legalMove : legalMoves) {
+				canvas.drawLegalPosition(fromColor, legalMove.position());
 			}
 		});
 
@@ -301,7 +298,7 @@ public final class ReversiGame {
 		final int currentTurn = game.getCurrentTurn();
 		final String currentValue = currentTurn == 0? "BLACK" : "WHITE";
 
-		view.nextPlayer(isMe,
+		primary.nextPlayer(isMe,
 			information.players[isMe? 0 : 1].name,
 			currentValue,
 			information.players[isMe? 1 : 0].name);
