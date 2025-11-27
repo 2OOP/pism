@@ -35,9 +35,8 @@ public abstract class GameCanvas {
 	protected final boolean edges;
 
 	protected final Cell[] cells;
-	protected Cell currentCell;
 
-	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
+	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked, Consumer<Integer> newCellEntered) {
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
 
@@ -54,7 +53,6 @@ public abstract class GameCanvas {
 		this.edges = edges;
 
 		cells = new Cell[rowSize * columnSize];
-		currentCell = null;
 
 		final float cellWidth = ((float) width - gapSize * rowSize - gapSize) / rowSize;
 		final float cellHeight = ((float) height - gapSize * columnSize - gapSize) / columnSize;
@@ -84,22 +82,10 @@ public abstract class GameCanvas {
 			}
 		});
 
+
+
+
 		render();
-	}
-
-	public void setOnCellEntered(Consumer<Integer> onCellEntered) {
-		canvas.setOnMouseMoved(event -> {
-			final int column = (int) ((event.getX() / this.width) * rowSize);
-			final int row = (int) ((event.getY() / this.height) * columnSize);
-
-			final Cell cell = cells[column + row * rowSize];
-
-			if (currentCell != cell && cell.isInside(event.getX(), event.getY())) {
-				event.consume();
-				currentCell = cell;
-				onCellEntered.accept(column + row * rowSize);
-			}
-		});
 	}
 
 	private void render() {
