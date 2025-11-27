@@ -87,7 +87,7 @@ public final class ChallengeView extends View {
 
 			final Slider computerDifficultySlider = slider();
 			computerDifficultySlider.setMin(0);
-			computerDifficultySlider.setMax(GameInformation.Type.maxDepth(Server.gameToType(game)));
+			computerDifficultySlider.setMax(Server.gameToType(game).getMaxDepth());
 			computerDifficultySlider.setValue(playerInformation.computerDifficulty);
 			computerDifficultySlider.valueProperty().addListener((_, _, newValue) -> {
 				playerInformation.computerDifficulty = newValue.intValue();

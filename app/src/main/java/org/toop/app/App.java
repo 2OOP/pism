@@ -1,8 +1,9 @@
 package org.toop.app;
 
-import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.MainView;
-import org.toop.app.view.views.QuitView;
+import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.display.SongDisplay;
+import org.toop.app.widget.popup.QuitPopup;
+import org.toop.app.widget.view.MainView;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.ResourceManager;
@@ -11,6 +12,7 @@ import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -30,13 +32,16 @@ public final class App extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-        final StackPane root = new StackPane();
+        final StackPane root = WidgetContainer.setup();
 		final Scene scene = new Scene(root);
-		ViewStack.setup(scene);
 
 		stage.setTitle(AppContext.getString("app-title"));
+		stage.titleProperty().bind(AppContext.bindToKey("app-title"));
+
 		stage.setWidth(1080);
 		stage.setHeight(720);
+
+		scene.getRoot();
 
         stage.setMinWidth(1080);
         stage.setMinHeight(720);
@@ -61,7 +66,8 @@ public final class App extends Application {
 		AppSettings.applySettings();
 		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 
-		ViewStack.push(new MainView());
+        WidgetContainer.add(Pos.CENTER, new MainView());
+		WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
 	}
 
 	public static void startQuit() {
@@ -69,47 +75,32 @@ public final class App extends Application {
 			return;
 		}
 
-		ViewStack.push(new QuitView());
+		WidgetContainer.add(Pos.CENTER, new QuitPopup());
 		isQuitting = true;
 	}
 
 	public static void stopQuit() {
-		ViewStack.pop();
 		isQuitting = false;
 	}
 
 	public static void quit() {
-		ViewStack.cleanup();
 		stage.close();
 		System.exit(0); // TODO: This is like dropping a nuke
-	}
-
-	public static void reload() {
-		stage.setTitle(AppContext.getString("app-title"));
-		ViewStack.reload();
 	}
 
 	public static void setFullscreen(boolean fullscreen) {
 		stage.setFullScreen(fullscreen);
 
-		width = (int) stage.getWidth();
-		height = (int) stage.getHeight();
-
-		reload();
+		width = (int)stage.getWidth();
+		height = (int)stage.getHeight();
 	}
 
 	public static void setStyle(String theme, String layoutSize) {
-		final int stylesCount = scene.getStylesheets().size();
-
-		for (int i = 0; i < stylesCount; i++) {
-			scene.getStylesheets().removeLast();
-		}
+		scene.getStylesheets().clear();
 
 		scene.getStylesheets().add(ResourceManager.<CssAsset>get("general.css").getUrl());
 		scene.getStylesheets().add(ResourceManager.<CssAsset>get(theme + ".css").getUrl());
 		scene.getStylesheets().add(ResourceManager.<CssAsset>get(layoutSize + ".css").getUrl());
-
-		reload();
 	}
 
 	public static int getWidth() {

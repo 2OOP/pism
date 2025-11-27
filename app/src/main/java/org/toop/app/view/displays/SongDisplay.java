@@ -1,11 +1,13 @@
 package org.toop.app.view.displays;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.toop.app.widget.Widget;
 import org.toop.framework.audio.AudioEventListener;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
@@ -13,7 +15,7 @@ import javafx.geometry.Pos;
 import javafx.scene.text.Text;
 import org.toop.framework.eventbus.GlobalEventBus;
 
-public class SongDisplay extends VBox {
+public class SongDisplay extends VBox implements Widget {
 
     private final Text songTitle;
     private final ProgressBar progressBar;
@@ -106,6 +108,10 @@ public class SongDisplay extends VBox {
         return time;
     }
 
+	@Override
+	public Node getNode() {
+		return this;
+	}
     private String getPlayString(boolean paused) {
         if (paused) {
             return "▶";

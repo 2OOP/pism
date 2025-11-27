@@ -2,29 +2,26 @@ package org.toop.app;
 
 public class GameInformation {
 	public enum Type {
-		TICTACTOE,
-		REVERSI,
-        CONNECT4,
-        BATTLESHIP;
+		TICTACTOE(2, 5),
+		REVERSI(2, 10),
+        CONNECT4(2, 7),
+        BATTLESHIP(2, 5);
 
+        private final int playerCount;
+        private final int maxDepth;
 
-		public static int playerCount(Type type) {
-			return switch (type) {
-				case TICTACTOE -> 2;
-				case REVERSI -> 2;
-                case CONNECT4 -> 2;
-                case BATTLESHIP -> 2;
-			};
-		}
+        Type(int playerCount, int maxDepth) {
+            this.playerCount = playerCount;
+            this.maxDepth = maxDepth;
+        }
 
-		public static int maxDepth(Type type) {
-			return switch (type) {
-				case TICTACTOE -> 5; // Todo. 5 seems to always draw or win. could increase to 9 but that might affect performance
-				case REVERSI -> 10; // Todo. 10 is a guess. might be too slow or too bad.
-                case CONNECT4 -> 7;
-                case BATTLESHIP -> 5;
-			};
-		}
+        public int getPlayerCount() {
+            return playerCount;
+        }
+
+        public int getMaxDepth() {
+            return maxDepth;
+        }
 	}
 
 	public static class Player {
@@ -39,7 +36,7 @@ public class GameInformation {
 
 	public GameInformation(Type type) {
 		this.type = type;
-		players = new Player[Type.playerCount(type)];
+		players = new Player[type.getPlayerCount()];
 
 		for (int i = 0; i < players.length; i++) {
 			players[i] = new Player();
