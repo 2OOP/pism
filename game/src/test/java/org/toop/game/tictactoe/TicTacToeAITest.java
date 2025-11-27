@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.game.Game;
+import org.toop.game.records.Move;
 
 class TicTacToeAITest {
     private TicTacToe game;
@@ -22,12 +22,12 @@ class TicTacToeAITest {
         // X X -
         // O O -
         // - - -
-        game.play(new Game.Move(0, 'X'));
-        game.play(new Game.Move(3, 'O'));
-        game.play(new Game.Move(1, 'X'));
-        game.play(new Game.Move(4, 'O'));
+        game.play(new Move(0, 'X'));
+        game.play(new Move(3, 'O'));
+        game.play(new Move(1, 'X'));
+        game.play(new Move(4, 'O'));
 
-        final Game.Move move = ai.findBestMove(game, 1);
+        final Move move = ai.findBestMove(game, 1);
 
         assertNotNull(move);
         assertEquals('X', move.value());
@@ -39,11 +39,11 @@ class TicTacToeAITest {
         // - - -
         // O - -
         // X X -
-        game.play(new Game.Move(6, 'X'));
-        game.play(new Game.Move(3, 'O'));
-        game.play(new Game.Move(7, 'X'));
+        game.play(new Move(6, 'X'));
+        game.play(new Move(3, 'O'));
+        game.play(new Move(7, 'X'));
 
-        final Game.Move move = ai.findBestMove(game, 1);
+        final Move move = ai.findBestMove(game, 1);
 
         assertNotNull(move);
         assertEquals('O', move.value());
@@ -52,7 +52,7 @@ class TicTacToeAITest {
 
     @Test
     void testBestMove_preferCornerOnEmpty() {
-        final Game.Move move = ai.findBestMove(game, 0);
+        final Move move = ai.findBestMove(game, 0);
 
         assertNotNull(move);
         assertEquals('X', move.value());
@@ -64,15 +64,15 @@ class TicTacToeAITest {
         // O X -
         // - O X
         // X O X
-        game.play(new Game.Move(1, 'X'));
-        game.play(new Game.Move(0, 'O'));
-        game.play(new Game.Move(5, 'X'));
-        game.play(new Game.Move(4, 'O'));
-        game.play(new Game.Move(6, 'X'));
-        game.play(new Game.Move(7, 'O'));
-        game.play(new Game.Move(8, 'X'));
+        game.play(new Move(1, 'X'));
+        game.play(new Move(0, 'O'));
+        game.play(new Move(5, 'X'));
+        game.play(new Move(4, 'O'));
+        game.play(new Move(6, 'X'));
+        game.play(new Move(7, 'O'));
+        game.play(new Move(8, 'X'));
 
-        final Game.Move move = ai.findBestMove(game, game.getLegalMoves().length);
+        final Move move = ai.findBestMove(game, game.getLegalMoves().length);
 
         assertNotNull(move);
         assertEquals('O', move.value());

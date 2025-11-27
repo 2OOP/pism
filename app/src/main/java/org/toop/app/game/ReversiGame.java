@@ -8,13 +8,15 @@ import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.Game;
+import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
 
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
+import java.awt.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -69,7 +71,7 @@ public final class ReversiGame {
 						final char value = game.getCurrentTurn() == 0? 'B' : 'W';
 
 						try {
-							moveQueue.put(new Game.Move(cell, value));
+							moveQueue.put(new Move(cell, value));
 						} catch (InterruptedException _) {}
 					}
 				} else {
@@ -77,11 +79,13 @@ public final class ReversiGame {
 						final char value = myTurn == 0? 'B' : 'W';
 
 						try {
-							moveQueue.put(new Game.Move(cell, value));
+							moveQueue.put(new Move(cell, value));
 						} catch (InterruptedException _) {}
 					}
 				}
-			});
+			},this::highlightCells);
+
+
 
 		primary.add(Pos.CENTER, canvas.getCanvas());
 		WidgetContainer.getCurrentView().transitionNext(primary);
@@ -123,14 +127,14 @@ public final class ReversiGame {
 				currentValue,
 				information.players[nextTurn].name);
 
-			Game.Move move = null;
+			Move move = null;
 
 			if (information.players[currentTurn].isHuman) {
 				try {
-					final Game.Move wants = moveQueue.take();
-					final Game.Move[] legalMoves = game.getLegalMoves();
+					final Move wants = moveQueue.take();
+					final Move[] legalMoves = game.getLegalMoves();
 
-					for (final Game.Move legalMove : legalMoves) {
+					for (final Move legalMove : legalMoves) {
 						if (legalMove.position() == wants.position() &&
 							legalMove.value() == wants.value()) {
 							move = wants;
@@ -157,13 +161,18 @@ public final class ReversiGame {
 				continue;
 			}
 
-			final Game.State state = game.play(move);
+            canvas.setCurrentlyHighlightedMovesNull();
+			final GameState state = game.play(move);
 			updateCanvas(true);
 
-			if (state != Game.State.NORMAL) {
-				if (state == Game.State.WIN) {
-					primary.gameOver(true, information.players[currentTurn].name);
-				} else if (state == Game.State.DRAW) {
+			if (state != GameState.NORMAL) {
+                if (state == GameState.TURN_SKIPPED){
+                    continue;
+                }
+                int winningPLayerNumber = getPlayerNumberWithHighestScore();
+				if (state == GameState.WIN && winningPLayerNumber > -1) {
+					primary.gameOver(true, information.players[winningPLayerNumber].name);
+				} else if (state == GameState.DRAW || winningPLayerNumber == -1) {
 					primary.gameOver(false, "");
 				}
 
@@ -171,6 +180,13 @@ public final class ReversiGame {
 			}
 		}
 	}
+
+    private int getPlayerNumberWithHighestScore(){
+        Reversi.Score score = game.getScore();
+        if (score.player1Score() > score.player2Score()) return 0;
+        if (score.player1Score() < score.player2Score()) return 1;
+        return -1;
+    }
 
 	private void onMoveResponse(NetworkEvents.GameMoveResponse response) {
 		if (!isRunning.get()) {
@@ -185,11 +201,11 @@ public final class ReversiGame {
 			playerChar = myTurn == 0? 'W' : 'B';
 		}
 
-		final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
-		final Game.State state = game.play(move);
+		final Move move = new Move(Integer.parseInt(response.move()), playerChar);
+		final GameState state = game.play(move);
 
-		if (state != Game.State.NORMAL) {
-			if (state == Game.State.WIN) {
+		if (state != GameState.NORMAL) {
+			if (state == GameState.WIN) {
 				if (response.player().equalsIgnoreCase(information.players[0].name)) {
 					primary.gameOver(true, information.players[0].name);
                     gameOver();
@@ -229,7 +245,7 @@ public final class ReversiGame {
 				position = moveQueue.take().position();
 			} catch (InterruptedException _) {}
 		} else {
-			final Game.Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
+			final Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
 
 			assert move != null;
 			position = move.position();
@@ -243,15 +259,15 @@ public final class ReversiGame {
 		// Todo: this is very inefficient. still very fast but if the grid is bigger it might cause issues. improve.
 		canvas.clearAll();
 
-		for (int i = 0; i < game.board.length; i++) {
-			if (game.board[i] == 'B') {
+		for (int i = 0; i < game.getBoard().length; i++) {
+			if (game.getBoard()[i] == 'B') {
 				canvas.drawDot(Color.BLACK, i);
-			} else if (game.board[i] == 'W') {
+			} else if (game.getBoard()[i] == 'W') {
 				canvas.drawDot(Color.WHITE, i);
 			}
 		}
 
-		final Game.Move[] flipped = game.getMostRecentlyFlippedPieces();
+		final Move[] flipped = game.getMostRecentlyFlippedPieces();
 
 		final SequentialTransition animation = new SequentialTransition();
 		isPaused.set(true);
@@ -260,7 +276,7 @@ public final class ReversiGame {
 		final Color toColor = game.getCurrentPlayer() == 'W'? Color.BLACK : Color.WHITE;
 
 		if (animate && flipped != null) {
-			for (final Game.Move flip : flipped) {
+			for (final Move flip : flipped) {
 				canvas.clear(flip.position());
 				canvas.drawDot(fromColor, flip.position());
 				animation.getChildren().addFirst(canvas.flipDot(fromColor, toColor, flip.position()));
@@ -270,11 +286,13 @@ public final class ReversiGame {
 		animation.setOnFinished(_ -> {
 			isPaused.set(false);
 
-			final Game.Move[] legalMoves = game.getLegalMoves();
+            if (information.players[game.getCurrentTurn()].isHuman) {
+                final Move[] legalMoves = game.getLegalMoves();
 
-			for (final Game.Move legalMove : legalMoves) {
-				canvas.drawLegalPosition(fromColor, legalMove.position());
-			}
+                for (final Game.Move legalMove : legalMoves) {
+                    canvas.drawLegalPosition(legalMove.position(), game.getCurrentPlayer());
+                }
+            }
 		});
 
 		animation.play();
@@ -289,4 +307,27 @@ public final class ReversiGame {
 			currentValue,
 			information.players[isMe? 1 : 0].name);
 	}
+
+    private void highlightCells(int cellEntered) {
+        if (information.players[game.getCurrentTurn()].isHuman) {
+            Move[] legalMoves = game.getLegalMoves();
+            boolean isLegalMove = false;
+            for (Move move : legalMoves) {
+                if (move.position() == cellEntered){
+                    isLegalMove = true;
+                    break;
+                }
+            }
+
+            if (cellEntered >= 0){
+                Move[] moves = null;
+                if (isLegalMove) {
+                    moves = game.getFlipsForPotentialMove(
+                            new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
+                            game.getCurrentPlayer());
+                }
+                canvas.drawHighlightDots(moves);
+            }
+        }
+    }
 }

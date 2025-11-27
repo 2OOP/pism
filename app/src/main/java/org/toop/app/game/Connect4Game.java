@@ -12,7 +12,8 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Connect4.Connect4;
 import org.toop.game.Connect4.Connect4AI;
-import org.toop.game.Game;
+import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -24,7 +25,7 @@ public class Connect4Game {
 
     private final int myTurn;
     private Runnable onGameOver;
-    private final BlockingQueue<Game.Move> moveQueue;
+    private final BlockingQueue<Move> moveQueue;
 
     private final Connect4 game;
     private final Connect4AI ai;
@@ -40,7 +41,7 @@ public class Connect4Game {
         this.information = information;
         this.myTurn = myTurn;
         this.onGameOver = onGameOver;
-        moveQueue = new LinkedBlockingQueue<Game.Move>();
+        moveQueue = new LinkedBlockingQueue<Move>();
 
 
         game = new Connect4();
@@ -68,7 +69,7 @@ public class Connect4Game {
                             final char value = game.getCurrentTurn() == 0? 'X' : 'O';
 
                             try {
-                                moveQueue.put(new Game.Move(cell%columnSize, value));
+                                moveQueue.put(new Move(cell%columnSize, value));
                             } catch (InterruptedException _) {}
                         }
                     } else {
@@ -76,7 +77,7 @@ public class Connect4Game {
                             final char value = myTurn == 0? 'X' : 'O';
 
                             try {
-                                moveQueue.put(new Game.Move(cell%columnSize, value));
+                                moveQueue.put(new Move(cell%columnSize, value));
                             } catch (InterruptedException _) {}
                         }
                     }
@@ -113,14 +114,14 @@ public class Connect4Game {
 				currentValue,
 				information.players[nextTurn].name);
 
-            Game.Move move = null;
+            Move move = null;
 
             if (information.players[currentTurn].isHuman) {
                 try {
-                    final Game.Move wants = moveQueue.take();
-                    final Game.Move[] legalMoves = game.getLegalMoves();
+                    final Move wants = moveQueue.take();
+                    final Move[] legalMoves = game.getLegalMoves();
 
-                    for (final Game.Move legalMove : legalMoves) {
+                    for (final Move legalMove : legalMoves) {
                         if (legalMove.position() == wants.position() &&
                                 legalMove.value() == wants.value()) {
                             move = wants;
@@ -147,7 +148,7 @@ public class Connect4Game {
                 continue;
             }
 
-            final Game.State state = game.play(move);
+            final GameState state = game.play(move);
             updateCanvas();
 /*
             if (move.value() == 'X') {
@@ -156,10 +157,10 @@ public class Connect4Game {
                 canvas.drawO(Color.ROYALBLUE, move.position());
             }
 */
-            if (state != Game.State.NORMAL) {
-                if (state == Game.State.WIN) {
+            if (state != GameState.NORMAL) {
+                if (state == GameState.WIN) {
                     view.gameOver(true, information.players[currentTurn].name);
-                } else if (state == Game.State.DRAW) {
+                } else if (state == GameState.DRAW) {
                     view.gameOver(false, "");
                 }
 
@@ -181,11 +182,11 @@ public class Connect4Game {
             playerChar = myTurn == 0? 'O' : 'X';
         }
 
-        final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
-        final Game.State state = game.play(move);
+        final Move move = new Move(Integer.parseInt(response.move()), playerChar);
+        final GameState state = game.play(move);
 
-        if (state != Game.State.NORMAL) {
-            if (state == Game.State.WIN) {
+        if (state != GameState.NORMAL) {
+            if (state == GameState.WIN) {
                 if (response.player().equalsIgnoreCase(information.players[0].name)) {
                     view.gameOver(true, information.players[0].name);
                     gameOver();
@@ -193,7 +194,7 @@ public class Connect4Game {
                     view.gameOver(false, information.players[1].name);
                     gameOver();
                 }
-            } else if (state == Game.State.DRAW) {
+            } else if (state == GameState.DRAW) {
                 view.gameOver(false, "");
                 gameOver();
             }
@@ -232,7 +233,7 @@ public class Connect4Game {
                 position = moveQueue.take().position();
             } catch (InterruptedException _) {}
         } else {
-            final Game.Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
+            final Move move = ai.findBestMove(game, information.players[0].computerDifficulty);
 
             assert move != null;
             position = move.position();
@@ -253,10 +254,10 @@ public class Connect4Game {
     private void updateCanvas() {
         canvas.clearAll();
 
-        for (int i = 0; i < game.board.length; i++) {
-            if (game.board[i] == 'X') {
+        for (int i = 0; i < game.getBoard().length; i++) {
+            if (game.getBoard()[i] == 'X') {
                 canvas.drawDot(Color.RED, i);
-            } else if (game.board[i] == 'O') {
+            } else if (game.getBoard()[i] == 'O') {
                 canvas.drawDot(Color.BLUE, i);
             }
         }

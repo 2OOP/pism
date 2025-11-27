@@ -2,13 +2,15 @@ package org.toop.game.tictactoe;
 
 import java.util.ArrayList;
 import org.toop.game.TurnBasedGame;
+import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 
 public final class TicTacToe extends TurnBasedGame {
     private int movesLeft;
 
     public TicTacToe() {
         super(3, 3, 2);
-        movesLeft = board.length;
+        movesLeft = this.getBoard().length;
     }
 
     public TicTacToe(TicTacToe other) {
@@ -21,8 +23,8 @@ public final class TicTacToe extends TurnBasedGame {
         final ArrayList<Move> legalMoves = new ArrayList<>();
         final char currentValue = getCurrentValue();
 
-        for (int i = 0; i < board.length; i++) {
-            if (board[i] == EMPTY) {
+        for (int i = 0; i < this.getBoard().length; i++) {
+            if (this.getBoard()[i] == EMPTY) {
                 legalMoves.add(new Move(i, currentValue));
             }
         }
@@ -31,27 +33,28 @@ public final class TicTacToe extends TurnBasedGame {
     }
 
     @Override
-    public State play(Move move) {
+    public GameState play(Move move) {
         assert move != null;
-        assert move.position() >= 0 && move.position() < board.length;
+        assert move.position() >= 0 && move.position() < this.getBoard().length;
         assert move.value() == getCurrentValue();
 
-        board[move.position()] = move.value();
+        // TODO: Make sure this move is allowed, maybe on the board side?
+        this.setBoard(move);
         movesLeft--;
 
         if (checkForWin()) {
-            return State.WIN;
+            return GameState.WIN;
         }
 
         nextTurn();
 
         if (movesLeft <= 2) {
-            if (movesLeft <= 0 || checkForEarlyDraw(this)) {
-                return State.DRAW;
+            if (movesLeft <= 0 || checkForEarlyDraw()) {
+                return GameState.DRAW;
             }
         }
 
-        return State.NORMAL;
+        return GameState.NORMAL;
     }
 
     private boolean checkForWin() {
@@ -59,34 +62,34 @@ public final class TicTacToe extends TurnBasedGame {
         for (int i = 0; i < 3; i++) {
             final int index = i * 3;
 
-            if (board[index] != EMPTY
-                    && board[index] == board[index + 1]
-                    && board[index] == board[index + 2]) {
+            if (this.getBoard()[index] != EMPTY
+                    && this.getBoard()[index] == this.getBoard()[index + 1]
+                    && this.getBoard()[index] == this.getBoard()[index + 2]) {
                 return true;
             }
         }
 
         // Vertical
         for (int i = 0; i < 3; i++) {
-            if (board[i] != EMPTY && board[i] == board[i + 3] && board[i] == board[i + 6]) {
+            if (this.getBoard()[i] != EMPTY && this.getBoard()[i] == this.getBoard()[i + 3] && this.getBoard()[i] == this.getBoard()[i + 6]) {
                 return true;
             }
         }
 
         // B-Slash
-        if (board[0] != EMPTY && board[0] == board[4] && board[0] == board[8]) {
+        if (this.getBoard()[0] != EMPTY && this.getBoard()[0] == this.getBoard()[4] && this.getBoard()[0] == this.getBoard()[8]) {
             return true;
         }
 
         // F-Slash
-        return board[2] != EMPTY && board[2] == board[4] && board[2] == board[6];
+        return this.getBoard()[2] != EMPTY && this.getBoard()[2] == this.getBoard()[4] && this.getBoard()[2] == this.getBoard()[6];
     }
 
-    private boolean checkForEarlyDraw(TicTacToe game) {
-        for (final Move move : game.getLegalMoves()) {
-            final TicTacToe copy = new TicTacToe(game);
+    private boolean checkForEarlyDraw() {
+        for (final Move move : this.getLegalMoves()) {
+            final TicTacToe copy = new TicTacToe(this);
 
-            if (copy.play(move) == State.WIN || !checkForEarlyDraw(copy)) {
+            if (copy.play(move) == GameState.WIN || !copy.checkForEarlyDraw()) {
                 return false;
             }
         }
@@ -95,6 +98,6 @@ public final class TicTacToe extends TurnBasedGame {
     }
 
     private char getCurrentValue() {
-        return currentTurn == 0 ? 'X' : 'O';
+        return this.getCurrentTurn() == 0 ? 'X' : 'O';
     }
 }

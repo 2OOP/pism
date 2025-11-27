@@ -1,7 +1,8 @@
 package org.toop.game.reversi;
 
-import org.toop.game.Game;
 import org.toop.game.TurnBasedGame;
+import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.Set;
 
 public final class Reversi extends TurnBasedGame {
     private int movesTaken;
-    public static final char FIRST_MOVE = 'B';
     private Set<Point> filledCells = new HashSet<>();
     private Move[] mostRecentlyFlippedPieces;
 
@@ -27,20 +27,21 @@ public final class Reversi extends TurnBasedGame {
         super(other);
         this.movesTaken = other.movesTaken;
         this.filledCells = other.filledCells;
+        this.mostRecentlyFlippedPieces = other.mostRecentlyFlippedPieces;
     }
 
 
     private void addStartPieces() {
-        board[27] = 'W';
-        board[28] = 'B';
-        board[35] = 'B';
-        board[36] = 'W';
+        this.setBoard(new Move(27, 'W'));
+        this.setBoard(new Move(28, 'B'));
+        this.setBoard(new Move(35, 'B'));
+        this.setBoard(new Move(36, 'W'));
         updateFilledCellsSet();
     }
     private void updateFilledCellsSet() {
         for (int i = 0; i < 64; i++) {
-            if (board[i] == 'W' || board[i] == 'B') {
-                filledCells.add(new Point(i % columnSize, i / rowSize));
+            if (this.getBoard()[i] == 'W' || this.getBoard()[i] == 'B') {
+                filledCells.add(new Point(i % this.getColumnSize(), i / this.getRowSize()));
             }
         }
     }
@@ -49,13 +50,13 @@ public final class Reversi extends TurnBasedGame {
 	public Move[] getLegalMoves() {
         final ArrayList<Move> legalMoves = new ArrayList<>();
         char[][] boardGrid = makeBoardAGrid();
-        char currentPlayer = (currentTurn==0) ? 'B' : 'W';
+        char currentPlayer = (this.getCurrentTurn()==0) ? 'B' : 'W';
         Set<Point> adjCell = getAdjacentCells(boardGrid);
         for (Point point : adjCell){
-            Move[] moves = getFlipsForPotentialMove(point,boardGrid,currentPlayer);
+            Move[] moves = getFlipsForPotentialMove(point,currentPlayer);
             int score = moves.length;
             if (score > 0){
-                legalMoves.add(new Move(point.x + point.y * rowSize, currentPlayer));
+                legalMoves.add(new Move(point.x + point.y * this.getRowSize(), currentPlayer));
             }
         }
         return legalMoves.toArray(new Move[0]);
@@ -71,7 +72,7 @@ public final class Reversi extends TurnBasedGame {
                     || !isOnBoard(newX, newY)) {
                         continue;
                     }
-                    if (boardGrid[newY][newX] == Game.EMPTY) {                      //check if the cell is empty
+                    if (boardGrid[newY][newX] == EMPTY) {                           //check if the cell is empty
                         possibleCells.add(new Point(newX, newY));                   //and then add it to the set of possible moves
                     }
                 }
@@ -80,15 +81,15 @@ public final class Reversi extends TurnBasedGame {
         return possibleCells;
     }
 
-    public Move[] getFlipsForPotentialMove(Point point, char[][] boardGrid, char currentPlayer) {
+    public Move[] getFlipsForPotentialMove(Point point, char currentPlayer) {
         final ArrayList<Move> movesToFlip = new ArrayList<>();
-        for (int deltaColumn = -1; deltaColumn <= 1; deltaColumn++) {
+        for (int deltaColumn = -1; deltaColumn <= 1; deltaColumn++) {               //for all directions
             for (int deltaRow = -1; deltaRow <= 1; deltaRow++) {
                 if (deltaColumn == 0 && deltaRow == 0){
                     continue;
                 }
-                Move[] moves = getFlipsInDirection(point,boardGrid,currentPlayer,deltaColumn,deltaRow);
-                if (moves != null) {
+                Move[] moves = getFlipsInDirection(point,makeBoardAGrid(),currentPlayer,deltaColumn,deltaRow);
+                if (moves != null) {                                                //getFlipsInDirection
                     movesToFlip.addAll(Arrays.asList(moves));
                 }
             }
@@ -102,80 +103,82 @@ public final class Reversi extends TurnBasedGame {
         int x = point.x + dirX;
         int y = point.y + dirY;
 
-        if (!isOnBoard(x, y) || boardGrid[y][x] != opponent) {
+        if (!isOnBoard(x, y) || boardGrid[y][x] != opponent) {                          //there must first be an opponents tile
             return null;
         }
 
-        while (isOnBoard(x, y) && boardGrid[y][x] == opponent) {
+        while (isOnBoard(x, y) && boardGrid[y][x] == opponent) {                        //count the opponents tiles in this direction
 
-            movesToFlip.add(new Move(x+y*rowSize, currentPlayer));
+            movesToFlip.add(new Move(x+y*this.getRowSize(), currentPlayer));
             x += dirX;
             y += dirY;
         }
         if (isOnBoard(x, y) && boardGrid[y][x] == currentPlayer) {
-            return movesToFlip.toArray(new Move[0]);
+            return movesToFlip.toArray(new Move[0]);                                    //only return the count if last tile is ours
         }
         return null;
     }
 
     private boolean isOnBoard(int x, int y) {
-        return x >= 0 && x < columnSize && y >= 0 && y < rowSize;
+        return x >= 0 && x < this.getColumnSize() && y >= 0 && y < this.getRowSize();
     }
 
-    public char[][] makeBoardAGrid() {
-        char[][] boardGrid = new char[rowSize][columnSize];
+    private char[][] makeBoardAGrid() {
+        char[][] boardGrid = new char[this.getRowSize()][this.getColumnSize()];
         for (int i = 0; i < 64; i++) {
-            boardGrid[i / rowSize][i % columnSize] = board[i];     //boardGrid[y / row] [x / column]
+            boardGrid[i / this.getRowSize()][i % this.getColumnSize()] = this.getBoard()[i];     //boardGrid[y -> row] [x -> column]
         }
         return  boardGrid;
     }
+
     @Override
-    public State play(Move move) {
+    public GameState play(Move move) {
         Move[] legalMoves = getLegalMoves();
         boolean moveIsLegal = false;
-        for (Move legalMove : legalMoves) {
+        for (Move legalMove : legalMoves) {                         //check if the move is legal
             if (move.equals(legalMove)) {
                 moveIsLegal = true;
                 break;
             }
         }
-        if (moveIsLegal) {
-            Move[] moves = sortMovesFromCenter(getFlipsForPotentialMove(new Point(move.position()%columnSize,move.position()/rowSize), makeBoardAGrid(), move.value()),move);
-            mostRecentlyFlippedPieces = moves;
-            board[move.position()] = move.value();
-            for (Move m : moves) {
-                board[m.position()] = m.value();
+        if (!moveIsLegal) {
+            return null;
+        }
+
+        Move[] moves = sortMovesFromCenter(getFlipsForPotentialMove(new Point(move.position()%this.getColumnSize(),move.position()/this.getRowSize()), move.value()),move);
+        mostRecentlyFlippedPieces = moves;
+        this.setBoard(move);                                        //place the move on the board
+        for (Move m : moves) {
+            this.setBoard(m);                                       //flip the correct pieces on the board
+        }
+        filledCells.add(new Point(move.position() % this.getRowSize(), move.position() / this.getColumnSize()));
+        nextTurn();
+        if (getLegalMoves().length == 0) {                          //skip the players turn when there are no legal moves
+            skipMyTurn();
+            if (getLegalMoves().length > 0) {
+                return GameState.TURN_SKIPPED;
             }
-            filledCells.add(new Point(move.position() % rowSize, move.position() / columnSize));
-            nextTurn();
-            if (getLegalMoves().length == 0) {
-                skipMyTurn();
-                if (getLegalMoves().length > 0) {
-                    return State.TURN_SKIPPED;
+            else {                                                  //end the game when neither player has a legal move
+                Score score = getScore();
+                if (score.player1Score() == score.player2Score()) {
+                    return GameState.DRAW;
                 }
                 else {
-                    Score score = getScore();
-                    if (score.player1Score() == score.player2Score()) {
-                        return State.DRAW;
-                    }
-                    else {
-                        return State.WIN;
-                    }
+                    return GameState.WIN;
                 }
             }
-            return State.NORMAL;
         }
-        return null;
+        return GameState.NORMAL;
     }
 
-    public void skipMyTurn(){
+    private void skipMyTurn(){
         IO.println("TURN " + getCurrentPlayer() + "  SKIPPED");
-        //todo notify user that a turn has been skipped
+        //TODO: notify user that a turn has been skipped
         nextTurn();
     }
 
     public char getCurrentPlayer() {
-        if (currentTurn == 0){
+        if (this.getCurrentTurn() == 0){
             return 'B';
         }
         else {
@@ -194,24 +197,24 @@ public final class Reversi extends TurnBasedGame {
 
     public Score getScore(){
         int player1Score = 0, player2Score = 0;
-        for (int count = 0; count < rowSize * columnSize; count++) {
-            if (board[count] == 'B') {
+        for (int count = 0; count < this.getRowSize() * this.getColumnSize(); count++) {
+            if (this.getBoard()[count] == 'B') {
                 player1Score += 1;
             }
-            if (board[count] == 'W') {
+            if (this.getBoard()[count] == 'W') {
                 player2Score += 1;
             }
         }
         return new Score(player1Score, player2Score);
     }
-    public Move[] sortMovesFromCenter(Move[] moves, Move center) {
-        int centerX = center.position()%columnSize;
-        int centerY = center.position()/rowSize;
+    private Move[] sortMovesFromCenter(Move[] moves, Move center) {                 //sorts the pieces to be flipped for animation purposes
+        int centerX = center.position()%this.getColumnSize();
+        int centerY = center.position()/this.getRowSize();
         Arrays.sort(moves, (a, b) -> {
-            int dxA = a.position()%columnSize - centerX;
-            int dyA = a.position()/rowSize - centerY;
-            int dxB = b.position()%columnSize - centerX;
-            int dyB = b.position()/rowSize - centerY;
+            int dxA = a.position()%this.getColumnSize() - centerX;
+            int dyA = a.position()/this.getRowSize() - centerY;
+            int dxB = b.position()%this.getColumnSize() - centerX;
+            int dyB = b.position()/this.getRowSize() - centerY;
 
             int distA = dxA * dxA + dyA * dyA;
             int distB = dxB * dxB + dyB * dyB;

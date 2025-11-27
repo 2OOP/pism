@@ -8,6 +8,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public abstract class GameCanvas {
@@ -35,7 +36,7 @@ public abstract class GameCanvas {
 
 	protected final Cell[] cells;
 
-	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked) {
+	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked, Consumer<Integer> newCellEntered) {
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
 
@@ -80,6 +81,9 @@ public abstract class GameCanvas {
 				onCellClicked.accept(column + row * rowSize);
 			}
 		});
+
+
+
 
 		render();
 	}
@@ -149,6 +153,21 @@ public abstract class GameCanvas {
 		graphics.setFill(color);
 		graphics.fillOval(x, y, width, height);
 	}
+
+    public void drawInnerDot(Color color, int cell, boolean slightlyBigger) {
+        final float x = cells[cell].x() + gapSize;
+        final float y = cells[cell].y() + gapSize;
+
+        float multiplier = slightlyBigger?1.4f:1.5f;
+
+        final float width = (cells[cell].width() - gapSize * 2)/multiplier;
+        final float height = (cells[cell].height() - gapSize * 2)/multiplier;
+
+        float offset = slightlyBigger?5f:4f;
+
+        graphics.setFill(color);
+        graphics.fillOval(x + width/offset, y + height/offset, width, height);
+    }
 
 	private void drawDotScaled(Color color, int cell, double scale) {
 		final float cx = cells[cell].x() + gapSize;
