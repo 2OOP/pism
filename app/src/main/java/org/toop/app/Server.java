@@ -1,8 +1,8 @@
 package org.toop.app;
 
-import org.toop.app.game.Connect4GameThread;
-import org.toop.app.game.ReversiGameThread;
-import org.toop.app.game.TicTacToeGameThread;
+import org.toop.app.game.Connect4Game;
+import org.toop.app.game.ReversiGame;
+import org.toop.app.game.TicTacToeGame;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.popup.ChallengePopup;
 import org.toop.app.widget.popup.ErrorPopup;
@@ -131,11 +131,11 @@ public final class Server {
 
             switch (type) {
                 case TICTACTOE ->
-                        new TicTacToeGameThread(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
+                        new TicTacToeGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 case REVERSI ->
-                        new ReversiGameThread(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
+                        new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 case CONNECT4 ->
-                        new Connect4GameThread(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
+                        new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 default -> new ErrorPopup("Unsupported game type.");
             }
         }
