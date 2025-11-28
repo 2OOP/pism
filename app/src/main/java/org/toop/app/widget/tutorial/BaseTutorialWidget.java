@@ -15,6 +15,21 @@ import org.toop.local.AppContext;
 
 import java.util.List;
 
+/**
+ * A widget base for all the tutorial widgets.
+ *
+ * <p>Usage example:
+ *
+ * <pre>{@code
+ * public class Connect4TutorialWidget extends BaseTutorialWidget {
+ *     public Connect4TutorialWidget(Runnable nextScreen) {
+ *         super(List.of(
+ *                 new ImmutablePair<>("connect4.1", ResourceManager.get("connect41.png")),
+ *                 new ImmutablePair<>("connect4.2", ResourceManager.get("connect42.png"))
+ *         ), nextScreen);
+ *     }
+ * }</pre>
+ */
 public class BaseTutorialWidget extends PopupWidget implements Updatable {
 
     private final Text tutorialText;
@@ -53,6 +68,7 @@ public class BaseTutorialWidget extends PopupWidget implements Updatable {
         update(true);
     }
 
+    // TODO Refactor if statements to make code easier to read.
     public void update(boolean next) {
         pageIndex = next ? pageIndex + 1 : pageIndex - 1;
 
