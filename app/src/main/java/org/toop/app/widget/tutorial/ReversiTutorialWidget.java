@@ -2,19 +2,28 @@ package org.toop.app.widget.tutorial;
 
 import javafx.geometry.Pos;
 import org.toop.app.widget.complex.ViewWidget;
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.resources.ImageAsset;
 
 import java.io.File;
 
 public class ReversiTutorialWidget extends BaseTutorialWidget {
     private final String[] keys;
-    private final File[] images = {new File("app/src/main/resources/assets/images/reversi1.png"), new File("app/src/main/resources/assets/images/reversi2.png"),  new File("app/src/main/resources/assets/images/cat.jpg"), new File("app/src/main/resources/assets/images/cat.jpg")};
+    private final ImageAsset[] images;
 
     public ReversiTutorialWidget() {
         String[] newKeys = {"reversi1", "reversi2", "reversi3", "reversi4"};
+        ImageAsset[] newImages = {
+                ResourceManager.get("reversi1.png"),
+                ResourceManager.get("reversi2.png"),
+                ResourceManager.get("cat.jpg"),
+                ResourceManager.get("cat.jpg")
+        };
 
         super(newKeys[0]);
 
         keys = newKeys;
+        images = newImages;
 
         setTutorial(
             images[0],
@@ -27,7 +36,7 @@ public class ReversiTutorialWidget extends BaseTutorialWidget {
         return keys;
     }
 
-    public File[] getImages() {
+    public ImageAsset[] getImages() {
         return images;
     }
 }

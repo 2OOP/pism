@@ -9,6 +9,7 @@ import org.toop.app.widget.complex.PopupWidget;
 import org.toop.app.widget.complex.ViewWidget;
 
 import javafx.scene.control.Button;
+import org.toop.framework.resource.resources.ImageAsset;
 import org.toop.local.AppContext;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class BaseTutorialWidget extends PopupWidget {
         this.nextButton = Primitive.button(">", onNext);
     }
 
-    public void setTutorial(File image, Runnable onPrevious, Runnable onNext) {
+    public void setTutorial(ImageAsset image, Runnable onPrevious, Runnable onNext) {
         setOnPrevious(onPrevious);
         setOnNext(onNext);
         this.imagery = Primitive.image(image);
@@ -44,7 +45,7 @@ public class BaseTutorialWidget extends PopupWidget {
         add(Pos.CENTER, Primitive.vbox(x, w));
     }
 
-    public void update(boolean next, String[] locKeys, File[] imgs) {
+    public void update(boolean next, String[] locKeys, ImageAsset[] imgs) {
         currentTextIndex = next ? currentTextIndex + 1 : currentTextIndex - 1;
 
         if (currentTextIndex >= locKeys.length) {
