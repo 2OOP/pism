@@ -1,42 +1,29 @@
 package org.toop.app.widget.tutorial;
 
-import javafx.geometry.Pos;
-import org.toop.app.widget.complex.ViewWidget;
+import javafx.application.Platform;
+import org.apache.maven.surefire.shared.lang3.tuple.ImmutablePair;
+import org.toop.app.GameInformation;
+import org.toop.app.game.ReversiGame;
 import org.toop.framework.resource.ResourceManager;
-import org.toop.framework.resource.resources.ImageAsset;
 
-import java.io.File;
+import java.util.List;
 
 public class ReversiTutorialWidget extends BaseTutorialWidget {
-    private final String[] keys;
-    private final ImageAsset[] images;
+    public ReversiTutorialWidget(GameInformation gameInformation) {
+        super(List.of(
+            new ImmutablePair<>("reversi1", ResourceManager.get("reversi1.png")),
+            new ImmutablePair<>("reversi2", ResourceManager.get("reversi2.png")),
+            new ImmutablePair<>("reversi3", ResourceManager.get("cat.jpg")),
+            new ImmutablePair<>("reversi4", ResourceManager.get("cat.jpg"))
+        ), () -> Platform.runLater(() -> new ReversiGame(gameInformation)));
+    }
 
     public ReversiTutorialWidget() {
-        String[] newKeys = {"reversi1", "reversi2", "reversi3", "reversi4"};
-        ImageAsset[] newImages = {
-                ResourceManager.get("reversi1.png"),
-                ResourceManager.get("reversi2.png"),
-                ResourceManager.get("cat.jpg"),
-                ResourceManager.get("cat.jpg")
-        };
-
-        super(newKeys[0]);
-
-        keys = newKeys;
-        images = newImages;
-
-        setTutorial(
-            images[0],
-            () -> update(false, keys, images),
-            () -> update(true, keys, images)
-        );
-    }
-
-    public String[] getKeys() {
-        return keys;
-    }
-
-    public ImageAsset[] getImages() {
-        return images;
+        super(List.of(
+                new ImmutablePair<>("reversi1", ResourceManager.get("reversi1.png")),
+                new ImmutablePair<>("reversi2", ResourceManager.get("reversi2.png")),
+                new ImmutablePair<>("reversi3", ResourceManager.get("cat.jpg")),
+                new ImmutablePair<>("reversi4", ResourceManager.get("cat.jpg"))
+        ), () -> {});
     }
 }

@@ -1,43 +1,25 @@
 package org.toop.app.widget.tutorial;
 
-import javafx.geometry.Pos;
-import org.toop.app.widget.complex.ViewWidget;
+import javafx.application.Platform;
+import org.apache.maven.surefire.shared.lang3.tuple.ImmutablePair;
+import org.toop.app.GameInformation;
+import org.toop.app.game.Connect4Game;
 import org.toop.framework.resource.ResourceManager;
-import org.toop.framework.resource.resources.ImageAsset;
 
-import java.io.File;
+import java.util.List;
 
 public class Connect4TutorialWidget extends BaseTutorialWidget {
-    private final String[] keys;
-    private final ImageAsset[] images;
+    public Connect4TutorialWidget(GameInformation information) {
+        super(List.of(
+                new ImmutablePair<>("connect4.1", ResourceManager.get("connect41.png")),
+                new ImmutablePair<>("connect4.2", ResourceManager.get("connect42.png"))
+        ), () -> Platform.runLater(() -> new Connect4Game(information)));
+    }
 
     public Connect4TutorialWidget() {
-        String[] newKeys = {
-                "connect4.1", "connect4.2"
-        };
-
-        ImageAsset[] newImages = {
-                ResourceManager.get("connect41.png"),
-                ResourceManager.get("connect42.png")
-        };
-
-        super(newKeys[0]);
-
-        keys = newKeys;
-        images = newImages;
-
-        setTutorial(
-            images[0],
-            () -> update(false, keys, images),
-            () -> update(true, keys, images)
-        );
-    }
-
-    public String[] getKeys() {
-        return keys;
-    }
-
-    public ImageAsset[] getImages() {
-        return images;
+        super(List.of(
+                new ImmutablePair<>("connect4.1", ResourceManager.get("connect41.png")),
+                new ImmutablePair<>("connect4.2", ResourceManager.get("connect42.png"))
+        ), () -> {});
     }
 }

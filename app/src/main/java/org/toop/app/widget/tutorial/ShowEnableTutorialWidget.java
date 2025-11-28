@@ -9,9 +9,9 @@ public class ShowEnableTutorialWidget extends PopupWidget {
 
     public ShowEnableTutorialWidget(String text, Runnable onYes, Runnable onNo, Runnable onNever) {
         var a = Primitive.hbox(
-                Primitive.button("ok", onYes),
-                Primitive.button("no", onNo),
-                Primitive.button("never", onNever)
+                Primitive.button("ok", () -> { onYes.run(); this.hide(); }),
+                Primitive.button("no", () -> { onNo.run(); this.hide(); }),
+                Primitive.button("never", () -> { onNever.run(); this.hide(); })
         );
 
         var txt = Primitive.text(text);

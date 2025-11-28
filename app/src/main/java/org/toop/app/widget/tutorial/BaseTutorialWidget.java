@@ -1,63 +1,95 @@
 package org.toop.app.widget.tutorial;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
+import org.apache.maven.surefire.shared.lang3.tuple.ImmutablePair;
+import org.toop.app.GameInformation;
+import org.toop.app.game.BaseGameThread;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PopupWidget;
-import org.toop.app.widget.complex.ViewWidget;
 
-import javafx.scene.control.Button;
 import org.toop.framework.resource.resources.ImageAsset;
 import org.toop.local.AppContext;
 
-import java.io.File;
+import java.util.List;
 
 public class BaseTutorialWidget extends PopupWidget {
 
-    private Text tutorialText;
-    private Button previousButton;
-    private Button nextButton;
-    private ImageView imagery;
-    private int currentTextIndex = 0;
+    private final Text tutorialText;
+    private final ImageView imagery;
+    private final Button previousButton;
+    private final Button nextButton;
+    private int pageIndex = 0;
+    private final List<ImmutablePair<String, ImageAsset>> pages;
+    private final Runnable nextScreen;
 
-    public BaseTutorialWidget(String key) {
-        System.out.println("Trying to initialize...");
-        this.tutorialText = Primitive.text(key);
+    public BaseTutorialWidget(List<ImmutablePair<String, ImageAsset>> pages, Runnable nextScreen) {
+        this.tutorialText = Primitive.text(pages.getFirst().getKey());
+        this.imagery = Primitive.image(pages.getFirst().getValue());
+
+        this.pages = pages;
+        this.nextScreen = nextScreen;
+
+        previousButton = Primitive.button("goback", () -> { update(false); this.hide(); });
+        nextButton = Primitive.button(">", () -> update(true));
+
+        var w = Primitive.hbox(
+                previousButton,
+                nextButton
+        );
+
+        var x = Primitive.vbox(imagery, tutorialText);
+
+        add(Pos.CENTER, Primitive.vbox(x, w));
+
         WidgetContainer.add(Pos.CENTER, this);
     }
 
-    private void setOnPrevious(Runnable onPrevious) {
-        this.previousButton = Primitive.button("<", onPrevious);
-    }
+    public void update(boolean next) {
+        pageIndex = next ? pageIndex + 1 : pageIndex - 1;
 
-    private void setOnNext(Runnable onNext) {
-        this.nextButton = Primitive.button(">", onNext);
-    }
-
-    public void setTutorial(ImageAsset image, Runnable onPrevious, Runnable onNext) {
-        setOnPrevious(onPrevious);
-        setOnNext(onNext);
-        this.imagery = Primitive.image(image);
-        var w = Primitive.hbox(previousButton, nextButton);
-        var x =  Primitive.vbox(imagery, tutorialText);
-        add(Pos.CENTER, Primitive.vbox(x, w));
-    }
-
-    public void update(boolean next, String[] locKeys, ImageAsset[] imgs) {
-        currentTextIndex = next ? currentTextIndex + 1 : currentTextIndex - 1;
-
-        if (currentTextIndex >= locKeys.length) {
-            currentTextIndex--;
+        if (pageIndex >= pages.size()) {
+            pageIndex--;
             return;
-        } else if (currentTextIndex < 0) {
-            currentTextIndex++;
+        } else if (pageIndex < 0) {
+            pageIndex++;
             return;
         }
 
+        if (pageIndex == pages.size()-1) {
+            nextButton.textProperty().unbind();
+            nextButton.setText(AppContext.getString("startgame"));
+            nextButton.setOnAction((_) ->  {
+                this.hide();
+                nextScreen.run();
+            });
+
+        } else {
+            nextButton.textProperty().unbind();
+            nextButton.setText(AppContext.getString(">"));
+            nextButton.setOnAction((_) -> this.update(true));
+        }
+
+        if (pageIndex == 0) {
+            previousButton.textProperty().unbind();
+            previousButton.setText(AppContext.getString("goback"));
+            previousButton.setOnAction((_) -> this.hide());
+        } else {
+            previousButton.textProperty().unbind();
+            previousButton.setText(AppContext.getString("<"));
+            previousButton.setOnAction((_) -> this.update(false));
+        }
+
+        var currentPage = pages.get(pageIndex);
+
+        var text = currentPage.getKey();
+        var image = currentPage.getValue();
+
         tutorialText.textProperty().unbind();
-        tutorialText.setText(AppContext.getString(locKeys[currentTextIndex]));
-        imagery.setImage(Primitive.image(imgs[currentTextIndex]).getImage());
+        tutorialText.setText(AppContext.getString(text));
+        imagery.setImage(Primitive.image(image).getImage());
     }
 }
