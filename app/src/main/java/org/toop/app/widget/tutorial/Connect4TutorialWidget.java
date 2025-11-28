@@ -1,9 +1,6 @@
 package org.toop.app.widget.tutorial;
 
-import javafx.application.Platform;
 import org.apache.maven.surefire.shared.lang3.tuple.ImmutablePair;
-import org.toop.app.GameInformation;
-import org.toop.app.game.Connect4Game;
 import org.toop.framework.resource.ResourceManager;
 
 import java.util.List;

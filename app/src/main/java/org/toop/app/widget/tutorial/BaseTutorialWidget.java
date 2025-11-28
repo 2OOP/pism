@@ -5,8 +5,6 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import org.apache.maven.surefire.shared.lang3.tuple.ImmutablePair;
-import org.toop.app.GameInformation;
-import org.toop.app.game.BaseGameThread;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PopupWidget;
