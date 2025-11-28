@@ -7,6 +7,9 @@ import org.toop.app.game.TicTacToeGameThread;
 import org.toop.app.view.View;
 import org.toop.app.view.ViewStack;
 import org.toop.app.view.displays.SongDisplay;
+import org.toop.app.widget.Primitive;
+import org.toop.app.widget.tutorial.BaseTutorialWidget;
+import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -16,6 +19,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import org.toop.local.AppSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +49,8 @@ public final class LocalMultiplayerView extends View {
 			}
 
 			switch (information.type) {
-				case TICTACTOE: new TicTacToeGameThread(information); break;
-				case REVERSI: new ReversiGame(information); break;
+                case TICTACTOE: new TicTacToeGameThread(information); break;
+                case REVERSI: new ReversiGame(information); break;
                 case CONNECT4: new Connect4Game(information); break;
                 // case BATTLESHIP: new BattleshipGame(information); break;
 			}

@@ -3,7 +3,6 @@ package org.toop.app.widget.view;
 import org.toop.app.App;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.ViewWidget;
-
 import javafx.geometry.Pos;
 
 public class MainView extends ViewWidget {

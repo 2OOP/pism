@@ -55,12 +55,12 @@ public final class ReversiGame {
 			primary = new GameView(null, () -> {
 				isRunning.set(false);
 				WidgetContainer.getCurrentView().transitionPrevious();
-			}, null);
+			}, null, "Reversi");
 		} else {
 			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
-			}, onMessage);
+			}, onMessage, "Reversi");
 		}
 
 		canvas = new ReversiCanvas(Color.BLACK,

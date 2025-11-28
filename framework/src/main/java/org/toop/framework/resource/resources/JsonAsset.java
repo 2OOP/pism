@@ -14,7 +14,7 @@ public class JsonAsset<T> extends BaseResource implements LoadableResource {
 
     private T content;
     private Class<T> type;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
 
     public JsonAsset(File file, Class<T> type) {
         super(file);
