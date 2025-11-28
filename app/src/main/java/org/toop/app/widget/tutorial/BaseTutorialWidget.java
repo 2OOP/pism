@@ -87,7 +87,6 @@ public class BaseTutorialWidget extends PopupWidget implements Updatable {
                 this.hide();
                 nextScreen.run();
             });
-
         } else {
             nextButton.textProperty().unbind();
             nextButton.setText(AppContext.getString(">"));
