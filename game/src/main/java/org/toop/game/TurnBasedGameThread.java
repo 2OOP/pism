@@ -1,16 +1,15 @@
-package org.toop.app.game;
+package org.toop.game;
 
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.canvas.GameCanvas;
 import org.toop.app.canvas.TicTacToeCanvas;
+import org.toop.app.game.Players.LocalPlayer;
+import org.toop.app.game.Players.Player;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
-import org.toop.game.TurnBasedGameR;
 import org.toop.game.enumerators.GameState;
-import org.toop.game.records.Move;
-import org.toop.game.tictactoe.TicTacToe;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,12 +19,15 @@ public class TurnBasedGameThread implements Runnable {
     private final TurnBasedGameR game;       // Reference to game instance
 
     private final AtomicBoolean isRunning = new AtomicBoolean();
+    //private final GameController controller;
 
-    // TODO: Seperate this from game Thread
-    private final GameView primary = new GameView(null, null, null);
-    private final TicTacToeCanvas canvas;
+    protected final GameView primary = new GameView(null, null, null);
+    protected final GameCanvas canvas;
 
     public TurnBasedGameThread(Player[] players, TurnBasedGameR game) {
+        // Set reference to controller
+        //this.controller = controller;
+
         // Make sure player list matches expected size
         if (players.length != game.getPlayerCount()){
             throw new IllegalArgumentException("players and game's players must have same length");
@@ -45,10 +47,18 @@ public class TurnBasedGameThread implements Runnable {
 
     }
 
+    public Player[] getPlayers() {
+        return players;
+    }
+
     // Move to UI shiz
     private void drawMove(int move) {
-        if (game.getCurrentTurn() == 1) canvas.drawX(Color.RED, move);
-        else canvas.drawO(Color.BLUE, move);
+        if (game.getCurrentTurn() == 1){
+            canvas.drawChar('X', Color.RED, move);
+        }
+        else{
+            canvas.drawChar('O', Color.RED, move);
+        }
     }
 
     public void run() {
@@ -59,19 +69,18 @@ public class TurnBasedGameThread implements Runnable {
 
             // Get current player
             Player currentPlayer = players[game.getCurrentTurn()];
-
+            System.out.println(game.getCurrentTurn() + "'s turn");
             // Get this player's valid moves
-            Integer[] validMoves = game.getLegalMoves();
+            int[] validMoves = game.getLegalMoves();
 
             // Get player's move, reask if Move is invalid
             // TODO: Limit amount of retries?
-            int move = currentPlayer.getMove();
-            while (!Arrays.asList(validMoves).contains(move)) {
-                System.out.println("Invalid move");;
-                move = currentPlayer.getMove();
+            int move = currentPlayer.getMove(game.clone());
+            while (!contains(validMoves, move)) {
+                move = currentPlayer.getMove(game.clone());
             }
-
             // Make move
+            System.out.println(Arrays.toString(game.getBoard()));
             GameState state = game.play(move);
             drawMove(move);
 
@@ -81,12 +90,16 @@ public class TurnBasedGameThread implements Runnable {
                 } else if (state == GameState.DRAW) {
                     // THere was a draw
                 }
+                System.out.println(state);
                 isRunning.set(false);
             }
         }
     }
+    
 
-    private void updateUI(){
-
+    // helper function, would like to replace to get rid of this method
+    public static boolean contains(int[] array, int value){
+        for (int i : array) if (i == value) return true;
+        return false;
     }
 }

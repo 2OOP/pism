@@ -1,11 +1,13 @@
 package org.toop.game.tictactoe;
 
+import org.toop.game.GameR;
 import org.toop.game.TurnBasedGame;
 import org.toop.game.TurnBasedGameR;
 import org.toop.game.enumerators.GameState;
 import org.toop.game.records.Move;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public final class TicTacToeR extends TurnBasedGameR {
@@ -22,7 +24,7 @@ public final class TicTacToeR extends TurnBasedGameR {
     }
 
     @Override
-    public Integer[] getLegalMoves() {
+    public int[] getLegalMoves() {
         final ArrayList<Integer> legalMoves = new ArrayList<Integer>();
         final char currentValue = getCurrentValue();
 
@@ -31,8 +33,8 @@ public final class TicTacToeR extends TurnBasedGameR {
                 legalMoves.add(i);
             }
         }
-
-        return legalMoves.toArray(new Integer[0]);
+        System.out.println(Arrays.toString(legalMoves.stream().mapToInt(Integer::intValue).toArray()));
+        return legalMoves.stream().mapToInt(Integer::intValue).toArray();
     }
 
     @Override
@@ -87,7 +89,7 @@ public final class TicTacToeR extends TurnBasedGameR {
 
     private boolean checkForEarlyDraw() {
         for (final int move : this.getLegalMoves()) {
-            final TicTacToeR copy = new TicTacToeR(this);
+            final TicTacToeR copy = this.clone();
 
             if (copy.play(move) == GameState.WIN || !copy.checkForEarlyDraw()) {
                 return false;
@@ -99,5 +101,10 @@ public final class TicTacToeR extends TurnBasedGameR {
 
     private char getCurrentValue() {
         return this.getCurrentTurn() == 0 ? 'X' : 'O';
+    }
+
+    @Override
+    public TicTacToeR clone() {
+        return new TicTacToeR(this);
     }
 }

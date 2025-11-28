@@ -2,12 +2,15 @@ package org.toop.app.widget.view;
 
 import org.toop.app.GameInformation;
 import org.toop.app.game.*;
+import org.toop.app.game.Players.ArtificialPlayer;
+import org.toop.app.game.Players.LocalPlayer;
+import org.toop.app.game.Players.Player;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
-import org.toop.game.tictactoe.TicTacToe;
-import org.toop.game.tictactoe.TicTacToeAI;
+import org.toop.game.TurnBasedGameThread;
+import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;
 
@@ -33,7 +36,7 @@ public class LocalMultiplayerView extends ViewWidget {
 			}
 
 			switch (information.type) {
-				case TICTACTOE -> new TurnBasedGameThread(new Player[]{new LocalPlayer(), new LocalPlayer()}, new TicTacToeR());
+				case TICTACTOE -> new TurnBasedGameThread(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())}, new TicTacToeR());
 				case REVERSI -> new ReversiGame(information);
 				case CONNECT4 -> new Connect4Game(information);
 				// case BATTLESHIP -> new BattleshipGame(information);

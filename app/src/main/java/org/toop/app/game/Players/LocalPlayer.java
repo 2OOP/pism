@@ -1,15 +1,17 @@
-package org.toop.app.game;
+package org.toop.app.game.Players;
+
+import org.toop.game.GameR;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class LocalPlayer extends Player{
-    private BlockingQueue<Integer> queue = new LinkedBlockingQueue<Integer>();
+public class LocalPlayer extends Player {
+    private final BlockingQueue<Integer> queue = new LinkedBlockingQueue<Integer>();
 
     public LocalPlayer() {}
 
     @Override
-    public int getMove() {
+    public int getMove(GameR gameCopy) {
         try {
             return queue.take();
         }catch (InterruptedException e){

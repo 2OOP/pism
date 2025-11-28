@@ -9,10 +9,9 @@ public abstract class TurnBasedGameR extends GameR {
         this.playerCount = playerCount;
     }
 
-    protected TurnBasedGameR(TurnBasedGameR other) {
+    protected TurnBasedGameR(TurnBasedGameR other){
         super(other);
-        playerCount = other.playerCount;
-        turn = other.turn;
+        this.playerCount = other.playerCount;
     }
 
     public int getPlayerCount(){return this.playerCount;}
@@ -26,6 +25,9 @@ public abstract class TurnBasedGameR extends GameR {
     }
 
     protected void setBoard(int position) {
-        super.setBoard(position, getCurrentTurn());
+        super.setBoardPosition(position, getCurrentTurn());
     }
+
+    @Override
+    public abstract TurnBasedGameR clone();
 }
