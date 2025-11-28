@@ -36,7 +36,7 @@ public class LocalMultiplayerView extends ViewWidget {
 			}
 
 			switch (information.type) {
-				case TICTACTOE -> new TurnBasedGameThread(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())}, new TicTacToeR());
+				case TICTACTOE -> new TicTacToeController(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
 				case REVERSI -> new ReversiGame(information);
 				case CONNECT4 -> new Connect4Game(information);
 				// case BATTLESHIP -> new BattleshipGame(information);

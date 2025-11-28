@@ -1,4 +1,4 @@
-package org.toop.game;
+package org.toop.app.game;
 
 public interface UpdatesGameUI {
     void updateUI();

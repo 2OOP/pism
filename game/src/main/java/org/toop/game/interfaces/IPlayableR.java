@@ -1,5 +1,6 @@
 package org.toop.game.interfaces;
 
+import org.toop.game.PlayResult;
 import org.toop.game.enumerators.GameState;
 
 /**
@@ -26,5 +27,5 @@ public interface IPlayableR {
      * @param move the move to play, represented as an integer
      * @return the {@link GameState} after the move is played
      */
-    GameState play(int move);
+    PlayResult play(int move);
 }

@@ -12,6 +12,7 @@ public abstract class TurnBasedGameR extends GameR {
     protected TurnBasedGameR(TurnBasedGameR other){
         super(other);
         this.playerCount = other.playerCount;
+        this.turn = other.turn;
     }
 
     public int getPlayerCount(){return this.playerCount;}

@@ -1,17 +1,24 @@
-/*package org.toop.game;
+package org.toop.app.game;
 
 import org.toop.app.canvas.GameCanvas;
 import org.toop.app.game.TurnBasedGameThread;
 import org.toop.app.widget.view.GameView;
 
 public abstract class GameController implements UpdatesGameUI {
-    // TODO: Seperate this from game Thread
+    // Reference to primary view
     protected final GameView primary = new GameView(null, null, null);
-    protected final GameCanvas canvas;
-    protected final TurnBasedGameThread gameThread;
 
-    protected GameController(GameCanvas canvas, TurnBasedGameThread gameThread) {
-        this.gameThread = gameThread;
+    // Reference to game canvas
+    protected final GameCanvas canvas;
+
+    // Reference to gameThread
+    protected TurnBasedGameThread gameThread;
+
+    protected GameController(GameCanvas canvas) {
         this.canvas = canvas;
     }
-}*/
+
+    protected void setThread(TurnBasedGameThread gameThread){
+        this.gameThread = gameThread;
+    }
+}

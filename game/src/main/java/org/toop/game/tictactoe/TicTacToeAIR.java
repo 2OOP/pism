@@ -1,7 +1,10 @@
 package org.toop.game.tictactoe;
 
 import org.toop.game.AIR;
+import org.toop.game.PlayResult;
 import org.toop.game.enumerators.GameState;
+
+import java.util.Arrays;
 
 /**
  * AI implementation for playing Tic-Tac-Toe.
@@ -30,13 +33,14 @@ public final class TicTacToeAIR extends AIR<TicTacToeR> {
     public int findBestMove(TicTacToeR game, int depth) {
         assert game != null;
         assert depth >= 0;
-
         final int[] legalMoves = game.getLegalMoves();
 
+        // If there are no moves, return -1
         if (legalMoves.length == 0) {
             return -1;
         }
 
+        // If first move, pick a corner
         if (legalMoves.length == 9) {
             return switch ((int)(Math.random() * 4)) {
                 case 0 -> legalMoves[2];
@@ -49,6 +53,7 @@ public final class TicTacToeAIR extends AIR<TicTacToeR> {
         int bestScore = -depth;
         int bestMove = -1;
 
+        // Calculate Move score of each move, keep track what moves had the best score
         for (final int move : legalMoves) {
             final int score = getMoveScore(game, depth, move, true);
 
@@ -57,7 +62,6 @@ public final class TicTacToeAIR extends AIR<TicTacToeR> {
                 bestScore = score;
             }
         }
-
         return bestMove != -1 ? bestMove : legalMoves[(int)(Math.random() * legalMoves.length)];
     }
 
@@ -72,7 +76,9 @@ public final class TicTacToeAIR extends AIR<TicTacToeR> {
      */
     private int getMoveScore(TicTacToeR game, int depth, int move, boolean maximizing) {
         final TicTacToeR copy = game.clone();
-        final GameState state = copy.play(move);
+        final PlayResult result = copy.play(move);
+
+        GameState state = result.state();
 
         switch (state) {
             case DRAW: return 0;
