@@ -47,8 +47,8 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 	}
 
 	private void drawMove(Move move) {
-		if (move.value() == 'X') canvas.drawX(Color.RED, move.position());
-		else canvas.drawO(Color.BLUE, move.position());
+		if (move.value() == 'X') canvas.drawPlayer('X', Color.RED, move.position());
+		else canvas.drawPlayer('O', Color.BLUE, move.position());
 	}
 
 	@Override

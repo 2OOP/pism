@@ -2,9 +2,10 @@ package org.toop.app.widget.view;
 
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
-import org.toop.app.game.Connect4Game;
-import org.toop.app.game.ReversiGame;
-import org.toop.app.game.TicTacToeGameThread;
+import org.toop.app.game.*;
+import org.toop.app.game.Players.ArtificialPlayer;
+import org.toop.app.game.Players.LocalPlayer;
+import org.toop.app.game.Players.Player;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PlayerInfoWidget;
@@ -14,12 +15,16 @@ import org.toop.app.widget.tutorial.BaseTutorialWidget;
 import org.toop.app.widget.tutorial.Connect4TutorialWidget;
 import org.toop.app.widget.tutorial.ReversiTutorialWidget;
 import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
+import org.toop.app.game.TurnBasedGameThread;
+import org.toop.game.tictactoe.TicTacToeAIR;
+import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import org.toop.local.AppSettings;
+
 public class LocalMultiplayerView extends ViewWidget {
 	private final GameInformation information;
 
@@ -45,7 +50,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeGameThread(information);
+                                        new TicTacToeController(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
                                     });
                                 },
                                 () -> {
@@ -57,7 +62,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setTutorialFlag(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeGameThread(information);
+                                        new TicTacToeController(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
                                     });
                                 }
                         );
