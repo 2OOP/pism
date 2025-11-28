@@ -38,84 +38,39 @@ public class LocalMultiplayerView extends ViewWidget {
                 case TICTACTOE:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                          new ShowEnableTutorialWidget(
-                                "tutorial",
-                                 () -> {
-                                     AppSettings.getSettings().setFirstTTT(false);
-                                     new TicTacToeTutorialWidget(() -> new TicTacToeGameThread(information));
-                                 },
-                                 () -> {
-                                     AppSettings.getSettings().setFirstTTT(false);
-                                     Platform.runLater(() -> {
-                                         new TicTacToeGameThread(information);
-                                     });
-                                 },
-                                 () -> {
-                                     AppSettings.getSettings().setTutorialFlag(false);
-                                     Platform.runLater(() -> {
-                                         new TicTacToeGameThread(information);
-                                     });
-                                 }
-
+                                () -> new TicTacToeTutorialWidget(() -> new TicTacToeGameThread(information)),
+                                () -> Platform.runLater(() -> new TicTacToeGameThread(information)),
+                                () -> AppSettings.getSettings().setFirstTTT(false)
                          );
-                         break;
+                    } else {
+                        new TicTacToeGameThread(information);
                     }
-                    new TicTacToeGameThread(information);
                     break;
                 case REVERSI:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(
-                                "tutorial",
-                                () -> {
-                                    AppSettings.getSettings().setFirstTTT(false);
-                                    new ReversiTutorialWidget(() -> new ReversiGame(information));
-                                },
-                                () -> {
-                                    AppSettings.getSettings().setFirstTTT(false);
-                                    Platform.runLater(() -> {
-                                        new ReversiGame(information);
-                                    });
-                                },
-                                () -> {
-                                    AppSettings.getSettings().setTutorialFlag(false);
-                                    Platform.runLater(() -> {
-                                        new ReversiGame(information);
-                                    });
-                                }
-
+                                () -> new ReversiTutorialWidget(() -> new ReversiGame(information)),
+                                () -> Platform.runLater(() -> new ReversiGame(information)),
+                                () -> AppSettings.getSettings().setFirstReversi(false)
                         );
-                        break;
+                    } else {
+                        new ReversiGame(information);
                     }
-                    new ReversiGame(information);
                     break;
                 case CONNECT4:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstConnect4()) {
                         new ShowEnableTutorialWidget(
-                                "tutorial",
-                                () -> {
-                                    AppSettings.getSettings().setFirstTTT(false);
-                                    new Connect4TutorialWidget(() -> new Connect4Game(information));
-                                },
-                                () -> {
-                                    AppSettings.getSettings().setFirstTTT(false);
-                                    Platform.runLater(() -> {
-                                        new Connect4Game(information);
-                                    });
-                                },
-                                () -> {
-                                    AppSettings.getSettings().setTutorialFlag(false);
-                                    Platform.runLater(() -> {
-                                        new Connect4Game(information);
-                                    });
-                                }
-
+                                () -> new Connect4TutorialWidget(() -> new Connect4Game(information)),
+                                () -> Platform.runLater(() -> new Connect4Game(information)),
+                                () -> AppSettings.getSettings().setFirstConnect4(false)
                         );
-                        break;
+                    } else {
+                        new Connect4Game(information);
                     }
-                    new Connect4Game(information);
                     break;
-                    }
+            }
 				// case BATTLESHIP -> new BattleshipGame(information);
-			});
+        });
 
 		var playerSection = setupPlayerSections();
 

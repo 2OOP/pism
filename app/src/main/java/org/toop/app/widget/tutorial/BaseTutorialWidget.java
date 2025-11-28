@@ -6,6 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import org.apache.maven.surefire.shared.lang3.tuple.ImmutablePair;
 import org.toop.app.widget.Primitive;
+import org.toop.app.widget.Updatable;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PopupWidget;
 
@@ -14,15 +15,16 @@ import org.toop.local.AppContext;
 
 import java.util.List;
 
-public class BaseTutorialWidget extends PopupWidget {
+public class BaseTutorialWidget extends PopupWidget implements Updatable {
 
     private final Text tutorialText;
     private final ImageView imagery;
     private final Button previousButton;
     private final Button nextButton;
-    private int pageIndex = 0;
     private final List<ImmutablePair<String, ImageAsset>> pages;
     private final Runnable nextScreen;
+
+    private int pageIndex = 0;
 
     public BaseTutorialWidget(List<ImmutablePair<String, ImageAsset>> pages, Runnable nextScreen) {
         this.tutorialText = Primitive.text(pages.getFirst().getKey());
@@ -44,6 +46,11 @@ public class BaseTutorialWidget extends PopupWidget {
         add(Pos.CENTER, Primitive.vbox(x, w));
 
         WidgetContainer.add(Pos.CENTER, this);
+    }
+
+    @Override
+    public void update() {
+        update(true);
     }
 
     public void update(boolean next) {
