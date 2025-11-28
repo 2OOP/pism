@@ -4,39 +4,33 @@ import javafx.geometry.Pos;
 import org.toop.app.widget.complex.ViewWidget;
 import java.io.File;
 
-public class TicTacToeTutorialWidget extends ViewWidget {
+public class TicTacToeTutorialWidget extends BaseTutorialWidget {
 
-    private TState state;
-    private String[] keys = {"tictactoe1", "tictactoe2"};
-    private File[] images = {
+    private final String[] keys;
+    private final File[] images = {
             new File("app/src/main/resources/assets/images/tictactoe1.png"),
             new File("app/src/main/resources/assets/images/tictactoe2.png")
     };
-    private BaseTutorialWidget tutorialWidget;
 
     public TicTacToeTutorialWidget() {
-        this.state = new TState(keys.length);
-        tutorialWidget = new BaseTutorialWidget(
-            state,
-            keys[state.getCurrent()],
-            images[state.getCurrent()],
-            () -> {
-                if (state.hasPrevious()) {
-                    state.previous();
-                    update();
-                }
-            },
-            () -> {
-                if (state.hasNext()) {
-                    state.next();
-                    update();
-                }
-            }
+        String[] newKeys = {"tictactoe1", "tictactoe2"};
+
+        super(newKeys[0]);
+
+        keys = newKeys;
+
+        setTutorial(
+            images[0],
+            () -> update(false, keys, images),
+            () -> update(true, keys, images)
         );
-        add(Pos.CENTER, tutorialWidget);
     }
 
-    private void update() {
-        tutorialWidget.update(keys[state.getCurrent()], images[state.getCurrent()]);
+    public String[] getKeys() {
+        return keys;
+    }
+
+    public File[] getImages() {
+        return images;
     }
 }

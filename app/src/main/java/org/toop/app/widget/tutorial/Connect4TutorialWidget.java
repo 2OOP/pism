@@ -5,35 +5,35 @@ import org.toop.app.widget.complex.ViewWidget;
 
 import java.io.File;
 
-public class Connect4TutorialWidget extends ViewWidget {
-    private TState state;
-    private String[] keys = {"connect4.1", "connect4.2"};
-    private File[] images = {new File("app/src/main/resources/assets/images/connect41.png"), new File("app/src/main/resources/assets/images/connect42.png")};
-    private BaseTutorialWidget tutorialWidget;
+public class Connect4TutorialWidget extends BaseTutorialWidget {
+    private final String[] keys;
+
+    private final File[] images = {
+            new File("app/src/main/resources/assets/images/connect41.png"),
+            new File("app/src/main/resources/assets/images/connect42.png")
+    };
 
     public Connect4TutorialWidget() {
-        this.state = new TState(keys.length);
-        tutorialWidget = new BaseTutorialWidget(
-                state,
-                keys[state.getCurrent()],
-                images[state.getCurrent()],
-                () -> {
-                    if (state.hasPrevious()) {
-                        state.previous();
-                        update();
-                    }
-                },
-                () -> {
-                    if (state.hasNext()) {
-                        state.next();
-                        update();
-                    }
-                }
+        String[] newKeys = {
+                "connect4.1", "connect4.2"
+        };
+
+        super(newKeys[0]);
+
+        keys = newKeys;
+
+        setTutorial(
+            images[0],
+            () -> update(false, keys, images),
+            () -> update(true, keys, images)
         );
-        add(Pos.CENTER, tutorialWidget);
     }
 
-    private void update() {
-        tutorialWidget.update(keys[state.getCurrent()], images[state.getCurrent()]);
+    public String[] getKeys() {
+        return keys;
+    }
+
+    public File[] getImages() {
+        return images;
     }
 }
