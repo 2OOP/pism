@@ -1,11 +1,11 @@
 package org.toop.game.tictactoe;
 
-import org.toop.game.Game;
-
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
 
@@ -25,27 +25,27 @@ class ReversiTest {
     @Test
     void testCorrectStartPiecesPlaced() {
         assertNotNull(game);
-        assertEquals('W',game.board[27]);
-        assertEquals('B',game.board[28]);
-        assertEquals('B',game.board[35]);
-        assertEquals('W',game.board[36]);
+        assertEquals('W',game.getBoard()[27]);
+        assertEquals('B',game.getBoard()[28]);
+        assertEquals('B',game.getBoard()[35]);
+        assertEquals('W',game.getBoard()[36]);
     }
 
     @Test
     void testGetLegalMovesAtStart() {
-        Game.Move[] moves = game.getLegalMoves();
-        List<Game.Move> expectedMoves = List.of(
-                new Game.Move(19,'B'),
-                new Game.Move(26,'B'),
-                new Game.Move(37,'B'),
-                new Game.Move(44,'B')
+        Move[] moves = game.getLegalMoves();
+        List<Move> expectedMoves = List.of(
+                new Move(19,'B'),
+                new Move(26,'B'),
+                new Move(37,'B'),
+                new Move(44,'B')
         );
         assertNotNull(moves);
         assertTrue(moves.length > 0);
         assertMovesMatchIgnoreOrder(expectedMoves, Arrays.asList(moves));
     }
 
-    private void assertMovesMatchIgnoreOrder(List<Game.Move> expected, List<Game.Move> actual) {
+    private void assertMovesMatchIgnoreOrder(List<Move> expected, List<Move> actual) {
         assertEquals(expected.size(), actual.size());
         for (int i = 0; i < expected.size(); i++) {
             assertTrue(actual.contains(expected.get(i)));
@@ -55,16 +55,16 @@ class ReversiTest {
 
     @Test
     void testMakeValidMoveFlipsPieces() {
-        game.play(new Game.Move(19, 'B'));
-        assertEquals('B', game.board[19]);
-        assertEquals('B', game.board[27], "Piece should have flipped to B");
+        game.play(new Move(19, 'B'));
+        assertEquals('B', game.getBoard()[19]);
+        assertEquals('B', game.getBoard()[27], "Piece should have flipped to B");
     }
 
     @Test
     void testMakeInvalidMoveDoesNothing() {
-        char[] before = game.board.clone();
-        game.play(new Game.Move(0, 'B'));
-        assertArrayEquals(before, game.board, "Board should not change on invalid move");
+        char[] before = game.getBoard().clone();
+        game.play(new Move(0, 'B'));
+        assertArrayEquals(before, game.getBoard(), "Board should not change on invalid move");
     }
 
     @Test
@@ -77,7 +77,7 @@ class ReversiTest {
     @Test
     void testCountScoreCorrectlyAtStart() {
         long start =  System.nanoTime();
-        Game.Score score = game.getScore();
+        Reversi.Score score = game.getScore();
         assertEquals(2, score.player1Score()); // Black
         assertEquals(2, score.player2Score()); // White
         long end  =  System.nanoTime();
@@ -86,15 +86,15 @@ class ReversiTest {
 
     @Test
     void zLegalMovesInCertainPosition() {
-        game.play(new Game.Move(19, 'B'));
-        game.play(new Game.Move(20, 'W'));
-        Game.Move[] moves = game.getLegalMoves();
-        List<Game.Move> expectedMoves = List.of(
-                new Game.Move(13,'B'),
-                new Game.Move(21, 'B'),
-                new Game.Move(29, 'B'),
-                new Game.Move(37, 'B'),
-                new Game.Move(45, 'B'));
+        game.play(new Move(19, 'B'));
+        game.play(new Move(20, 'W'));
+        Move[] moves = game.getLegalMoves();
+        List<Move> expectedMoves = List.of(
+                new Move(13,'B'),
+                new Move(21, 'B'),
+                new Move(29, 'B'),
+                new Move(37, 'B'),
+                new Move(45, 'B'));
         assertNotNull(moves);
         assertTrue(moves.length > 0);
         IO.println(Arrays.toString(moves));
@@ -105,45 +105,45 @@ class ReversiTest {
     void testCountScoreCorrectlyAtEnd() {
         for (int i = 0; i < 1; i++){
             game =  new Reversi();
-            Game.Move[] legalMoves = game.getLegalMoves();
+            Move[] legalMoves = game.getLegalMoves();
             while(legalMoves.length > 0) {
                 game.play(legalMoves[(int)(Math.random()*legalMoves.length)]);
                 legalMoves = game.getLegalMoves();
             }
-            Game.Score score = game.getScore();
+            Reversi.Score score = game.getScore();
             IO.println(score.player1Score());
             IO.println(score.player2Score());
-            char[][] grid = game.makeBoardAGrid();
-            for (char[] chars : grid) {
-                IO.println(Arrays.toString(chars));
-            }
 
+            for (int r = 0; r < game.getRowSize(); r++) {
+                char[] row = Arrays.copyOfRange(game.getBoard(), r * game.getColumnSize(), (r + 1) * game.getColumnSize());
+                IO.println(Arrays.toString(row));
+            }
         }
     }
 
     @Test
     void testPlayerMustSkipTurnIfNoValidMoves() {
-        game.play(new Game.Move(19, 'B'));
-        game.play(new Game.Move(34, 'W'));
-        game.play(new Game.Move(45, 'B'));
-        game.play(new Game.Move(11, 'W'));
-        game.play(new Game.Move(42, 'B'));
-        game.play(new Game.Move(54, 'W'));
-        game.play(new Game.Move(37, 'B'));
-        game.play(new Game.Move(46, 'W'));
-        game.play(new Game.Move(63, 'B'));
-        game.play(new Game.Move(62, 'W'));
-        game.play(new Game.Move(29, 'B'));
-        game.play(new Game.Move(50, 'W'));
-        game.play(new Game.Move(55, 'B'));
-        game.play(new Game.Move(30, 'W'));
-        game.play(new Game.Move(53, 'B'));
-        game.play(new Game.Move(38, 'W'));
-        game.play(new Game.Move(61, 'B'));
-        game.play(new Game.Move(52, 'W'));
-        game.play(new Game.Move(51, 'B'));
-        game.play(new Game.Move(60, 'W'));
-        game.play(new Game.Move(59, 'B'));
+        game.play(new Move(19, 'B'));
+        game.play(new Move(34, 'W'));
+        game.play(new Move(45, 'B'));
+        game.play(new Move(11, 'W'));
+        game.play(new Move(42, 'B'));
+        game.play(new Move(54, 'W'));
+        game.play(new Move(37, 'B'));
+        game.play(new Move(46, 'W'));
+        game.play(new Move(63, 'B'));
+        game.play(new Move(62, 'W'));
+        game.play(new Move(29, 'B'));
+        game.play(new Move(50, 'W'));
+        game.play(new Move(55, 'B'));
+        game.play(new Move(30, 'W'));
+        game.play(new Move(53, 'B'));
+        game.play(new Move(38, 'W'));
+        game.play(new Move(61, 'B'));
+        game.play(new Move(52, 'W'));
+        game.play(new Move(51, 'B'));
+        game.play(new Move(60, 'W'));
+        game.play(new Move(59, 'B'));
         assertEquals('B', game.getCurrentPlayer());
         game.play(ai.findBestMove(game,5));
         game.play(ai.findBestMove(game,5));
@@ -152,40 +152,40 @@ class ReversiTest {
     @Test
     void testGameShouldEndIfNoValidMoves() {
         //European Grand Prix Ghent 2017: Replay Hassan - Verstuyft J. (3-17)
-        game.play(new Game.Move(19, 'B'));
-        game.play(new Game.Move(20, 'W'));
-        game.play(new Game.Move(29, 'B'));
-        game.play(new Game.Move(22, 'W'));
-        game.play(new Game.Move(21, 'B'));
-        game.play(new Game.Move(34, 'W'));
-        game.play(new Game.Move(23, 'B'));
-        game.play(new Game.Move(13, 'W'));
-        game.play(new Game.Move(26, 'B'));
-        game.play(new Game.Move(18, 'W'));
-        game.play(new Game.Move(12, 'B'));
-        game.play(new Game.Move(4, 'W'));
-        game.play(new Game.Move(17, 'B'));
-        game.play(new Game.Move(31, 'W'));
-        Game.State stateTurn15 = game.play(new Game.Move(39, 'B'));
-        assertEquals(Game.State.NORMAL, stateTurn15);
-        Game.State stateTurn16 = game.play(new Game.Move(16, 'W'));
-        assertEquals(Game.State.WIN, stateTurn16);
-        Game.State stateTurn17 = game.play(new Game.Move(5, 'B'));
+        game.play(new Move(19, 'B'));
+        game.play(new Move(20, 'W'));
+        game.play(new Move(29, 'B'));
+        game.play(new Move(22, 'W'));
+        game.play(new Move(21, 'B'));
+        game.play(new Move(34, 'W'));
+        game.play(new Move(23, 'B'));
+        game.play(new Move(13, 'W'));
+        game.play(new Move(26, 'B'));
+        game.play(new Move(18, 'W'));
+        game.play(new Move(12, 'B'));
+        game.play(new Move(4, 'W'));
+        game.play(new Move(17, 'B'));
+        game.play(new Move(31, 'W'));
+        GameState stateTurn15 = game.play(new Move(39, 'B'));
+        assertEquals(GameState.NORMAL, stateTurn15);
+        GameState stateTurn16 = game.play(new Move(16, 'W'));
+        assertEquals(GameState.WIN, stateTurn16);
+        GameState stateTurn17 = game.play(new Move(5, 'B'));
         assertNull(stateTurn17);
-        Game.Score score = game.getScore();
+        Reversi.Score score = game.getScore();
         assertEquals(3, score.player1Score());
         assertEquals(17, score.player2Score());
     }
 
     @Test
     void testAISelectsLegalMove() {
-        Game.Move move = ai.findBestMove(game,4);
+        Move move = ai.findBestMove(game,4);
         assertNotNull(move);
         assertTrue(containsMove(game.getLegalMoves(),move), "AI should always choose a legal move");
     }
 
-    private boolean containsMove(Game.Move[] moves, Game.Move move) {
-        for (Game.Move m : moves) {
+    private boolean containsMove(Move[] moves, Move move) {
+        for (Move m : moves) {
             if (m.equals(move)) return true;
         }
         return false;

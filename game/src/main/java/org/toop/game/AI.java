@@ -1,5 +1,6 @@
 package org.toop.game;
 
-public abstract class AI<T extends Game> {
-	public abstract Game.Move findBestMove(T game, int depth);
+import org.toop.game.interfaces.IAIMove;
+
+public abstract class AI<T extends Game> implements IAIMove<T> {
 }

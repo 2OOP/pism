@@ -5,7 +5,8 @@ import org.toop.app.GameInformation;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.Game;
+import org.toop.game.enumerators.GameState;
+import org.toop.game.records.Move;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
 import java.util.function.Consumer;
@@ -45,7 +46,7 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 		return turn == 0 ? "X" : "O";
 	}
 
-	private void drawMove(Game.Move move) {
+	private void drawMove(Move move) {
 		if (move.value() == 'X') canvas.drawX(Color.RED, move.position());
 		else canvas.drawO(Color.BLUE, move.position());
 	}
@@ -64,11 +65,11 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 			playerChar = myTurn == 0? 'O' : 'X';
 		}
 
-		final Game.Move move = new Game.Move(Integer.parseInt(response.move()), playerChar);
-		final Game.State state = game.play(move);
+		final Move move = new Move(Integer.parseInt(response.move()), playerChar);
+		final GameState state = game.play(move);
 
-		if (state != Game.State.NORMAL) {
-			if (state == Game.State.WIN) {
+		if (state != GameState.NORMAL) {
+			if (state == GameState.WIN) {
 				if (response.player().equalsIgnoreCase(information.players[0].name)) {
 					primary.gameOver(true, information.players[0].name);
 					gameOver();
@@ -76,7 +77,7 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 					primary.gameOver(false, information.players[1].name);
 					gameOver();
 				}
-			} else if (state == Game.State.DRAW) {
+			} else if (state == GameState.DRAW) {
 				if (game.getLegalMoves().length == 0) {
 					primary.gameOver(false, "");
 					gameOver();
@@ -103,7 +104,7 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 				position = moveQueue.take().position();
 			} catch (InterruptedException _) {}
 		} else {
-			final Game.Move move;
+			final Move move;
 			if (information.players[1].name.equalsIgnoreCase("pism")) {
 				move = ai.findWorstMove(game,9);
 			}else{
@@ -124,14 +125,14 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 			final int currentTurn = game.getCurrentTurn();
 			setGameLabels(currentTurn == myTurn);
 
-			Game.Move move = null;
+			Move move = null;
 
 			if (information.players[currentTurn].isHuman) {
 				try {
-					final Game.Move wants = moveQueue.take();
-					final Game.Move[] legalMoves = game.getLegalMoves();
+					final Move wants = moveQueue.take();
+					final Move[] legalMoves = game.getLegalMoves();
 
-					for (final Game.Move legalMove : legalMoves) {
+					for (final Move legalMove : legalMoves) {
 						if (legalMove.position() == wants.position() &&
 							legalMove.value() == wants.value()) {
 							move = wants;
@@ -158,13 +159,13 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 				continue;
 			}
 
-			final Game.State state = game.play(move);
+			final GameState state = game.play(move);
 			drawMove(move);
 
-			if (state != Game.State.NORMAL) {
-				if (state == Game.State.WIN) {
+			if (state != GameState.NORMAL) {
+				if (state == GameState.WIN) {
 					primary.gameOver(information.players[currentTurn].isHuman, information.players[currentTurn].name);
-				} else if (state == Game.State.DRAW) {
+				} else if (state == GameState.DRAW) {
 					primary.gameOver(false, "");
 				}
 

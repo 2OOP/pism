@@ -15,10 +15,12 @@ import javafx.scene.text.Text;
 import java.util.function.Consumer;
 
 public final class GameView extends View {
+    // TODO: This should be it's own file...
 	private static class GameOverView extends View {
 		private final boolean iWon;
 		private final String winner;
 
+        // TODO: Make winner generic, there is no "I won" unless you play online or against bot. Should be a generic "... won" to simplify
 		public GameOverView(boolean iWon, String winner) {
 			super(false, "bg-popup");
 
@@ -71,6 +73,8 @@ public final class GameView extends View {
 
 	private final Text nextPlayerHeader;
 
+    private final Text gameStateFeedback = text();
+
 	private final ListView<Text> chatListView;
 	private final TextField chatInput;
 
@@ -112,34 +116,24 @@ public final class GameView extends View {
 		exitButton.setText(AppContext.getString("exit"));
 		exitButton.setOnAction(_ -> onExit.run());
 
-		currentPlayerHeader = header("", "current-player");
+		currentPlayerHeader = header("", "header");
 		currentMoveHeader = header();
-
 		nextPlayerHeader = header();
 	}
 
 	@Override
 	public void setup() {
-		add(Pos.TOP_RIGHT,
-			fit(vboxFill(
-				currentPlayerHeader,
-
-				hboxFill(
-					separator(),
-					currentMoveHeader,
-					separator()
-				),
-
-				nextPlayerHeader
-			))
+		add(
+                Pos.TOP_CENTER,
+                gameStateFeedback
 		);
 
 		add(Pos.BOTTOM_LEFT,
-			vboxFill(
-				forfeitButton,
-				exitButton
-			)
-		);
+                vboxFill(
+                    forfeitButton,
+                    exitButton
+                )
+        );
 
 		if (chatListView != null) {
 			add(Pos.BOTTOM_RIGHT,
@@ -153,6 +147,7 @@ public final class GameView extends View {
 
 	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer) {
         Platform.runLater(() -> {
+            gameStateFeedback.setText("Waiting on " + currentPlayer + " to make their move.");
             currentPlayerHeader.setText(currentPlayer);
             currentMoveHeader.setText(currentMove);
 
