@@ -1,5 +1,8 @@
 package org.toop.app.widget.display;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import org.toop.app.widget.Widget;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
@@ -15,10 +18,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.util.Timer;
+
 public class SongDisplay extends VBox implements Widget {
 	private final Text songTitle;
 	private final ProgressBar progressBar;
 	private final Text progressText;
+    private boolean canClick = true;
 
 	public SongDisplay() {
 		new EventFlow()
@@ -49,10 +55,13 @@ public class SongDisplay extends VBox implements Widget {
 		previousButton.getStyleClass().setAll("previous-button");
 
 		skipButton.setOnAction( event -> {
+            if (!canClick) { return; }
 			GlobalEventBus.post(new AudioEvents.SkipMusic());
+            doCooldown();
 		});
 
 		pauseButton.setOnAction(event -> {
+            if (!canClick) { return; }
 			GlobalEventBus.post(new AudioEvents.PauseMusic());
 			if (pauseButton.getText().equals("⏸")) {
 				pauseButton.setText("▶");
@@ -60,10 +69,13 @@ public class SongDisplay extends VBox implements Widget {
 			else if (pauseButton.getText().equals("▶")) {
 				pauseButton.setText("⏸");
 			}
+            doCooldown();
 		});
 
 		previousButton.setOnAction( event -> {
+            if (!canClick) { return; }
 			GlobalEventBus.post(new AudioEvents.PreviousMusic());
+            doCooldown();
 		});
 
 		HBox control = new HBox(10, previousButton, pauseButton, skipButton);
@@ -109,6 +121,16 @@ public class SongDisplay extends VBox implements Widget {
 		String time = positionMinutes + ":" + positionSecondsStr + " / " + durationMinutes + ":" + durationSecondsStr;
 		return time;
 	}
+
+    private void doCooldown() {
+        canClick = false;
+        Timeline cooldown = new Timeline(
+                new KeyFrame(Duration.millis(300), event -> canClick = true)
+        );
+        cooldown.setCycleCount(1);
+        cooldown.play();
+    }
+
 
 	@Override
 	public Node getNode() {
