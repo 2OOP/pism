@@ -9,17 +9,10 @@ import org.toop.framework.resource.ResourceManager;
 import java.util.List;
 
 public class Connect4TutorialWidget extends BaseTutorialWidget {
-    public Connect4TutorialWidget(GameInformation information) {
+    public Connect4TutorialWidget(Runnable nextScreen) {
         super(List.of(
                 new ImmutablePair<>("connect4.1", ResourceManager.get("connect41.png")),
                 new ImmutablePair<>("connect4.2", ResourceManager.get("connect42.png"))
-        ), () -> Platform.runLater(() -> new Connect4Game(information)));
-    }
-
-    public Connect4TutorialWidget() {
-        super(List.of(
-                new ImmutablePair<>("connect4.1", ResourceManager.get("connect41.png")),
-                new ImmutablePair<>("connect4.2", ResourceManager.get("connect42.png"))
-        ), () -> {});
+        ), nextScreen);
     }
 }

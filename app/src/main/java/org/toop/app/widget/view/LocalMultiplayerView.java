@@ -41,7 +41,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 "tutorial",
                                  () -> {
                                      AppSettings.getSettings().setFirstTTT(false);
-                                     new TicTacToeTutorialWidget(information);
+                                     new TicTacToeTutorialWidget(() -> new TicTacToeGameThread(information));
                                  },
                                  () -> {
                                      AppSettings.getSettings().setFirstTTT(false);
@@ -67,7 +67,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 "tutorial",
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
-                                    new ReversiTutorialWidget(information);
+                                    new ReversiTutorialWidget(() -> new ReversiGame(information));
                                 },
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
@@ -93,7 +93,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 "tutorial",
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
-                                    new Connect4TutorialWidget(information);
+                                    new Connect4TutorialWidget(() -> new Connect4Game(information));
                                 },
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);

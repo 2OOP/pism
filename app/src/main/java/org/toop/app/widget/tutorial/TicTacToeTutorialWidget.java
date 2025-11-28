@@ -14,19 +14,11 @@ import java.io.File;
 import java.util.List;
 
 public class TicTacToeTutorialWidget extends BaseTutorialWidget {
-
-    public TicTacToeTutorialWidget(GameInformation gameInformation) {
+    public TicTacToeTutorialWidget(Runnable nextScreen) {
         super(List.of(
                 new ImmutablePair<>("tictactoe1", ResourceManager.get("tictactoe1.png")),
                 new ImmutablePair<>("tictactoe2", ResourceManager.get("tictactoe2.png"))
-        ), () -> Platform.runLater(() -> new TicTacToeGameThread(gameInformation)));
-    }
-
-    public TicTacToeTutorialWidget() {
-        super(List.of(
-                new ImmutablePair<>("tictactoe1", ResourceManager.get("tictactoe1.png")),
-                new ImmutablePair<>("tictactoe2", ResourceManager.get("tictactoe2.png"))
-        ), () -> {});
+        ), nextScreen);
     }
 
 }
