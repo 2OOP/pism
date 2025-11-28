@@ -1,4 +1,4 @@
-package org.toop.game;
+package org.toop.app.game;
 
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
@@ -9,6 +9,7 @@ import org.toop.app.game.Players.LocalPlayer;
 import org.toop.app.game.Players.Player;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
+import org.toop.game.TurnBasedGameR;
 import org.toop.game.enumerators.GameState;
 
 import java.util.Arrays;

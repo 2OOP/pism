@@ -99,12 +99,6 @@
             <artifactId>error_prone_annotations</artifactId>
             <version>2.42.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.toop</groupId>
-            <artifactId>app</artifactId>
-            <version>0.1</version>
-            <scope>compile</scope>
-        </dependency>
 
     </dependencies>
 

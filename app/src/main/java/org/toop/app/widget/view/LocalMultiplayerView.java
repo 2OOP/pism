@@ -9,7 +9,7 @@ import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
-import org.toop.game.TurnBasedGameThread;
+import org.toop.app.game.TurnBasedGameThread;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;

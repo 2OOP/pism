@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.app.game.Players.LocalPlayer;
-import org.toop.game.TurnBasedGameThread;
+import org.toop.app.game.TurnBasedGameThread;
 import org.toop.app.widget.WidgetContainer;
 
 public class TicTacToeController extends GameController {

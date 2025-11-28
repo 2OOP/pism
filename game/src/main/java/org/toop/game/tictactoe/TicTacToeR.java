@@ -1,10 +1,7 @@
 package org.toop.game.tictactoe;
 
-import org.toop.game.GameR;
-import org.toop.game.TurnBasedGame;
 import org.toop.game.TurnBasedGameR;
 import org.toop.game.enumerators.GameState;
-import org.toop.game.records.Move;
 
 import java.util.ArrayList;
 import java.util.Arrays;
