@@ -4,7 +4,6 @@ import javafx.scene.image.ImageView;
 import org.toop.framework.resource.resources.ImageAsset;
 import org.toop.local.AppContext;
 
-import java.awt.*;
 import java.io.File;
 import java.util.function.Consumer;
 
