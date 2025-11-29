@@ -3,6 +3,7 @@ package org.toop.app.widget.view;
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.game.*;
+import org.toop.app.game.Controllers.TicTacToeController;
 import org.toop.app.game.Players.ArtificialPlayer;
 import org.toop.app.game.Players.LocalPlayer;
 import org.toop.app.game.Players.Player;

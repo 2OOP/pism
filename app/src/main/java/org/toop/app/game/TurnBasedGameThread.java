@@ -1,7 +1,10 @@
 package org.toop.app.game;
 
+import org.toop.app.GUIEvents;
+import org.toop.app.game.Controllers.GameController;
 import org.toop.app.game.Players.Player;
 
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.game.PlayResult;
 import org.toop.game.TurnBasedGameR;
 import org.toop.game.enumerators.GameState;
@@ -13,16 +16,15 @@ public class TurnBasedGameThread implements Runnable {
     private final TurnBasedGameR game;       // Reference to game instance
 
     private final AtomicBoolean isRunning = new AtomicBoolean(true);
-    private final GameController controller;
 
-    public TurnBasedGameThread(Player[] players, TurnBasedGameR game,  GameController controller) {
+    // TODO: Replace controller reference with RefreshUI event.
+    public TurnBasedGameThread(Player[] players, TurnBasedGameR game) {
         // Make sure player list matches expected size
         if (players.length != game.getPlayerCount()){
             throw new IllegalArgumentException("players and game's players must have same length");
         }
 
         // Set vars
-        this.controller = controller;
         this.players = players;
         this.game = game;
 
@@ -60,7 +62,8 @@ public class TurnBasedGameThread implements Runnable {
             PlayResult result = game.play(move);
 
             // Tell controller to update UI
-            controller.updateUI();
+            new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).asyncPostEvent();
+
             GameState state = result.state();
             if (state != GameState.NORMAL) {
                 if (state == GameState.WIN) {
