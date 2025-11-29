@@ -38,7 +38,7 @@ public class EventFlow {
     private EventType event = null;
 
     /** The listener returned by GlobalEventBus subscription. Used for unsubscription. */
-    private final List<ListenerHandler> listeners = new ArrayList<>();
+    private final List<ListenerHandler<?>> listeners = new ArrayList<>();
 
     /** Holds the results returned from the subscribed event, if any. */
     private Map<String, ?> result = null;
@@ -100,121 +100,155 @@ public class EventFlow {
 
     /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
     public <TT extends ResponseToUniqueEvent> EventFlow onResponse(
-            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                eventClass,
-                                event -> {
-                                    if (event.getIdentifier() != this.eventSnowflake) return;
+            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess, String name
+    ) {
 
-                                    action.accept(event);
+        final long id = SnowflakeGenerator.nextId();
 
-                                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                                        GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                        this.listeners.remove(listenerHolder[0]);
-                                    }
+        Consumer<TT> newAction = event -> {
+            if (event.getIdentifier() != this.eventSnowflake) return;
 
-                                    this.result = event.result();
-                                }));
-        this.listeners.add(listenerHolder[0]);
+            action.accept(event);
+
+            if (unsubscribeAfterSuccess) unsubscribe(id);
+
+            this.result = event.result();
+        };
+
+        var listener = new ListenerHandler<>(
+                id,
+                name,
+                (Class<ResponseToUniqueEvent>) eventClass,
+                (Consumer<ResponseToUniqueEvent>) newAction
+        );
+
+        GlobalEventBus.subscribe(listener);
+        this.listeners.add(listener);
         return this;
     }
 
     /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
     public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action) {
-        return this.onResponse(eventClass, action, true);
+        return this.onResponse(eventClass, action, true, "");
+    }
+
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
+        return this.onResponse(eventClass, action, unsubscribeAfterSuccess, "");
+    }
+
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action, String name) {
+        return this.onResponse(eventClass, action, true, name);
     }
 
     /** Subscribe by ID without explicit class. */
     @SuppressWarnings("unchecked")
     public <TT extends ResponseToUniqueEvent> EventFlow onResponse(
-            Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                event -> {
-                                    if (!(event instanceof UniqueEvent uuidEvent)) return;
-                                    if (uuidEvent.getIdentifier() == this.eventSnowflake) {
-                                        try {
-                                            TT typedEvent = (TT) uuidEvent;
-                                            action.accept(typedEvent);
-                                            if (unsubscribeAfterSuccess
-                                                    && listenerHolder[0] != null) {
-                                                GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                                this.listeners.remove(listenerHolder[0]);
-                                            }
-                                            this.result = typedEvent.result();
-                                        } catch (ClassCastException _) {
-                                            throw new ClassCastException(
-                                                    "Cannot cast "
-                                                            + event.getClass().getName()
-                                                            + " to UniqueEvent");
-                                        }
-                                    }
-                                }));
-        this.listeners.add(listenerHolder[0]);
+            Consumer<TT> action, boolean unsubscribeAfterSuccess, String name) {
+
+        final long id = SnowflakeGenerator.nextId();
+
+        Consumer<TT> newAction = event -> {
+            if (!(event instanceof UniqueEvent uuidEvent)) return;
+            if (uuidEvent.getIdentifier() == this.eventSnowflake) {
+                try {
+                    TT typedEvent = (TT) uuidEvent;
+                    action.accept(typedEvent);
+
+                    if (unsubscribeAfterSuccess) unsubscribe(id);
+
+                    this.result = typedEvent.result();
+                } catch (ClassCastException _) {
+                    throw new ClassCastException(
+                            "Cannot cast "
+                                    + event.getClass().getName()
+                                    + " to UniqueEvent");
+                }
+            }
+        };
+
+        var listener = new ListenerHandler<>(
+                id,
+                name,
+                null, // TODO dunno if this will be a problem?
+                (Consumer<ResponseToUniqueEvent>) newAction
+        );
+
+        GlobalEventBus.subscribe(listener);
+        this.listeners.add(listener);
         return this;
     }
 
     public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Consumer<TT> action) {
-        return this.onResponse(action, true);
+        return this.onResponse(action, true, "");
     }
 
     public <TT extends EventType> EventFlow listen(
-            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                eventClass,
-                                event -> {
-                                    action.accept(event);
+            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess, String name) {
 
-                                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                                        GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                        this.listeners.remove(listenerHolder[0]);
-                                    }
-                                }));
-        this.listeners.add(listenerHolder[0]);
+        long id = SnowflakeGenerator.nextId();
+
+        Consumer<TT> newAction = event -> {
+            action.accept(event);
+
+            if (unsubscribeAfterSuccess) unsubscribe(id);
+        };
+
+        var listener = new ListenerHandler<>(
+                        id,
+                        name,
+                        eventClass,
+                        newAction
+                );
+
+        GlobalEventBus.subscribe(listener);
+        this.listeners.add(listener);
         return this;
     }
 
+    public <TT extends EventType> EventFlow listen(Class<TT> eventClass, Consumer<TT> action, String name) {
+        return this.listen(eventClass, action, true, name);
+    }
+
     public <TT extends EventType> EventFlow listen(Class<TT> eventClass, Consumer<TT> action) {
-        return this.listen(eventClass, action, true);
+        return this.listen(eventClass, action, true, "");
+    }
+
+    public <TT extends EventType> EventFlow listen(Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
+        return this.listen(eventClass, action, unsubscribeAfterSuccess, "");
     }
 
     @SuppressWarnings("unchecked")
     public <TT extends EventType> EventFlow listen(
-            Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                event -> {
-                                    if (!(event instanceof EventType nonUuidEvent)) return;
-                                    try {
-                                        TT typedEvent = (TT) nonUuidEvent;
-                                        action.accept(typedEvent);
-                                        if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                                            GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                            this.listeners.remove(listenerHolder[0]);
-                                        }
-                                    } catch (ClassCastException _) {
-                                        throw new ClassCastException(
-                                                "Cannot cast "
-                                                        + event.getClass().getName()
-                                                        + " to UniqueEvent");
-                                    }
-                                }));
-        this.listeners.add(listenerHolder[0]);
+            Consumer<TT> action, boolean unsubscribeAfterSuccess, String name) {
+        long id = SnowflakeGenerator.nextId();
+        Consumer<TT> newAction = event -> {
+            if (!(event instanceof EventType nonUuidEvent)) return;
+            try {
+                TT typedEvent = (TT) nonUuidEvent;
+                action.accept(typedEvent);
+                if (unsubscribeAfterSuccess) unsubscribe(id);
+            } catch (ClassCastException _) {
+                throw new ClassCastException(
+                        "Cannot cast "
+                                + event.getClass().getName()
+                                + " to UniqueEvent");
+            }
+        };
+
+        var listener = new ListenerHandler<>(
+                id,
+                name,
+                (Class<EventType>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0],
+                (Consumer<EventType>) newAction
+        );
+
+        GlobalEventBus.subscribe(listener);
+        this.listeners.add(listener);
         return this;
     }
 
     public <TT extends EventType> EventFlow listen(Consumer<TT> action) {
-        return this.listen(action, true);
+        return this.listen(action, true, "");
     }
 
     /** Post synchronously */
@@ -227,6 +261,36 @@ public class EventFlow {
     public EventFlow asyncPostEvent() {
         GlobalEventBus.postAsync(this.event);
         return this;
+    }
+
+    public void unsubscribe(Object listenerObject) {
+        this.listeners.removeIf(handler -> {
+            if (handler.getListener() == listenerObject) {
+                GlobalEventBus.unsubscribe(handler);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public void unsubscribe(long listenerId) {
+        this.listeners.removeIf(handler -> {
+            if (handler.getId() == listenerId) {
+                GlobalEventBus.unsubscribe(handler);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public void unsubscribe(String name) {
+        this.listeners.removeIf(handler -> {
+            if (handler.getName().equals(name)) {
+                GlobalEventBus.unsubscribe(handler);
+                return true;
+            }
+            return false;
+        });
     }
 
     private void clean() {

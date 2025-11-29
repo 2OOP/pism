@@ -1,25 +1,48 @@
 package org.toop.framework.eventbus;
 
-public class ListenerHandler {
-    private Object listener;
+import org.toop.framework.SnowflakeGenerator;
+import org.toop.framework.eventbus.events.EventType;
 
-    //    private boolean unsubscribeAfterSuccess = true;
+import java.util.function.Consumer;
 
-    //    public ListenerHandler(Object listener, boolean unsubAfterSuccess) {
-    //        this.listener = listener;
-    //        this.unsubscribeAfterSuccess = unsubAfterSuccess;
-    //    }
+public class ListenerHandler<T extends EventType> {
+    private final long id;
+    private final String name;
+    private final Class<T> clazz;
+    private final Consumer<T> listener;
 
-    public ListenerHandler(Object listener) {
+    public ListenerHandler(long id, String name, Class<T> clazz, Consumer<T> listener) {
+        this.id = id;
+        this.name = name;
+        this.clazz = clazz;
         this.listener = listener;
     }
 
-    public Object getListener() {
-        return this.listener;
+    public ListenerHandler(String name, Class<T> clazz, Consumer<T> listener) {
+        this(SnowflakeGenerator.nextId(), name, clazz, listener);
     }
 
-    //    public boolean isUnsubscribeAfterSuccess() {
-    //        return this.unsubscribeAfterSuccess;
-    //    }
+    public ListenerHandler(long id, Class<T> clazz, Consumer<T> listener) {
+        this(id, String.valueOf(id), clazz, listener);
+    }
 
+    public ListenerHandler(Class<T> clazz, Consumer<T> listener) {
+        this(SnowflakeGenerator.nextId(), clazz, listener);
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public Consumer<T> getListener() {
+        return listener;
+    }
+
+    public Class<? extends EventType> getListenerClass() {
+        return clazz;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

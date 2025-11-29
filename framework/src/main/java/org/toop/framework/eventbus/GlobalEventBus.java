@@ -16,7 +16,7 @@ import org.toop.framework.eventbus.events.UniqueEvent;
 public final class GlobalEventBus {
 
     /** Map of event class to type-specific listeners. */
-    private static final Map<Class<?>, CopyOnWriteArrayList<Consumer<? super EventType>>>
+    private static final Map<Class<?>, CopyOnWriteArrayList<ListenerHandler<?>>>
             LISTENERS = new ConcurrentHashMap<>();
 
     /** Map of event class to Snowflake-ID-specific listeners. */
@@ -73,21 +73,10 @@ public final class GlobalEventBus {
     // ------------------------------------------------------------------------
     // Subscription
     // ------------------------------------------------------------------------
-    public static <T extends EventType> Consumer<? super EventType> subscribe(
-            Class<T> eventClass, Consumer<T> listener) {
-
-        CopyOnWriteArrayList<Consumer<? super EventType>> list =
-                LISTENERS.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>());
-
-        Consumer<? super EventType> wrapper = event -> listener.accept(eventClass.cast(event));
-        list.add(wrapper);
-        return wrapper;
-    }
-
-    public static Consumer<? super EventType> subscribe(Consumer<Object> listener) {
-        Consumer<? super EventType> wrapper = event -> listener.accept(event);
-        LISTENERS.computeIfAbsent(Object.class, _ -> new CopyOnWriteArrayList<>()).add(wrapper);
-        return wrapper;
+    public static <T extends EventType> void subscribe(ListenerHandler<T> listener) {
+        CopyOnWriteArrayList<ListenerHandler<?>> list =
+                LISTENERS.computeIfAbsent(listener.getListenerClass(), _ -> new CopyOnWriteArrayList<>());
+        list.add(listener);
     }
 
     public static <T extends UniqueEvent> void subscribeById(
@@ -97,8 +86,9 @@ public final class GlobalEventBus {
                 .put(eventId, listener);
     }
 
-    public static void unsubscribe(Object listener) {
-        LISTENERS.values().forEach(list -> list.remove(listener));
+    public static void unsubscribe(ListenerHandler<?> listener) {
+        LISTENERS.values().forEach(list -> list.remove(listener.getListener()));
+        LISTENERS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
     public static <T extends UniqueEvent> void unsubscribeById(
@@ -125,28 +115,37 @@ public final class GlobalEventBus {
     }
 
     @SuppressWarnings("unchecked")
+    private static <T extends EventType> void callListener(ListenerHandler<?> raw, EventType event) {
+        ListenerHandler<T> handler = (ListenerHandler<T>) raw;
+        Consumer<T> listener = handler.getListener();
+
+        T casted = (T) event;
+
+        listener.accept(casted);
+    }
+
+    @SuppressWarnings("unchecked")
     private static void dispatchEvent(EventType event) {
         Class<?> clazz = event.getClass();
 
         // class-specific listeners
-        CopyOnWriteArrayList<Consumer<? super EventType>> classListeners = LISTENERS.get(clazz);
+        CopyOnWriteArrayList<ListenerHandler<?>> classListeners = LISTENERS.get(clazz);
         if (classListeners != null) {
-            for (Consumer<? super EventType> listener : classListeners) {
+            for (ListenerHandler<?> listener : classListeners) {
                 try {
-                    listener.accept(event);
+                    callListener(listener, event);
                 } catch (Throwable e) {
 //                    e.printStackTrace();
                 }
             }
         }
 
-        // generic listeners
-        CopyOnWriteArrayList<Consumer<? super EventType>> genericListeners =
-                LISTENERS.get(Object.class);
+//         generic listeners
+        CopyOnWriteArrayList<ListenerHandler<?>> genericListeners = LISTENERS.get(Object.class);
         if (genericListeners != null) {
-            for (Consumer<? super EventType> listener : genericListeners) {
+            for (ListenerHandler<?> listener : genericListeners) {
                 try {
-                    listener.accept(event);
+                    callListener(listener, event);
                 } catch (Throwable e) {
                     // e.printStackTrace();
                 }
