@@ -12,7 +12,7 @@ import javafx.util.Duration;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public abstract class GameCanvas {
+public abstract class GameCanvas implements DrawPlayerMove {
 	protected record Cell(float x, float y, float width, float height) {
 		public boolean isInside(double x, double y) {
 			return x >= this.x && x <= this.x + width &&
@@ -144,16 +144,16 @@ public abstract class GameCanvas {
 		}
 	}
 
-    public void drawChar(char chr, Color color, int cell) {
-        final float x = cells[cell].x() + gapSize;
-        final float y = cells[cell].y() + gapSize;
+    public void drawPlayerMove(int player, int move) {
+        final float x = cells[move].x() + gapSize;
+        final float y = cells[move].y() + gapSize;
 
-        final float width = cells[cell].width() - gapSize * 2;
-        final float height = cells[cell].height() - gapSize * 2;
+        final float width = cells[move].width() - gapSize * 2;
+        final float height = cells[move].height() - gapSize * 2;
 
         graphics.setFill(color);
         graphics.setFont(Font.font("Arial", 40)); // TODO different font and size
-        graphics.fillText(String.valueOf(chr), x + width, y + height);
+        graphics.fillText(String.valueOf(player), x + width, y + height);
     }
 
 	public void drawDot(Color color, int cell) {

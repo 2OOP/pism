@@ -30,6 +30,7 @@ public class TicTacToeController extends GameController {
     private void initUI(){
         primary.add(Pos.CENTER, canvas.getCanvas());
         WidgetContainer.getCurrentView().transitionNext(primary);
+        updateUI();
     }
 
     private void drawMoves(){
@@ -37,11 +38,7 @@ public class TicTacToeController extends GameController {
 
         // Draw each move
         for (int i = 0; i < board.length; i++){
-            switch(board[i]){
-                case 0 -> canvas.drawChar('X', Color.RED, i);
-                case 1 -> canvas.drawChar('O', Color.BLUE, i);
-                default -> {}
-            }
+            canvas.drawPlayerMove(board[i], i);
         }
     }
 }
