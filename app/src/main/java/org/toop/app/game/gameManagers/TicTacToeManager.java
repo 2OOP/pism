@@ -6,6 +6,7 @@ import org.toop.app.App;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gui.GUIEvents;
+import org.toop.game.GameR;
 import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
@@ -18,8 +19,7 @@ public class TicTacToeManager extends GameManager {
     public TicTacToeManager(Player[] players, boolean local) {
         TicTacToeR ticTacToeR = new TicTacToeR();
         super(
-                new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {
-                    System.out.println("TEST123: " + c);new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
+                new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,
                 ticTacToeR,
                 local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineThreadBehaviour(ticTacToeR, players[0]), // TODO: Player order matters here, this won't work atm
@@ -36,7 +36,6 @@ public class TicTacToeManager extends GameManager {
 
     @Override
     public void updateUI() {
-        System.out.println("TicTacToeManager updateUI");
         canvas.clearAll();
         drawMoves();
     }
@@ -50,9 +49,12 @@ public class TicTacToeManager extends GameManager {
     private void drawMoves(){
         int[] board = game.getBoard();
 
-        // Draw each move
+        // Draw each square
         for (int i = 0; i < board.length; i++){
-            canvas.drawPlayerMove(board[i], i);
+            // If square isn't empty, draw player move
+            if (board[i] != GameR.EMPTY){
+                canvas.drawPlayerMove(board[i], i);
+            }
         }
     }
 }

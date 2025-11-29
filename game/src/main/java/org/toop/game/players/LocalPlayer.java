@@ -37,7 +37,6 @@ public class LocalPlayer extends Player {
     /*public void register() {
         // Listening to PlayerAttemptedMove
         new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {
-            System.out.println("Player attempted move " + event.toString());
             if (!LastMove.isDone()) {
                 LastMove.complete(event.move()); // complete the future
             }
@@ -46,9 +45,7 @@ public class LocalPlayer extends Player {
 
     // This blocks until the next move arrives
     public int take() throws ExecutionException, InterruptedException {
-        System.out.println("TRYING TO GET FUTURE");
         int move = LastMove.get(); // blocking
-        System.out.println("GOT PAST BLOCKING");
         LastMove = new CompletableFuture<>(); // reset for next move
         return move;
     }*/

@@ -19,17 +19,13 @@ public abstract class ThreadBehaviourBase implements GameThreadStrategy{
     }
 
     protected int getValidMove(Player player){
-        System.out.println("Getting valid move");
         // Get this player's valid moves
         int[] validMoves = game.getLegalMoves();
-        System.out.println("Legal moves found: " + Arrays.toString(validMoves));
         // Make sure provided move is valid
         // TODO: Limit amount of retries?
         int move = player.getMove(game.clone());
-        System.out.println(move);
         while (!contains(validMoves, move)) {
             move = player.getMove(game.clone());
-            System.out.println(move);
         }
         return move;
     }

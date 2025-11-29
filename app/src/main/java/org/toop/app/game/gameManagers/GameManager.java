@@ -1,5 +1,7 @@
 package org.toop.app.game.gameManagers;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.gui.GUIEvents;
 import org.toop.app.canvas.GameCanvas;
 import org.toop.framework.networking.events.NetworkEvents;
@@ -11,6 +13,9 @@ import org.toop.game.TurnBasedGameR;
 import org.toop.game.players.Player;
 
 public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
+    // Logger for logging ofcourse
+    protected final Logger logger = LogManager.getLogger(this.getClass());
+
     // Reference to primary view
     protected final GameView primary;
 
@@ -39,12 +44,15 @@ public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
     }
 
     public void start(){
+        logger.debug("Starting GameManager");
         gameThreadBehaviour.start();
     }
 
     public void stop(){
+        logger.debug("Stopping GameManager");
         gameThreadBehaviour.stop();
     }
+
     public Player getCurrentPlayer(){
         return gameThreadBehaviour.getCurrentPlayer();
     };
@@ -55,6 +63,7 @@ public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
     }
 
     private void onUpdateGameUI(GUIEvents.UpdateGameCanvas event){
+        logger.debug("Updating UI");
         this.updateUI();
     }
 

@@ -48,10 +48,10 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
             if (state != GameState.NORMAL) {
                 if (state == GameState.WIN) {
                     // Win, do something
-                    System.out.println(result.winner() + " WON");
+                    // TODO: Deal with win
                 } else if (state == GameState.DRAW) {
                     // Draw, do something
-                    System.out.println("DRAW");
+                    // TODO: Deal with draw
                 }
                 isRunning.set(false);
             }
