@@ -33,7 +33,7 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
         while(isRunning.get()) {
 
             // Get current player
-            Player currentPlayer = players[game.getCurrentTurn()];
+            Player currentPlayer = getCurrentPlayer();
 
             // Get a valid player move
             int move = getValidMove(currentPlayer);
@@ -56,6 +56,11 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
                 isRunning.set(false);
             }
         }
+    }
+
+    @Override
+    public Player getCurrentPlayer() {
+        return players[game.getCurrentTurn()];
     }
 
 

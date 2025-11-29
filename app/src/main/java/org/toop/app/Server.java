@@ -13,9 +13,12 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
+import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.OnlinePlayer;
 import org.toop.game.players.Player;
+import org.toop.game.tictactoe.TicTacToeAIR;
+import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -135,7 +138,7 @@ public final class Server {
 
             switch (type) {
                 case TICTACTOE ->
-                        new TicTacToeManager(new Player[]{new LocalPlayer(), new OnlinePlayer()}, false);
+                        new TicTacToeManager(new Player[]{new ArtificialPlayer<TicTacToeR>(new TicTacToeAIR()), new OnlinePlayer()}, false);
                 case REVERSI ->
                         new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 case CONNECT4 ->

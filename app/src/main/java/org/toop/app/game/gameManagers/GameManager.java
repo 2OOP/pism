@@ -45,17 +45,13 @@ public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
     public void stop(){
         gameThreadBehaviour.stop();
     }
-
-    public void onYourTurn(NetworkEvents.YourTurnResponse response){
-        System.out.println("Your turn received");
-        gameThreadBehaviour.onYourTurn(response);
-    }
+    public Player getCurrentPlayer(){
+        return gameThreadBehaviour.getCurrentPlayer();
+    };
 
     private void addListeners(){
         // Listen to requests to update game UI
         new EventFlow().listen(this::onUpdateGameUI);
-        // Listen to server your turn event
-        new EventFlow().listen(this::onYourTurn);
     }
 
     private void onUpdateGameUI(GUIEvents.UpdateGameCanvas event){

@@ -38,9 +38,10 @@ public final class TicTacToeR extends TurnBasedGameR {
 
         // TODO: Make sure this move is allowed, maybe on the board side?
         this.setBoard(move);
+        System.out.println("TicTacToeR play move " + move);
         movesLeft--;
         int t = checkForWin();
-        if (t != -1) {
+        if (t != EMPTY) {
             return new PlayResult(GameState.WIN, t);
         }
 

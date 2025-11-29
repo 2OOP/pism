@@ -27,13 +27,7 @@ public class TicTacToeManager extends GameManager {
 
         initUI();
         start();
-        new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {
-            System.out.println("PLAYER MOVE ATTEMPTED: " + event.move());
-        });
-    }
-
-    private void postEvent(int move){
-
+        new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
     }
 
     public TicTacToeManager(Player[] players) {
@@ -42,6 +36,7 @@ public class TicTacToeManager extends GameManager {
 
     @Override
     public void updateUI() {
+        System.out.println("TicTacToeManager updateUI");
         canvas.clearAll();
         drawMoves();
     }

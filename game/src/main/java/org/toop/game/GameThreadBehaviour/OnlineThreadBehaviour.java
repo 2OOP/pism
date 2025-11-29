@@ -15,13 +15,30 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase {
     }
 
     @Override
-    public void onYourTurn(NetworkEvents.YourTurnResponse response){
-        System.out.println("Getting move from player");
-        // Get a valid player move
-        int move = getValidMove(mainPlayer);
-
-        new EventFlow().addPostEvent(NetworkEvents.SendMove.class, response.clientId(), (short)move).asyncPostEvent();
-        new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).asyncPostEvent();
+    public void start() {
+        new EventFlow().listen(NetworkEvents.YourTurnResponse.class, this::onYourTurn);
+        new EventFlow().listen(NetworkEvents.GameMoveResponse.class, this::onMoveReceived);
     }
 
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public Player getCurrentPlayer(){
+        // TODO: Don't assume current player is main player, this can be solved by making sure player list is ordered according to game.
+        return mainPlayer;
+    }
+
+    public void onYourTurn(NetworkEvents.YourTurnResponse response){
+        int move = getValidMove(mainPlayer);
+
+        new EventFlow().addPostEvent(NetworkEvents.SendMove.class, response.clientId(), (short) move).asyncPostEvent();
+    }
+
+    public void onMoveReceived(NetworkEvents.GameMoveResponse response){
+        game.play(Integer.parseInt(response.move())); // Assumes first onMoveReceived is first player, should be right... right?
+        new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).postEvent();
+    }
 }

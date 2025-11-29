@@ -10,26 +10,31 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class LocalPlayer extends Player {
-    // TODO: This is AI mess, gotta clean it up and make it pretty.
-    private CompletableFuture<Integer> LastMove = new CompletableFuture<>();
+    // Future can be used with event system, IF unsubscribeAfterSuccess works...
+    // private CompletableFuture<Integer> LastMove = new CompletableFuture<>();
+
+    private CompletableFuture<Integer> LastMove;
 
     public LocalPlayer() {}
 
     @Override
     public int getMove(GameR gameCopy) {
-        register();
+        LastMove = new CompletableFuture<>();
         int move = -1;
         try {
-            System.out.println("Try to take move");
-            move = take();
-        }catch (InterruptedException | ExecutionException e) {
-            System.out.println(e.getMessage());
+            move = LastMove.get();
+        } catch (InterruptedException | ExecutionException e) {
+            // TODO: Add proper logging.
+            e.printStackTrace();
         }
         return move;
     }
 
+    public void setMove(int move) {
+        LastMove.complete(move);
+    }
 
-    public void register() {
+    /*public void register() {
         // Listening to PlayerAttemptedMove
         new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {
             System.out.println("Player attempted move " + event.toString());
@@ -46,5 +51,5 @@ public class LocalPlayer extends Player {
         System.out.println("GOT PAST BLOCKING");
         LastMove = new CompletableFuture<>(); // reset for next move
         return move;
-    }
+    }*/
 }
