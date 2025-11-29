@@ -15,9 +15,7 @@ import org.toop.app.widget.tutorial.BaseTutorialWidget;
 import org.toop.app.widget.tutorial.Connect4TutorialWidget;
 import org.toop.app.widget.tutorial.ReversiTutorialWidget;
 import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
-import org.toop.app.game.TurnBasedGameThread;
 import org.toop.game.tictactoe.TicTacToeAIR;
-import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
