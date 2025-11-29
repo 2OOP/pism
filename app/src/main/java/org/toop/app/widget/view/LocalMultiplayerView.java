@@ -69,7 +69,7 @@ public class LocalMultiplayerView extends ViewWidget {
                          transitionNext(a);
                          break;
                     }
-                    new TicTacToeGameThread(information);
+                    new TicTacToeController(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
                     break;
                 case REVERSI:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
