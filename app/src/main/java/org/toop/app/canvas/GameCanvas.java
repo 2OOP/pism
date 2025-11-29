@@ -6,6 +6,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -142,6 +143,18 @@ public abstract class GameCanvas {
 			clear(i);
 		}
 	}
+
+    public void drawChar(char chr, Color color, int cell) {
+        final float x = cells[cell].x() + gapSize;
+        final float y = cells[cell].y() + gapSize;
+
+        final float width = cells[cell].width() - gapSize * 2;
+        final float height = cells[cell].height() - gapSize * 2;
+
+        graphics.setFill(color);
+        graphics.setFont(Font.font("Arial", 40)); // TODO different font and size
+        graphics.fillText(String.valueOf(chr), x + width, y + height);
+    }
 
 	public void drawDot(Color color, int cell) {
 		final float x = cells[cell].x() + gapSize;

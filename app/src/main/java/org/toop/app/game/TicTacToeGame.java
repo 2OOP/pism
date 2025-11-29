@@ -147,9 +147,9 @@ public final class TicTacToeGame {
 			final GameState state = game.play(move);
 
 			if (move.value() == 'X') {
-				canvas.drawX(Color.INDIANRED, move.position());
+				canvas.drawPlayer('X', Color.INDIANRED, move.position());
 			} else if (move.value() == 'O') {
-				canvas.drawO(Color.ROYALBLUE, move.position());
+				canvas.drawPlayer('O', Color.ROYALBLUE, move.position());
 			}
 
 			if (state != GameState.NORMAL) {
@@ -198,9 +198,9 @@ public final class TicTacToeGame {
 	    }
 
 	    if (move.value() == 'X') {
-		    canvas.drawX(Color.RED, move.position());
+		    canvas.drawPlayer('X', Color.RED, move.position());
 	    } else if (move.value() == 'O') {
-		    canvas.drawO(Color.BLUE, move.position());
+		    canvas.drawPlayer('O', Color.BLUE, move.position());
 	    }
 
 		setGameLabels(game.getCurrentTurn() == myTurn);
