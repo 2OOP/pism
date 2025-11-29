@@ -48,17 +48,16 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 		this.game = gameSupplier.get();
 		this.ai = aiSupplier.get();
 
-        String type = information.type.getTypeToString();
-        if (onForfeit == null || onExit == null) {
-            primary = new GameView(null, () -> {
-                isRunning.set(false);
-                WidgetContainer.getCurrentView().transitionPrevious();
-            }, null, type);
+		if (onForfeit == null || onExit == null) {
+			primary = new GameView(null, () -> {
+				isRunning.set(false);
+				WidgetContainer.getCurrentView().transitionPrevious();
+			}, null);
 		} else {
 			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
-			}, onMessage, type);
+			}, onMessage);
 		}
 
 		this.canvas = canvasFactory.apply(this::onCellClicked);

@@ -9,7 +9,9 @@ import org.toop.game.enumerators.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
+
 import java.util.function.Consumer;
+
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
@@ -23,8 +25,8 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 	}
 
 	public TicTacToeGameThread(GameInformation info) {
-        this(info, 0, null, null, null, null);
-    }
+		this(info, 0, null, null, null, null);
+	}
 
 	@Override
 	protected void addCanvasToPrimary() {

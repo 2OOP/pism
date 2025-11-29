@@ -11,21 +11,18 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import org.toop.app.widget.tutorial.BaseTutorialWidget;
-import org.toop.app.widget.tutorial.Connect4TutorialWidget;
-import org.toop.app.widget.tutorial.ReversiTutorialWidget;
-import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
 
 public final class GameView extends ViewWidget {
 	private final Text currentPlayerHeader;
 	private final Text currentMoveHeader;
 	private final Text nextPlayerHeader;
+
 	private final Button forfeitButton;
 	private final Button exitButton;
-    private final Button tutorialButton;
-    private final TextField chatInput;
 
-	public GameView(Runnable onForfeit, Runnable onExit, Consumer<String> onMessage, String gameType) {
+	private final TextField chatInput;
+
+	public GameView(Runnable onForfeit, Runnable onExit, Consumer<String> onMessage) {
 		currentPlayerHeader = Primitive.header("");
 		currentMoveHeader = Primitive.header("");
 		nextPlayerHeader = Primitive.header("");
@@ -50,27 +47,6 @@ public final class GameView extends ViewWidget {
 		} else {
 			chatInput = null;
 		}
-
-        switch(gameType) {
-            case "TicTacToe":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> {
-                    transitionNext(new TicTacToeTutorialWidget());
-                });
-                break;
-            case "Reversi":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> {
-                    transitionNext(new ReversiTutorialWidget());
-                });
-                break;
-            case "Connect4":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> {
-                    transitionNext(new Connect4TutorialWidget());
-                });
-                break;
-            default:
-                this.tutorialButton = null;
-                break;
-        }
 
 		setupLayout();
 	}
@@ -98,10 +74,6 @@ public final class GameView extends ViewWidget {
 		if (chatInput != null) {
 			add(Pos.BOTTOM_RIGHT, Primitive.vbox(chatInput));
 		}
-
-        if (tutorialButton != null) {
-            add(Pos.TOP_LEFT, tutorialButton);
-        }
 	}
 
 	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer) {

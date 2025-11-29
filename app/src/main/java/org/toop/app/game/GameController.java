@@ -1,11 +1,12 @@
 package org.toop.app.game;
 
 import org.toop.app.canvas.GameCanvas;
+import org.toop.app.game.TurnBasedGameThread;
 import org.toop.app.widget.view.GameView;
 
 public abstract class GameController implements UpdatesGameUI {
     // Reference to primary view
-    protected final GameView primary;
+    protected final GameView primary = new GameView(null, null, null);
 
     // Reference to game canvas
     protected final GameCanvas canvas;
@@ -13,10 +14,8 @@ public abstract class GameController implements UpdatesGameUI {
     // Reference to gameThread
     protected TurnBasedGameThread gameThread;
 
-    // TODO: Change gameType to automatically happen with either dependency injection or something else.
-    protected GameController(GameCanvas canvas, String gameType) {
+    protected GameController(GameCanvas canvas) {
         this.canvas = canvas;
-        primary = new GameView(null, null, null, gameType);
     }
 
     protected void setThread(TurnBasedGameThread gameThread){

@@ -1,11 +1,7 @@
 package org.toop.app.widget;
 
-import javafx.scene.image.ImageView;
-import org.toop.framework.resource.resources.ImageAsset;
 import org.toop.local.AppContext;
 
-import java.awt.*;
-import java.io.File;
 import java.util.function.Consumer;
 
 import javafx.collections.FXCollections;
@@ -22,7 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
-public final class  Primitive {
+public final class Primitive {
 	public static Text header(String key) {
 		var header = new Text();
 		header.getStyleClass().add("header");
@@ -46,16 +42,6 @@ public final class  Primitive {
 
 		return text;
 	}
-
-    public static ImageView image(File file) {
-        ImageAsset imageAsset = new ImageAsset(file);
-        ImageView imageView = new ImageView(imageAsset.getImage());
-        imageView.getStyleClass().add("image");
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(400);
-        imageView.setFitHeight(400);
-        return imageView;
-    }
 
 	public static Button button(String key, Runnable onAction) {
 		var button = new Button();

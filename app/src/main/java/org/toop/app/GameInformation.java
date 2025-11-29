@@ -22,17 +22,6 @@ public class GameInformation {
         public int getMaxDepth() {
             return maxDepth;
         }
-
-        public String getTypeToString() {
-            String name = this.name();
-            return switch (name) {
-                case "TICTACTOE" -> "TicTacToe";
-                case "REVERSI" -> "Reversi";
-                case "CONNECT4" -> "Connect4";
-                case "BATTLESHIP" -> "Battleship";
-                default -> name;
-            };
-        }
 	}
 
 	public static class Player {
