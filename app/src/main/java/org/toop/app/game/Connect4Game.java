@@ -5,9 +5,8 @@ import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.GameInformation;
 import org.toop.app.canvas.Connect4Canvas;
-import org.toop.app.view.ViewStack;
-import org.toop.app.view.views.GameView;
-import org.toop.app.view.views.LocalMultiplayerView;
+import org.toop.app.widget.view.GameView;
+import org.toop.app.widget.WidgetContainer;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.Connect4.Connect4;
@@ -32,7 +31,7 @@ public class Connect4Game {
     private final int columnSize = 7;
     private final int rowSize = 6;
 
-    private final GameView view;
+    private final GameView primary;
     private final Connect4Canvas canvas;
 
     private final AtomicBoolean isRunning;
@@ -50,15 +49,15 @@ public class Connect4Game {
         isRunning = new AtomicBoolean(true);
 
         if (onForfeit == null || onExit == null) {
-            view = new GameView(null, () -> {
+            primary = new GameView(null, () -> {
                 isRunning.set(false);
-                ViewStack.push(new LocalMultiplayerView(information));
-            }, null);
+                WidgetContainer.getCurrentView().transitionPrevious();
+            }, null, "Connect4");
         } else {
-            view = new GameView(onForfeit, () -> {
+            primary = new GameView(onForfeit, () -> {
                 isRunning.set(false);
                 onExit.run();
-            }, onMessage);
+            }, onMessage, "Connect4");
         }
 
         canvas = new Connect4Canvas(Color.GRAY,
@@ -83,8 +82,8 @@ public class Connect4Game {
                     }
                 });
 
-        view.add(Pos.CENTER, canvas.getCanvas());
-        ViewStack.push(view);
+        primary.add(Pos.CENTER, canvas.getCanvas());
+        WidgetContainer.getCurrentView().transitionNext(primary);
 
         if (onForfeit == null || onExit == null) {
             new Thread(this::localGameThread).start();
@@ -92,8 +91,7 @@ public class Connect4Game {
         } else {
             new EventFlow()
                     .listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
-                    .listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse)
-                    .listen(NetworkEvents.ReceivedMessage.class, this::onReceivedMessage);
+                    .listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse);
 
             setGameLabels(myTurn == 0);
         }
@@ -109,7 +107,7 @@ public class Connect4Game {
 			final String currentValue = currentTurn == 0? "RED" : "BLUE";
 			final int nextTurn = (currentTurn + 1) % information.type.getPlayerCount();
 
-			view.nextPlayer(information.players[currentTurn].isHuman,
+			primary.nextPlayer(information.players[currentTurn].isHuman,
 				information.players[currentTurn].name,
 				currentValue,
 				information.players[nextTurn].name);
@@ -159,9 +157,9 @@ public class Connect4Game {
 */
             if (state != GameState.NORMAL) {
                 if (state == GameState.WIN) {
-                    view.gameOver(true, information.players[currentTurn].name);
+                    primary.gameOver(true, information.players[currentTurn].name);
                 } else if (state == GameState.DRAW) {
-                    view.gameOver(false, "");
+                    primary.gameOver(false, "");
                 }
 
                 isRunning.set(false);
@@ -188,14 +186,14 @@ public class Connect4Game {
         if (state != GameState.NORMAL) {
             if (state == GameState.WIN) {
                 if (response.player().equalsIgnoreCase(information.players[0].name)) {
-                    view.gameOver(true, information.players[0].name);
+                    primary.gameOver(true, information.players[0].name);
                     gameOver();
                 } else {
-                    view.gameOver(false, information.players[1].name);
+                    primary.gameOver(false, information.players[1].name);
                     gameOver();
                 }
             } else if (state == GameState.DRAW) {
-                view.gameOver(false, "");
+                primary.gameOver(false, "");
                 gameOver();
             }
         }
@@ -243,14 +241,6 @@ public class Connect4Game {
                 .postEvent();
     }
 
-    private void onReceivedMessage(NetworkEvents.ReceivedMessage msg) {
-        if (!isRunning.get()) {
-            return;
-        }
-
-        view.updateChat(msg.message());
-    }
-
     private void updateCanvas() {
         canvas.clearAll();
 
@@ -267,7 +257,7 @@ public class Connect4Game {
         final int currentTurn = game.getCurrentTurn();
         final String currentValue = currentTurn == 0? "RED" : "BLUE";
 
-        view.nextPlayer(isMe,
+        primary.nextPlayer(isMe,
                 information.players[isMe? 0 : 1].name,
                 currentValue,
                 information.players[isMe? 1 : 0].name);

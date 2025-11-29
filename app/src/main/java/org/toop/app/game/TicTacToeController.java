@@ -14,7 +14,7 @@ public class TicTacToeController extends GameController {
     public TicTacToeController(Player[] players) {
         TicTacToeR ticTacToeR = new TicTacToeR();
         super(new TicTacToeCanvas(Color.GRAY,
-                (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {if (players[ticTacToeR.getCurrentTurn()] instanceof LocalPlayer lp) {lp.enqueueMove(c);}}));
+                (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {if (players[ticTacToeR.getCurrentTurn()] instanceof LocalPlayer lp) {lp.enqueueMove(c);}}), "TicTacToe");
         // TODO: Deal with this thread better. Can't give it to super because of "this" refence.
         setThread(new TurnBasedGameThread(players, ticTacToeR, this));
 
