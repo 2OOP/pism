@@ -4,21 +4,40 @@ import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.canvas.TicTacToeCanvas;
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.gui.GUIEvents;
+import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
+import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.Player;
-import org.toop.game.TurnBasedGameController;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.game.tictactoe.TicTacToeR;
 
 public class TicTacToeManager extends GameManager {
 
-    public TicTacToeManager(Player[] players) {
+    public TicTacToeManager(Player[] players, boolean local) {
         TicTacToeR ticTacToeR = new TicTacToeR();
-        super(new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {if (players[ticTacToeR.getCurrentTurn()] instanceof LocalPlayer lp) {lp.enqueueMove(c);}}),
-                new TurnBasedGameController(players, ticTacToeR),
+        super(
+                new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {
+                    System.out.println("TEST123: " + c);new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
+                players,
+                ticTacToeR,
+                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineThreadBehaviour(ticTacToeR, players[0]), // TODO: Player order matters here, this won't work atm
                 "TicTacToe");
 
         initUI();
+        start();
+        new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {
+            System.out.println("PLAYER MOVE ATTEMPTED: " + event.move());
+        });
+    }
+
+    private void postEvent(int move){
+
+    }
+
+    public TicTacToeManager(Player[] players) {
+        this(players, true);
     }
 
     @Override
@@ -34,7 +53,7 @@ public class TicTacToeManager extends GameManager {
     }
 
     private void drawMoves(){
-        int[] board = gameThread.getBoard();
+        int[] board = game.getBoard();
 
         // Draw each move
         for (int i = 0; i < board.length; i++){
