@@ -1,7 +1,4 @@
-package org.toop.app.game.Players;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+package org.toop.game.players;
 
 /**
  * Represents a player controlled remotely or over a network.

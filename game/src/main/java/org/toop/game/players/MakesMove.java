@@ -1,4 +1,4 @@
-package org.toop.app.game.Players;
+package org.toop.game.players;
 
 import org.toop.game.GameR;
 

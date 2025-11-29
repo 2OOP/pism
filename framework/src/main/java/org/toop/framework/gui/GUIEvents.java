@@ -1,4 +1,4 @@
-package org.toop.app;
+package org.toop.framework.gui;
 
 import org.toop.framework.eventbus.events.EventsBase;
 import org.toop.framework.eventbus.events.GenericEvent;

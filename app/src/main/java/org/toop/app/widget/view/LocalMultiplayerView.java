@@ -3,10 +3,10 @@ package org.toop.app.widget.view;
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.game.*;
-import org.toop.app.game.Controllers.TicTacToeController;
-import org.toop.app.game.Players.ArtificialPlayer;
-import org.toop.app.game.Players.LocalPlayer;
-import org.toop.app.game.Players.Player;
+import org.toop.app.game.gameManagers.TicTacToeManager;
+import org.toop.game.players.ArtificialPlayer;
+import org.toop.game.players.LocalPlayer;
+import org.toop.game.players.Player;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PlayerInfoWidget;
@@ -49,7 +49,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeController(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
+                                        new TicTacToeManager(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
                                     });
                                 },
                                 () -> {
@@ -61,14 +61,14 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setTutorialFlag(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeController(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
+                                        new TicTacToeManager(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
                                     });
                                 }
                         );
                          transitionNext(a);
                          break;
                     }
-                    new TicTacToeController(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
+                    new TicTacToeManager(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
                     break;
                 case REVERSI:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {

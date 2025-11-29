@@ -1,24 +1,20 @@
-package org.toop.app.game;
+package org.toop.game;
 
-import org.toop.app.GUIEvents;
-import org.toop.app.game.Controllers.GameController;
-import org.toop.app.game.Players.Player;
+import org.toop.framework.gui.GUIEvents;
+import org.toop.game.players.Player;
 
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.game.PlayResult;
-import org.toop.game.TurnBasedGameR;
 import org.toop.game.enumerators.GameState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TurnBasedGameThread implements Runnable {
+public class TurnBasedGameController implements Runnable {
     private final Player[] players;         // List of players, can't be changed.
     private final TurnBasedGameR game;       // Reference to game instance
 
-    private final AtomicBoolean isRunning = new AtomicBoolean(true);
+    private final AtomicBoolean isRunning = new AtomicBoolean();
 
-    // TODO: Replace controller reference with RefreshUI event.
-    public TurnBasedGameThread(Player[] players, TurnBasedGameR game) {
+    public TurnBasedGameController(Player[] players, TurnBasedGameR game) {
         // Make sure player list matches expected size
         if (players.length != game.getPlayerCount()){
             throw new IllegalArgumentException("players and game's players must have same length");
@@ -28,9 +24,8 @@ public class TurnBasedGameThread implements Runnable {
         this.players = players;
         this.game = game;
 
-        // Create and run thread
-        Thread thread = new Thread(this::run);
-        thread.start();
+        // Start the game thread
+        start();
     }
 
     public int[] getBoard(){
@@ -39,6 +34,16 @@ public class TurnBasedGameThread implements Runnable {
 
     public Player[] getPlayers() {
         return players;
+    }
+
+    public void start(){
+        if (isRunning.compareAndSet(false, true)){
+            new Thread(this).start();
+        }
+    }
+
+    public void stop(){
+        isRunning.set(false);
     }
 
     public void run() {
