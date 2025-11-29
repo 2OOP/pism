@@ -49,3 +49,8 @@
 	-fx-font-size: 12px;
 	-fx-font-weight: normal;
 }
+
+.image {
+    -fx-max-width: 200px;
+    -fx-max-height: 200px;
+}

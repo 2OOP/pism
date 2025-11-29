@@ -62,4 +62,16 @@ public final class WidgetContainer {
 	public static ViewWidget getCurrentView() {
 		return currentView;
 	}
+
+    public static void setCurrentView(ViewWidget view) {
+        if (root == null || view == null) {
+            return;
+        }
+
+        Platform.runLater(() -> {
+            root.getChildren().clear();
+            root.getChildren().add(view.getNode());
+            currentView = view;
+        });
+    }
 }
