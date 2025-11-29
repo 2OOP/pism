@@ -38,7 +38,7 @@ public final class Server {
 	private ServerView primary;
 	private boolean isPolling = true;
 
-    private GameManager gameManager;
+    private GameManager<?> gameManager;
 
     private final AtomicBoolean isSingleGame = new AtomicBoolean(false);
 
@@ -58,6 +58,9 @@ public final class Server {
 		return null;
 	}
 
+
+    // Server has to deal with ALL network related listen events. This "server" can then interact with the manager to make stuff happen.
+    // This prevents data races where events get sent to the game manager but the manager isn't ready yet.
 	public Server(String ip, String port, String user) {
 		if (ip.split("\\.").length < 4) {
 			new ErrorPopup("\"" + ip + "\" " + AppContext.getString("is-not-a-valid-ip-address"));
@@ -98,7 +101,10 @@ public final class Server {
 			}).postEvent();
 
 		new EventFlow().listen(this::handleReceivedChallenge)
-                .listen(this::handleMatchResponse);
+                .listen(this::handleMatchResponse)
+                .listen(this::handleGameResult)
+                .listen(this::handleReceivedMove)
+                .listen(this::handleYourTurn);
 	}
 
 	private void sendChallenge(String opponent) {
@@ -114,14 +120,11 @@ public final class Server {
         if (gameManager != null) {
             gameManager.stop();
         }
-        System.out.println("Match response: " + response.toString());
-        System.out.println(isPolling);
+
         //if (!isPolling) return;
 
         String gameType = extractQuotedValue(response.gameType());
-        System.out.println("OUTSIDE");
         if (response.clientId() == clientId) {
-            System.out.println("INSIDE");
             isPolling = false;
             onlinePlayers.clear();
 
@@ -142,11 +145,9 @@ public final class Server {
             information.players[1].name = response.opponent();
 
             Runnable onGameOverRunnable = isSingleGame.get()? null: this::gameOver;
-
-            System.out.println("TEST 1");
             switch (type) {
                 case TICTACTOE ->{
-                        gameManager = new TicTacToeManager(new AbstractPlayer[]{/*new ArtificialPlayer<TicTacToeR>(new TicTacToeAIR(), user)*/new LocalPlayer(user), new OnlinePlayer(response.opponent())}, false);
+                        gameManager = new TicTacToeManager(new AbstractPlayer[]{new ArtificialPlayer<TicTacToeR>(new TicTacToeAIR(), user)/*new LocalPlayer(user)*/, new OnlinePlayer(response.opponent())}, false);
                 }
                 case REVERSI ->
                         new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
@@ -155,6 +156,27 @@ public final class Server {
                 default -> new ErrorPopup("Unsupported game type.");
             }
         }
+    }
+
+    private void handleYourTurn(NetworkEvents.YourTurnResponse response) {
+        if (gameManager == null) {
+            return;
+        }
+        gameManager.yourTurn(response);
+    }
+
+    private void handleGameResult(NetworkEvents.GameResultResponse response) {
+        if (gameManager == null) {
+            return;
+        }
+        gameManager.gameFinished(response);
+    }
+
+    private void handleReceivedMove(NetworkEvents.GameMoveResponse response) {
+        if (gameManager == null) {
+            return;
+        }
+        gameManager.moveReceived(response);
     }
 
 	private void handleReceivedChallenge(NetworkEvents.ChallengeResponse response) {

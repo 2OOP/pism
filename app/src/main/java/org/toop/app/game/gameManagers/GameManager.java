@@ -6,10 +6,13 @@ import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.eventbus.ListenerHandler;
 import org.toop.framework.gui.GUIEvents;
 import org.toop.app.canvas.GameCanvas;
+import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.GameThreadBehaviour.GameThreadStrategy;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
 import org.toop.game.TurnBasedGameR;
+import org.toop.game.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.AbstractPlayer;
 
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
+public abstract class GameManager<T extends TurnBasedGameR> implements UpdatesGameUI, GameThreadStrategy, SupportsOnlinePlay {
     protected final EventFlow eventFlow = new EventFlow();
 
     protected final List<Consumer<?>> listeners = new ArrayList<>();
@@ -48,12 +51,16 @@ public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
         this.gameThreadBehaviour = gameThreadBehaviour;
 
         primary = new GameView(null, null, null, gameType);
+        addListeners();
     }
 
     public void start(){
         logger.debug("Starting GameManager");
-        gameThreadBehaviour.start();
-        addListeners();
+        gameThreadBehaviour.start();;
+    }
+
+    protected void addLisener(Consumer<?> listener){
+        listeners.add(listener);
     }
 
     public void stop(){
@@ -69,7 +76,7 @@ public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
     private void addListeners(){
         // Listen to requests to update game UI
         listeners.add(GlobalEventBus.subscribe(GUIEvents.UpdateGameCanvas.class, this::onUpdateGameUI));
-        listeners.add(GlobalEventBus.subscribe(GUIEvents.UpdateGameCanvas.class, this::onUpdateGameUI));
+        listeners.add(GlobalEventBus.subscribe(GUIEvents.GameFinished.class, this::onGameFinish));
 
         //eventFlow
         //        .listen(this::onUpdateGameUI)
@@ -96,10 +103,31 @@ public abstract class GameManager implements UpdatesGameUI, GameThreadStrategy {
     }
 
     public AbstractPlayer getPlayer(int player){
-        System.out.println("Getting player " + player);
         if (player < 0 || player >= players.length){
             throw new IllegalArgumentException("player out of range");
         }
         return players[player];
+    }
+
+    private boolean isOnline(){
+        return this.gameThreadBehaviour instanceof OnlineThreadBehaviour;
+    }
+
+    public void yourTurn(NetworkEvents.YourTurnResponse event){
+        if (isOnline()){
+            ((OnlineThreadBehaviour) this.gameThreadBehaviour).yourTurn(event);
+        }
+    }
+
+    public void moveReceived(NetworkEvents.GameMoveResponse event){
+        if (isOnline()){
+            ((OnlineThreadBehaviour) this.gameThreadBehaviour).moveReceived(event);
+        }
+    }
+
+    public void gameFinished(NetworkEvents.GameResultResponse event){
+        if (isOnline()){
+            ((OnlineThreadBehaviour) this.gameThreadBehaviour).gameFinished(event);
+        }
     }
 }

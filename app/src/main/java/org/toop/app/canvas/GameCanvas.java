@@ -37,9 +37,17 @@ public abstract class GameCanvas implements DrawPlayerMove {
 
 	protected final Cell[] cells;
 
+    private Consumer<Integer> onCellCLicked;
+
+    public void setOnCellClicked(Consumer<Integer> onClick) {
+        this.onCellCLicked = onClick;
+    }
+
 	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked, Consumer<Integer> newCellEntered) {
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
+
+        this.onCellCLicked = onCellClicked;
 
 		this.color = color;
 		this.backgroundColor = backgroundColor;
@@ -79,7 +87,7 @@ public abstract class GameCanvas implements DrawPlayerMove {
 
 			if (cell.isInside(event.getX(), event.getY())) {
 				event.consume();
-				onCellClicked.accept(column + row * rowSize);
+				this.onCellCLicked.accept(column + row * rowSize);
 			}
 		});
 

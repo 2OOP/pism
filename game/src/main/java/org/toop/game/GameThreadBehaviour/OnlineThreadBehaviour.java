@@ -4,9 +4,10 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gui.GUIEvents;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.TurnBasedGameR;
+import org.toop.game.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.AbstractPlayer;
 
-public class OnlineThreadBehaviour extends ThreadBehaviourBase {
+public class OnlineThreadBehaviour extends ThreadBehaviourBase implements SupportsOnlinePlay {
     private AbstractPlayer mainPlayer;
 
     public OnlineThreadBehaviour(TurnBasedGameR game, AbstractPlayer mainPlayer) {
@@ -16,10 +17,6 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase {
 
     @Override
     public void start() {
-        new EventFlow()
-                .listen(this::onYourTurn)
-                .listen(this::onMoveReceived)
-                .listen(this::onGameWin);
     }
 
     @Override
@@ -33,20 +30,24 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase {
         return mainPlayer;
     }
 
-    public void onYourTurn(NetworkEvents.YourTurnResponse response){
+    @Override
+    public void yourTurn(NetworkEvents.YourTurnResponse event) {
+        System.out.println("Listening for your turn");
         int move = getValidMove(mainPlayer);
 
-        new EventFlow().addPostEvent(NetworkEvents.SendMove.class, response.clientId(), (short) move).postEvent();
+        new EventFlow().addPostEvent(NetworkEvents.SendMove.class, event.clientId(), (short) move).postEvent();
     }
 
-    public void onMoveReceived(NetworkEvents.GameMoveResponse response){
-        game.play(Integer.parseInt(response.move())); // Assumes first onMoveReceived is first player, should be right... right?
+    @Override
+    public void moveReceived(NetworkEvents.GameMoveResponse event) {
+        game.play(Integer.parseInt(event.move())); // Assumes first onMoveReceived is first player, should be right... right?
         new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).postEvent();
     }
 
-    public void onGameWin(NetworkEvents.GameResultResponse response){
+    @Override
+    public void gameFinished(NetworkEvents.GameResultResponse event) {
         // TODO: Assumes last player won for easy. This information should really be gathered from the server message, or at least determined by game logic.
-        if (response.condition().equalsIgnoreCase("WIN")) {
+        if (!event.condition().equalsIgnoreCase("DRAW")) {
             new EventFlow().addPostEvent(GUIEvents.GameFinished.class, true, getCurrentPlayer()).postEvent();
         }
         else{

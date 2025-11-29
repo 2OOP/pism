@@ -8,17 +8,18 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gui.GUIEvents;
 import org.toop.framework.games.GameR;
+import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
+import org.toop.game.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.AbstractPlayer;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.game.tictactoe.TicTacToeR;
 
-public class TicTacToeManager extends GameManager {
+public class TicTacToeManager extends GameManager<TicTacToeR> {
 
     public TicTacToeManager(AbstractPlayer[] players, boolean local) {
-        System.out.println("Creating TicTacToeManager, should be an empty game");
         TicTacToeR ticTacToeR = new TicTacToeR();
         super(
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
@@ -28,8 +29,8 @@ public class TicTacToeManager extends GameManager {
                 "TicTacToe");
 
         initUI();
+        addLisener(GlobalEventBus.subscribe(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}));
         start();
-        listeners.add(GlobalEventBus.subscribe(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}));
         //new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
     }
 
@@ -47,7 +48,7 @@ public class TicTacToeManager extends GameManager {
 
     private void initUI(){
         primary.add(Pos.CENTER, canvas.getCanvas());
-        WidgetContainer.setCurrentView(primary);
+        WidgetContainer.getCurrentView().transitionNext(primary, true);
         updateUI();
     }
 
