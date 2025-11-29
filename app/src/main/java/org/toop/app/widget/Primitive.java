@@ -23,28 +23,36 @@ import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
 public final class  Primitive {
-	public static Text header(String key) {
+	public static Text header(String key, boolean localize) {
 		var header = new Text();
 		header.getStyleClass().add("header");
 
 		if (!key.isEmpty()) {
-			header.setText(AppContext.getString(key));
-			header.textProperty().bind(AppContext.bindToKey(key));
+			if (localize) header.setText(AppContext.getString(key)); else header.setText(key);
+			header.textProperty().bind(AppContext.bindToKey(key, localize));
 		}
 
 		return header;
 	}
 
-	public static Text text(String key) {
+	public static Text header(String key) {
+		return header(key, true);
+	}
+
+	public static Text text(String key, boolean localize) {
 		var text = new Text();
 		text.getStyleClass().add("text");
 
 		if (!key.isEmpty()) {
-			text.setText(AppContext.getString(key));
-			text.textProperty().bind(AppContext.bindToKey(key));
+			if (localize) text.setText(AppContext.getString(key)); else text.setText(key);
+			text.textProperty().bind(AppContext.bindToKey(key, localize));
 		}
 
 		return text;
+	}
+
+	public static Text text(String key) {
+		return text(key, true);
 	}
 
     public static ImageView image(ImageAsset imageAsset) {
@@ -56,13 +64,13 @@ public final class  Primitive {
         return imageView;
     }
 
-	public static Button button(String key, Runnable onAction) {
+	public static Button button(String key, Runnable onAction, boolean localize) {
 		var button = new Button();
 		button.getStyleClass().add("button");
 
 		if (!key.isEmpty()) {
-			button.setText(AppContext.getString(key));
-			button.textProperty().bind(AppContext.bindToKey(key));
+			if (localize) button.setText(AppContext.getString(key));  else button.setText(key);
+			button.textProperty().bind(AppContext.bindToKey(key, localize));
 		}
 
 		if (onAction != null) {
@@ -73,13 +81,17 @@ public final class  Primitive {
 		return button;
 	}
 
-	public static TextField input(String promptKey, String text, Consumer<String> onValueChanged) {
+	public static Button button(String key, Runnable onAction) {
+		return button(key, onAction, true);
+	}
+
+	public static TextField input(String promptKey, String text, Consumer<String> onValueChanged, boolean localize) {
 		var input = new TextField();
 		input.getStyleClass().add("input");
 
 		if (!promptKey.isEmpty()) {
-			input.setPromptText(AppContext.getString(promptKey));
-			input.promptTextProperty().bind(AppContext.bindToKey(promptKey));
+			if (localize) input.setPromptText(AppContext.getString(promptKey)); else input.setPromptText(promptKey);
+			input.promptTextProperty().bind(AppContext.bindToKey(promptKey, localize));
 		}
 
 		input.setText(text);
@@ -90,6 +102,10 @@ public final class  Primitive {
 		}
 
 		return input;
+	}
+
+	public static TextField input(String promptKey, String text, Consumer<String> onValueChanged) {
+		return input(promptKey, text, onValueChanged, true);
 	}
 
 	public static Slider slider(int min, int max, int value, Consumer<Integer> onValueChanged) {
