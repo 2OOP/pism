@@ -58,10 +58,19 @@ public class AppContext {
         return "MISSING RESOURCE";
     }
 
-	public static StringBinding bindToKey(String key) {
-		return Bindings.createStringBinding(
-			() -> localization.getString(key, locale),
-			localeProperty
-		);
+	public static StringBinding bindToKey(String key, boolean localize) {
+        if (localize) return Bindings.createStringBinding(
+                () -> localization.getString(key, locale),
+                localeProperty
+        );
+
+        return Bindings.createStringBinding(
+                () -> key
+        );
+
 	}
+
+    public static StringBinding bindToKey(String key) {
+        return bindToKey(key, true);
+    }
 }

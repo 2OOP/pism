@@ -29,7 +29,7 @@ public final class ServerView extends ViewWidget {
 	}
 
 	private void setupLayout() {
-		var playerHeader = Primitive.header(user);
+		var playerHeader = Primitive.header(user, false);
 
 		var playerListSection = Primitive.vbox(
 			playerHeader,
@@ -52,7 +52,7 @@ public final class ServerView extends ViewWidget {
 			listView.getItems().clear();
 
 			for (String player : players) {
-				var playerButton = Primitive.button(player, () -> onPlayerClicked.accept(player));
+				var playerButton = Primitive.button(player, () -> onPlayerClicked.accept(player), false);
 				listView.getItems().add(playerButton);
 			}
 		});
