@@ -1,7 +1,6 @@
 package org.toop.app.game;
 
 import org.toop.app.canvas.GameCanvas;
-import org.toop.app.game.TurnBasedGameThread;
 import org.toop.app.widget.view.GameView;
 
 public abstract class GameController implements UpdatesGameUI {
