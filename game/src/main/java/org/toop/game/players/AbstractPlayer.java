@@ -1,6 +1,6 @@
 package org.toop.game.players;
 
-import org.toop.game.GameR;
+import org.toop.framework.games.GameR;
 
 /**
  * Abstract class representing a player in a game.
@@ -14,8 +14,11 @@ import org.toop.game.GameR;
  * specific move logic.
  * </p>
  */
-public abstract class Player implements MakesMove {
-
+public abstract class AbstractPlayer implements MakesMove {
+    private final String name;
+    protected AbstractPlayer(String name) {
+        this.name = name;
+    }
     /**
      * Determines the next move based on the provided game state.
      * <p>
@@ -31,5 +34,9 @@ public abstract class Player implements MakesMove {
     @Override
     public int getMove(GameR gameCopy) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getName(){
+        return this.name;
     }
 }

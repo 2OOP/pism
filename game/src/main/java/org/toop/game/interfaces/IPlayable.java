@@ -1,6 +1,6 @@
 package org.toop.game.interfaces;
 
-import org.toop.game.enumerators.GameState;
+import org.toop.framework.games.GameState;
 import org.toop.game.records.Move;
 
 public interface IPlayable {

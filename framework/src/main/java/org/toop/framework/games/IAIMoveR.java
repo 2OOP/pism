@@ -1,6 +1,4 @@
-package org.toop.game.interfaces;
-
-import org.toop.game.GameR;
+package org.toop.framework.games;
 
 /**
  * Interface defining the behavior of an AI capable of selecting the best move

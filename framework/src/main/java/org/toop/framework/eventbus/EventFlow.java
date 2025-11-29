@@ -213,6 +213,11 @@ public class EventFlow {
         return this;
     }
 
+    public void unlisten(ListenerHandler listenerHandler){
+        GlobalEventBus.unsubscribe(listenerHandler);
+        System.out.println(this.listeners.remove(listenerHandler));
+    }
+
     public <TT extends EventType> EventFlow listen(Consumer<TT> action) {
         return this.listen(action, true);
     }

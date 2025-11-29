@@ -1,6 +1,4 @@
-package org.toop.game;
-
-import org.toop.game.interfaces.IPlayableR;
+package org.toop.framework.games;
 
 import java.util.Arrays;
 

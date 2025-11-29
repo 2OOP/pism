@@ -2,15 +2,15 @@ package org.toop.game.GameThreadBehaviour;
 
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gui.GUIEvents;
-import org.toop.game.PlayResult;
+import org.toop.framework.games.PlayResult;
 import org.toop.game.TurnBasedGameR;
-import org.toop.game.enumerators.GameState;
-import org.toop.game.players.Player;
+import org.toop.framework.games.GameState;
+import org.toop.game.players.AbstractPlayer;
 
 public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnable{
-    private final Player[] players;
+    private final AbstractPlayer[] players;
 
-    public LocalThreadBehaviour(TurnBasedGameR game, Player[] players) {
+    public LocalThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
         super(game);
         this.players = players;
     }
@@ -33,7 +33,7 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
         while(isRunning.get()) {
 
             // Get current player
-            Player currentPlayer = getCurrentPlayer();
+            AbstractPlayer currentPlayer = getCurrentPlayer();
 
             // Get a valid player move
             int move = getValidMove(currentPlayer);
@@ -42,24 +42,19 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
             PlayResult result = game.play(move);
 
             // Tell controller to update UI
-            new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).asyncPostEvent();
+            new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).postEvent();
 
             GameState state = result.state();
             if (state != GameState.NORMAL) {
-                if (state == GameState.WIN) {
-                    // Win, do something
-                    // TODO: Deal with win
-                } else if (state == GameState.DRAW) {
-                    // Draw, do something
-                    // TODO: Deal with draw
-                }
+                new EventFlow().addPostEvent(GUIEvents.GameFinished.class, state == GameState.WIN, result.winner()).postEvent();
+                System.out.println("test321");
                 isRunning.set(false);
             }
         }
     }
 
     @Override
-    public Player getCurrentPlayer() {
+    public AbstractPlayer getCurrentPlayer() {
         return players[game.getCurrentTurn()];
     }
 

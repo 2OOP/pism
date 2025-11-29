@@ -1,6 +1,6 @@
 package org.toop.game.players;
 
-import org.toop.game.GameR;
+import org.toop.framework.games.GameR;
 
 /**
  * Interface representing an entity capable of making a move in a game.

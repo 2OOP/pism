@@ -5,18 +5,20 @@ import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gui.GUIEvents;
-import org.toop.game.GameR;
+import org.toop.framework.games.GameR;
 import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
-import org.toop.game.players.Player;
+import org.toop.game.players.AbstractPlayer;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.game.tictactoe.TicTacToeR;
 
 public class TicTacToeManager extends GameManager {
 
-    public TicTacToeManager(Player[] players, boolean local) {
+    public TicTacToeManager(AbstractPlayer[] players, boolean local) {
+        System.out.println("Creating TicTacToeManager, should be an empty game");
         TicTacToeR ticTacToeR = new TicTacToeR();
         super(
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
@@ -27,22 +29,25 @@ public class TicTacToeManager extends GameManager {
 
         initUI();
         start();
-        new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
+        listeners.add(GlobalEventBus.subscribe(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}));
+        //new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
     }
 
-    public TicTacToeManager(Player[] players) {
+    public TicTacToeManager(AbstractPlayer[] players) {
         this(players, true);
     }
 
     @Override
     public void updateUI() {
         canvas.clearAll();
+        // TODO: wtf is even this pile of poop temp fix
+        primary.nextPlayer(true, getCurrentPlayer().getName(), game.getCurrentTurn() == 0 ? "X" : "O", getPlayer((game.getCurrentTurn() + 1) % 2).getName());
         drawMoves();
     }
 
     private void initUI(){
         primary.add(Pos.CENTER, canvas.getCanvas());
-        WidgetContainer.getCurrentView().transitionNext(primary);
+        WidgetContainer.setCurrentView(primary);
         updateUI();
     }
 

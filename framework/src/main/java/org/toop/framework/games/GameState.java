@@ -1,4 +1,4 @@
-package org.toop.game.enumerators;
+package org.toop.framework.games;
 
 public enum GameState {
         NORMAL,

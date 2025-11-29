@@ -1,7 +1,7 @@
 package org.toop.game.tictactoe;
 
 import org.toop.game.AI;
-import org.toop.game.enumerators.GameState;
+import org.toop.framework.games.GameState;
 import org.toop.game.records.Move;
 
 public final class TicTacToeAI extends AI<TicTacToe> {

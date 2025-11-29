@@ -1,21 +1,19 @@
 package org.toop.game.players;
 
-import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.gui.GUIEvents;
-import org.toop.game.GameR;
+import org.toop.framework.games.GameR;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.LinkedBlockingQueue;
 
-public class LocalPlayer extends Player {
+public class LocalPlayer extends AbstractPlayer {
     // Future can be used with event system, IF unsubscribeAfterSuccess works...
     // private CompletableFuture<Integer> LastMove = new CompletableFuture<>();
 
     private CompletableFuture<Integer> LastMove;
 
-    public LocalPlayer() {}
+    public LocalPlayer(String name) {
+        super(name);
+    }
 
     @Override
     public int getMove(GameR gameCopy) {

@@ -1,5 +1,7 @@
 package org.toop.game;
 
+import org.toop.framework.games.GameR;
+
 public abstract class TurnBasedGameR extends GameR {
     private final int playerCount;  // How many players are playing
     private int turn = 0;           // What turn it is in the game

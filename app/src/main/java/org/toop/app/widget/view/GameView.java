@@ -119,6 +119,8 @@ public final class GameView extends ViewWidget {
 	}
 
 	public void gameOver(boolean iWon, String winner) {
+        System.out.println("Game Over");
+
 		new GameOverPopup(iWon, winner).show(Pos.CENTER);
 	}
 }

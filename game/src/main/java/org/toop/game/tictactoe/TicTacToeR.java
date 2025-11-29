@@ -1,8 +1,8 @@
 package org.toop.game.tictactoe;
 
-import org.toop.game.PlayResult;
+import org.toop.framework.games.PlayResult;
 import org.toop.game.TurnBasedGameR;
-import org.toop.game.enumerators.GameState;
+import org.toop.framework.games.GameState;
 
 import java.util.ArrayList;
 import java.util.Objects;

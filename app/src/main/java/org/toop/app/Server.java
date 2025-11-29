@@ -2,7 +2,7 @@ package org.toop.app;
 
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
-import org.toop.app.game.TicTacToeGame;
+import org.toop.app.game.gameManagers.GameManager;
 import org.toop.app.game.gameManagers.TicTacToeManager;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.popup.ChallengePopup;
@@ -16,7 +16,7 @@ import org.toop.framework.networking.types.NetworkingConnector;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.OnlinePlayer;
-import org.toop.game.players.Player;
+import org.toop.game.players.AbstractPlayer;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;
@@ -37,6 +37,8 @@ public final class Server {
 
 	private ServerView primary;
 	private boolean isPolling = true;
+
+    private GameManager gameManager;
 
     private final AtomicBoolean isSingleGame = new AtomicBoolean(false);
 
@@ -109,11 +111,17 @@ public final class Server {
 	}
 
     private void handleMatchResponse(NetworkEvents.GameMatchResponse response) {
-        if (!isPolling) return;
+        if (gameManager != null) {
+            gameManager.stop();
+        }
+        System.out.println("Match response: " + response.toString());
+        System.out.println(isPolling);
+        //if (!isPolling) return;
 
         String gameType = extractQuotedValue(response.gameType());
-
+        System.out.println("OUTSIDE");
         if (response.clientId() == clientId) {
+            System.out.println("INSIDE");
             isPolling = false;
             onlinePlayers.clear();
 
@@ -135,10 +143,11 @@ public final class Server {
 
             Runnable onGameOverRunnable = isSingleGame.get()? null: this::gameOver;
 
-
+            System.out.println("TEST 1");
             switch (type) {
-                case TICTACTOE ->
-                        new TicTacToeManager(new Player[]{new ArtificialPlayer<TicTacToeR>(new TicTacToeAIR()), new OnlinePlayer()}, false);
+                case TICTACTOE ->{
+                        gameManager = new TicTacToeManager(new AbstractPlayer[]{/*new ArtificialPlayer<TicTacToeR>(new TicTacToeAIR(), user)*/new LocalPlayer(user), new OnlinePlayer(response.opponent())}, false);
+                }
                 case REVERSI ->
                         new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 case CONNECT4 ->

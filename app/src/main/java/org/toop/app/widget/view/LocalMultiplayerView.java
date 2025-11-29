@@ -6,7 +6,7 @@ import org.toop.app.game.*;
 import org.toop.app.game.gameManagers.TicTacToeManager;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
-import org.toop.game.players.Player;
+import org.toop.game.players.AbstractPlayer;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PlayerInfoWidget;
@@ -41,6 +41,21 @@ public class LocalMultiplayerView extends ViewWidget {
 				}
 			}
 
+            // TODO: Fix this temporary ass way of setting the players (Only works for TicTacToe)
+            AbstractPlayer[] players = new AbstractPlayer[2];
+            if (information.players[0].isHuman){
+                players[0] = new LocalPlayer(information.players[0].name);
+            }
+            else {
+                players[0] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[0].name);
+            }
+            if (information.players[1].isHuman){
+                players[1] = new LocalPlayer(information.players[1].name);
+            }
+            else {
+                players[1] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[1].name);
+            }
+
 			switch (information.type) {
                 case TICTACTOE:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
@@ -49,7 +64,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeManager(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
+                                        new TicTacToeManager(players);
                                     });
                                 },
                                 () -> {
@@ -61,14 +76,14 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setTutorialFlag(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeManager(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
+                                        new TicTacToeManager(players);
                                     });
                                 }
                         );
                          transitionNext(a);
                          break;
                     }
-                    new TicTacToeManager(new Player[]{new LocalPlayer(), new ArtificialPlayer<>(new TicTacToeAIR())});
+                    new TicTacToeManager(players);
                     break;
                 case REVERSI:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
