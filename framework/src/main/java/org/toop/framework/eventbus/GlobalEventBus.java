@@ -16,7 +16,7 @@ import org.toop.framework.eventbus.events.UniqueEvent;
 public final class GlobalEventBus {
 
     /** Map of event class to type-specific listeners. */
-    private static final Map<Class<?>, CopyOnWriteArrayList<Consumer<? super EventType>>>
+    private static final Map<Class<?>, CopyOnWriteArrayList<ListenerHandler<?>>>
             LISTENERS = new ConcurrentHashMap<>();
 
     /** Map of event class to Snowflake-ID-specific listeners. */
@@ -49,7 +49,6 @@ public final class GlobalEventBus {
                         ProducerType.MULTI,
                         new BusySpinWaitStrategy());
 
-        // Single consumer that dispatches to subscribers
         DISRUPTOR.handleEventsWith(
                 (holder, seq, endOfBatch) -> {
                     if (holder.event != null) {
@@ -73,23 +72,11 @@ public final class GlobalEventBus {
     // ------------------------------------------------------------------------
     // Subscription
     // ------------------------------------------------------------------------
-    public static <T extends EventType> Consumer<? super EventType> subscribe(
-            Class<T> eventClass, Consumer<T> listener) {
-
-        CopyOnWriteArrayList<Consumer<? super EventType>> list =
-                LISTENERS.computeIfAbsent(eventClass, k -> new CopyOnWriteArrayList<>());
-
-        Consumer<? super EventType> wrapper = event -> listener.accept(eventClass.cast(event));
-        list.add(wrapper);
-        return wrapper;
+    public static <T extends EventType> void subscribe(ListenerHandler<T> listener) {
+        LISTENERS.computeIfAbsent(listener.getListenerClass(), _ -> new CopyOnWriteArrayList<>()).add(listener);
     }
 
-    public static Consumer<? super EventType> subscribe(Consumer<Object> listener) {
-        Consumer<? super EventType> wrapper = event -> listener.accept(event);
-        LISTENERS.computeIfAbsent(Object.class, _ -> new CopyOnWriteArrayList<>()).add(wrapper);
-        return wrapper;
-    }
-
+    // TODO
     public static <T extends UniqueEvent> void subscribeById(
             Class<T> eventClass, long eventId, Consumer<T> listener) {
         UUID_LISTENERS
@@ -97,10 +84,14 @@ public final class GlobalEventBus {
                 .put(eventId, listener);
     }
 
-    public static void unsubscribe(Object listener) {
-        LISTENERS.values().forEach(list -> list.remove(listener));
+    public static void unsubscribe(ListenerHandler<?> listener) {
+        // TODO suspicious call
+        LISTENERS.getOrDefault(listener.getListenerClass(), new CopyOnWriteArrayList<>())
+                .remove(listener);
+        LISTENERS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
+    // TODO
     public static <T extends UniqueEvent> void unsubscribeById(
             Class<T> eventClass, long eventId) {
         Map<Long, Consumer<? extends UniqueEvent>> map = UUID_LISTENERS.get(eventClass);
@@ -125,35 +116,41 @@ public final class GlobalEventBus {
     }
 
     @SuppressWarnings("unchecked")
+    private static <T extends EventType> void callListener(ListenerHandler<?> raw, EventType event) {
+        ListenerHandler<T> handler = (ListenerHandler<T>) raw;
+        Consumer<T> listener = handler.getListener();
+
+        T casted = (T) event;
+
+        listener.accept(casted);
+    }
+
+    @SuppressWarnings("unchecked")
     private static void dispatchEvent(EventType event) {
         Class<?> clazz = event.getClass();
 
-        // class-specific listeners
-        CopyOnWriteArrayList<Consumer<? super EventType>> classListeners = LISTENERS.get(clazz);
+        CopyOnWriteArrayList<ListenerHandler<?>> classListeners = LISTENERS.get(clazz);
         if (classListeners != null) {
-            for (Consumer<? super EventType> listener : classListeners) {
+            for (ListenerHandler<?> listener : classListeners) {
                 try {
-                    listener.accept(event);
+                    callListener(listener, event);
                 } catch (Throwable e) {
 //                    e.printStackTrace();
                 }
             }
         }
 
-        // generic listeners
-        CopyOnWriteArrayList<Consumer<? super EventType>> genericListeners =
-                LISTENERS.get(Object.class);
+        CopyOnWriteArrayList<ListenerHandler<?>> genericListeners = LISTENERS.get(Object.class);
         if (genericListeners != null) {
-            for (Consumer<? super EventType> listener : genericListeners) {
+            for (ListenerHandler<?> listener : genericListeners) {
                 try {
-                    listener.accept(event);
+                    callListener(listener, event);
                 } catch (Throwable e) {
                     // e.printStackTrace();
                 }
             }
         }
 
-        // snowflake listeners
         if (event instanceof UniqueEvent snowflakeEvent) {
             Map<Long, Consumer<? extends UniqueEvent>> map = UUID_LISTENERS.get(clazz);
             if (map != null) {
@@ -181,5 +178,9 @@ public final class GlobalEventBus {
     public static void reset() {
         LISTENERS.clear();
         UUID_LISTENERS.clear();
+    }
+
+    public static Map<Class<?>, CopyOnWriteArrayList<ListenerHandler<?>>> getAllListeners() {
+        return LISTENERS;
     }
 }
