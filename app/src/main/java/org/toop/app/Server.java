@@ -94,11 +94,14 @@ public final class Server {
 			primary = new ServerView(user, this::sendChallenge, this::disconnect);
 			WidgetContainer.getCurrentView().transitionNext(primary);
 
+				startPopulateScheduler();
+				populateGameList();
+
+			}).postEvent();
+		new EventFlow().listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false)
+                .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false);
 			startPopulateScheduler();
 			populateGameList();
-		}, false, "startclient").listen(NetworkEvents.ConnectTry.class, e -> {
-//			Platform.runLater(() -> loading.setAmount(e.amount()));
-		}).postEvent();
 	}
 
 	private void sendChallenge(String opponent) {
