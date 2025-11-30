@@ -7,7 +7,6 @@ import org.toop.app.App;
 import org.toop.app.canvas.ReversiCanvas;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gameFramework.GameR;
 import org.toop.framework.gui.GUIEvents;
 import org.toop.game.GameThreadBehaviour.LocalFixedRateThreadBehaviour;
@@ -16,23 +15,19 @@ import org.toop.game.players.AbstractPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.reversi.ReversiR;
 
-public class ReversiManager extends GameManager<ReversiR> {
+public class ReversiController extends GameController<ReversiR> {
     // TODO: Refactor GUI update methods to follow designed system
-    public ReversiManager(AbstractPlayer[] players, boolean local) {
+    public ReversiController(AbstractPlayer[] players, boolean local) {
         ReversiR ReversiR = new ReversiR();
         super(
                 new ReversiCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}, (c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerHoverMove.class, c).postEvent();}),
                 players,
                 ReversiR,
-                local ? new LocalFixedRateThreadBehaviour(ReversiR, players) : new OnlineThreadBehaviour(ReversiR, players[0]), // TODO: Player order matters here, this won't work atm
+                local ? new LocalFixedRateThreadBehaviour(ReversiR, players) : new OnlineThreadBehaviour(ReversiR, players), // TODO: Player order matters here, this won't work atm
                 "Reversi");
-        initUI();
         eventFlow.listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}, false);
         eventFlow.listen(GUIEvents.PlayerHoverMove.class, this::onHoverMove, false);
-
-        //addListener(GlobalEventBus.subscribe(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}));
-        //addListener(GlobalEventBus.subscribe(GUIEvents.PlayerHoverMove.class, this::onHoverMove));
-        //new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
+        initUI();
     }
 
 
@@ -61,7 +56,7 @@ public class ReversiManager extends GameManager<ReversiR> {
         //}*/
     }
 
-    public ReversiManager(AbstractPlayer[] players) {
+    public ReversiController(AbstractPlayer[] players) {
         this(players, true);
     }
 
@@ -71,9 +66,9 @@ public class ReversiManager extends GameManager<ReversiR> {
 
         for (int i = 0; i < game.getBoard().length; i++) {
             if (game.getBoard()[i] == 0) {
-                canvas.drawDot(Color.BLACK, i);
-            } else if (game.getBoard()[i] == 1) {
                 canvas.drawDot(Color.WHITE, i);
+            } else if (game.getBoard()[i] == 1) {
+                canvas.drawDot(Color.BLACK, i);
             }
         }
 
@@ -81,8 +76,8 @@ public class ReversiManager extends GameManager<ReversiR> {
 
         final SequentialTransition animation = new SequentialTransition();
 
-        final Color fromColor = getCurrentPlayerIndex() == 1? Color.WHITE : Color.BLACK;
-        final Color toColor = getCurrentPlayerIndex() == 1? Color.BLACK : Color.WHITE;
+        final Color fromColor = getCurrentPlayerIndex() == 0? Color.WHITE : Color.BLACK;
+        final Color toColor = getCurrentPlayerIndex() == 0? Color.BLACK : Color.WHITE;
 
         if (animate && flipped != null) {
             for (final int flip : flipped) {
@@ -114,7 +109,7 @@ public class ReversiManager extends GameManager<ReversiR> {
 
     public void drawLegalPosition(int cell, int player) {
         Color innerColor;
-        if (player == 0) {
+        if (player == 1) {
             innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
         }
         else {

@@ -48,7 +48,6 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
             switch(state) {
                 case WIN, DRAW -> {
                     isRunning.set(false);
-                    System.out.println("posted ONCE");
                     new EventFlow().addPostEvent(GUIEvents.GameFinished.class, state == GameState.WIN, result.winner()).postEvent();
                 }
                 case NORMAL, TURN_SKIPPED ->{}

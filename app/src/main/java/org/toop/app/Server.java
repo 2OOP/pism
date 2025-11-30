@@ -1,10 +1,9 @@
 package org.toop.app;
 
 import org.toop.app.game.Connect4Game;
-import org.toop.app.game.ReversiGame;
-import org.toop.app.game.gameManagers.GameManager;
-import org.toop.app.game.gameManagers.ReversiManager;
-import org.toop.app.game.gameManagers.TicTacToeManager;
+import org.toop.app.game.gameManagers.GameController;
+import org.toop.app.game.gameManagers.ReversiController;
+import org.toop.app.game.gameManagers.TicTacToeController;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.popup.ChallengePopup;
 import org.toop.app.widget.popup.ErrorPopup;
@@ -15,13 +14,10 @@ import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
 import org.toop.game.players.ArtificialPlayer;
-import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.OnlinePlayer;
 import org.toop.game.players.AbstractPlayer;
 import org.toop.game.reversi.ReversiAIR;
-import org.toop.game.reversi.ReversiR;
 import org.toop.game.tictactoe.TicTacToeAIR;
-import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -42,7 +38,7 @@ public final class Server {
 	private ServerView primary;
 	private boolean isPolling = true;
 
-    private GameManager<?> gameManager;
+    private GameController<?> gameController;
 
     private final AtomicBoolean isSingleGame = new AtomicBoolean(false);
 
@@ -123,11 +119,12 @@ public final class Server {
 	}
 
     private void handleMatchResponse(NetworkEvents.GameMatchResponse response) {
-        if (gameManager != null) {
-            gameManager.stop();
+        // TODO: Redo all of this mess
+        if (gameController != null) {
+            gameController.stop();
         }
 
-        gameManager = null;
+        gameController = null;
 
         //if (!isPolling) return;
 
@@ -152,46 +149,56 @@ public final class Server {
             information.players[0].computerThinkTime = 1;
             information.players[1].name = response.opponent();
 
+            AbstractPlayer[] players = new AbstractPlayer[2];
+
+            players[(myTurn + 1) % 2] = new OnlinePlayer(response.opponent());
+
+            switch (type){
+                case TICTACTOE ->{
+                    players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(), user);
+                }
+                case REVERSI ->{
+                    players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
+                }
+            }
+
             Runnable onGameOverRunnable = isSingleGame.get()? null: this::gameOver;
             switch (type) {
                 case TICTACTOE ->{
-                        gameManager = new TicTacToeManager(new AbstractPlayer[]{new ArtificialPlayer<TicTacToeR>(new TicTacToeAIR(), user)/*new LocalPlayer(user)*/, new OnlinePlayer(response.opponent())}, false);
+                        gameController = new TicTacToeController(players, false);
                 }
                 case REVERSI ->
-                        gameManager = new ReversiManager(new AbstractPlayer[]{new ArtificialPlayer<ReversiR>(new ReversiAIR(), user), new OnlinePlayer(response.opponent())}, false);
+                        gameController = new ReversiController(players, false);
                 case CONNECT4 ->
                         new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 default -> new ErrorPopup("Unsupported game type.");
             }
 
-            if (gameManager != null){
-                gameManager.start();
+            if (gameController != null){
+                gameController.start();
             }
         }
     }
 
     private void handleYourTurn(NetworkEvents.YourTurnResponse response) {
-        if (gameManager == null) {
+        if (gameController == null) {
             return;
         }
-        gameManager.yourTurn(response);
+        gameController.yourTurn(response);
     }
 
     private void handleGameResult(NetworkEvents.GameResultResponse response) {
-        System.out.println("GAME RESULT");
-        if (gameManager == null) {
-            System.out.println("GAME IS NULL");
+        if (gameController == null) {
             return;
         }
-        System.out.println("MAKING MANAGER DEAL WITH IT");
-        gameManager.gameFinished(response);
+        gameController.gameFinished(response);
     }
 
     private void handleReceivedMove(NetworkEvents.GameMoveResponse response) {
-        if (gameManager == null) {
+        if (gameController == null) {
             return;
         }
-        gameManager.moveReceived(response);
+        gameController.moveReceived(response);
     }
 
 	private void handleReceivedChallenge(NetworkEvents.ChallengeResponse response) {

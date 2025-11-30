@@ -6,13 +6,25 @@ import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.gameFramework.TurnBasedGameR;
 import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.AbstractPlayer;
+import org.toop.game.players.OnlinePlayer;
+
+import java.util.Arrays;
 
 public class OnlineThreadBehaviour extends ThreadBehaviourBase implements SupportsOnlinePlay {
     private AbstractPlayer mainPlayer;
 
-    public OnlineThreadBehaviour(TurnBasedGameR game, AbstractPlayer mainPlayer) {
+    public OnlineThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
         super(game);
-        this.mainPlayer = mainPlayer;
+        this.mainPlayer = getFirstNotOnlinePlayer(players);
+    }
+
+    private AbstractPlayer getFirstNotOnlinePlayer(AbstractPlayer[] players) {
+        for (AbstractPlayer player : players){
+            if (!(player instanceof OnlinePlayer)){
+                return player;
+            }
+        }
+        throw new RuntimeException("All players are online players");
     }
 
     @Override
@@ -32,9 +44,8 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
 
     @Override
     public void yourTurn(NetworkEvents.YourTurnResponse event) {
-        System.out.println("Listening for your turn");
         int move = mainPlayer.getMove(game.clone());
-
+        // Got move
         new EventFlow().addPostEvent(NetworkEvents.SendMove.class, event.clientId(), (short) move).postEvent();
     }
 
@@ -52,7 +63,6 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
         }
         else{
             new EventFlow().addPostEvent(GUIEvents.GameFinished.class, false, -1).postEvent();
-            System.out.println("Recieved WIN/LOSS");
         }
     }
 }

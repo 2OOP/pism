@@ -5,7 +5,6 @@ import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gui.GUIEvents;
 import org.toop.framework.gameFramework.GameR;
 import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
@@ -15,15 +14,15 @@ import org.toop.game.players.AbstractPlayer;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.game.tictactoe.TicTacToeR;
 
-public class TicTacToeManager extends GameManager<TicTacToeR> {
+public class TicTacToeController extends GameController<TicTacToeR> {
 
-    public TicTacToeManager(AbstractPlayer[] players, boolean local) {
+    public TicTacToeController(AbstractPlayer[] players, boolean local) {
         TicTacToeR ticTacToeR = new TicTacToeR();
         super(
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,
                 ticTacToeR,
-                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineThreadBehaviour(ticTacToeR, players[0]), // TODO: Player order matters here, this won't work atm
+                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineThreadBehaviour(ticTacToeR, players), // TODO: Player order matters here, this won't work atm
                 "TicTacToe");
 
         initUI();
@@ -32,13 +31,12 @@ public class TicTacToeManager extends GameManager<TicTacToeR> {
         //new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
     }
 
-    public TicTacToeManager(AbstractPlayer[] players) {
+    public TicTacToeController(AbstractPlayer[] players) {
         this(players, true);
     }
 
     @Override
     public void updateUI() {
-        System.out.println("test 123 123123");
         canvas.clearAll();
         // TODO: wtf is even this pile of poop temp fix
         primary.nextPlayer(true, getCurrentPlayer().getName(), game.getCurrentTurn() == 0 ? "X" : "O", getPlayer((game.getCurrentTurn() + 1) % 2).getName());

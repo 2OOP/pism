@@ -3,9 +3,9 @@ package org.toop.app.widget.view;
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.game.*;
-import org.toop.app.game.gameManagers.GameManager;
-import org.toop.app.game.gameManagers.ReversiManager;
-import org.toop.app.game.gameManagers.TicTacToeManager;
+import org.toop.app.game.gameManagers.GameController;
+import org.toop.app.game.gameManagers.ReversiController;
+import org.toop.app.game.gameManagers.TicTacToeController;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.AbstractPlayer;
@@ -30,7 +30,7 @@ import org.toop.local.AppSettings;
 public class LocalMultiplayerView extends ViewWidget {
 	private final GameInformation information;
 
-    private GameManager gameManager;
+    private GameController gameController;
 
 	public LocalMultiplayerView(GameInformation.Type type) {
 		this(new GameInformation(type));
@@ -39,8 +39,8 @@ public class LocalMultiplayerView extends ViewWidget {
 	public LocalMultiplayerView(GameInformation information) {
 		this.information = information;
 		var playButton = Primitive.button("play", () -> {
-            if (gameManager != null) {
-                gameManager.stop();
+            if (gameController != null) {
+                gameController.stop();
             }
 			for (var player : information.players) {
 				if (player.isHuman && player.name.isEmpty()) {
@@ -72,7 +72,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
                                     Platform.runLater(() -> {
-                                        gameManager = new TicTacToeManager(players);
+                                        gameController = new TicTacToeController(players);
                                     });
                                 },
                                 () -> {
@@ -84,14 +84,14 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setTutorialFlag(false);
                                     Platform.runLater(() -> {
-                                        gameManager = new TicTacToeManager(players);
+                                        gameController = new TicTacToeController(players);
                                     });
                                 }
                         );
                          transitionNext(a);
                          break;
                     }
-                    gameManager = new TicTacToeManager(players);
+                    gameController = new TicTacToeController(players);
                     break;
                 case REVERSI:
                     if (information.players[0].isHuman){
@@ -111,7 +111,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 "tutorial",
                                 () -> { Platform.runLater(() -> {
                                     AppSettings.getSettings().setFirstReversi(false);
-                                    gameManager = new ReversiManager(players);
+                                    gameController = new ReversiController(players);
                                 });
                                 },
                                 () -> {
@@ -125,13 +125,13 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     Platform.runLater(() -> {
                                         AppSettings.getSettings().setTutorialFlag(false);
-                                        gameManager = new ReversiManager(players);
+                                        gameController = new ReversiController(players);
                                     });
                                 });
                         transitionNext(a);
                         break;
                     }
-                    gameManager = new ReversiManager(players);
+                    gameController = new ReversiController(players);
                     break;
                 case CONNECT4:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstConnect4()) {
@@ -163,8 +163,8 @@ public class LocalMultiplayerView extends ViewWidget {
                     break;
                     }
 				// case BATTLESHIP -> new BattleshipGame(information);
-            if (gameManager != null) {
-                gameManager.start();
+            if (gameController != null) {
+                gameController.start();
             }
 			});
 

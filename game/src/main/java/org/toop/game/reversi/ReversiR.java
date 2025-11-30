@@ -61,10 +61,8 @@ public final class ReversiR extends TurnBasedGameR {
         int[][] boardGrid = makeBoardAGrid();
         int currentPlayer = this.getCurrentTurn();
         Set<Point> adjCell = getAdjacentCells(boardGrid);
-        System.out.println(adjCell);
         for (Point point : adjCell){
             int[] moves = getFlipsForPotentialMove(point,currentPlayer);
-            System.out.println(Arrays.toString(moves));
             int score = moves.length;
             if (score > 0){
                 legalMoves.add(point.x + point.y * this.getRowSize());
