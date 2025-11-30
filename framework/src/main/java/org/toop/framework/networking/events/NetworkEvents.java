@@ -181,6 +181,8 @@ public class NetworkEvents extends EventsBase {
     public record StartClientResponse(long clientId, boolean successful, long identifier)
             implements ResponseToUniqueEvent {}
 
+    public record ConnectTry(long clientId, int amount, int maxAmount, boolean success) implements GenericEvent {}
+
     /**
      * Requests reconnection of an existing client using its previous configuration.
      * <p>
