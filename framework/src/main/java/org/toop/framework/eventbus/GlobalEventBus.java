@@ -6,6 +6,9 @@ import com.lmax.disruptor.dsl.ProducerType;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.events.UniqueEvent;
 
@@ -14,6 +17,7 @@ import org.toop.framework.eventbus.events.UniqueEvent;
  * publishing.
  */
 public final class GlobalEventBus {
+    private static final Logger logger = LogManager.getLogger(GlobalEventBus.class);
 
     /** Map of event class to type-specific listeners. */
     private static final Map<Class<?>, CopyOnWriteArrayList<ListenerHandler<?>>>
@@ -73,6 +77,7 @@ public final class GlobalEventBus {
     // Subscription
     // ------------------------------------------------------------------------
     public static <T extends EventType> void subscribe(ListenerHandler<T> listener) {
+        logger.debug("Subscribing to {}: {}", listener.getListenerClass().getSimpleName(), listener.getListener().getClass().getSimpleName());
         LISTENERS.computeIfAbsent(listener.getListenerClass(), _ -> new CopyOnWriteArrayList<>()).add(listener);
     }
 
@@ -85,7 +90,7 @@ public final class GlobalEventBus {
     }
 
     public static void unsubscribe(ListenerHandler<?> listener) {
-        // TODO suspicious call
+        logger.debug("Unsubscribing from {}: {}", listener.getListenerClass().getSimpleName(), listener.getListener().getClass().getSimpleName());
         LISTENERS.getOrDefault(listener.getListenerClass(), new CopyOnWriteArrayList<>())
                 .remove(listener);
         LISTENERS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
@@ -128,6 +133,8 @@ public final class GlobalEventBus {
     @SuppressWarnings("unchecked")
     private static void dispatchEvent(EventType event) {
         Class<?> clazz = event.getClass();
+
+        logger.debug("Triggered event: {}", event.getClass().getSimpleName());
 
         CopyOnWriteArrayList<ListenerHandler<?>> classListeners = LISTENERS.get(clazz);
         if (classListeners != null) {
