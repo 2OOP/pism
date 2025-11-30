@@ -86,7 +86,8 @@ public final class GlobalEventBus {
 
     public static void unsubscribe(ListenerHandler<?> listener) {
         // TODO suspicious call
-        LISTENERS.values().forEach(list -> list.remove(listener.getListener()));
+        LISTENERS.getOrDefault(listener.getListenerClass(), new CopyOnWriteArrayList<>())
+                .remove(listener);
         LISTENERS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
