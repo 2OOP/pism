@@ -11,9 +11,7 @@ public final class ReversiAIR extends AIR<ReversiR> {
         int[] moves = game.getLegalMoves();
         if (moves.length == 0) return -1;
 
-        System.out.println("Moves: " + Arrays.toString(moves));
         int inty = new Random().nextInt(0, moves.length);
-        System.out.println(inty);
 		return moves[inty];
 	}
 }

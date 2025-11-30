@@ -46,6 +46,7 @@ public final class TicTacToeR extends TurnBasedGameR {
         // Move is valid, make move.
         this.setBoard(move);
         movesLeft--;
+        nextTurn();
 
         // Check if current player won TODO: Make this generic?
         // Not sure why I am checking for ANY win when only current player should be able to win.
@@ -55,14 +56,13 @@ public final class TicTacToeR extends TurnBasedGameR {
         }
 
         // Check for (early) draw
-        if (movesLeft <= 2) {
+        if (movesLeft <= 3) {
             if (checkForEarlyDraw()) {
                 return new PlayResult(GameState.DRAW, EMPTY);
             }
         }
 
         // Nothing weird happened, continue on as normal
-        nextTurn();
         return new PlayResult(GameState.NORMAL, EMPTY);
     }
 
