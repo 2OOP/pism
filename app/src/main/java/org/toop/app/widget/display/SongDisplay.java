@@ -22,7 +22,7 @@ public class SongDisplay extends VBox implements Widget {
 
 	public SongDisplay() {
 		new EventFlow()
-			.listen(this::updateTheSong);
+				.listen(AudioEvents.PlayingMusic.class, this::updateTheSong, false);
 
 		setAlignment(Pos.CENTER);
 		setMaxHeight(Region.USE_PREF_SIZE);

@@ -1,7 +1,5 @@
 package org.toop.app;
 
-import javafx.application.Platform;
-import javafx.geometry.Pos;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
