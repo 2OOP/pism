@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -464,7 +465,10 @@ public class EventFlow {
      * Unsubscribe all events.
      */
     public void unsubscribeAll() {
-        this.listeners.forEach(e -> unsubscribe(e.getId()));
+        listeners.removeIf(handler -> {
+            GlobalEventBus.unsubscribe(handler);
+            return true;
+        });
     }
 
     /**
