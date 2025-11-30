@@ -71,8 +71,8 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 			new Thread(this::localGameThread).start();
 		else
 			new EventFlow()
-				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
-				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse);
+				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse, false)
+				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse, false);
 
 		setGameLabels(myTurn == 0);
 	}

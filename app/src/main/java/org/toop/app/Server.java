@@ -1,15 +1,19 @@
 package org.toop.app;
 
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.gameManagers.GameController;
 import org.toop.app.game.gameManagers.ReversiController;
 import org.toop.app.game.gameManagers.TicTacToeController;
 import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.popup.ChallengePopup;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.ListenerHandler;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
@@ -19,6 +23,7 @@ import org.toop.game.players.AbstractPlayer;
 import org.toop.game.reversi.ReversiAIR;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.local.AppContext;
+import java.util.function.Consumer;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -83,19 +88,25 @@ public final class Server {
 			return;
 		}
 
-		new EventFlow()
+		final int reconnectAttempts = 10;
+
+		var a = new EventFlow()
 			.addPostEvent(NetworkEvents.StartClient.class,
 				new TournamentNetworkingClient(),
-				new NetworkingConnector(ip, parsedPort, 10, 1, TimeUnit.SECONDS)
-			)
-			.onResponse(NetworkEvents.StartClientResponse.class, e -> {
-				this.user = user;
-				clientId = e.clientId();
+				new NetworkingConnector(ip, parsedPort, reconnectAttempts, 1, TimeUnit.SECONDS)
+			);
 
-				new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, user)).postEvent();
+		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
 
-				primary = new ServerView(user, this::sendChallenge, this::disconnect);
-				WidgetContainer.getCurrentView().transitionNext(primary);
+			a.unsubscribe("startclient");
+
+			this.user = user;
+			clientId = e.clientId();
+
+			new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, user)).postEvent();
+
+			primary = new ServerView(user, this::sendChallenge, this::disconnect);
+			WidgetContainer.getCurrentView().transitionNext(primary);
 
 				startPopulateScheduler();
 				populateGameList();
@@ -107,6 +118,8 @@ public final class Server {
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false)
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false)
                 .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false);
+        startPopulateScheduler();
+        populateGameList();
 	}
 
 	private void sendChallenge(String opponent) {
