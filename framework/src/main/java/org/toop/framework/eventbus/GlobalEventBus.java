@@ -49,7 +49,6 @@ public final class GlobalEventBus {
                         ProducerType.MULTI,
                         new BusySpinWaitStrategy());
 
-        // Single consumer that dispatches to subscribers
         DISRUPTOR.handleEventsWith(
                 (holder, seq, endOfBatch) -> {
                     if (holder.event != null) {
@@ -74,11 +73,10 @@ public final class GlobalEventBus {
     // Subscription
     // ------------------------------------------------------------------------
     public static <T extends EventType> void subscribe(ListenerHandler<T> listener) {
-        CopyOnWriteArrayList<ListenerHandler<?>> list =
-                LISTENERS.computeIfAbsent(listener.getListenerClass(), _ -> new CopyOnWriteArrayList<>());
-        list.add(listener);
+        LISTENERS.computeIfAbsent(listener.getListenerClass(), _ -> new CopyOnWriteArrayList<>()).add(listener);
     }
 
+    // TODO
     public static <T extends UniqueEvent> void subscribeById(
             Class<T> eventClass, long eventId, Consumer<T> listener) {
         UUID_LISTENERS
@@ -87,10 +85,12 @@ public final class GlobalEventBus {
     }
 
     public static void unsubscribe(ListenerHandler<?> listener) {
+        // TODO suspicious call
         LISTENERS.values().forEach(list -> list.remove(listener.getListener()));
         LISTENERS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 
+    // TODO
     public static <T extends UniqueEvent> void unsubscribeById(
             Class<T> eventClass, long eventId) {
         Map<Long, Consumer<? extends UniqueEvent>> map = UUID_LISTENERS.get(eventClass);
@@ -128,7 +128,6 @@ public final class GlobalEventBus {
     private static void dispatchEvent(EventType event) {
         Class<?> clazz = event.getClass();
 
-        // class-specific listeners
         CopyOnWriteArrayList<ListenerHandler<?>> classListeners = LISTENERS.get(clazz);
         if (classListeners != null) {
             for (ListenerHandler<?> listener : classListeners) {
@@ -140,7 +139,6 @@ public final class GlobalEventBus {
             }
         }
 
-//         generic listeners
         CopyOnWriteArrayList<ListenerHandler<?>> genericListeners = LISTENERS.get(Object.class);
         if (genericListeners != null) {
             for (ListenerHandler<?> listener : genericListeners) {
@@ -152,7 +150,6 @@ public final class GlobalEventBus {
             }
         }
 
-        // snowflake listeners
         if (event instanceof UniqueEvent snowflakeEvent) {
             Map<Long, Consumer<? extends UniqueEvent>> map = UUID_LISTENERS.get(clazz);
             if (map != null) {
