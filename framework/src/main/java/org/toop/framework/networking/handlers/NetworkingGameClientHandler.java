@@ -70,7 +70,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                 case "CHALLENGE":
                     gameChallengeHandler(recSrvRemoved);
                     return;
-                case "WIN", "DRAW", "LOSE":
+                case "WIN", "DRAW", "LOSS":
                     gameWinConditionHandler(recSrvRemoved);
                     return;
                 default:
