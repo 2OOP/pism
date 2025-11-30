@@ -77,7 +77,7 @@ public final class Server {
 		final int reconnectAttempts = 10;
 
 		LoadingWidget loading = new LoadingWidget(0, reconnectAttempts);
-		loading.show(Pos.CENTER);
+		WidgetContainer.getCurrentView().transitionNext(loading);
 
 		var a = new EventFlow()
 			.addPostEvent(NetworkEvents.StartClient.class,
@@ -89,7 +89,7 @@ public final class Server {
 
 			a.unsubscribe("startclient");
 
-			loading.hide();
+			loading.transitionPrevious();
 			this.user = user;
 			clientId = e.clientId();
 
@@ -102,7 +102,7 @@ public final class Server {
 			populateGameList();
 		}, false, "startclient").listen(NetworkEvents.ConnectTry.class, e -> {
 			Platform.runLater(() -> loading.setAmount(e.amount()));
-		}).postEvent();
+		}, false).postEvent();
 
 		new EventFlow().listen(this::handleReceivedChallenge)
                 .listen(this::handleMatchResponse);
