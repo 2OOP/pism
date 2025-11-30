@@ -464,7 +464,7 @@ public class EventFlow {
      * Unsubscribe all events.
      */
     public void unsubscribeAll() {
-        this.listeners.forEach(this::unsubscribe);
+        this.listeners.forEach(e -> unsubscribe(e.getId()));
     }
 
     /**
