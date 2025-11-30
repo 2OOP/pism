@@ -3,6 +3,7 @@ package org.toop.app.widget.view;
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.game.*;
+import org.toop.app.game.gameManagers.GameManager;
 import org.toop.app.game.gameManagers.ReversiManager;
 import org.toop.app.game.gameManagers.TicTacToeManager;
 import org.toop.game.players.ArtificialPlayer;
@@ -17,6 +18,7 @@ import org.toop.app.widget.tutorial.BaseTutorialWidget;
 import org.toop.app.widget.tutorial.Connect4TutorialWidget;
 import org.toop.app.widget.tutorial.ReversiTutorialWidget;
 import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
+import org.toop.game.reversi.ReversiAIR;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.local.AppContext;
 
@@ -28,6 +30,8 @@ import org.toop.local.AppSettings;
 public class LocalMultiplayerView extends ViewWidget {
 	private final GameInformation information;
 
+    private GameManager gameManager;
+
 	public LocalMultiplayerView(GameInformation.Type type) {
 		this(new GameInformation(type));
 	}
@@ -35,6 +39,9 @@ public class LocalMultiplayerView extends ViewWidget {
 	public LocalMultiplayerView(GameInformation information) {
 		this.information = information;
 		var playButton = Primitive.button("play", () -> {
+            if (gameManager != null) {
+                gameManager.stop();
+            }
 			for (var player : information.players) {
 				if (player.isHuman && player.name.isEmpty()) {
 					new ErrorPopup(AppContext.getString("please-enter-your-name")).show(Pos.CENTER);
@@ -44,28 +51,28 @@ public class LocalMultiplayerView extends ViewWidget {
 
             // TODO: Fix this temporary ass way of setting the players (Only works for TicTacToe)
             AbstractPlayer[] players = new AbstractPlayer[2];
-            if (information.players[0].isHuman){
-                players[0] = new LocalPlayer(information.players[0].name);
-            }
-            else {
-                players[0] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[0].name);
-            }
-            if (information.players[1].isHuman){
-                players[1] = new LocalPlayer(information.players[1].name);
-            }
-            else {
-                players[1] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[1].name);
-            }
 
 			switch (information.type) {
                 case TICTACTOE:
+                    if (information.players[0].isHuman){
+                        players[0] = new LocalPlayer(information.players[0].name);
+                    }
+                    else {
+                        players[0] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[0].name);
+                    }
+                    if (information.players[1].isHuman){
+                        players[1] = new LocalPlayer(information.players[1].name);
+                    }
+                    else {
+                        players[1] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[1].name);
+                    }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                          BaseTutorialWidget a = new BaseTutorialWidget(
                                 "tutorial",
                                 () -> {
                                     AppSettings.getSettings().setFirstTTT(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeManager(players);
+                                        gameManager = new TicTacToeManager(players);
                                     });
                                 },
                                 () -> {
@@ -77,22 +84,34 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     AppSettings.getSettings().setTutorialFlag(false);
                                     Platform.runLater(() -> {
-                                        new TicTacToeManager(players);
+                                        gameManager = new TicTacToeManager(players);
                                     });
                                 }
                         );
                          transitionNext(a);
                          break;
                     }
-                    new TicTacToeManager(players);
+                    gameManager = new TicTacToeManager(players);
                     break;
                 case REVERSI:
+                    if (information.players[0].isHuman){
+                        players[0] = new LocalPlayer(information.players[0].name);
+                    }
+                    else {
+                        players[0] = new ArtificialPlayer<>(new ReversiAIR(), information.players[0].name);
+                    }
+                    if (information.players[1].isHuman){
+                        players[1] = new LocalPlayer(information.players[1].name);
+                    }
+                    else {
+                        players[1] = new ArtificialPlayer<>(new ReversiAIR(), information.players[1].name);
+                    }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         BaseTutorialWidget a = new BaseTutorialWidget(
                                 "tutorial",
                                 () -> { Platform.runLater(() -> {
                                     AppSettings.getSettings().setFirstReversi(false);
-                                    new ReversiManager(new AbstractPlayer[]{new LocalPlayer("Player 1"),new LocalPlayer("Player 2")});
+                                    gameManager = new ReversiManager(players);
                                 });
                                 },
                                 () -> {
@@ -106,13 +125,13 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     Platform.runLater(() -> {
                                         AppSettings.getSettings().setTutorialFlag(false);
-                                        new ReversiManager(new AbstractPlayer[]{new LocalPlayer("Player 1"),new LocalPlayer("Player 2")});
+                                        gameManager = new ReversiManager(players);
                                     });
                                 });
                         transitionNext(a);
                         break;
                     }
-                    new ReversiManager(new AbstractPlayer[]{new LocalPlayer("Player 1"),new LocalPlayer("Player 2")});
+                    gameManager = new ReversiManager(players);
                     break;
                 case CONNECT4:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstConnect4()) {
@@ -144,6 +163,9 @@ public class LocalMultiplayerView extends ViewWidget {
                     break;
                     }
 				// case BATTLESHIP -> new BattleshipGame(information);
+            if (gameManager != null) {
+                gameManager.start();
+            }
 			});
 
 		var playerSection = setupPlayerSections();

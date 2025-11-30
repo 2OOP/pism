@@ -17,6 +17,21 @@ public class LocalPlayer extends AbstractPlayer {
 
     @Override
     public int getMove(GameR gameCopy) {
+        return getValidMove(gameCopy);
+    }
+
+    public void setMove(int move) {
+        System.out.println("setting move: " + move);
+        LastMove.complete(move);
+    }
+
+    // TODO: helper function, would like to replace to get rid of this method
+    public static boolean contains(int[] array, int value){
+        for (int i : array) if (i == value) return true;
+        return false;
+    }
+
+    private int getMove2(GameR gameCopy) {
         LastMove = new CompletableFuture<>();
         int move = -1;
         try {
@@ -28,9 +43,18 @@ public class LocalPlayer extends AbstractPlayer {
         return move;
     }
 
-    public void setMove(int move) {
-        System.out.println("setting move: " + move);
-        LastMove.complete(move);
+    protected int getValidMove(GameR gameCopy){
+        // Get this player's valid moves
+        int[] validMoves = gameCopy.getLegalMoves();
+        // Make sure provided move is valid
+        // TODO: Limit amount of retries?
+        // TODO: Stop copying game so many times
+        int move = getMove2(gameCopy.clone());
+        while (!contains(validMoves, move)) {
+            System.out.println("Not a valid move, try again");
+            move = getMove2(gameCopy.clone());
+        }
+        return move;
     }
 
     /*public void register() {

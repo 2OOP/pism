@@ -33,7 +33,7 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
     @Override
     public void yourTurn(NetworkEvents.YourTurnResponse event) {
         System.out.println("Listening for your turn");
-        int move = getValidMove(mainPlayer);
+        int move = mainPlayer.getMove(game.clone());
 
         new EventFlow().addPostEvent(NetworkEvents.SendMove.class, event.clientId(), (short) move).postEvent();
     }
@@ -48,10 +48,11 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
     public void gameFinished(NetworkEvents.GameResultResponse event) {
         // TODO: Assumes last player won for easy. This information should really be gathered from the server message, or at least determined by game logic.
         if (!event.condition().equalsIgnoreCase("DRAW")) {
-            new EventFlow().addPostEvent(GUIEvents.GameFinished.class, true, getCurrentPlayer()).postEvent();
+            new EventFlow().addPostEvent(GUIEvents.GameFinished.class, true, getCurrentPlayer().getPlayerIndex()).postEvent();
         }
         else{
             new EventFlow().addPostEvent(GUIEvents.GameFinished.class, false, -1).postEvent();
+            System.out.println("Recieved WIN/LOSS");
         }
     }
 }

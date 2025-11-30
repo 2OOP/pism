@@ -35,22 +35,34 @@ public final class TicTacToeR extends TurnBasedGameR {
 
     @Override
     public PlayResult play(int move) {
+        // NOT MY ASSERTIONS - Stef
         assert move >= 0 && move < this.getBoard().length;
 
-        // TODO: Make sure this move is allowed, maybe on the board side?
+        // Player loses if move is invalid
+        if (!contains(getLegalMoves(), move)) {
+            // Next player wins
+            return new PlayResult(GameState.WIN, (getCurrentTurn() + 1)%2); // TODO: Make this a generic method like getNextPlayer() or something similar.
+        }
+
+        // Move is valid, make move.
         this.setBoard(move);
         movesLeft--;
+
+        // Check if current player won TODO: Make this generic?
+        // Not sure why I am checking for ANY win when only current player should be able to win.
         int t = checkForWin();
         if (t != EMPTY) {
             return new PlayResult(GameState.WIN, t);
         }
 
+        // Check for (early) draw
         if (movesLeft <= 2) {
-            if (movesLeft <= 0 || checkForEarlyDraw()) {
+            if (checkForEarlyDraw()) {
                 return new PlayResult(GameState.DRAW, EMPTY);
             }
         }
 
+        // Nothing weird happened, continue on as normal
         nextTurn();
         return new PlayResult(GameState.NORMAL, EMPTY);
     }

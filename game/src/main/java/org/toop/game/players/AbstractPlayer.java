@@ -15,6 +15,7 @@ import org.toop.framework.gameFramework.GameR;
  * </p>
  */
 public abstract class AbstractPlayer implements MakesMove {
+    private int playerIndex = -1;
     private final String name;
     protected AbstractPlayer(String name) {
         this.name = name;
@@ -38,5 +39,13 @@ public abstract class AbstractPlayer implements MakesMove {
 
     public String getName(){
         return this.name;
+    }
+
+    public int getPlayerIndex() {
+        return playerIndex;
+    }
+
+    public void setPlayerIndex(int playerIndex) {
+        this.playerIndex = playerIndex;
     }
 }

@@ -27,8 +27,8 @@ public class TicTacToeManager extends GameManager<TicTacToeR> {
                 "TicTacToe");
 
         initUI();
-        addLisener(GlobalEventBus.subscribe(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}));
-        start();
+        eventFlow.listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}, false);
+        //addListener(GlobalEventBus.subscribe(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}));
         //new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
     }
 
@@ -38,6 +38,7 @@ public class TicTacToeManager extends GameManager<TicTacToeR> {
 
     @Override
     public void updateUI() {
+        System.out.println("test 123 123123");
         canvas.clearAll();
         // TODO: wtf is even this pile of poop temp fix
         primary.nextPlayer(true, getCurrentPlayer().getName(), game.getCurrentTurn() == 0 ? "X" : "O", getPlayer((game.getCurrentTurn() + 1) % 2).getName());

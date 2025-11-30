@@ -36,7 +36,7 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
             AbstractPlayer currentPlayer = getCurrentPlayer();
 
             // Get a valid player move
-            int move = getValidMove(currentPlayer);
+            int move = currentPlayer.getMove(game.clone());
 
             // Make move
             PlayResult result = game.play(move);
@@ -45,10 +45,18 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
             new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).postEvent();
 
             GameState state = result.state();
-            if (state != GameState.NORMAL) {
-                new EventFlow().addPostEvent(GUIEvents.GameFinished.class, state == GameState.WIN, result.winner()).postEvent();
-                System.out.println("test321");
-                isRunning.set(false);
+            switch(state) {
+                case WIN, DRAW -> {
+                    isRunning.set(false);
+                    System.out.println("posted ONCE");
+                    new EventFlow().addPostEvent(GUIEvents.GameFinished.class, state == GameState.WIN, result.winner()).postEvent();
+                }
+                case NORMAL, TURN_SKIPPED ->{}
+                default -> {
+                    // Unknown game state, stop running and throw error (maybe push an error event?)
+                    isRunning.set(false);
+                    throw new RuntimeException("Unknown state: " + state);
+                }
             }
         }
     }

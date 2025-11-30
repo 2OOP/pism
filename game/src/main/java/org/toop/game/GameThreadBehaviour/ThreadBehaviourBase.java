@@ -12,23 +12,4 @@ public abstract class ThreadBehaviourBase implements GameThreadStrategy{
     public ThreadBehaviourBase(TurnBasedGameR game) {
         this.game = game;
     }
-
-    protected int getValidMove(AbstractPlayer player){
-        // Get this player's valid moves
-        int[] validMoves = game.getLegalMoves();
-        // Make sure provided move is valid
-        // TODO: Limit amount of retries?
-        int move = player.getMove(game.clone());
-        while (!contains(validMoves, move)) {
-            System.out.println("Not a valid move, try again");
-            move = player.getMove(game.clone());
-        }
-        return move;
-    }
-
-    // TODO: helper function, would like to replace to get rid of this method
-    public static boolean contains(int[] array, int value){
-        for (int i : array) if (i == value) return true;
-        return false;
-    }
 }

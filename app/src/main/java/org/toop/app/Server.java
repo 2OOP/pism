@@ -3,6 +3,7 @@ package org.toop.app;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
 import org.toop.app.game.gameManagers.GameManager;
+import org.toop.app.game.gameManagers.ReversiManager;
 import org.toop.app.game.gameManagers.TicTacToeManager;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.popup.ChallengePopup;
@@ -17,6 +18,8 @@ import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.OnlinePlayer;
 import org.toop.game.players.AbstractPlayer;
+import org.toop.game.reversi.ReversiAIR;
+import org.toop.game.reversi.ReversiR;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.game.tictactoe.TicTacToeR;
 import org.toop.local.AppContext;
@@ -29,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
+    // TODO: Keep track of listeners. Remove them on Server connection close so reference is deleted.
 	private String user = "";
 	private long clientId = -1;
 
@@ -43,6 +47,8 @@ public final class Server {
     private final AtomicBoolean isSingleGame = new AtomicBoolean(false);
 
 	private ScheduledExecutorService scheduler;
+
+    private EventFlow eventFlow = new EventFlow();
 
 	public static GameInformation.Type gameToType(String game) {
 		if (game.equalsIgnoreCase("tic-tac-toe")) {
@@ -100,11 +106,11 @@ public final class Server {
 
 			}).postEvent();
 
-		new EventFlow().listen(this::handleReceivedChallenge)
-                .listen(this::handleMatchResponse)
-                .listen(this::handleGameResult)
-                .listen(this::handleReceivedMove)
-                .listen(this::handleYourTurn);
+		eventFlow.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false)
+                .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false)
+                .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false)
+                .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false)
+                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false);
 	}
 
 	private void sendChallenge(String opponent) {
@@ -120,6 +126,8 @@ public final class Server {
         if (gameManager != null) {
             gameManager.stop();
         }
+
+        gameManager = null;
 
         //if (!isPolling) return;
 
@@ -150,10 +158,14 @@ public final class Server {
                         gameManager = new TicTacToeManager(new AbstractPlayer[]{new ArtificialPlayer<TicTacToeR>(new TicTacToeAIR(), user)/*new LocalPlayer(user)*/, new OnlinePlayer(response.opponent())}, false);
                 }
                 case REVERSI ->
-                        new ReversiGame(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
+                        gameManager = new ReversiManager(new AbstractPlayer[]{new ArtificialPlayer<ReversiR>(new ReversiAIR(), user), new OnlinePlayer(response.opponent())}, false);
                 case CONNECT4 ->
                         new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 default -> new ErrorPopup("Unsupported game type.");
+            }
+
+            if (gameManager != null){
+                gameManager.start();
             }
         }
     }
@@ -166,9 +178,12 @@ public final class Server {
     }
 
     private void handleGameResult(NetworkEvents.GameResultResponse response) {
+        System.out.println("GAME RESULT");
         if (gameManager == null) {
+            System.out.println("GAME IS NULL");
             return;
         }
+        System.out.println("MAKING MANAGER DEAL WITH IT");
         gameManager.gameFinished(response);
     }
 

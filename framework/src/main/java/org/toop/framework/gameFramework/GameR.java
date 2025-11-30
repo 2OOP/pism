@@ -37,6 +37,7 @@ public abstract class GameR implements IPlayableR, Cloneable {
      * @param columnSize number of columns (> 0)
      * @throws AssertionError if rowSize or columnSize is not positive
      */
+
     protected GameR(int rowSize, int columnSize) {
         assert rowSize > 0 && columnSize > 0;
 
@@ -56,6 +57,23 @@ public abstract class GameR implements IPlayableR, Cloneable {
         this.rowSize = copy.rowSize;
         this.columnSize = copy.columnSize;
         this.board = copy.board.clone();
+    }
+
+    /**
+     * Check if an array contains a value.
+     *
+     * @param array array containing ints
+     * @param value int to check for
+     *
+     * @return true if array contains value
+     */
+
+    public static boolean contains(int[] array, int value) {
+        // O(n)
+        for (int element : array){
+            if (element == value) return true;
+        }
+        return false;
     }
 
     /**

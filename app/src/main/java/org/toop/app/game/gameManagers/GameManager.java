@@ -16,6 +16,7 @@ import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.AbstractPlayer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -38,6 +39,7 @@ public abstract class GameManager<T extends TurnBasedGameR> implements UpdatesGa
     private final GameThreadStrategy gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
+    // TODO: Make visualisation of moves a behaviour.
     protected GameManager(GameCanvas<T> canvas, AbstractPlayer[] players, T game, GameThreadStrategy gameThreadBehaviour, String gameType) {
         // Make sure player list matches expected size
         if (players.length != game.getPlayerCount()){
@@ -49,6 +51,11 @@ public abstract class GameManager<T extends TurnBasedGameR> implements UpdatesGa
         this.game = game;
         this.gameThreadBehaviour = gameThreadBehaviour;
 
+        // Let players know who they are
+        for(int i = 0; i < players.length; i++){
+            players[i].setPlayerIndex(i);
+        }
+
         primary = new GameView(null, null, null, gameType);
         addListeners();
     }
@@ -56,10 +63,6 @@ public abstract class GameManager<T extends TurnBasedGameR> implements UpdatesGa
     public void start(){
         logger.debug("Starting GameManager");
         gameThreadBehaviour.start();;
-    }
-
-    protected void addLisener(Consumer<?> listener){
-        listeners.add(listener);
     }
 
     public void stop(){
@@ -72,20 +75,23 @@ public abstract class GameManager<T extends TurnBasedGameR> implements UpdatesGa
         return gameThreadBehaviour.getCurrentPlayer();
     };
 
+    public int getCurrentPlayerIndex(){
+        return getCurrentPlayer().getPlayerIndex();
+    }
+
     private void addListeners(){
         // Listen to requests to update game UI
-        listeners.add(GlobalEventBus.subscribe(GUIEvents.UpdateGameCanvas.class, this::onUpdateGameUI));
-        listeners.add(GlobalEventBus.subscribe(GUIEvents.GameFinished.class, this::onGameFinish));
+        //listeners.add(GlobalEventBus.subscribe(GUIEvents.UpdateGameCanvas.class, this::onUpdateGameUI));
+        //listeners.add(GlobalEventBus.subscribe(GUIEvents.GameFinished.class, this::onGameFinish));
 
-        //eventFlow
-        //        .listen(this::onUpdateGameUI)
-        //        .listen(this::onGameFinish);
+        eventFlow
+                .listen(GUIEvents.UpdateGameCanvas.class, this::onUpdateGameUI, false)
+                .listen(GUIEvents.GameFinished.class, this::onGameFinish, false);
     }
 
     private void removeListeners(){
-        for (Consumer<?> listener : listeners){
-            GlobalEventBus.unsubscribe(listener);
-        }
+        System.out.println(Arrays.toString(eventFlow.getListeners()));
+        eventFlow.unsubscribeAll();
     }
 
     private void onUpdateGameUI(GUIEvents.UpdateGameCanvas event){

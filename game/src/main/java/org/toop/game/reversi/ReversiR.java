@@ -186,10 +186,29 @@ public final class ReversiR extends TurnBasedGameR {
             }
         }
         return new PlayResult(GameState.NORMAL, EMPTY);*/
-        System.out.println("Attempting to play move: " + move);
-        assert move >= 0 && move < this.getBoard().length;
 
-        // TODO: Make sure this move is allowed, maybe on the board side?
+        // Check for forced turn skip
+        if (getLegalMoves().length == 0){
+            PlayResult result;
+            // Check if next turn is also a force skip
+            if (clone().skipTurn().getLegalMoves().length == 0){
+                // Game over
+                int winner = getWinner();
+                result = new PlayResult(winner == EMPTY ? GameState.DRAW : GameState.WIN, winner);
+            }else{
+                // Turn skipped
+                result = new PlayResult(GameState.TURN_SKIPPED, getCurrentTurn());
+                skipTurn();
+            }
+            return result;
+        }
+
+        // Check if move is legal
+        if (!contains(getLegalMoves(), move)){
+            return new PlayResult(GameState.WIN, (getCurrentTurn() + 1) % 2);
+        }
+
+        // Move is legal, proceed as normal
         int[] moves = sortMovesFromCenter(Arrays.stream(getFlipsForPotentialMove(new Point(move%this.getColumnSize(),move/this.getRowSize()), getCurrentTurn())).boxed().toArray(Integer[]::new),move);
         mostRecentlyFlippedPieces = moves;
         this.setBoard(move);                                        //place the move on the board
@@ -198,17 +217,11 @@ public final class ReversiR extends TurnBasedGameR {
         }
         filledCells.add(new Point(move % this.getRowSize(), move / this.getColumnSize()));
 
-        if (gameOver()) {
-            return new PlayResult(GameState.WIN, getCurrentTurn());
-        }
-
         nextTurn();
         return new PlayResult(GameState.NORMAL, EMPTY);
     }
 
     private ReversiR skipTurn(){
-        IO.println("TURN " + getCurrentTurn() + "  SKIPPED");
-        //TODO: notify user that a turn has been skipped
         nextTurn();
         return this;
     }
@@ -217,17 +230,17 @@ public final class ReversiR extends TurnBasedGameR {
         return (currentPlayer + 1)%2;
     }
 
-    public Score getScore(){
+    public int getWinner(){
         int player1Score = 0, player2Score = 0;
         for (int count = 0; count < this.getRowSize() * this.getColumnSize(); count++) {
-            if (this.getBoard()[count] == 'B') {
+            if (this.getBoard()[count] == 0) {
                 player1Score += 1;
             }
-            if (this.getBoard()[count] == 'W') {
+            if (this.getBoard()[count] == 1) {
                 player2Score += 1;
             }
         }
-        return new Score(player1Score, player2Score);
+        return player1Score == player2Score? -1 : player1Score > player2Score ? 0 : 1;
     }
     private int[] sortMovesFromCenter(Integer[] moves, int center) {                 //sorts the pieces to be flipped for animation purposes
         int centerX = center%this.getColumnSize();
