@@ -1,4 +1,4 @@
-package org.toop.app.game.gameManagers;
+package org.toop.app.game.gameControllers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -109,7 +109,7 @@ public abstract class GameController<T extends TurnBasedGameR> implements Update
     }
 
     private boolean isOnline(){
-        return this.gameThreadBehaviour instanceof OnlineThreadBehaviour;
+        return this.gameThreadBehaviour instanceof SupportsOnlinePlay;
     }
 
     @Override

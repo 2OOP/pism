@@ -1,4 +1,4 @@
-package org.toop.app.game.gameManagers;
+package org.toop.app.game.gameControllers;
 
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;

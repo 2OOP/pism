@@ -1,19 +1,15 @@
 package org.toop.app;
 
-import javafx.application.Platform;
-import javafx.geometry.Pos;
 import org.toop.app.game.Connect4Game;
-import org.toop.app.game.gameManagers.GameController;
-import org.toop.app.game.gameManagers.ReversiController;
-import org.toop.app.game.gameManagers.TicTacToeController;
+import org.toop.app.game.gameControllers.GameController;
+import org.toop.app.game.gameControllers.ReversiController;
+import org.toop.app.game.gameControllers.TicTacToeController;
 import org.toop.app.widget.WidgetContainer;
-import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.popup.ChallengePopup;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.eventbus.ListenerHandler;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
@@ -23,7 +19,6 @@ import org.toop.game.players.AbstractPlayer;
 import org.toop.game.reversi.ReversiAIR;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.local.AppContext;
-import java.util.function.Consumer;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

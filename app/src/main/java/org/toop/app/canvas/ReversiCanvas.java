@@ -83,6 +83,7 @@ public final class ReversiCanvas extends GameCanvas<ReversiR> {
         }
         drawInnerDot(innerColor, cell,false);
 	}
+
     @Override
     public void drawPlayerMove(int player ,int move){
         super.drawPlayerMove(player, move);
