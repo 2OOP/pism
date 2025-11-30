@@ -70,7 +70,6 @@ public final class ReversiR extends TurnBasedGameR {
                 legalMoves.add(point.x + point.y * this.getRowSize());
             }
         }
-        System.out.println(legalMoves);
         return legalMoves.stream().mapToInt(Integer::intValue).toArray();
 	}
 
@@ -187,6 +186,23 @@ public final class ReversiR extends TurnBasedGameR {
         }
         return new PlayResult(GameState.NORMAL, EMPTY);*/
 
+        // Check if move is legal
+        if (!contains(getLegalMoves(), move)){
+            // Next person wins
+            return new PlayResult(GameState.WIN, (getCurrentTurn() + 1) % 2);
+        }
+
+        // Move is legal, proceed as normal
+        int[] moves = sortMovesFromCenter(Arrays.stream(getFlipsForPotentialMove(new Point(move%this.getColumnSize(),move/this.getRowSize()), getCurrentTurn())).boxed().toArray(Integer[]::new),move);
+        mostRecentlyFlippedPieces = moves;
+        this.setBoard(move);                                        //place the move on the board
+        for (int m : moves) {
+            this.setBoard(m);                                       //flip the correct pieces on the board
+        }
+        filledCells.add(new Point(move % this.getRowSize(), move / this.getColumnSize()));
+
+        nextTurn();
+
         // Check for forced turn skip
         if (getLegalMoves().length == 0){
             PlayResult result;
@@ -202,22 +218,6 @@ public final class ReversiR extends TurnBasedGameR {
             }
             return result;
         }
-
-        // Check if move is legal
-        if (!contains(getLegalMoves(), move)){
-            return new PlayResult(GameState.WIN, (getCurrentTurn() + 1) % 2);
-        }
-
-        // Move is legal, proceed as normal
-        int[] moves = sortMovesFromCenter(Arrays.stream(getFlipsForPotentialMove(new Point(move%this.getColumnSize(),move/this.getRowSize()), getCurrentTurn())).boxed().toArray(Integer[]::new),move);
-        mostRecentlyFlippedPieces = moves;
-        this.setBoard(move);                                        //place the move on the board
-        for (int m : moves) {
-            this.setBoard(m);                                       //flip the correct pieces on the board
-        }
-        filledCells.add(new Point(move % this.getRowSize(), move / this.getColumnSize()));
-
-        nextTurn();
         return new PlayResult(GameState.NORMAL, EMPTY);
     }
 
