@@ -181,4 +181,8 @@ public final class GlobalEventBus {
         LISTENERS.clear();
         UUID_LISTENERS.clear();
     }
+
+    public static Map<Class<?>, CopyOnWriteArrayList<ListenerHandler<?>>> getAllListeners() {
+        return LISTENERS;
+    }
 }
