@@ -464,14 +464,17 @@ public class EventFlow {
      * Unsubscribe all events.
      */
     public void unsubscribeAll() {
-        this.listeners.forEach(this::unsubscribe);
+        listeners.removeIf(handler -> {
+            GlobalEventBus.unsubscribe(handler);
+            return true;
+        });
     }
 
     /**
      * Clean and remove everything inside {@link EventFlow}.
      */
     private void clean() {
-        this.listeners.clear();
+        unsubscribeAll();
         this.event = null;
         this.result = null;
     } // TODO
