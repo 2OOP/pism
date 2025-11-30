@@ -3,6 +3,7 @@ package org.toop.game.GameThreadBehaviour;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
+import org.toop.game.players.AbstractPlayer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Subclasses implement the actual game-loop logic.
  */
 public abstract class ThreadBehaviourBase implements GameThreadStrategy {
+    private final AbstractPlayer[] players;
 
     /** Indicates whether the game loop or event processing is active. */
     protected final AtomicBoolean isRunning = new AtomicBoolean();
@@ -29,7 +31,18 @@ public abstract class ThreadBehaviourBase implements GameThreadStrategy {
      *
      * @param game the turn-based game to control
      */
-    public ThreadBehaviourBase(TurnBasedGameR game) {
+    public ThreadBehaviourBase(TurnBasedGameR game, AbstractPlayer[] players) {
         this.game = game;
+        this.players = players;
+    }
+
+    /**
+     * Returns the player whose turn it currently is.
+     *
+     * @return the current active player
+     */
+    @Override
+    public AbstractPlayer getCurrentPlayer() {
+        return players[game.getCurrentTurn()];
     }
 }

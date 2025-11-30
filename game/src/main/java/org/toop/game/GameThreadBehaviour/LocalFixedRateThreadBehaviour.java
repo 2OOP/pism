@@ -25,7 +25,7 @@ public class LocalFixedRateThreadBehaviour extends ThreadBehaviourBase implement
      * @param players the list of players in turn order
      */
     public LocalFixedRateThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
-        super(game);
+        super(game, players);
         this.players = players;
     }
 

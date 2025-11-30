@@ -9,6 +9,7 @@ import org.toop.framework.gameFramework.GUIEvents;
 import org.toop.framework.gameFramework.abstractClasses.GameR;
 import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
+import org.toop.game.GameThreadBehaviour.OnlineWithSleepThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.AbstractPlayer;
 import org.toop.app.widget.WidgetContainer;
@@ -22,7 +23,7 @@ public class TicTacToeController extends GameController<TicTacToeR> {
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,
                 ticTacToeR,
-                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineThreadBehaviour(ticTacToeR, players), // TODO: Player order matters here, this won't work atm
+                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineWithSleepThreadBehaviour(ticTacToeR, players), // TODO: Player order matters here, this won't work atm
                 "TicTacToe");
 
         initUI();

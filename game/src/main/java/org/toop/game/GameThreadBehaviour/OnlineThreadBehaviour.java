@@ -24,7 +24,7 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
      * (non-online player) from the given array.
      */
     public OnlineThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
-        super(game);
+        super(game, players);
         this.mainPlayer = getFirstNotOnlinePlayer(players);
     }
 
@@ -48,12 +48,6 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
     @Override
     public void stop() {
         isRunning.set(false);
-    }
-
-    /** Returns the local player whose moves are handled by this client. */
-    @Override
-    public AbstractPlayer getCurrentPlayer() {
-        return mainPlayer;
     }
 
     /**

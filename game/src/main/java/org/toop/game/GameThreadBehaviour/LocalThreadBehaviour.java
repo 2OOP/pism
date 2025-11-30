@@ -15,9 +15,6 @@ import org.toop.game.players.AbstractPlayer;
  */
 public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnable {
 
-    /** All players participating in the game. */
-    private final AbstractPlayer[] players;
-
     /**
      * Creates a new behaviour for a local turn-based game.
      *
@@ -25,8 +22,7 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
      * @param players the list of players in turn order
      */
     public LocalThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
-        super(game);
-        this.players = players;
+        super(game, players);
     }
 
     /** Starts the game loop in a new thread. */
@@ -73,15 +69,5 @@ public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnabl
                 }
             }
         }
-    }
-
-    /**
-     * Returns the player whose turn it currently is.
-     *
-     * @return the current active player
-     */
-    @Override
-    public AbstractPlayer getCurrentPlayer() {
-        return players[game.getCurrentTurn()];
     }
 }

@@ -11,6 +11,7 @@ import org.toop.framework.gameFramework.abstractClasses.GameR;
 import org.toop.framework.gameFramework.GUIEvents;
 import org.toop.game.GameThreadBehaviour.LocalFixedRateThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
+import org.toop.game.GameThreadBehaviour.OnlineWithSleepThreadBehaviour;
 import org.toop.game.players.AbstractPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.reversi.ReversiR;
@@ -23,7 +24,7 @@ public class ReversiController extends GameController<ReversiR> {
                 new ReversiCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}, (c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerMoveHovered.class, c).postEvent();}),
                 players,
                 ReversiR,
-                local ? new LocalFixedRateThreadBehaviour(ReversiR, players) : new OnlineThreadBehaviour(ReversiR, players), // TODO: Player order matters here, this won't work atm
+                local ? new LocalFixedRateThreadBehaviour(ReversiR, players) : new OnlineWithSleepThreadBehaviour(ReversiR, players), // TODO: Player order matters here, this won't work atm
                 "Reversi");
         eventFlow.listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}, false);
         eventFlow.listen(GUIEvents.PlayerMoveHovered.class, this::onHoverMove, false);
