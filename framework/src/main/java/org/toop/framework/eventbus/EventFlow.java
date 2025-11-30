@@ -471,7 +471,7 @@ public class EventFlow {
      * Clean and remove everything inside {@link EventFlow}.
      */
     private void clean() {
-        this.listeners.clear();
+        unsubscribeAll();
         this.event = null;
         this.result = null;
     } // TODO
