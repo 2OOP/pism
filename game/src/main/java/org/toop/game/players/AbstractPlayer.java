@@ -1,6 +1,6 @@
 package org.toop.game.players;
 
-import org.toop.framework.gameFramework.GameR;
+import org.toop.framework.gameFramework.abstractClasses.GameR;
 
 /**
  * Abstract class representing a player in a game.

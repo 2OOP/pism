@@ -1,68 +1,93 @@
 package org.toop.game.GameThreadBehaviour;
 
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.gui.GUIEvents;
+import org.toop.framework.gameFramework.GUIEvents;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.framework.gameFramework.TurnBasedGameR;
+import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
 import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.AbstractPlayer;
 import org.toop.game.players.OnlinePlayer;
 
-import java.util.Arrays;
-
+/**
+ * Handles online multiplayer game logic.
+ * <p>
+ * Reacts to server events, sending moves and updating the game state
+ * for the local player while receiving moves from other players.
+ */
 public class OnlineThreadBehaviour extends ThreadBehaviourBase implements SupportsOnlinePlay {
+
+    /** The local player controlled by this client. */
     private AbstractPlayer mainPlayer;
 
+    /**
+     * Creates behaviour and sets the first local player
+     * (non-online player) from the given array.
+     */
     public OnlineThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
         super(game);
         this.mainPlayer = getFirstNotOnlinePlayer(players);
     }
 
+    /** Finds the first non-online player in the array. */
     private AbstractPlayer getFirstNotOnlinePlayer(AbstractPlayer[] players) {
-        for (AbstractPlayer player : players){
-            if (!(player instanceof OnlinePlayer)){
+        for (AbstractPlayer player : players) {
+            if (!(player instanceof OnlinePlayer)) {
                 return player;
             }
         }
         throw new RuntimeException("All players are online players");
     }
 
+    /** Starts processing network events for the local player. */
     @Override
     public void start() {
+        isRunning.set(true);
     }
 
+    /** Stops processing network events. */
     @Override
     public void stop() {
-
+        isRunning.set(false);
     }
 
+    /** Returns the local player whose moves are handled by this client. */
     @Override
-    public AbstractPlayer getCurrentPlayer(){
-        // TODO: Don't assume current player is main player, this can be solved by making sure player list is ordered according to game.
+    public AbstractPlayer getCurrentPlayer() {
         return mainPlayer;
     }
 
+    /**
+     * Called when the server notifies that it is the local player's turn.
+     * Sends the generated move back to the server.
+     */
     @Override
     public void yourTurn(NetworkEvents.YourTurnResponse event) {
+        if (!isRunning.get()) return;
         int move = mainPlayer.getMove(game.clone());
-        // Got move
         new EventFlow().addPostEvent(NetworkEvents.SendMove.class, event.clientId(), (short) move).postEvent();
     }
 
+    /**
+     * Handles a move received from the server for any player.
+     * Updates the game state and triggers a UI refresh.
+     */
     @Override
     public void moveReceived(NetworkEvents.GameMoveResponse event) {
-        game.play(Integer.parseInt(event.move())); // Assumes first onMoveReceived is first player, should be right... right?
-        new EventFlow().addPostEvent(GUIEvents.UpdateGameCanvas.class).postEvent();
+        if (!isRunning.get()) return;
+        game.play(Integer.parseInt(event.move()));
+        new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
     }
 
+    /**
+     * Handles the end of the game as notified by the server.
+     * Updates the UI to show a win or draw result for the local player.
+     */
     @Override
     public void gameFinished(NetworkEvents.GameResultResponse event) {
-        // TODO: Assumes last player won for easy. This information should really be gathered from the server message, or at least determined by game logic.
         if (!event.condition().equalsIgnoreCase("DRAW")) {
-            new EventFlow().addPostEvent(GUIEvents.GameFinished.class, true, getCurrentPlayer().getPlayerIndex()).postEvent();
-        }
-        else{
-            new EventFlow().addPostEvent(GUIEvents.GameFinished.class, false, -1).postEvent();
+            new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, getCurrentPlayer().getPlayerIndex()).postEvent();
+        } else {
+            new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, -1).postEvent();
         }
     }
 }

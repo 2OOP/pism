@@ -1,8 +1,6 @@
 package org.toop.game.reversi;
 
-import org.toop.framework.gameFramework.AIR;
-import org.toop.game.AI;
-import org.toop.game.records.Move;
+import org.toop.framework.gameFramework.abstractClasses.AIR;
 
 import java.util.Arrays;
 import java.util.Random;

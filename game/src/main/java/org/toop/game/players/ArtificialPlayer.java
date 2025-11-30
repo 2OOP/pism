@@ -1,7 +1,7 @@
 package org.toop.game.players;
 
-import org.toop.framework.gameFramework.AIR;
-import org.toop.framework.gameFramework.GameR;
+import org.toop.framework.gameFramework.abstractClasses.AIR;
+import org.toop.framework.gameFramework.abstractClasses.GameR;
 
 /**
  * Represents a player controlled by an AI in a game.

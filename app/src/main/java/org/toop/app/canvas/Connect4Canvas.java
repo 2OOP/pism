@@ -1,7 +1,7 @@
 package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
-import org.toop.framework.gameFramework.TurnBasedGameR;
+import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
 
 import java.util.function.Consumer;
 

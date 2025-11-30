@@ -1,4 +1,4 @@
-package org.toop.framework.gameFramework;
+package org.toop.framework.gameFramework.abstractClasses;
 
 import org.toop.framework.gameFramework.interfaces.IAIMoveR;
 

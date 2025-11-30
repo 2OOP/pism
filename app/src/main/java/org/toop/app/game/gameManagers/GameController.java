@@ -3,19 +3,18 @@ package org.toop.app.game.gameManagers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.gameFramework.interfaces.UpdatesGameUI;
-import org.toop.framework.gui.GUIEvents;
+import org.toop.framework.gameFramework.GUIEvents;
 import org.toop.app.canvas.GameCanvas;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.GameThreadBehaviour.GameThreadStrategy;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
-import org.toop.framework.gameFramework.TurnBasedGameR;
+import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
 import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.AbstractPlayer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -82,19 +81,19 @@ public abstract class GameController<T extends TurnBasedGameR> implements Update
 
     private void addListeners(){
         eventFlow
-                .listen(GUIEvents.UpdateGameCanvas.class, this::onUpdateGameUI, false)
-                .listen(GUIEvents.GameFinished.class, this::onGameFinish, false);
+                .listen(GUIEvents.RefreshGameCanvas.class, this::onUpdateGameUI, false)
+                .listen(GUIEvents.GameEnded.class, this::onGameFinish, false);
     }
 
     private void removeListeners(){
         eventFlow.unsubscribeAll();
     }
 
-    private void onUpdateGameUI(GUIEvents.UpdateGameCanvas event){
+    private void onUpdateGameUI(GUIEvents.RefreshGameCanvas event){
         this.updateUI();
     }
 
-    private void onGameFinish(GUIEvents.GameFinished event){
+    private void onGameFinish(GUIEvents.GameEnded event){
         logger.info("Game Finished");
         String name = event.winner() == -1 ? null : getPlayer(event.winner()).getName();
         primary.gameOver(event.winOrTie(), name);

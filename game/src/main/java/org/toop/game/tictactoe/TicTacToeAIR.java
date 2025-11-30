@@ -1,6 +1,6 @@
 package org.toop.game.tictactoe;
 
-import org.toop.framework.gameFramework.AIR;
+import org.toop.framework.gameFramework.abstractClasses.AIR;
 import org.toop.framework.gameFramework.PlayResult;
 import org.toop.framework.gameFramework.GameState;
 

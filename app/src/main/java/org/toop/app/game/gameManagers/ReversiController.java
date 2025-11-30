@@ -7,8 +7,8 @@ import org.toop.app.App;
 import org.toop.app.canvas.ReversiCanvas;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.gameFramework.GameR;
-import org.toop.framework.gui.GUIEvents;
+import org.toop.framework.gameFramework.abstractClasses.GameR;
+import org.toop.framework.gameFramework.GUIEvents;
 import org.toop.game.GameThreadBehaviour.LocalFixedRateThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
 import org.toop.game.players.AbstractPlayer;
@@ -20,18 +20,18 @@ public class ReversiController extends GameController<ReversiR> {
     public ReversiController(AbstractPlayer[] players, boolean local) {
         ReversiR ReversiR = new ReversiR();
         super(
-                new ReversiCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}, (c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerHoverMove.class, c).postEvent();}),
+                new ReversiCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}, (c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerMoveHovered.class, c).postEvent();}),
                 players,
                 ReversiR,
                 local ? new LocalFixedRateThreadBehaviour(ReversiR, players) : new OnlineThreadBehaviour(ReversiR, players), // TODO: Player order matters here, this won't work atm
                 "Reversi");
         eventFlow.listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}, false);
-        eventFlow.listen(GUIEvents.PlayerHoverMove.class, this::onHoverMove, false);
+        eventFlow.listen(GUIEvents.PlayerMoveHovered.class, this::onHoverMove, false);
         initUI();
     }
 
 
-    private void onHoverMove(GUIEvents.PlayerHoverMove event){
+    private void onHoverMove(GUIEvents.PlayerMoveHovered event){
         int cellEntered = event.move();
         canvas.drawPlayerHover(-1, cellEntered, game);
         /*// (information.players[game.getCurrentTurn()].isHuman) {

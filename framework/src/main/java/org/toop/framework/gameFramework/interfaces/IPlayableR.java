@@ -4,28 +4,22 @@ import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.PlayResult;
 
 /**
- * Interface representing a playable game with rules for determining legal moves
- * and executing moves.
- * <p>
- * Any game class implementing this interface should provide methods to query
- * the current legal moves and to apply a move to the game state, returning
- * the resulting game state.
- * </p>
+ * Interface for turn-based games that can be played and queried for legal moves.
  */
 public interface IPlayableR {
 
     /**
-     * Returns an array of legal moves that can currently be played in the game.
+     * Returns the moves that are currently valid in the game.
      *
-     * @return an array of integers representing valid moves; may be empty if no moves are possible
+     * @return an array of integers representing legal moves
      */
     int[] getLegalMoves();
 
     /**
-     * Applies a move to the game and returns the resulting state.
+     * Plays the given move and returns the resulting game state.
      *
-     * @param move the move to play, represented as an integer
-     * @return the {@link GameState} after the move is played
+     * @param move the move to apply
+     * @return the {@link GameState} and additional info after the move
      */
     PlayResult play(int move);
 }

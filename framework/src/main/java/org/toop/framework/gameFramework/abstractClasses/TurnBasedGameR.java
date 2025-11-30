@@ -1,4 +1,4 @@
-package org.toop.framework.gameFramework;
+package org.toop.framework.gameFramework.abstractClasses;
 
 public abstract class TurnBasedGameR extends GameR {
     private final int playerCount;  // How many players are playing

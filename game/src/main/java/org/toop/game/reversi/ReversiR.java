@@ -2,10 +2,7 @@ package org.toop.game.reversi;
 
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.PlayResult;
-import org.toop.framework.gameFramework.TurnBasedGameR;
-import org.toop.game.TurnBasedGame;
-import org.toop.game.records.Move;
-import org.toop.game.tictactoe.TicTacToeR;
+import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
 
 import java.awt.*;
 import java.util.ArrayList;

@@ -1,11 +1,10 @@
 package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
-import org.toop.framework.gameFramework.TurnBasedGameR;
+import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
 import org.toop.game.records.Move;
 import org.toop.game.reversi.ReversiR;
 
-import java.awt.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
