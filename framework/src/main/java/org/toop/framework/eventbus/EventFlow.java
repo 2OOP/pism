@@ -464,7 +464,10 @@ public class EventFlow {
      * Unsubscribe all events.
      */
     public void unsubscribeAll() {
-        this.listeners.forEach(e -> unsubscribe(e.getId()));
+        listeners.removeIf(handler -> {
+            GlobalEventBus.unsubscribe(handler);
+            return true;
+        });
     }
 
     /**
