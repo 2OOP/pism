@@ -38,7 +38,7 @@ public class ListenerHandler<T extends EventType> {
         return listener;
     }
 
-    public Class<? extends EventType> getListenerClass() {
+    public Class<T> getListenerClass() {
         return clazz;
     }
 
