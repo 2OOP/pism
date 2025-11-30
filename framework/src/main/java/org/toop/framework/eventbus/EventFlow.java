@@ -3,6 +3,8 @@ package org.toop.framework.eventbus;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -169,8 +171,8 @@ public class EventFlow {
         var listener = new ListenerHandler<>(
                 id,
                 name,
-                null, // TODO dunno if this will be a problem?
-                (Consumer<ResponseToUniqueEvent>) newAction
+                (Class<TT>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0],
+                newAction
         );
 
         GlobalEventBus.subscribe(listener);
@@ -221,6 +223,9 @@ public class EventFlow {
     public <TT extends EventType> EventFlow listen(
             Consumer<TT> action, boolean unsubscribeAfterSuccess, String name) {
         long id = SnowflakeGenerator.nextId();
+
+        Class<TT> eventClass = (Class<TT>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0];
+
         Consumer<TT> newAction = event -> {
             if (!(event instanceof EventType nonUuidEvent)) return;
             try {
@@ -238,8 +243,8 @@ public class EventFlow {
         var listener = new ListenerHandler<>(
                 id,
                 name,
-                (Class<EventType>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0],
-                (Consumer<EventType>) newAction
+                eventClass,
+                newAction
         );
 
         GlobalEventBus.subscribe(listener);
