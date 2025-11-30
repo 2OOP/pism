@@ -1,8 +1,8 @@
 package org.toop.game.tictactoe;
 
-import org.toop.framework.games.AIR;
-import org.toop.framework.games.PlayResult;
-import org.toop.framework.games.GameState;
+import org.toop.framework.gameFramework.AIR;
+import org.toop.framework.gameFramework.PlayResult;
+import org.toop.framework.gameFramework.GameState;
 
 /**
  * AI implementation for playing Tic-Tac-Toe.

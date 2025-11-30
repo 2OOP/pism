@@ -2,7 +2,7 @@ package org.toop.game.tictactoe;
 
 import java.util.ArrayList;
 import org.toop.game.TurnBasedGame;
-import org.toop.framework.games.GameState;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.records.Move;
 
 public final class TicTacToe extends TurnBasedGame {

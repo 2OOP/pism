@@ -1,4 +1,4 @@
-package org.toop.framework.games;
+package org.toop.framework.gameFramework;
 
 public enum GameState {
         NORMAL,

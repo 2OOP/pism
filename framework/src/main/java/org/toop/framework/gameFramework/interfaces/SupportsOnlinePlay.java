@@ -1,4 +1,4 @@
-package org.toop.game.interfaces;
+package org.toop.framework.gameFramework.interfaces;
 
 import org.toop.framework.networking.events.NetworkEvents;
 

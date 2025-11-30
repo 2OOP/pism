@@ -1,4 +1,7 @@
-package org.toop.framework.games;
+package org.toop.framework.gameFramework.interfaces;
+
+import org.toop.framework.gameFramework.GameState;
+import org.toop.framework.gameFramework.PlayResult;
 
 /**
  * Interface representing a playable game with rules for determining legal moves

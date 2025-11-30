@@ -1,6 +1,6 @@
 package org.toop.game.GameThreadBehaviour;
 
-import org.toop.game.TurnBasedGameR;
+import org.toop.framework.gameFramework.TurnBasedGameR;
 import org.toop.game.players.AbstractPlayer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,6 +20,7 @@ public abstract class ThreadBehaviourBase implements GameThreadStrategy{
         // TODO: Limit amount of retries?
         int move = player.getMove(game.clone());
         while (!contains(validMoves, move)) {
+            System.out.println("Not a valid move, try again");
             move = player.getMove(game.clone());
         }
         return move;

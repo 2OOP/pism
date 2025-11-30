@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.toop.framework.games.GameState;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;

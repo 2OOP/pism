@@ -2,9 +2,9 @@ package org.toop.game.GameThreadBehaviour;
 
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gui.GUIEvents;
-import org.toop.framework.games.PlayResult;
-import org.toop.game.TurnBasedGameR;
-import org.toop.framework.games.GameState;
+import org.toop.framework.gameFramework.PlayResult;
+import org.toop.framework.gameFramework.TurnBasedGameR;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.players.AbstractPlayer;
 
 public class LocalThreadBehaviour extends ThreadBehaviourBase implements Runnable{

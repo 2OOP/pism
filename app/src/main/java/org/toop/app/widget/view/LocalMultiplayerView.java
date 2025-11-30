@@ -3,6 +3,7 @@ package org.toop.app.widget.view;
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.game.*;
+import org.toop.app.game.gameManagers.ReversiManager;
 import org.toop.app.game.gameManagers.TicTacToeManager;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
@@ -91,7 +92,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 "tutorial",
                                 () -> { Platform.runLater(() -> {
                                     AppSettings.getSettings().setFirstReversi(false);
-                                    new ReversiGame(information);
+                                    new ReversiManager(new AbstractPlayer[]{new LocalPlayer("Player 1"),new LocalPlayer("Player 2")});
                                 });
                                 },
                                 () -> {
@@ -105,13 +106,13 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> {
                                     Platform.runLater(() -> {
                                         AppSettings.getSettings().setTutorialFlag(false);
-                                        new ReversiGame(information);
+                                        new ReversiManager(new AbstractPlayer[]{new LocalPlayer("Player 1"),new LocalPlayer("Player 2")});
                                     });
                                 });
                         transitionNext(a);
                         break;
                     }
-                    new ReversiGame(information);
+                    new ReversiManager(new AbstractPlayer[]{new LocalPlayer("Player 1"),new LocalPlayer("Player 2")});
                     break;
                 case CONNECT4:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstConnect4()) {

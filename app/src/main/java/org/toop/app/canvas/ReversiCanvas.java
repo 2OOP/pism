@@ -1,12 +1,15 @@
 package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
+import org.toop.framework.gameFramework.TurnBasedGameR;
 import org.toop.game.records.Move;
+import org.toop.game.reversi.ReversiR;
 
+import java.awt.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public final class ReversiCanvas extends GameCanvas {
+public final class ReversiCanvas extends GameCanvas<ReversiR> {
     private Move[] currentlyHighlightedMoves = null;
 	public ReversiCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked,  Consumer<Integer> newCellEntered) {
 		super(color, new Color(0f,0.4f,0.2f,1f), width, height, 8, 8, 5, true, onCellClicked,  newCellEntered);
@@ -81,4 +84,13 @@ public final class ReversiCanvas extends GameCanvas {
         }
         drawInnerDot(innerColor, cell,false);
 	}
+    @Override
+    public void drawPlayerMove(int player ,int move){
+        super.drawPlayerMove(player, move);
+    }
+
+    @Override
+    public void drawPlayerHover(int player, int move, TurnBasedGameR game) {
+
+    }
 }

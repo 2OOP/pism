@@ -1,10 +1,12 @@
 package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
+import org.toop.framework.gameFramework.TurnBasedGameR;
+import org.toop.game.tictactoe.TicTacToeR;
 
 import java.util.function.Consumer;
 
-public final class TicTacToeCanvas extends GameCanvas {
+public final class TicTacToeCanvas extends GameCanvas<TicTacToeR> {
 	public TicTacToeCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked) {
 		super(color, Color.TRANSPARENT, width, height, 3, 3, 30, false, onCellClicked,null);
 	}
@@ -44,4 +46,9 @@ public final class TicTacToeCanvas extends GameCanvas {
 
 		graphics.strokeOval(x, y, width, height);
 	}
+
+    @Override
+    public void drawPlayerHover(int player, int move, TurnBasedGameR game) {
+
+    }
 }

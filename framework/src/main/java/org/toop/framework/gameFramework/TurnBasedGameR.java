@@ -1,6 +1,4 @@
-package org.toop.game;
-
-import org.toop.framework.games.GameR;
+package org.toop.framework.gameFramework;
 
 public abstract class TurnBasedGameR extends GameR {
     private final int playerCount;  // How many players are playing
@@ -30,7 +28,4 @@ public abstract class TurnBasedGameR extends GameR {
     protected void setBoard(int position) {
         super.setBoardPosition(position, getCurrentTurn());
     }
-
-    @Override
-    public abstract TurnBasedGameR clone();
 }

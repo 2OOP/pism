@@ -1,7 +1,7 @@
 package org.toop.game.Connect4;
 
 import org.toop.game.TurnBasedGame;
-import org.toop.framework.games.GameState;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.records.Move;
 
 import java.util.ArrayList;

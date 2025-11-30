@@ -1,6 +1,6 @@
 package org.toop.game.players;
 
-import org.toop.framework.games.GameR;
+import org.toop.framework.gameFramework.GameR;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

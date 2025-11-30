@@ -8,5 +8,6 @@ public class GUIEvents extends EventsBase{
     public record GameFinished(boolean winOrTie, int winner) implements GenericEvent{}
 
     public record PlayerAttemptedMove(int move) implements GenericEvent{}
+    public record PlayerHoverMove(int move) implements GenericEvent{}
 
 }

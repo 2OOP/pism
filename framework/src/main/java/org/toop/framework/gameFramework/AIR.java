@@ -1,4 +1,6 @@
-package org.toop.framework.games;
+package org.toop.framework.gameFramework;
+
+import org.toop.framework.gameFramework.interfaces.IAIMoveR;
 
 /**
  * Abstract base class for AI implementations for games extending {@link GameR}.

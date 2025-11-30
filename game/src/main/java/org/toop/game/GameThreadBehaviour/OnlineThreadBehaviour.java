@@ -3,8 +3,8 @@ package org.toop.game.GameThreadBehaviour;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gui.GUIEvents;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.TurnBasedGameR;
-import org.toop.game.interfaces.SupportsOnlinePlay;
+import org.toop.framework.gameFramework.TurnBasedGameR;
+import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
 import org.toop.game.players.AbstractPlayer;
 
 public class OnlineThreadBehaviour extends ThreadBehaviourBase implements SupportsOnlinePlay {
