@@ -121,7 +121,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     private void gameWinConditionHandler(String rec) {
         @SuppressWarnings("StreamToString")
         String condition =
-                Pattern.compile("\\b(win|draw|lose)\\b", Pattern.CASE_INSENSITIVE)
+                Pattern.compile("\\b(win|draw|loss)\\b", Pattern.CASE_INSENSITIVE)
                         .matcher(rec)
                         .results()
                         .toString()
