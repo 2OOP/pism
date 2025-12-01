@@ -2,6 +2,7 @@ package org.toop.game.GameThreadBehaviour;
 
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.GUIEvents;
+import org.toop.framework.gameFramework.abstractClasses.GameR;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
 import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
@@ -78,10 +79,14 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
      */
     @Override
     public void gameFinished(NetworkEvents.GameResultResponse event) {
-        if (!event.condition().equalsIgnoreCase("DRAW")) {
-            new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, getCurrentPlayer().getPlayerIndex()).postEvent();
-        } else {
-            new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, -1).postEvent();
+        switch(event.condition().toUpperCase()){
+            case "WIN" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, mainPlayer.getPlayerIndex()).postEvent();
+            case "DRAW" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, TurnBasedGameR.EMPTY).postEvent();
+            case "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, (mainPlayer.getPlayerIndex() + 1)%2).postEvent();
+            default -> {
+                logger.error("Invalid condition");
+                throw new RuntimeException("Unknown condition");
+            }
         }
     }
 }

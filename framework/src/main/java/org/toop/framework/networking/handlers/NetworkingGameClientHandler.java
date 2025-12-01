@@ -2,6 +2,8 @@ package org.toop.framework.networking.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -119,13 +121,12 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void gameWinConditionHandler(String rec) {
-        @SuppressWarnings("StreamToString")
-        String condition =
-                Pattern.compile("\\b(win|draw|loss)\\b", Pattern.CASE_INSENSITIVE)
-                        .matcher(rec)
-                        .results()
-                        .toString()
-                        .trim();
+        String condition = Pattern.compile("\\b(win|draw|loss)\\b", Pattern.CASE_INSENSITIVE)
+                .matcher(rec)
+                .results()
+                .map(MatchResult::group)
+                .findFirst()
+                .orElse("");
 
         new EventFlow()
                 .addPostEvent(new NetworkEvents.GameResultResponse(this.connectionId, condition))

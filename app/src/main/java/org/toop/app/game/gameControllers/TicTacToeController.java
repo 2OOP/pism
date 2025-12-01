@@ -23,7 +23,7 @@ public class TicTacToeController extends GameController<TicTacToeR> {
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,
                 ticTacToeR,
-                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineWithSleepThreadBehaviour(ticTacToeR, players), // TODO: Player order matters here, this won't work atm
+                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineThreadBehaviour(ticTacToeR, players), // TODO: Player order matters here, this won't work atm
                 "TicTacToe");
 
         initUI();

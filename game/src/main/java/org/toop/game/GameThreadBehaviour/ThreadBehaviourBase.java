@@ -45,4 +45,13 @@ public abstract class ThreadBehaviourBase implements GameThreadStrategy {
     public AbstractPlayer getCurrentPlayer() {
         return players[game.getCurrentTurn()];
     }
+
+    public AbstractPlayer getFirstPlayerWithName(String name) {
+        for (AbstractPlayer player : players){
+            if (player.getName().equals(name)){
+                return player;
+            }
+        }
+        return null;
+    }
 }
