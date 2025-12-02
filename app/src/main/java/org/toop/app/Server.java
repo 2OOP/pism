@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import org.toop.app.game.Connect4Game;
 import org.toop.app.game.ReversiGame;
 import org.toop.app.game.TicTacToeGame;
+import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.popup.ChallengePopup;
@@ -74,9 +75,16 @@ public final class Server {
 			return;
 		}
 
-		final int reconnectAttempts = 10;
+		final int reconnectAttempts = 5;
 
-		LoadingWidget loading = new LoadingWidget(0, reconnectAttempts);
+		LoadingWidget loading = new LoadingWidget(Primitive.text("connecting"), 0, reconnectAttempts);
+		loading.setOnFailure(() -> {
+			WidgetContainer.getCurrentView().transitionPrevious();
+			WidgetContainer.add(Pos.CENTER, new ErrorPopup(AppContext.getString(
+					"connecting-failed") + " " + ip + ":" + port)
+			);
+			System.out.println("connecting-failed");
+		});
 		WidgetContainer.getCurrentView().transitionNext(loading);
 
 		var a = new EventFlow()
@@ -86,6 +94,11 @@ public final class Server {
 			);
 
 		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
+
+			if (!e.successful()) {
+//				loading.triggerFailure();
+				return;
+			}
 
 			a.unsubscribe("startclient");
 
@@ -100,9 +113,10 @@ public final class Server {
 
 			startPopulateScheduler();
 			populateGameList();
-		}, false, "startclient").listen(NetworkEvents.ConnectTry.class, e -> {
-			Platform.runLater(() -> loading.setAmount(e.amount()));
-		}, false).postEvent();
+		}, false, "startclient")
+				.listen(NetworkEvents.ConnectTry.class,
+				e -> Platform.runLater(() -> loading.setAmount(e.amount())), false)
+				.postEvent();
 
 		new EventFlow().listen(this::handleReceivedChallenge)
                 .listen(this::handleMatchResponse);
