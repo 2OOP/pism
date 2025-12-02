@@ -6,12 +6,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
+import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public abstract class GameCanvas {
+public abstract class GameCanvas<T extends TurnBasedGameR> implements DrawPlayerMove, DrawPlayerHover {
 	protected record Cell(float x, float y, float width, float height) {
 		public boolean isInside(double x, double y) {
 			return x >= this.x && x <= this.x + width &&
@@ -36,9 +37,17 @@ public abstract class GameCanvas {
 
 	protected final Cell[] cells;
 
+    private Consumer<Integer> onCellCLicked;
+
+    public void setOnCellClicked(Consumer<Integer> onClick) {
+        this.onCellCLicked = onClick;
+    }
+
 	protected GameCanvas(Color color, Color backgroundColor, int width, int height, int rowSize, int columnSize, int gapSize, boolean edges, Consumer<Integer> onCellClicked, Consumer<Integer> newCellEntered) {
 		canvas = new Canvas(width, height);
 		graphics = canvas.getGraphicsContext2D();
+
+        this.onCellCLicked = onCellClicked;
 
 		this.color = color;
 		this.backgroundColor = backgroundColor;
@@ -78,7 +87,7 @@ public abstract class GameCanvas {
 
 			if (cell.isInside(event.getX(), event.getY())) {
 				event.consume();
-				onCellClicked.accept(column + row * rowSize);
+				this.onCellCLicked.accept(column + row * rowSize);
 			}
 		});
 
@@ -142,6 +151,19 @@ public abstract class GameCanvas {
 			clear(i);
 		}
 	}
+
+    @Override
+    public void drawPlayerMove(int player, int move) {
+        final float x = cells[move].x() + gapSize;
+        final float y = cells[move].y() + gapSize;
+
+        final float width = cells[move].width() - gapSize * 2;
+        final float height = cells[move].height() - gapSize * 2;
+
+        graphics.setFill(color);
+        graphics.setFont(Font.font("Arial", 40)); // TODO different font and size
+        graphics.fillText(String.valueOf(player), x + width, y + height);
+    }
 
 	public void drawDot(Color color, int cell) {
 		final float x = cells[cell].x() + gapSize;

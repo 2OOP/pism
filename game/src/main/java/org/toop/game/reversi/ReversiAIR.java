@@ -1,0 +1,17 @@
+package org.toop.game.reversi;
+
+import org.toop.framework.gameFramework.abstractClasses.AIR;
+
+import java.util.Arrays;
+import java.util.Random;
+
+public final class ReversiAIR extends AIR<ReversiR> {
+	@Override
+	public int findBestMove(ReversiR game, int depth) {
+        int[] moves = game.getLegalMoves();
+        if (moves.length == 0) return -1;
+
+        int inty = new Random().nextInt(0, moves.length);
+		return moves[inty];
+	}
+}
