@@ -53,23 +53,13 @@ public final class GameView extends ViewWidget {
 
         switch(gameType) {
             case "TicTacToe":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> {
-                    transitionNext(new TicTacToeTutorialWidget());
-                });
-                break;
+                this.tutorialButton = Primitive.button("tutorialstring", () -> new TicTacToeTutorialWidget(() -> {})); break;
             case "Reversi":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> {
-                    transitionNext(new ReversiTutorialWidget());
-                });
-                break;
+                this.tutorialButton = Primitive.button("tutorialstring", () -> new ReversiTutorialWidget(() -> {})); break;
             case "Connect4":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> {
-                    transitionNext(new Connect4TutorialWidget());
-                });
-                break;
+                this.tutorialButton = Primitive.button("tutorialstring", () -> new Connect4TutorialWidget(() -> {})); break;
             default:
-                this.tutorialButton = null;
-                break;
+                this.tutorialButton = null; break;
         }
 
 		setupLayout();

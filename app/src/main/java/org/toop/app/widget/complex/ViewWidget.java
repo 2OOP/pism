@@ -16,8 +16,18 @@ public abstract class ViewWidget extends StackWidget {
 		replace(Pos.CENTER, view);
 	}
 
-	public void transitionNext(ViewWidget view) {
-		view.previous = this;
+    public void transitionNext(ViewWidget view) {
+        transitionNext(view, false);
+    }
+
+	public void transitionNext(ViewWidget view, boolean aware) {
+        if (aware && this.getClass().equals(view.getClass())) {
+            view.previous = this.previous;
+        }
+        else{
+            view.previous = this;
+        }
+
 		replace(Pos.CENTER, view);
 
 		var backButton = Primitive.button("back", () -> {

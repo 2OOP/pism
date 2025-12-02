@@ -7,7 +7,7 @@ import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.enumerators.GameState;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
@@ -147,9 +147,9 @@ public final class TicTacToeGame {
 			final GameState state = game.play(move);
 
 			if (move.value() == 'X') {
-				canvas.drawX(Color.INDIANRED, move.position());
+				//canvas.drawPlayer('X', Color.INDIANRED, move.position());
 			} else if (move.value() == 'O') {
-				canvas.drawO(Color.ROYALBLUE, move.position());
+				//canvas.drawPlayer('O', Color.ROYALBLUE, move.position());
 			}
 
 			if (state != GameState.NORMAL) {
@@ -198,9 +198,9 @@ public final class TicTacToeGame {
 	    }
 
 	    if (move.value() == 'X') {
-		    canvas.drawX(Color.RED, move.position());
+		    //canvas.drawPlayer('X', Color.RED, move.position());
 	    } else if (move.value() == 'O') {
-		    canvas.drawO(Color.BLUE, move.position());
+		    //canvas.drawPlayer('O', Color.BLUE, move.position());
 	    }
 
 		setGameLabels(game.getCurrentTurn() == myTurn);

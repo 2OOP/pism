@@ -5,7 +5,7 @@ import org.toop.app.GameInformation;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.enumerators.GameState;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.tictactoe.TicTacToe;
 import org.toop.game.tictactoe.TicTacToeAI;
@@ -47,8 +47,8 @@ public final class TicTacToeGameThread extends BaseGameThread<TicTacToe, TicTacT
 	}
 
 	private void drawMove(Move move) {
-		if (move.value() == 'X') canvas.drawX(Color.RED, move.position());
-		else canvas.drawO(Color.BLUE, move.position());
+		//if (move.value() == 'X') canvas.drawPlayer('X', Color.RED, move.position());
+		//else canvas.drawPlayer('O', Color.BLUE, move.position());
 	}
 
 	@Override

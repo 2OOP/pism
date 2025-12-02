@@ -1,6 +1,8 @@
 package org.toop.app.widget;
 
 import javafx.scene.image.ImageView;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.resources.ImageAsset;
 import org.toop.local.AppContext;
 
@@ -54,8 +56,7 @@ public final class  Primitive {
 		return text(key, true);
 	}
 
-    public static ImageView image(File file) {
-        ImageAsset imageAsset = new ImageAsset(file);
+    public static ImageView image(ImageAsset imageAsset) {
         ImageView imageView = new ImageView(imageAsset.getImage());
         imageView.getStyleClass().add("image");
         imageView.setPreserveRatio(true);
@@ -74,8 +75,11 @@ public final class  Primitive {
 		}
 
 		if (onAction != null) {
-			button.setOnAction(_ ->
-				onAction.run());
+			button.setOnAction(_ -> {
+                onAction.run();
+                playButtonSound();
+                System.out.println("HI I got called button");
+            });
 		}
 
 		return button;
@@ -116,12 +120,18 @@ public final class  Primitive {
 		slider.setMax(max);
 		slider.setValue(value);
 
-		if (onValueChanged != null) {
-			slider.valueProperty().addListener((_, _, newValue) ->
-				onValueChanged.accept(newValue.intValue()));
-		}
+        if (onValueChanged != null) {
+            slider.valueProperty().addListener((_, _, newValue) -> {
+                onValueChanged.accept(newValue.intValue());
+            });
+        }
 
-		return slider;
+        slider.setOnMouseReleased(event -> {
+            playButtonSound();
+            System.out.println("I got called!");
+        });
+
+        return slider;
 	}
 
 	@SafeVarargs
@@ -138,9 +148,12 @@ public final class  Primitive {
 		}
 
 		if (onValueChanged != null) {
-			choice.valueProperty().addListener((_, _, newValue) ->
-				onValueChanged.accept(newValue));
-		}
+            choice.valueProperty().addListener((_, _, newValue) -> {
+                onValueChanged.accept(newValue);
+                playButtonSound();
+                System.out.println("hi i got called choice");
+            });
+        }
 
 		choice.setItems(FXCollections.observableArrayList(items));
 
@@ -192,4 +205,8 @@ public final class  Primitive {
 
 		return vbox;
 	}
+
+    private static void playButtonSound() {
+        new EventFlow().addPostEvent(new AudioEvents.ClickButton()).postEvent();
+    }
 }

@@ -1,7 +1,7 @@
 package org.toop.game.Connect4;
 
 import org.toop.game.AI;
-import org.toop.game.enumerators.GameState;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.records.Move;
 
 public class Connect4AI extends AI<Connect4> {
