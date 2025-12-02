@@ -48,16 +48,17 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 		this.game = gameSupplier.get();
 		this.ai = aiSupplier.get();
 
-		if (onForfeit == null || onExit == null) {
-			primary = new GameView(null, () -> {
-				isRunning.set(false);
-				WidgetContainer.getCurrentView().transitionPrevious();
-			}, null);
+        String type = information.type.getTypeToString();
+        if (onForfeit == null || onExit == null) {
+            primary = new GameView(null, () -> {
+                isRunning.set(false);
+                WidgetContainer.getCurrentView().transitionPrevious();
+            }, null, type);
 		} else {
 			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
-			}, onMessage);
+			}, onMessage, type);
 		}
 
 		this.canvas = canvasFactory.apply(this::onCellClicked);
@@ -70,8 +71,8 @@ public abstract class BaseGameThread<TGame extends Game, TAI, TCanvas> {
 			new Thread(this::localGameThread).start();
 		else
 			new EventFlow()
-				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
-				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse);
+				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse, false)
+				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse, false);
 
 		setGameLabels(myTurn == 0);
 	}

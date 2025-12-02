@@ -25,17 +25,16 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
 
     public AudioEventListener<?, ?> initListeners(String buttonSoundToPlay) {
         new EventFlow()
-                .listen(this::handleStopMusicManager)
-                .listen(this::handlePlaySound)
-                .listen(this::handleSkipSong)
-                .listen(this::handlePauseSong)
-                .listen(this::handlePreviousSong)
-                .listen(this::handleStopSound)
-                .listen(this::handleMusicStart)
-                .listen(this::handleVolumeChange)
-                .listen(this::handleGetVolume)
-                .listen(AudioEvents.ClickButton.class, _ ->
-                        soundEffectManager.play(buttonSoundToPlay, false));
+                .listen(AudioEvents.StopAudioManager.class, this::handleStopMusicManager, false)
+                .listen(AudioEvents.PlayEffect.class, this::handlePlaySound, false)
+                .listen(AudioEvents.SkipMusic.class, this::handleSkipSong, false)
+                .listen(AudioEvents.PauseMusic.class, this::handlePauseSong, false)
+                .listen(AudioEvents.PreviousMusic.class, this::handlePreviousSong, false)
+                .listen(AudioEvents.StopEffect.class, this::handleStopSound, false)
+                .listen(AudioEvents.StartBackgroundMusic.class, this::handleMusicStart, false)
+                .listen(AudioEvents.ChangeVolume.class, this::handleVolumeChange, false)
+                .listen(AudioEvents.GetVolume.class, this::handleGetVolume,false)
+                .listen(AudioEvents.ClickButton.class, _ -> soundEffectManager.play(buttonSoundToPlay, false), false);
 
         return this;
     }

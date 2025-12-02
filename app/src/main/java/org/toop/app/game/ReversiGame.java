@@ -55,12 +55,12 @@ public final class ReversiGame {
 			primary = new GameView(null, () -> {
 				isRunning.set(false);
 				WidgetContainer.getCurrentView().transitionPrevious();
-			}, null);
+			}, null, "Reversi");
 		} else {
 			primary = new GameView(onForfeit, () -> {
 				isRunning.set(false);
 				onExit.run();
-			}, onMessage);
+			}, onMessage, "Reversi");
 		}
 
 		canvas = new ReversiCanvas(Color.BLACK,
@@ -95,8 +95,8 @@ public final class ReversiGame {
 			setGameLabels(information.players[0].isHuman);
 		} else {
 			new EventFlow()
-				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse)
-				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse);
+				.listen(NetworkEvents.GameMoveResponse.class, this::onMoveResponse, false)
+				.listen(NetworkEvents.YourTurnResponse.class, this::onYourTurnResponse, false);
 
 			setGameLabels(myTurn == 0);
 		}

@@ -38,6 +38,22 @@ public class SettingsAsset extends JsonAsset<Settings> {
         return getContent().layoutSize;
     }
 
+    public Boolean getTutorialFlag() {
+        return getContent().showTutorials;
+    }
+
+    public Boolean getFirstTTT() {
+        return getContent().firstTTT;
+    }
+
+    public Boolean getFirstConnect4() {
+        return getContent().firstConnect4;
+    }
+
+    public Boolean getFirstReversi() {
+        return getContent().firstReversi;
+    }
+
     public void setVolume(int volume) {
         getContent().volume = volume;
         save();
@@ -70,6 +86,26 @@ public class SettingsAsset extends JsonAsset<Settings> {
 
     public void setLayoutSize(String layoutSize) {
         getContent().layoutSize = layoutSize;
+        save();
+    }
+
+    public void setTutorialFlag(boolean tutorialFlag) {
+        getContent().showTutorials = tutorialFlag;
+        save();
+    }
+
+    public void setFirstTTT(boolean firstTTT) {
+        getContent().firstTTT = firstTTT;
+        save();
+    }
+
+    public void setFirstConnect4(boolean firstConnect4) {
+        getContent().firstConnect4 = firstConnect4;
+        save();
+    }
+
+    public void setFirstReversi(boolean firstReversi) {
+        getContent().firstReversi = firstReversi;
         save();
     }
 }
