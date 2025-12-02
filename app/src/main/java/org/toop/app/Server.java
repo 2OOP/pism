@@ -84,6 +84,7 @@ public final class Server {
 					"connecting-failed") + " " + ip + ":" + port)
 			);
 		});
+
 		WidgetContainer.getCurrentView().transitionNext(loading);
 
 		var a = new EventFlow()
@@ -99,9 +100,17 @@ public final class Server {
 				return;
 			}
 
+			try {
+				TimeUnit.MILLISECONDS.sleep(500); // TODO temp fix for index bug
+			} catch (InterruptedException ex) {
+				throw new RuntimeException(ex);
+			}
+
+			WidgetContainer.getCurrentView().transitionPrevious();
+
+			a.unsubscribe("connecting");
 			a.unsubscribe("startclient");
 
-			loading.transitionPrevious();
 			this.user = user;
 			clientId = e.clientId();
 
@@ -114,11 +123,13 @@ public final class Server {
 			populateGameList();
 		}, false, "startclient")
 				.listen(NetworkEvents.ConnectTry.class,
-				e -> Platform.runLater(() -> loading.setAmount(e.amount())), false)
+				e -> Platform.runLater(() ->
+					loading.setAmount(e.amount())), false, "connecting")
 				.postEvent();
 
-		new EventFlow().listen(this::handleReceivedChallenge)
-                .listen(this::handleMatchResponse);
+		new EventFlow()
+				.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false)
+                .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false);
 	}
 
 	private void sendChallenge(String opponent) {
