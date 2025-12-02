@@ -20,5 +20,10 @@ public class QuitPopup extends PopupWidget {
 		});
 
 		add(Pos.CENTER, confirmWidget);
+
+		setOnPop(() -> {
+			App.stopQuit();
+			hide();
+		});
 	}
 }

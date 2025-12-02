@@ -54,8 +54,7 @@ public final class  Primitive {
 		return text(key, true);
 	}
 
-    public static ImageView image(File file) {
-        ImageAsset imageAsset = new ImageAsset(file);
+    public static ImageView image(ImageAsset imageAsset) {
         ImageView imageView = new ImageView(imageAsset.getImage());
         imageView.getStyleClass().add("image");
         imageView.setPreserveRatio(true);

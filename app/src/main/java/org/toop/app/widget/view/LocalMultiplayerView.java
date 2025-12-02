@@ -9,17 +9,16 @@ import org.toop.app.game.gameControllers.TicTacToeController;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.AbstractPlayer;
+import org.toop.app.game.gameControllers.ReversiController;
+import org.toop.app.game.gameControllers.TicTacToeController;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
-import org.toop.app.widget.tutorial.BaseTutorialWidget;
-import org.toop.app.widget.tutorial.Connect4TutorialWidget;
-import org.toop.app.widget.tutorial.ReversiTutorialWidget;
-import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
 import org.toop.game.reversi.ReversiAIR;
 import org.toop.game.tictactoe.TicTacToeAIR;
+import org.toop.app.widget.tutorial.*;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -67,33 +66,17 @@ public class LocalMultiplayerView extends ViewWidget {
                         players[1] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[1].name);
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
-                         BaseTutorialWidget a = new BaseTutorialWidget(
-                                "tutorial",
-                                () -> {
-                                    AppSettings.getSettings().setFirstTTT(false);
-                                    Platform.runLater(() -> {
-                                        gameController = new TicTacToeController(players);
-                                        gameController.start();
-                                    });
-                                },
-                                () -> {
-                                        ViewWidget c = new TicTacToeTutorialWidget();
-                                        transitionNext(c);
-                                        WidgetContainer.setCurrentView(c);
-                                        AppSettings.getSettings().setFirstTTT(false);
-                                    },
-                                () -> {
-                                    AppSettings.getSettings().setTutorialFlag(false);
-                                    Platform.runLater(() -> {
-                                        gameController = new TicTacToeController(players);
-                                        gameController.start();
-                                    });
-                                }
-                        );
-                         transitionNext(a);
-                         break;
+                         new ShowEnableTutorialWidget(
+                                () -> new TicTacToeTutorialWidget(() -> {gameController = new TicTacToeController(players);
+                                    gameController.start();}),
+                                () -> Platform.runLater(() -> {gameController = new TicTacToeController(players);
+                                    gameController.start();}),
+                                () -> AppSettings.getSettings().setFirstTTT(false)
+                         );
+                    } else {
+                        gameController = new TicTacToeController(players);
+                        gameController.start();
                     }
-                    gameController = new TicTacToeController(players);
                     break;
                 case REVERSI:
                     if (information.players[0].isHuman){
@@ -109,64 +92,36 @@ public class LocalMultiplayerView extends ViewWidget {
                         players[1] = new ArtificialPlayer<>(new ReversiAIR(), information.players[1].name);
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
-                        BaseTutorialWidget a = new BaseTutorialWidget(
-                                "tutorial",
-                                () -> { Platform.runLater(() -> {
-                                    AppSettings.getSettings().setFirstReversi(false);
+                        new ShowEnableTutorialWidget(
+                                () -> new ReversiTutorialWidget(() -> {
                                     gameController = new ReversiController(players);
                                     gameController.start();
-                                });
-                                },
-                                () -> {
-                                    Platform.runLater(() -> {
-                                        ViewWidget c = new ReversiTutorialWidget();
-                                        transitionNext(c);
-                                        WidgetContainer.setCurrentView(c);
-                                        AppSettings.getSettings().setFirstReversi(false);
-                                    });
-                                },
-                                () -> {
-                                    Platform.runLater(() -> {
-                                        AppSettings.getSettings().setTutorialFlag(false);
-                                        gameController = new ReversiController(players);
-                                        gameController.start();
-                                    });
-                                });
-                        transitionNext(a);
-                        break;
+                                }),
+                                () -> Platform.runLater(() -> {
+                                    gameController = new ReversiController(players);
+                                    gameController.start();
+                                }),
+                                () -> AppSettings.getSettings().setFirstReversi(false)
+                        );
+                    } else {
+                        gameController = new ReversiController(players);
+                        gameController.start();
                     }
-                    gameController = new ReversiController(players);
                     break;
                 case CONNECT4:
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstConnect4()) {
-                        BaseTutorialWidget a = new BaseTutorialWidget(
-                                "tutorial",
-                                () -> { Platform.runLater(() -> {
-                                    AppSettings.getSettings().setFirstConnect4(false);
-                                    new Connect4Game(information);
-                                });
-                                },
-                                () -> {
-                                    Platform.runLater(() -> {
-                                        ViewWidget c = new Connect4TutorialWidget();
-                                        transitionNext(c);
-                                        WidgetContainer.setCurrentView(c);
-                                        AppSettings.getSettings().setFirstConnect4(false);
-                                    });
-                                },
-                                () -> {
-                                    Platform.runLater(() -> {
-                                        AppSettings.getSettings().setTutorialFlag(false);
-                                        new Connect4Game(information);
-                                    });
-                                    });
-                        transitionNext(a);
-                        break;
+                        new ShowEnableTutorialWidget(
+                                () -> new Connect4TutorialWidget(() -> new Connect4Game(information)),
+                                () -> Platform.runLater(() -> new Connect4Game(information)),
+                                () -> AppSettings.getSettings().setFirstConnect4(false)
+                        );
+                    } else {
+                        new Connect4Game(information);
                     }
-                    new Connect4Game(information);
                     break;
-                    }
+            }
 				// case BATTLESHIP -> new BattleshipGame(information);
+        });
             if (gameController != null) {
                 gameController.start();
             }
