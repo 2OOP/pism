@@ -4,6 +4,7 @@ import org.toop.game.AI;
 import org.toop.game.records.Move;
 
 public final class ReversiAI extends AI<Reversi> {
+
 	@Override
 	public Move findBestMove(Reversi game, int depth) {
         Move[] moves = game.getLegalMoves();

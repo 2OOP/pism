@@ -2,6 +2,7 @@ package org.toop;
 
 import org.toop.app.App;
 import org.toop.framework.audio.*;
+import org.toop.framework.machinelearning.NeuralNetwork;
 import org.toop.framework.networking.NetworkingClientEventListener;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.resource.ResourceLoader;
@@ -35,6 +36,10 @@ public final class Main {
             ).initListeners("medium-button-click.wav");
 
         }).start();
+
+
+        //NeuralNetwork nn = new NeuralNetwork();
+        //nn.init();
     }
 
 }

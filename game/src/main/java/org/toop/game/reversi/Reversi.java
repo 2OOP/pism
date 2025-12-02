@@ -15,6 +15,7 @@ public final class Reversi extends TurnBasedGame {
     private int movesTaken;
     private Set<Point> filledCells = new HashSet<>();
     private Move[] mostRecentlyFlippedPieces;
+    private char[][] cachedBoard;
 
 	public record Score(int player1Score, int player2Score) {}
 
@@ -37,6 +38,7 @@ public final class Reversi extends TurnBasedGame {
         this.setBoard(new Move(35, 'B'));
         this.setBoard(new Move(36, 'W'));
         updateFilledCellsSet();
+        cachedBoard = makeBoardAGrid();
     }
     private void updateFilledCellsSet() {
         for (int i = 0; i < 64; i++) {
@@ -49,11 +51,13 @@ public final class Reversi extends TurnBasedGame {
 	@Override
 	public Move[] getLegalMoves() {
         final ArrayList<Move> legalMoves = new ArrayList<>();
-        char[][] boardGrid = makeBoardAGrid();
+        char[][] boardGrid = cachedBoard;
         char currentPlayer = (this.getCurrentTurn()==0) ? 'B' : 'W';
-        Set<Point> adjCell = getAdjacentCells(boardGrid);
+        char opponent = (currentPlayer=='W') ? 'B' : 'W';
+
+        Set<Point> adjCell = getAdjacentCells(boardGrid, opponent);
         for (Point point : adjCell){
-            Move[] moves = getFlipsForPotentialMove(point,currentPlayer);
+            Move[] moves = getFlipsForPotentialMove(point, currentPlayer, opponent, boardGrid);
             int score = moves.length;
             if (score > 0){
                 legalMoves.add(new Move(point.x + point.y * this.getRowSize(), currentPlayer));
@@ -62,18 +66,20 @@ public final class Reversi extends TurnBasedGame {
         return legalMoves.toArray(new Move[0]);
 	}
 
-    private Set<Point> getAdjacentCells(char[][] boardGrid) {
+    private Set<Point> getAdjacentCells(char[][] boardGrid, char opponent) {
         Set<Point> possibleCells = new HashSet<>();
         for (Point point : filledCells) {                                           //for every filled cell
-            for (int deltaColumn = -1; deltaColumn <= 1; deltaColumn++){            //check adjacent cells
-                for (int deltaRow = -1; deltaRow <= 1; deltaRow++){                 //orthogonally and diagonally
-                    int newX =  point.x + deltaColumn, newY =  point.y + deltaRow;
-                    if (deltaColumn == 0 && deltaRow == 0                           //continue if out of bounds
-                    || !isOnBoard(newX, newY)) {
-                        continue;
-                    }
-                    if (boardGrid[newY][newX] == EMPTY) {                           //check if the cell is empty
-                        possibleCells.add(new Point(newX, newY));                   //and then add it to the set of possible moves
+            if (boardGrid[point.x][point.y] == opponent) {
+                for (int deltaColumn = -1; deltaColumn <= 1; deltaColumn++) {            //check adjacent cells
+                    for (int deltaRow = -1; deltaRow <= 1; deltaRow++) {                 //orthogonally and diagonally
+                        int newX = point.x + deltaColumn, newY = point.y + deltaRow;
+                        if (deltaColumn == 0 && deltaRow == 0                           //continue if out of bounds
+                                || !isOnBoard(newX, newY)) {
+                            continue;
+                        }
+                        if (boardGrid[newY][newX] == EMPTY) {                           //check if the cell is empty
+                            possibleCells.add(new Point(newX, newY));                   //and then add it to the set of possible moves
+                        }
                     }
                 }
             }
@@ -81,14 +87,14 @@ public final class Reversi extends TurnBasedGame {
         return possibleCells;
     }
 
-    public Move[] getFlipsForPotentialMove(Point point, char currentPlayer) {
+    public Move[] getFlipsForPotentialMove(Point point, char currentPlayer, char opponent, char[][] boardGrid) {
         final ArrayList<Move> movesToFlip = new ArrayList<>();
         for (int deltaColumn = -1; deltaColumn <= 1; deltaColumn++) {               //for all directions
             for (int deltaRow = -1; deltaRow <= 1; deltaRow++) {
                 if (deltaColumn == 0 && deltaRow == 0){
                     continue;
                 }
-                Move[] moves = getFlipsInDirection(point,makeBoardAGrid(),currentPlayer,deltaColumn,deltaRow);
+                Move[] moves = getFlipsInDirection(point, boardGrid, currentPlayer, opponent, deltaColumn, deltaRow);
                 if (moves != null) {                                                //getFlipsInDirection
                     movesToFlip.addAll(Arrays.asList(moves));
                 }
@@ -97,8 +103,14 @@ public final class Reversi extends TurnBasedGame {
         return movesToFlip.toArray(new Move[0]);
     }
 
-    private Move[] getFlipsInDirection(Point point, char[][] boardGrid, char currentPlayer, int dirX, int dirY) {
-        char opponent = getOpponent(currentPlayer);
+    public Move[] getFlipsForPotentialMove(Move move) {
+        char curr = getCurrentPlayer();
+        char opp = getOpponent(curr);
+        Point point = new Point(move.position() % this.getRowSize(), move.position() / this.getColumnSize());
+        return getFlipsForPotentialMove(point, curr, opp, cachedBoard);
+    }
+
+    private Move[] getFlipsInDirection(Point point, char[][] boardGrid, char currentPlayer, char opponent, int dirX, int dirY) {
         final ArrayList<Move> movesToFlip = new ArrayList<>();
         int x = point.x + dirX;
         int y = point.y + dirY;
@@ -123,7 +135,7 @@ public final class Reversi extends TurnBasedGame {
         return x >= 0 && x < this.getColumnSize() && y >= 0 && y < this.getRowSize();
     }
 
-    private char[][] makeBoardAGrid() {
+    public char[][] makeBoardAGrid() {
         char[][] boardGrid = new char[this.getRowSize()][this.getColumnSize()];
         for (int i = 0; i < 64; i++) {
             boardGrid[i / this.getRowSize()][i % this.getColumnSize()] = this.getBoard()[i];     //boardGrid[y -> row] [x -> column]
@@ -133,6 +145,9 @@ public final class Reversi extends TurnBasedGame {
 
     @Override
     public GameState play(Move move) {
+        if (cachedBoard == null) {
+            cachedBoard = makeBoardAGrid();
+        }
         Move[] legalMoves = getLegalMoves();
         boolean moveIsLegal = false;
         for (Move legalMove : legalMoves) {                         //check if the move is legal
@@ -145,13 +160,14 @@ public final class Reversi extends TurnBasedGame {
             return null;
         }
 
-        Move[] moves = sortMovesFromCenter(getFlipsForPotentialMove(new Point(move.position()%this.getColumnSize(),move.position()/this.getRowSize()), move.value()),move);
+        Move[] moves = sortMovesFromCenter(getFlipsForPotentialMove(new Point(move.position()%this.getColumnSize(),move.position()/this.getRowSize()), move.value(),move.value() == 'B'? 'W': 'B',makeBoardAGrid()),move);
         mostRecentlyFlippedPieces = moves;
         this.setBoard(move);                                        //place the move on the board
         for (Move m : moves) {
             this.setBoard(m);                                       //flip the correct pieces on the board
         }
         filledCells.add(new Point(move.position() % this.getRowSize(), move.position() / this.getColumnSize()));
+        cachedBoard = makeBoardAGrid();
         nextTurn();
         if (getLegalMoves().length == 0) {                          //skip the players turn when there are no legal moves
             skipMyTurn();
@@ -172,7 +188,7 @@ public final class Reversi extends TurnBasedGame {
     }
 
     private void skipMyTurn(){
-        IO.println("TURN " + getCurrentPlayer() + "  SKIPPED");
+        //IO.println("TURN " + getCurrentPlayer() + "  SKIPPED");
         //TODO: notify user that a turn has been skipped
         nextTurn();
     }
@@ -207,6 +223,32 @@ public final class Reversi extends TurnBasedGame {
         }
         return new Score(player1Score, player2Score);
     }
+
+    public boolean isGameOver(){
+        Move[] legalMovesW = getLegalMoves();
+        nextTurn();
+        Move[] legalMovesB = getLegalMoves();
+        nextTurn();
+        if (legalMovesW.length + legalMovesB.length == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public int getWinner(){
+        if (!isGameOver()) {
+            return 0;
+        }
+        Score score = getScore();
+        if (score.player1Score() > score.player2Score()) {
+            return 1;
+        }
+        else if (score.player1Score() < score.player2Score()) {
+            return 2;
+        }
+        return 0;
+    }
+
     private Move[] sortMovesFromCenter(Move[] moves, Move center) {                 //sorts the pieces to be flipped for animation purposes
         int centerX = center.position()%this.getColumnSize();
         int centerY = center.position()/this.getRowSize();
@@ -225,5 +267,35 @@ public final class Reversi extends TurnBasedGame {
     }
     public Move[] getMostRecentlyFlippedPieces() {
         return mostRecentlyFlippedPieces;
+    }
+
+    public int[] getBoardInt(){
+        char[] input = getBoard();
+        int[] result = new int[input.length];
+        for (int i = 0; i < input.length; i++) {
+            switch (input[i]) {
+                case 'W':
+                    result[i] = -1;
+                    break;
+                case 'B':
+                    result[i] = 1;
+                    break;
+                case ' ':
+                default:
+                    result[i] = 0;
+                    break;
+            }
+        }
+        return result;
+    }
+
+    public Point moveToPoint(Move move){
+        return new Point(move.position()%this.getColumnSize(),move.position()/this.getRowSize());
+    }
+
+    public void printBoard(){
+        for (int row = 0; row < this.getRowSize(); row++) {
+            IO.println(Arrays.toString(cachedBoard[row]));
+        }
     }
 }

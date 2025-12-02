@@ -15,6 +15,7 @@ import org.toop.game.reversi.ReversiAI;
 
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
+import org.toop.game.reversi.ReversiAIML;
 
 import java.awt.*;
 import java.util.concurrent.BlockingQueue;
@@ -30,7 +31,7 @@ public final class ReversiGame {
     private final BlockingQueue<Move> moveQueue;
 
 	private final Reversi game;
-	private final ReversiAI ai;
+	private final ReversiAIML ai;
 
 	private final GameView primary;
 	private final ReversiCanvas canvas;
@@ -46,7 +47,7 @@ public final class ReversiGame {
         moveQueue = new LinkedBlockingQueue<>();
 
 		game = new Reversi();
-		ai = new ReversiAI();
+		ai = new ReversiAIML();
 
 		isRunning = new AtomicBoolean(true);
 		isPaused = new AtomicBoolean(false);
@@ -324,7 +325,7 @@ public final class ReversiGame {
                 if (isLegalMove) {
                     moves = game.getFlipsForPotentialMove(
                             new Point(cellEntered%game.getColumnSize(),cellEntered/game.getRowSize()),
-                            game.getCurrentPlayer());
+                            game.getCurrentPlayer(), game.getCurrentPlayer() == 'B'?'W':'B',game.makeBoardAGrid());
                 }
                 canvas.drawHighlightDots(moves);
             }

@@ -8,17 +8,24 @@ import org.toop.game.enumerators.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
+import org.toop.game.reversi.ReversiAIML;
+import org.toop.game.reversi.ReversiAISimple;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReversiTest {
     private Reversi game;
     private ReversiAI ai;
+    private ReversiAIML aiml;
+    private ReversiAISimple aiSimple;
 
     @BeforeEach
     void setup() {
         game = new Reversi();
         ai = new ReversiAI();
+        aiml = new ReversiAIML();
+        aiSimple = new ReversiAISimple();
+
     }
 
 
@@ -189,5 +196,36 @@ class ReversiTest {
             if (m.equals(move)) return true;
         }
         return false;
+    }
+
+    @Test
+    void testAIvsAIML(){
+        IO.println("Testing AI simple ...");
+        int totalGames = 5000;
+        int p1wins = 0;
+        int p2wins = 0;
+        int draws = 0;
+        for (int i = 0; i < totalGames; i++) {
+            game =  new Reversi();
+            while (!game.isGameOver()) {
+                char curr = game.getCurrentPlayer();
+                if (curr == 'W') {
+                    game.play(ai.findBestMove(game,5));
+                }
+                else {
+                    game.play(ai.findBestMove(game,5));
+                }
+            }
+            int winner = game.getWinner();
+            if (winner == 1) {
+                p1wins++;
+            }else if (winner == 2) {
+                p2wins++;
+            }
+            else{
+                draws++;
+            }
+        }
+        IO.println("p1 winrate: " + p1wins + "/" + totalGames + " = " + (double)p1wins/totalGames + "\np2wins: " + p2wins + " draws: " + draws);
     }
 }
