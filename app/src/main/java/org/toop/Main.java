@@ -13,6 +13,7 @@ public final class Main {
     static void main(String[] args) {
         initSystems();
         App.run(args);
+
     }
 
     private static void initSystems() {

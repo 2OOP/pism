@@ -1,7 +1,7 @@
 package org.toop.game.reversi;
 
 import org.toop.game.TurnBasedGame;
-import org.toop.game.enumerators.GameState;
+import org.toop.framework.gameFramework.GameState;
 import org.toop.game.records.Move;
 
 import java.awt.*;
