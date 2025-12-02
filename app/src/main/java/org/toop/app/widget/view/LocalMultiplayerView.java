@@ -122,10 +122,6 @@ public class LocalMultiplayerView extends ViewWidget {
             }
 				// case BATTLESHIP -> new BattleshipGame(information);
         });
-            if (gameController != null) {
-                gameController.start();
-            }
-			});
 
 		var playerSection = setupPlayerSections();
 
