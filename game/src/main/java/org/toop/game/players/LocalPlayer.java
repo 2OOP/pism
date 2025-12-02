@@ -21,7 +21,6 @@ public class LocalPlayer extends AbstractPlayer {
     }
 
     public void setMove(int move) {
-        System.out.println("setting move: " + move);
         LastMove.complete(move);
     }
 

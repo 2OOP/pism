@@ -3,7 +3,7 @@ package org.toop.app.widget.view;
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.game.*;
-import org.toop.app.game.gameControllers.GameController;
+import org.toop.app.game.gameControllers.AbstractGameController;
 import org.toop.app.game.gameControllers.ReversiController;
 import org.toop.app.game.gameControllers.TicTacToeController;
 import org.toop.game.players.ArtificialPlayer;
@@ -30,7 +30,7 @@ import org.toop.local.AppSettings;
 public class LocalMultiplayerView extends ViewWidget {
 	private final GameInformation information;
 
-    private GameController gameController;
+    private AbstractGameController gameController;
 
 	public LocalMultiplayerView(GameInformation.Type type) {
 		this(new GameInformation(type));
@@ -73,6 +73,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                     AppSettings.getSettings().setFirstTTT(false);
                                     Platform.runLater(() -> {
                                         gameController = new TicTacToeController(players);
+                                        gameController.start();
                                     });
                                 },
                                 () -> {
@@ -85,6 +86,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                     AppSettings.getSettings().setTutorialFlag(false);
                                     Platform.runLater(() -> {
                                         gameController = new TicTacToeController(players);
+                                        gameController.start();
                                     });
                                 }
                         );
@@ -112,6 +114,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                 () -> { Platform.runLater(() -> {
                                     AppSettings.getSettings().setFirstReversi(false);
                                     gameController = new ReversiController(players);
+                                    gameController.start();
                                 });
                                 },
                                 () -> {
@@ -126,6 +129,7 @@ public class LocalMultiplayerView extends ViewWidget {
                                     Platform.runLater(() -> {
                                         AppSettings.getSettings().setTutorialFlag(false);
                                         gameController = new ReversiController(players);
+                                        gameController.start();
                                     });
                                 });
                         transitionNext(a);

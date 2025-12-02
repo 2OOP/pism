@@ -11,12 +11,11 @@ import org.toop.framework.gameFramework.abstractClasses.GameR;
 import org.toop.framework.gameFramework.GUIEvents;
 import org.toop.game.GameThreadBehaviour.LocalFixedRateThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
-import org.toop.game.GameThreadBehaviour.OnlineWithSleepThreadBehaviour;
 import org.toop.game.players.AbstractPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.reversi.ReversiR;
 
-public class ReversiController extends GameController<ReversiR> {
+public class ReversiController extends AbstractGameController<ReversiR> {
     // TODO: Refactor GUI update methods to follow designed system
     public ReversiController(AbstractPlayer[] players, boolean local) {
         ReversiR ReversiR = new ReversiR();

@@ -1,7 +1,7 @@
 package org.toop.app;
 
 import org.toop.app.game.Connect4Game;
-import org.toop.app.game.gameControllers.GameController;
+import org.toop.app.game.gameControllers.AbstractGameController;
 import org.toop.app.game.gameControllers.ReversiController;
 import org.toop.app.game.gameControllers.TicTacToeController;
 import org.toop.app.widget.WidgetContainer;
@@ -38,7 +38,7 @@ public final class Server {
 	private ServerView primary;
 	private boolean isPolling = true;
 
-    private GameController<?> gameController;
+    private AbstractGameController<?> gameController;
 
     private final AtomicBoolean isSingleGame = new AtomicBoolean(false);
 

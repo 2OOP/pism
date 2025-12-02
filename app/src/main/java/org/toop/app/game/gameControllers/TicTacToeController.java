@@ -9,13 +9,12 @@ import org.toop.framework.gameFramework.GUIEvents;
 import org.toop.framework.gameFramework.abstractClasses.GameR;
 import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
-import org.toop.game.GameThreadBehaviour.OnlineWithSleepThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.AbstractPlayer;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.game.tictactoe.TicTacToeR;
 
-public class TicTacToeController extends GameController<TicTacToeR> {
+public class TicTacToeController extends AbstractGameController<TicTacToeR> {
 
     public TicTacToeController(AbstractPlayer[] players, boolean local) {
         TicTacToeR ticTacToeR = new TicTacToeR();

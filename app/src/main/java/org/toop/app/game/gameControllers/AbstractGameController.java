@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class GameController<T extends TurnBasedGameR> implements UpdatesGameUI, GameThreadStrategy, SupportsOnlinePlay {
+public abstract class AbstractGameController<T extends TurnBasedGameR> implements UpdatesGameUI, GameThreadStrategy, SupportsOnlinePlay {
     protected final EventFlow eventFlow = new EventFlow();
 
     protected final List<Consumer<?>> listeners = new ArrayList<>();
@@ -38,8 +38,8 @@ public abstract class GameController<T extends TurnBasedGameR> implements Update
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
     // TODO: Make visualisation of moves a behaviour.
-    protected GameController(GameCanvas<T> canvas, AbstractPlayer[] players, T game, GameThreadStrategy gameThreadBehaviour, String gameType) {
-        logger.info("Creating GameController");
+    protected AbstractGameController(GameCanvas<T> canvas, AbstractPlayer[] players, T game, GameThreadStrategy gameThreadBehaviour, String gameType) {
+        logger.info("Creating AbstractGameController");
         // Make sure player list matches expected size
         if (players.length != game.getPlayerCount()){
             logger.error("Player count mismatch");
