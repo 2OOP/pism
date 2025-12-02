@@ -8,7 +8,7 @@ import org.toop.framework.resource.types.LoadableResource;
 
 @FileExtension({"png", "jpg", "jpeg"})
 public class ImageAsset extends BaseResource implements LoadableResource {
-    private Image image;
+    private Image image = null;
 
     public ImageAsset(final File file) {
         super(file);
@@ -40,8 +40,7 @@ public class ImageAsset extends BaseResource implements LoadableResource {
     public Image getImage() {
         if (!this.isLoaded) {
             this.load();
-            return image;
         }
-        return null;
+        return image;
     }
 }
