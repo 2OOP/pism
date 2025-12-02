@@ -83,7 +83,6 @@ public final class Server {
 			WidgetContainer.add(Pos.CENTER, new ErrorPopup(AppContext.getString(
 					"connecting-failed") + " " + ip + ":" + port)
 			);
-			System.out.println("connecting-failed");
 		});
 		WidgetContainer.getCurrentView().transitionNext(loading);
 
