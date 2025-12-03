@@ -99,7 +99,7 @@ public class ReversiController extends AbstractGameController<ReversiR> {
         });
 
         animation.play();
-        primary.nextPlayer(true, getCurrentPlayer().getName(), game.getCurrentTurn() == 0 ? "X" : "O", getPlayer((game.getCurrentTurn() + 1) % 2).getName());
+        primary.nextPlayer(true, getCurrentPlayer().getName(), game.getCurrentTurn() == 0 ? "X" : "O", getPlayer((game.getCurrentTurn() + 1) % 2).getName(), 'R');
     }
 
     @Override
