@@ -45,6 +45,7 @@ public final class App extends Application {
 	public void start(Stage stage) throws Exception {
 		// Start loading localization
 		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/localization"));
+		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/style"));
 
         final StackPane root = WidgetContainer.setup();
 		final Scene scene = new Scene(root);
@@ -67,8 +68,6 @@ public final class App extends Application {
 		stage.setScene(scene);
 		stage.setResizable(true);
 
-		stage.show();
-
 		App.stage = stage;
 		App.scene = scene;
 
@@ -77,8 +76,10 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
+		AppSettings.applySettings();
+
         LoadingWidget loading = new LoadingWidget(Primitive.text(
-                "Loading...", false), 0, 0, Integer.MAX_VALUE // Just set a high default
+                "Loading...", false), 0, 0, Integer.MAX_VALUE, false // Just set a high default
         );
 
         WidgetContainer.add(Pos.CENTER, loading);
@@ -88,7 +89,7 @@ public final class App extends Application {
         EventFlow loadingFlow = new EventFlow();
         loadingFlow
                 .listen(AssetLoaderEvents.LoadingProgressUpdate.class, e -> {
-                    loading.setMaxAmount(e.isLoadingAmount()-1);
+                    loading.setMaxAmount(e.isLoadingAmount());
 
                     try {
                         loading.setAmount(e.hasLoadedAmount());
@@ -96,7 +97,7 @@ public final class App extends Application {
                         throw new RuntimeException(ex);
                     }
 
-                    if (e.hasLoadedAmount() >= e.isLoadingAmount()-1) {
+                    if (e.hasLoadedAmount() >= e.isLoadingAmount()) {
                         loading.triggerSuccess();
                         loadingFlow.unsubscribe("init_loading");
                     }
@@ -104,15 +105,17 @@ public final class App extends Application {
                 }, false, "init_loading");
 
 		// Start loading assets
-        ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
+		new Thread(() -> ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets")))
+				.start();
+		stage.show();
 	}
 
 	private void setOnLoadingSuccess(LoadingWidget loading) {
 		loading.setOnSuccess(() -> {
 			initSystems();
-			AppSettings.applySettings();
-			new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
-			loading.hide();
+			AppSettings.applyMusicVolumeSettings();
+			new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).postEvent();
+            loading.hide();
 			WidgetContainer.add(Pos.CENTER, new MainView());
 			WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
 			stage.setOnCloseRequest(event -> {
@@ -145,7 +148,14 @@ public final class App extends Application {
 			).initListeners("medium-button-click.wav");
 
 		}).start();
-	}
+
+		// Threads must be ready, before continue, TODO use latch instead
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	public static void startQuit() {
 		if (isQuitting) {

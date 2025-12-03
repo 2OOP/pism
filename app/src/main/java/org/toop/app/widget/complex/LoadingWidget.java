@@ -11,19 +11,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoadingWidget extends ViewWidget implements Update { // TODO make of widget type
+    private final Text loadingText; // TODO Make changeable
     private final ProgressBar progressBar;
-    private final Text loadingText;
+    private final AtomicBoolean successTriggered = new AtomicBoolean(false);
+    private final AtomicBoolean failureTriggered = new AtomicBoolean(false);
 
     private Runnable success = () -> {};
     private Runnable failure = () -> {};
-    private AtomicBoolean successTriggered = new AtomicBoolean(false);
-    private AtomicBoolean failureTriggered = new AtomicBoolean(false);
     private int maxAmount;
     private int minAmount;
     private int amount;
     private Callable<Boolean> successTrigger = () -> (amount >= maxAmount);
     private Callable<Boolean> failureTrigger = () -> (amount < minAmount);
     private float percentage = 0.0f;
+
+    private boolean isInfiniteBar = false;
 
     /**
      *
@@ -34,13 +36,15 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
      * @param startAmount The starting amount.
      * @param maxAmount The max amount.
      */
-    public LoadingWidget(Text loadingText, int minAmount, int startAmount, int maxAmount) {
+    public LoadingWidget(Text loadingText, int minAmount, int startAmount, int maxAmount, boolean infiniteBar) {
+        isInfiniteBar = infiniteBar;
+
         this.maxAmount = maxAmount;
         this.minAmount = minAmount;
         amount = startAmount;
 
-        progressBar = new ProgressBar();
         this.loadingText = loadingText;
+        progressBar = new ProgressBar();
 
         VBox box = Primitive.vbox(this.loadingText, progressBar);
         add(Pos.CENTER, box);
@@ -144,7 +148,6 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
         if (maxAmount != 0) {
             percentage = (float) amount / maxAmount;
         }
-        progressBar.setProgress(percentage);
-
+        if (!isInfiniteBar) progressBar.setProgress(percentage);
     }
 }

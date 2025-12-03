@@ -73,10 +73,10 @@ public final class Server {
 			return;
 		}
 
-		final int reconnectAttempts = 5;
+		final int reconnectAttempts = 10;
 
 		LoadingWidget loading = new LoadingWidget(
-                Primitive.text("connecting"), 0, 0, reconnectAttempts
+                Primitive.text("connecting"), 0, 0, reconnectAttempts, true
         );
 
 		WidgetContainer.getCurrentView().transitionNext(loading);

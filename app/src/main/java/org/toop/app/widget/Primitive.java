@@ -127,7 +127,6 @@ public final class Primitive {
 
         slider.setOnMouseReleased(event -> {
             playButtonSound();
-            System.out.println("I got called!");
         });
 
         return slider;
@@ -150,7 +149,6 @@ public final class Primitive {
             choice.valueProperty().addListener((_, _, newValue) -> {
                 onValueChanged.accept(newValue);
                 playButtonSound();
-                System.out.println("hi i got called choice");
             });
         }
 
