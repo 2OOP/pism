@@ -100,6 +100,7 @@ public final class Server {
         loading.setOnFailure(() -> {
             WidgetContainer.getCurrentView().transitionPrevious();
             a.unsubscribe("connecting");
+			a.unsubscribe("startclient");
             WidgetContainer.add(
                     Pos.CENTER,
                     new ErrorPopup(AppContext.getString("connecting-failed") + " " + ip + ":" + port)
@@ -151,8 +152,6 @@ public final class Server {
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false)
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false)
                 .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false);
-        startPopulateScheduler();
-        populateGameList();
 	}
 
 	private void sendChallenge(String opponent) {

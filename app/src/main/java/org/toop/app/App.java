@@ -1,5 +1,7 @@
 package org.toop.app;
 
+import javafx.application.Platform;
+import javafx.scene.paint.Color;
 import org.toop.Main;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.Widget;
@@ -50,11 +52,13 @@ public final class App extends Application {
         final StackPane root = WidgetContainer.setup();
 		final Scene scene = new Scene(root);
 
+		stage.setOpacity(0.0);
+
 		stage.setTitle(AppContext.getString("app-title"));
 		stage.titleProperty().bind(AppContext.bindToKey("app-title"));
 
-		stage.setWidth(1080);
-		stage.setHeight(720);
+		stage.setWidth(0);
+		stage.setHeight(0);
 
 		scene.getRoot();
 
@@ -82,23 +86,37 @@ public final class App extends Application {
                 "Loading...", false), 0, 0, Integer.MAX_VALUE, false // Just set a high default
         );
 
-        WidgetContainer.add(Pos.CENTER, loading);
+		WidgetContainer.setCurrentView(loading);
 
 		setOnLoadingSuccess(loading);
 
         EventFlow loadingFlow = new EventFlow();
+
+		final boolean[] hasRun = {false};
         loadingFlow
                 .listen(AssetLoaderEvents.LoadingProgressUpdate.class, e -> {
-                    loading.setMaxAmount(e.isLoadingAmount());
+					if (!hasRun[0]) {
+						hasRun[0] = true;
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException ex) {
+							throw new RuntimeException(ex);
+						}
+						Platform.runLater(() -> stage.setOpacity(1.0));
+					}
 
-                    try {
-                        loading.setAmount(e.hasLoadedAmount());
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
-                    }
+					Platform.runLater(() -> loading.setMaxAmount(e.isLoadingAmount()));
+
+					Platform.runLater(() -> {
+						try {
+							loading.setAmount(e.hasLoadedAmount());
+						} catch (Exception ex) {
+							throw new RuntimeException(ex);
+						}
+					});
 
                     if (e.hasLoadedAmount() >= e.isLoadingAmount()) {
-                        loading.triggerSuccess();
+                        Platform.runLater(loading::triggerSuccess);
                         loadingFlow.unsubscribe("init_loading");
                     }
 
@@ -107,7 +125,9 @@ public final class App extends Application {
 		// Start loading assets
 		new Thread(() -> ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets")))
 				.start();
+
 		stage.show();
+
 	}
 
 	private void setOnLoadingSuccess(LoadingWidget loading) {
