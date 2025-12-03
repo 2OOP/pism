@@ -2,10 +2,11 @@ package org.toop.app.widget.complex;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.toop.app.widget.Primitive;
+
+import java.util.concurrent.Callable;
 
 public class LoadingWidget extends ViewWidget implements Update { // TODO make of widget type
     private final ProgressBar progressBar;
@@ -16,14 +17,25 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
     private boolean successTriggered = false;
     private boolean failureTriggered = false;
     private int maxAmount;
+    private int minAmount;
     private int amount;
+    private Callable<Boolean> successTrigger = () -> (amount >= maxAmount);
+    private Callable<Boolean> failureTrigger = () -> (amount < minAmount);
     private float percentage = 0.0f;
 
-
-    public LoadingWidget(Text loadingText, int startAmount, int maxAmount) {
-
-        amount = startAmount;
+    /**
+     *
+     * Widget that shows a loading bar.
+     *
+     * @param loadingText Text above the loading bar.
+     * @param minAmount The minimum amount.
+     * @param startAmount The starting amount.
+     * @param maxAmount The max amount.
+     */
+    public LoadingWidget(Text loadingText, int minAmount, int startAmount, int maxAmount) {
         this.maxAmount = maxAmount;
+        this.minAmount = minAmount;
+        amount = startAmount;
 
         progressBar = new ProgressBar();
         this.loadingText = loadingText;
@@ -36,44 +48,86 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
         this.maxAmount = maxAmount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(int amount) throws Exception {
         this.amount = amount;
         update();
     }
 
-    public void setAmount() {
-        setAmount(this.amount+1);
+    public int getMaxAmount() {
+        return maxAmount;
     }
 
+    public int getAmount() {
+        return amount;
+    }
+
+    public float getPercentage() {
+        return percentage;
+    }
+
+    public boolean isTriggered() {
+        return (failureTriggered || successTriggered);
+    }
+
+    /**
+     * What to do when success is triggered.
+     * @param onSuccess The lambda that gets run on success.
+     */
     public void setOnSuccess(Runnable onSuccess) {
         success = onSuccess;
     }
 
+    /**
+     * What to do when failure is triggered.
+     * @param onFailure The lambda that gets run on failure.
+     */
     public void setOnFailure(Runnable onFailure) {
         failure = onFailure;
     }
 
+    /**
+     * The trigger to activate onSuccess.
+     * @param trigger The lambda that triggers onSuccess.
+     */
+    public void setSuccessTrigger(Callable<Boolean> trigger) {
+        successTrigger = trigger;
+    }
+
+    /**
+     * The trigger to activate onFailure.
+     * @param trigger The lambda that triggers onFailure.
+     */
+    public void setFailureTrigger(Callable<Boolean> trigger) {
+        failureTrigger = trigger;
+    }
+
+    /**
+     * Forcefully trigger success.
+     */
     public void triggerSuccess() {
         successTriggered = true; // TODO, else it will double call... why?
         success.run();
     }
 
+    /**
+     * Forcefully trigger failure.
+     */
     public void triggerFailure() {
         failureTriggered = true; // TODO, else it will double call... why?
         failure.run();
     }
 
     @Override
-    public void update() {
-        if (successTriggered || failureTriggered) {
-            return;
+    public void update() throws Exception { // TODO Better exception
+        if (successTriggered || failureTriggered) { // If already triggered, throw exception.
+            throw new RuntimeException();
         }
 
-        if (amount >= maxAmount) {
+        if (successTrigger.call()) {
             triggerSuccess();
             this.remove(this);
             return;
-        } else if (amount < 0) {
+        } else if (failureTrigger.call()) {
             triggerFailure();
             this.remove(this);
             return;

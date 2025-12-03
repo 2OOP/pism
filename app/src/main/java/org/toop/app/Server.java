@@ -13,12 +13,10 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.eventbus.ListenerHandler;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
 import org.toop.local.AppContext;
-import java.util.function.Consumer;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -77,13 +75,9 @@ public final class Server {
 
 		final int reconnectAttempts = 5;
 
-		LoadingWidget loading = new LoadingWidget(Primitive.text("connecting"), 0, reconnectAttempts);
-		loading.setOnFailure(() -> {
-			WidgetContainer.getCurrentView().transitionPrevious();
-			WidgetContainer.add(Pos.CENTER, new ErrorPopup(AppContext.getString(
-					"connecting-failed") + " " + ip + ":" + port)
-			);
-		});
+		LoadingWidget loading = new LoadingWidget(
+                Primitive.text("connecting"), 0, 0, reconnectAttempts
+        );
 
 		WidgetContainer.getCurrentView().transitionNext(loading);
 
@@ -92,6 +86,15 @@ public final class Server {
 				new TournamentNetworkingClient(),
 				new NetworkingConnector(ip, parsedPort, reconnectAttempts, 1, TimeUnit.SECONDS)
 			);
+
+        loading.setOnFailure(() -> {
+            WidgetContainer.getCurrentView().transitionPrevious();
+            a.unsubscribe("connecting");
+            WidgetContainer.add(
+                    Pos.CENTER,
+                    new ErrorPopup(AppContext.getString("connecting-failed") + " " + ip + ":" + port)
+            );
+        });
 
 		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
 
@@ -122,9 +125,19 @@ public final class Server {
 			startPopulateScheduler();
 			populateGameList();
 		}, false, "startclient")
-				.listen(NetworkEvents.ConnectTry.class,
-				e -> Platform.runLater(() ->
-					loading.setAmount(e.amount())), false, "connecting")
+				.listen(
+                        NetworkEvents.ConnectTry.class,
+                        e -> Platform.runLater(
+                                () -> {
+                                    try {
+                                        loading.setAmount(e.amount());
+                                    } catch (Exception ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }
+                        ),
+                        false, "connecting"
+                )
 				.postEvent();
 
 		new EventFlow()
