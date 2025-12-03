@@ -1,10 +1,17 @@
 package org.toop.game.reversi;
 
 import org.toop.framework.gameFramework.GameState;
+import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
 public class BitboardReversi extends BitboardGame {
-	public record Score(int black, int white) {}
+    @Override
+    public Player<BitboardGame> getPlayer(int index) {
+        return null;
+    }
+
+    public record Score(int black, int white) {}
 
 	private final long notAFile = 0xfefefefefefefefeL;
 	private final long notHFile = 0x7f7f7f7f7f7f7f7fL;
@@ -18,8 +25,7 @@ public class BitboardReversi extends BitboardGame {
 		// White (player 1)
 		setPlayerBitboard(1, (1L << (3 + 3 * 8)) | (1L << (4 + 4 * 8)));	}
 
-	@Override
-	public long getLegalMoves() {
+	public long getLegalMoves2() {
 		final long player = getPlayerBitboard(getCurrentPlayer());
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
@@ -53,8 +59,21 @@ public class BitboardReversi extends BitboardGame {
 		return flips;
 	}
 
-	@Override
-	public GameState play(long move) {
+    @Override
+    public int[] getLegalMoves(){
+        return translateLegalMoves(getLegalMoves2());
+    }
+
+    @Override
+    public PlayResult play(int move) {
+        return new PlayResult(playBit(translateMove(move)), getCurrentPlayer());
+    }
+
+    // TODO: Implement
+    @Override
+    public BitboardReversi deepCopy() {return this;};
+
+	public GameState playBit(long move) {
 		final long flips = getFlips(move);
 
 		long player = getPlayerBitboard(getCurrentPlayer());
@@ -68,12 +87,12 @@ public class BitboardReversi extends BitboardGame {
 
 		nextTurn();
 
-		final long nextLegalMoves = getLegalMoves();
+		final long nextLegalMoves = getLegalMoves2();
 
 		if (nextLegalMoves <= 0) {
 			nextTurn();
 
-			final long skippedLegalMoves = getLegalMoves();
+			final long skippedLegalMoves = getLegalMoves2();
 
 			if (skippedLegalMoves <= 0) {
 				final long black = getPlayerBitboard(0);

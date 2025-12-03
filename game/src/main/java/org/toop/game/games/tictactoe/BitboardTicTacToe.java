@@ -19,8 +19,12 @@ public class BitboardTicTacToe extends BitboardGame {
 		super(3, 3, 2);
 	}
 
-	@Override
-	public long getLegalMoves() {
+    @Override
+    public int[] getLegalMoves(){
+        return translateLegalMoves(getLegalMoves2());
+    }
+
+	public long getLegalMoves2() {
 		final long xBitboard = getPlayerBitboard(0);
 		final long oBitboard = getPlayerBitboard(1);
 
