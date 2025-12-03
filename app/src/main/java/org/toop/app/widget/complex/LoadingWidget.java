@@ -2,7 +2,9 @@ package org.toop.app.widget.complex;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.control.Control;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.toop.app.widget.Primitive;
@@ -12,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoadingWidget extends ViewWidget implements Update { // TODO make of widget type
     private final Text loadingText; // TODO Make changeable
-    private final ProgressBar progressBar;
+    private final ProgressIndicator progressBar;
     private final AtomicBoolean successTriggered = new AtomicBoolean(false);
     private final AtomicBoolean failureTriggered = new AtomicBoolean(false);
 
@@ -25,7 +27,7 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
     private Callable<Boolean> failureTrigger = () -> (amount < minAmount);
     private float percentage = 0.0f;
 
-    private boolean isInfiniteBar = false;
+    private boolean isInfinite = false;
 
     /**
      *
@@ -36,17 +38,18 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
      * @param startAmount The starting amount.
      * @param maxAmount The max amount.
      */
-    public LoadingWidget(Text loadingText, int minAmount, int startAmount, int maxAmount, boolean infiniteBar) {
-        isInfiniteBar = infiniteBar;
+    public LoadingWidget(Text loadingText, int minAmount, int startAmount, int maxAmount, boolean infinite, boolean circle) {
+        isInfinite = infinite;
 
         this.maxAmount = maxAmount;
         this.minAmount = minAmount;
         amount = startAmount;
 
         this.loadingText = loadingText;
-        progressBar = new ProgressBar();
+        progressBar = circle ? new ProgressIndicator() : new ProgressBar();
 
         VBox box = Primitive.vbox(this.loadingText, progressBar);
+        progressBar.getStyleClass().add("loading-progress-bar");
         add(Pos.CENTER, box);
     }
 
@@ -73,6 +76,10 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
 
     public boolean isTriggered() {
         return (failureTriggered.get() || successTriggered.get());
+    }
+
+    public ProgressIndicator getProgressBar() {
+        return progressBar;
     }
 
     /**
@@ -148,7 +155,7 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
         if (maxAmount != 0) {
             percentage = (float) amount / maxAmount;
         }
-        if (!isInfiniteBar) {
+        if (!isInfinite) {
             progressBar.setProgress(percentage);
         }
     }

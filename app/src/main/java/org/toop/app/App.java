@@ -83,7 +83,7 @@ public final class App extends Application {
 		AppSettings.applySettings();
 
         LoadingWidget loading = new LoadingWidget(Primitive.text(
-                "Loading...", false), 0, 0, Integer.MAX_VALUE, false // Just set a high default
+                "Loading...", false), 0, 0, Integer.MAX_VALUE, false, false // Just set a high default
         );
 
 		WidgetContainer.setCurrentView(loading);
