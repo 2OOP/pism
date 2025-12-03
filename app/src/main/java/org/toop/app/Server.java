@@ -13,6 +13,8 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
@@ -20,6 +22,7 @@ import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.OnlinePlayer;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 import org.toop.game.reversi.ReversiAIR;
+import org.toop.game.reversi.ReversiR;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.local.AppContext;
 
@@ -194,9 +197,9 @@ public final class Server {
             information.players[0].computerThinkTime = 1;
             information.players[1].name = response.opponent();
 
-            AbstractPlayer[] players = new AbstractPlayer[2];
+            Player[] players = new Player[2];
 
-            players[(myTurn + 1) % 2] = new OnlinePlayer(response.opponent());
+            players[(myTurn + 1) % 2] = new OnlinePlayer<ReversiR>(response.opponent());
 
             switch (type){
                 case TICTACTOE ->{
@@ -207,7 +210,6 @@ public final class Server {
                 }
             }
 
-            Runnable onGameOverRunnable = isSingleGame.get()? null: this::gameOver;
             switch (type) {
                 case TICTACTOE ->{
                         gameController = new TicTacToeController(players, false);
@@ -228,6 +230,7 @@ public final class Server {
             return;
         }
         gameController.onYourTurn(response);
+
     }
 
     private void handleGameResult(NetworkEvents.GameResultResponse response) {

@@ -11,7 +11,6 @@ import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.game.GameThreadBehaviour.LocalFixedRateThreadBehaviour;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.reversi.ReversiR;
@@ -57,7 +56,7 @@ public class ReversiController extends AbstractGameController<ReversiR> {
         //}*/
     }
 
-    public ReversiController(AbstractPlayer[] players) {
+    public ReversiController(Player<ReversiR>[] players) {
         this(players, true);
     }
 

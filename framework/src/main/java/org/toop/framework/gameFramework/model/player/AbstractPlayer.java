@@ -1,5 +1,7 @@
 package org.toop.framework.gameFramework.model.player;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 /**
@@ -15,6 +17,8 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
  */
 public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Player<T> {
     private int playerIndex = -1;
+
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     private final String name;
 
@@ -34,18 +38,11 @@ public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Play
      * @throws UnsupportedOperationException if the method is not overridden
      */
     public int getMove(T gameCopy) {
+        logger.error("Method getMove not implemented.");
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public String getName(){
         return this.name;
-    }
-
-    public int getPlayerIndex() {
-        return playerIndex;
-    }
-
-    public void setPlayerIndex(int playerIndex) {
-        this.playerIndex = playerIndex;
     }
 }

@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.app.canvas.TicTacToeCanvas;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
@@ -16,7 +17,7 @@ import org.toop.game.tictactoe.TicTacToeR;
 
 public class TicTacToeController extends AbstractGameController<TicTacToeR> {
 
-    public TicTacToeController(AbstractPlayer[] players, boolean local) {
+    public TicTacToeController(Player<TicTacToeR>[] players, boolean local) {
         TicTacToeR ticTacToeR = new TicTacToeR();
         super(
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
@@ -31,7 +32,7 @@ public class TicTacToeController extends AbstractGameController<TicTacToeR> {
         //new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
     }
 
-    public TicTacToeController(AbstractPlayer[] players) {
+    public TicTacToeController(Player<TicTacToeR>[] players) {
         this(players, true);
     }
 

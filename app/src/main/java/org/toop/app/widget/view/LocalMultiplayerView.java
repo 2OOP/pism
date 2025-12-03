@@ -5,6 +5,7 @@ import org.toop.app.GameInformation;
 import org.toop.app.gameControllers.AbstractGameController;
 import org.toop.app.gameControllers.ReversiController;
 import org.toop.app.gameControllers.TicTacToeController;
+import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;
@@ -45,7 +46,7 @@ public class LocalMultiplayerView extends ViewWidget {
 			}
 
             // TODO: Fix this temporary ass way of setting the players (Only works for TicTacToe)
-            AbstractPlayer<?>[] players = new AbstractPlayer[2];
+            Player[] players = new Player[2];
 
 			switch (information.type) {
                 case TICTACTOE:

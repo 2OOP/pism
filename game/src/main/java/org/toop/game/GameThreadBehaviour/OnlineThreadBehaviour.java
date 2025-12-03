@@ -35,7 +35,7 @@ public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBeh
     /** Finds the first non-online player in the array. */
     private int getFirstNotOnlinePlayer(Player<T>[] players) {
         for (int i = 0; i < players.length; i++) {
-            if (players[i] instanceof OnlinePlayer) {
+            if (!(players[i] instanceof OnlinePlayer)) {
                 return i;
             }
         }
