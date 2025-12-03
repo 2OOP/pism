@@ -109,16 +109,6 @@ public final class GameView extends ViewWidget {
             if (AppContext.getLocale().toLanguageTag().equals("en")) {
                 turnHeader.setText(currentPlayer + keyThingy.getText());
             }
-            else {
-                turnHeader.setText(currentPlayer + " " + keyThingy.getText());
-            }
-
-            if (isMe) {
-                turnHeader.getStyleClass().add("my-turn");
-            }
-            else {
-                turnHeader.getStyleClass().remove("my-turn");
-            }
 		});
 	}
 
@@ -168,10 +158,14 @@ public final class GameView extends ViewWidget {
                 player1Header
         );
 
+        player1box.getStyleClass().add("hboxspacing");
+
         var player2box = Primitive.hbox(
                 player2Icon,
                 player2Header
         );
+
+        player2box.getStyleClass().add("hboxspacing");
 
         var playerInfo = Primitive.vbox(
                 playerHeader,

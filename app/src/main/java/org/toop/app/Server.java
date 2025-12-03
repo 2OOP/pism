@@ -151,8 +151,6 @@ public final class Server {
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false)
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false)
                 .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false);
-        startPopulateScheduler();
-        populateGameList();
 	}
 
 	private void sendChallenge(String opponent) {
