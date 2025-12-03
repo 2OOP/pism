@@ -13,11 +13,10 @@ public final class Main {
     static void main(String[] args) {
         initSystems();
         App.run(args);
-
     }
 
     private static void initSystems() {
-        ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
+        ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/localization"));
         new Thread(() -> new NetworkingClientEventListener(new NetworkingClientManager())).start();
 
         new Thread(() -> {
