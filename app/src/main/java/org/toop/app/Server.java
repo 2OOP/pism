@@ -102,12 +102,6 @@ public final class Server {
 				return;
 			}
 
-			try {
-				TimeUnit.MILLISECONDS.sleep(500); // TODO temp fix for index bug
-			} catch (InterruptedException ex) {
-				throw new RuntimeException(ex);
-			}
-
 			WidgetContainer.getCurrentView().transitionPrevious();
 
 			a.unsubscribe("connecting");
@@ -255,7 +249,7 @@ public final class Server {
 			} else {
 				stopScheduler();
 			}
-		}, 0, 5, TimeUnit.SECONDS);
+		}, 0, 1, TimeUnit.SECONDS);
 	}
 
 	private void stopScheduler() {

@@ -75,7 +75,6 @@ public final class App extends Application {
         WidgetContainer.add(Pos.CENTER, loading);
 
         loading.setOnSuccess(() -> {
-            System.out.println("HELPPPP OOMAAAAR");
             AppSettings.applySettings();
             loading.hide();
             WidgetContainer.add(Pos.CENTER, new MainView());
