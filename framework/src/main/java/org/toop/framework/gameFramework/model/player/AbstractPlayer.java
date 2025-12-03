@@ -1,12 +1,11 @@
-package org.toop.game.players;
+package org.toop.framework.gameFramework.model.player;
 
-import org.toop.framework.gameFramework.abstractClasses.GameR;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 /**
  * Abstract class representing a player in a game.
  * <p>
  * Players are entities that can make moves based on the current state of a game.
- * This class implements {@link MakesMove} and serves as a base for concrete
  * player types, such as human players or AI players.
  * </p>
  * <p>
@@ -14,9 +13,11 @@ import org.toop.framework.gameFramework.abstractClasses.GameR;
  * specific move logic.
  * </p>
  */
-public abstract class AbstractPlayer implements MakesMove {
+public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Player<T> {
     private int playerIndex = -1;
+
     private final String name;
+
     protected AbstractPlayer(String name) {
         this.name = name;
     }
@@ -32,8 +33,7 @@ public abstract class AbstractPlayer implements MakesMove {
      * @return an integer representing the chosen move
      * @throws UnsupportedOperationException if the method is not overridden
      */
-    @Override
-    public int getMove(GameR gameCopy) {
+    public int getMove(T gameCopy) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

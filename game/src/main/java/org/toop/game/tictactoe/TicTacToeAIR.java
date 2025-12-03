@@ -1,7 +1,7 @@
 package org.toop.game.tictactoe;
 
-import org.toop.framework.gameFramework.abstractClasses.AIR;
-import org.toop.framework.gameFramework.PlayResult;
+import org.toop.framework.gameFramework.model.player.AbstractAI;
+import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.GameState;
 
 /**
@@ -13,7 +13,7 @@ import org.toop.framework.gameFramework.GameState;
  * opening or when no clear best move is found.
  * </p>
  */
-public final class TicTacToeAIR extends AIR<TicTacToeR> {
+public final class TicTacToeAIR extends AbstractAI<TicTacToeR> {
 
     /**
      * Determines the best move for the given Tic-Tac-Toe game state.
@@ -27,10 +27,9 @@ public final class TicTacToeAIR extends AIR<TicTacToeR> {
      * @param depth the depth of lookahead for evaluating moves (non-negative)
      * @return the index of the best move, or -1 if no moves are available
      */
-    @Override
-    public int findBestMove(TicTacToeR game, int depth) {
+    public int getMove(TicTacToeR game) {
+        int depth = 9;
         assert game != null;
-        assert depth >= 0;
         final int[] legalMoves = game.getLegalMoves();
 
         // If there are no moves, return -1
@@ -73,7 +72,7 @@ public final class TicTacToeAIR extends AIR<TicTacToeR> {
      * @return the score of the move
      */
     private int getMoveScore(TicTacToeR game, int depth, int move, boolean maximizing) {
-        final TicTacToeR copy = game.clone();
+        final TicTacToeR copy = game.deepCopy();
         final PlayResult result = copy.play(move);
 
         GameState state = result.state();

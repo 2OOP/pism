@@ -1,8 +1,8 @@
 package org.toop.game.reversi;
 
 import org.toop.framework.gameFramework.GameState;
-import org.toop.framework.gameFramework.PlayResult;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
+import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -11,18 +11,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public final class ReversiR extends TurnBasedGameR {
+public final class ReversiR extends AbstractGame<ReversiR> {
     private int movesTaken;
     private Set<Point> filledCells = new HashSet<>();
     private int[] mostRecentlyFlippedPieces;
 
-    // TODO: Don't hardcore for two players :)
-    public record Score(int player1Score, int player2Score) {}
-
     @Override
-    public ReversiR clone() {
+    public ReversiR deepCopy() {
         return new ReversiR(this);
     }
+
+    // TODO: Don't hardcore for two players :)
+    public record Score(int player1Score, int player2Score) {}
 
 	public ReversiR() {
 		super(8, 8, 2);
@@ -38,10 +38,10 @@ public final class ReversiR extends TurnBasedGameR {
 
 
     private void addStartPieces() {
-        this.setBoardPosition(27, 1);
-        this.setBoardPosition(28, 0);
-        this.setBoardPosition(35, 0);
-        this.setBoardPosition(36, 1);
+        this.setBoard(27, 1);
+        this.setBoard(28, 0);
+        this.setBoard(35, 0);
+        this.setBoard(36, 1);
         updateFilledCellsSet();
     }
     private void updateFilledCellsSet() {
@@ -138,7 +138,7 @@ public final class ReversiR extends TurnBasedGameR {
     }
 
     private boolean gameOver(){
-        ReversiR gameCopy = clone();
+        ReversiR gameCopy = deepCopy();
         return gameCopy.getLegalMoves().length == 0 && gameCopy.skipTurn().getLegalMoves().length == 0;
     }
 
@@ -202,7 +202,7 @@ public final class ReversiR extends TurnBasedGameR {
         if (getLegalMoves().length == 0){
             PlayResult result;
             // Check if next turn is also a force skip
-            if (clone().skipTurn().getLegalMoves().length == 0){
+            if (deepCopy().skipTurn().getLegalMoves().length == 0){
                 // Game over
                 int winner = getWinner();
                 result = new PlayResult(winner == EMPTY ? GameState.DRAW : GameState.WIN, winner);

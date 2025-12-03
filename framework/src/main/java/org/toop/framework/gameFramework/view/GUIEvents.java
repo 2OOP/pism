@@ -1,4 +1,4 @@
-package org.toop.framework.gameFramework;
+package org.toop.framework.gameFramework.view;
 
 import org.toop.framework.eventbus.events.EventsBase;
 import org.toop.framework.eventbus.events.GenericEvent;

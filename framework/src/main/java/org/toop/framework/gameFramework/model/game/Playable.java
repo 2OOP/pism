@@ -1,12 +1,11 @@
-package org.toop.framework.gameFramework.interfaces;
+package org.toop.framework.gameFramework.model.game;
 
 import org.toop.framework.gameFramework.GameState;
-import org.toop.framework.gameFramework.PlayResult;
 
 /**
  * Interface for turn-based games that can be played and queried for legal moves.
  */
-public interface IPlayableR {
+public interface Playable {
 
     /**
      * Returns the moves that are currently valid in the game.

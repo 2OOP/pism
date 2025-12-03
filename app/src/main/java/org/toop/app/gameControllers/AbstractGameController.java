@@ -1,24 +1,24 @@
-package org.toop.app.game.gameControllers;
+package org.toop.app.gameControllers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.gameFramework.interfaces.UpdatesGameUI;
-import org.toop.framework.gameFramework.GUIEvents;
+import org.toop.framework.gameFramework.controller.UpdatesGameUI;
+import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.app.canvas.GameCanvas;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.GameThreadBehaviour.GameThreadStrategy;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.GameThreadStrategy;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
-import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
-import org.toop.game.players.AbstractPlayer;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
+import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
+import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class AbstractGameController<T extends TurnBasedGameR> implements UpdatesGameUI, GameThreadStrategy, SupportsOnlinePlay {
+public abstract class AbstractGameController<T extends AbstractGame<T>> implements UpdatesGameUI, GameThreadStrategy<T> {
     protected final EventFlow eventFlow = new EventFlow();
 
     protected final List<Consumer<?>> listeners = new ArrayList<>();
@@ -32,13 +32,13 @@ public abstract class AbstractGameController<T extends TurnBasedGameR> implement
     // Reference to game canvas
     protected final GameCanvas<T> canvas;
 
-    private final AbstractPlayer[] players;         // List of players, can't be changed.
+    private final Player<T>[] players;         // List of players, can't be changed.
     protected final T game;       // Reference to game instance
-    private final GameThreadStrategy gameThreadBehaviour;
+    private final GameThreadStrategy<T> gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
     // TODO: Make visualisation of moves a behaviour.
-    protected AbstractGameController(GameCanvas<T> canvas, AbstractPlayer[] players, T game, GameThreadStrategy gameThreadBehaviour, String gameType) {
+    protected AbstractGameController(GameCanvas<T> canvas, Player<T>[] players, T game, GameThreadStrategy<T> gameThreadBehaviour, String gameType) {
         logger.info("Creating AbstractGameController");
         // Make sure player list matches expected size
         if (players.length != game.getPlayerCount()){
@@ -50,11 +50,6 @@ public abstract class AbstractGameController<T extends TurnBasedGameR> implement
         this.players = players;
         this.game = game;
         this.gameThreadBehaviour = gameThreadBehaviour;
-
-        // Let players know who they are
-        for(int i = 0; i < players.length; i++){
-            players[i].setPlayerIndex(i);
-        }
 
         primary = new GameView(null, null, null, gameType);
         addListeners();
@@ -71,12 +66,12 @@ public abstract class AbstractGameController<T extends TurnBasedGameR> implement
         gameThreadBehaviour.stop();
     }
 
-    public AbstractPlayer getCurrentPlayer(){
+    public Player<T> getCurrentPlayer(){
         return gameThreadBehaviour.getCurrentPlayer();
     };
 
     public int getCurrentPlayerIndex(){
-        return getCurrentPlayer().getPlayerIndex();
+        return gameThreadBehaviour.getCurrentPlayerIndex();
     }
 
     private void addListeners(){
@@ -100,7 +95,7 @@ public abstract class AbstractGameController<T extends TurnBasedGameR> implement
         stop();
     }
 
-    public AbstractPlayer getPlayer(int player){
+    public Player<T> getPlayer(int player){
         if (player < 0 || player >= players.length){
             logger.error("Invalid player index");
             throw new IllegalArgumentException("player out of range");
@@ -112,24 +107,21 @@ public abstract class AbstractGameController<T extends TurnBasedGameR> implement
         return this.gameThreadBehaviour instanceof SupportsOnlinePlay;
     }
 
-    @Override
-    public void yourTurn(NetworkEvents.YourTurnResponse event){
+    public void onYourTurn(NetworkEvents.YourTurnResponse event){
         if (isOnline()){
-            ((OnlineThreadBehaviour) this.gameThreadBehaviour).yourTurn(event);
+            ((OnlineThreadBehaviour<T>) this.gameThreadBehaviour).onYourTurn(event);
         }
     }
 
-    @Override
-    public void moveReceived(NetworkEvents.GameMoveResponse event){
+    public void onMoveReceived(NetworkEvents.GameMoveResponse event){
         if (isOnline()){
-            ((OnlineThreadBehaviour) this.gameThreadBehaviour).moveReceived(event);
+            ((OnlineThreadBehaviour<T>) this.gameThreadBehaviour).onMoveReceived(event);
         }
     }
 
-    @Override
     public void gameFinished(NetworkEvents.GameResultResponse event){
         if (isOnline()){
-            ((OnlineThreadBehaviour) this.gameThreadBehaviour).gameFinished(event);
+            ((OnlineThreadBehaviour<T>) this.gameThreadBehaviour).gameFinished(event);
         }
     }
 }

@@ -1,9 +1,8 @@
 package org.toop.app;
 
-import org.toop.app.game.Connect4Game;
-import org.toop.app.game.gameControllers.AbstractGameController;
-import org.toop.app.game.gameControllers.ReversiController;
-import org.toop.app.game.gameControllers.TicTacToeController;
+import org.toop.app.gameControllers.AbstractGameController;
+import org.toop.app.gameControllers.ReversiController;
+import org.toop.app.gameControllers.TicTacToeController;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.popup.ChallengePopup;
 import org.toop.app.widget.popup.ErrorPopup;
@@ -15,7 +14,7 @@ import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.OnlinePlayer;
-import org.toop.game.players.AbstractPlayer;
+import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 import org.toop.game.reversi.ReversiAIR;
 import org.toop.game.tictactoe.TicTacToeAIR;
 import org.toop.local.AppContext;
@@ -51,10 +50,6 @@ public final class Server {
 			return GameInformation.Type.TICTACTOE;
 		} else if (game.equalsIgnoreCase("reversi")) {
 			return GameInformation.Type.REVERSI;
-		} else if (game.equalsIgnoreCase("connect4")) {
-			return GameInformation.Type.CONNECT4;
-//		} else if (game.equalsIgnoreCase("battleship")) {
-//			return GameInformation.Type.BATTLESHIP;
 		}
 
 		return null;
@@ -177,8 +172,6 @@ public final class Server {
                 }
                 case REVERSI ->
                         gameController = new ReversiController(players, false);
-                case CONNECT4 ->
-                        new Connect4Game(information, myTurn, this::forfeitGame, this::exitGame, this::sendMessage, onGameOverRunnable);
                 default -> new ErrorPopup("Unsupported game type.");
             }
 
@@ -192,7 +185,7 @@ public final class Server {
         if (gameController == null) {
             return;
         }
-        gameController.yourTurn(response);
+        gameController.onYourTurn(response);
     }
 
     private void handleGameResult(NetworkEvents.GameResultResponse response) {
@@ -206,7 +199,7 @@ public final class Server {
         if (gameController == null) {
             return;
         }
-        gameController.moveReceived(response);
+        gameController.onMoveReceived(response);
     }
 
 	private void handleReceivedChallenge(NetworkEvents.ChallengeResponse response) {

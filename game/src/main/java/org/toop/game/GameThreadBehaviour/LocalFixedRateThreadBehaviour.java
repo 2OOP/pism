@@ -2,10 +2,11 @@ package org.toop.game.GameThreadBehaviour;
 
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.GameState;
-import org.toop.framework.gameFramework.PlayResult;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
-import org.toop.framework.gameFramework.GUIEvents;
-import org.toop.game.players.AbstractPlayer;
+import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviourBase;
+import org.toop.framework.gameFramework.view.GUIEvents;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.gameFramework.model.player.Player;
 
 /**
  * Handles local turn-based game logic at a fixed update rate.
@@ -13,10 +14,10 @@ import org.toop.game.players.AbstractPlayer;
  * Runs a separate thread that executes game turns at a fixed frequency (default 60 updates/sec),
  * applying player moves, updating the game state, and dispatching UI events.
  */
-public class LocalFixedRateThreadBehaviour extends ThreadBehaviourBase implements Runnable {
+public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBehaviourBase<T> implements Runnable {
 
     /** All players participating in the game. */
-    private final AbstractPlayer[] players;
+    private final Player<T>[] players;
 
     /**
      * Creates a fixed-rate behaviour for a local turn-based game.
@@ -24,7 +25,7 @@ public class LocalFixedRateThreadBehaviour extends ThreadBehaviourBase implement
      * @param game    the game instance
      * @param players the list of players in turn order
      */
-    public LocalFixedRateThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
+    public LocalFixedRateThreadBehaviour(T game, Player<T>[] players) {
         super(game, players);
         this.players = players;
     }
@@ -60,8 +61,8 @@ public class LocalFixedRateThreadBehaviour extends ThreadBehaviourBase implement
             if (now >= nextUpdate) {
                 nextUpdate += UPDATE_INTERVAL;
 
-                AbstractPlayer currentPlayer = getCurrentPlayer();
-                int move = currentPlayer.getMove(game.clone());
+                Player<T> currentPlayer = getCurrentPlayer();
+                int move = currentPlayer.getMove(game.deepCopy());
                 PlayResult result = game.play(move);
                 new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
 
@@ -88,7 +89,7 @@ public class LocalFixedRateThreadBehaviour extends ThreadBehaviourBase implement
 
     /** Returns the player whose turn it currently is. */
     @Override
-    public AbstractPlayer getCurrentPlayer() {
+    public Player<T> getCurrentPlayer() {
         return players[game.getCurrentTurn()];
     }
 }

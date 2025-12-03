@@ -1,13 +1,15 @@
-package org.toop.game.GameThreadBehaviour;
+package org.toop.framework.gameFramework.model.game.threadBehaviour;
 
-import org.toop.game.players.AbstractPlayer;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.gameFramework.model.player.AbstractPlayer;
+import org.toop.framework.gameFramework.model.player.Player;
 
 /**
  * Strategy interface for controlling game thread behavior.
  * <p>
  * Defines how a game's execution is started, stopped, and which player is active.
  */
-public interface GameThreadStrategy {
+public interface GameThreadStrategy<T extends TurnBasedGame<T>> {
 
     /** Starts the game loop or execution according to the strategy. */
     void start();
@@ -20,5 +22,7 @@ public interface GameThreadStrategy {
      *
      * @return the current active {@link AbstractPlayer}
      */
-    AbstractPlayer getCurrentPlayer();
+    Player<T> getCurrentPlayer();
+
+    int getCurrentPlayerIndex();
 }

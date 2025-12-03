@@ -1,4 +1,4 @@
-package org.toop.framework.gameFramework.interfaces;
+package org.toop.framework.gameFramework.controller;
 
 /**
  * Interface for classes that can trigger a UI update.

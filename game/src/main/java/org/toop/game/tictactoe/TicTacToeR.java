@@ -1,13 +1,13 @@
 package org.toop.game.tictactoe;
 
-import org.toop.framework.gameFramework.PlayResult;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
+import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.gameFramework.GameState;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public final class TicTacToeR extends TurnBasedGameR {
+public final class TicTacToeR extends AbstractGame<TicTacToeR> {
     private int movesLeft;
 
     public TicTacToeR() {
@@ -101,7 +101,7 @@ public final class TicTacToeR extends TurnBasedGameR {
 
     private boolean checkForEarlyDraw() {
         for (final int move : this.getLegalMoves()) {
-            final TicTacToeR copy = this.clone();
+            final TicTacToeR copy = this.deepCopy();
 
             if (copy.play(move).state() == GameState.WIN || !copy.checkForEarlyDraw()) {
                 return false;
@@ -111,8 +111,7 @@ public final class TicTacToeR extends TurnBasedGameR {
         return true;
     }
 
-    @Override
-    public TicTacToeR clone() {
+    public TicTacToeR deepCopy() {
         return new TicTacToeR(this);
     }
 }

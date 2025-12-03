@@ -1,8 +1,8 @@
 package org.toop.game.GameThreadBehaviour;
 
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.players.AbstractPlayer;
+import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 
 /**
  * Online thread behaviour that adds a fixed delay before processing
@@ -19,7 +19,7 @@ public class OnlineWithSleepThreadBehaviour extends OnlineThreadBehaviour {
      * @param game    the online-capable turn-based game
      * @param players the list of local and remote players
      */
-    public OnlineWithSleepThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
+    public OnlineWithSleepThreadBehaviour(AbstractGame game, AbstractPlayer[] players) {
         super(game, players);
     }
 
@@ -29,7 +29,7 @@ public class OnlineWithSleepThreadBehaviour extends OnlineThreadBehaviour {
      * @param event the network event indicating it's this client's turn
      */
     @Override
-    public void yourTurn(NetworkEvents.YourTurnResponse event) {
+    public void onYourTurn(NetworkEvents.YourTurnResponse event) {
 
         try {
             Thread.sleep(1000);
@@ -37,6 +37,6 @@ public class OnlineWithSleepThreadBehaviour extends OnlineThreadBehaviour {
             e.printStackTrace();
         }
 
-        super.yourTurn(event);
+        super.onYourTurn(event);
     }
 }

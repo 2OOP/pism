@@ -1,6 +1,6 @@
-package org.toop.framework.gameFramework.abstractClasses;
+package org.toop.framework.gameFramework.model.player;
 
-import org.toop.framework.gameFramework.interfaces.IAIMoveR;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 /**
  * Abstract base class for AI implementations for games extending {@link GameR}.
@@ -12,6 +12,6 @@ import org.toop.framework.gameFramework.interfaces.IAIMoveR;
  *
  * @param <T> the specific type of game this AI can play, extending {@link GameR}
  */
-public abstract class AIR<T extends GameR> implements IAIMoveR<T> {
+public abstract class AbstractAI<T extends TurnBasedGame> implements MoveProvider<T> {
     // Concrete AI implementations should override findBestMove(T game, int depth)
 }

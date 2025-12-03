@@ -1,7 +1,7 @@
 package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.game.tictactoe.TicTacToeR;
 
 import java.util.function.Consumer;
@@ -48,7 +48,7 @@ public final class TicTacToeCanvas extends GameCanvas<TicTacToeR> {
 	}
 
     @Override
-    public void drawPlayerHover(int player, int move, TurnBasedGameR game) {
+    public void drawPlayerHover(int player, int move, AbstractGame game) {
 
     }
 }

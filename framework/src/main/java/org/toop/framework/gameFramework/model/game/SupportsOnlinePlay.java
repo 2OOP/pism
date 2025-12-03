@@ -1,4 +1,4 @@
-package org.toop.framework.gameFramework.interfaces;
+package org.toop.framework.gameFramework.model.game;
 
 import org.toop.framework.networking.events.NetworkEvents;
 
@@ -10,10 +10,10 @@ import org.toop.framework.networking.events.NetworkEvents;
 public interface SupportsOnlinePlay {
 
     /** Called when it is this player's turn to make a move. */
-    void yourTurn(NetworkEvents.YourTurnResponse event);
+    void onYourTurn(NetworkEvents.YourTurnResponse event);
 
     /** Called when a move from another player is received. */
-    void moveReceived(NetworkEvents.GameMoveResponse event);
+    void onMoveReceived(NetworkEvents.GameMoveResponse event);
 
     /** Called when the game has finished, with the final result. */
     void gameFinished(NetworkEvents.GameResultResponse event);

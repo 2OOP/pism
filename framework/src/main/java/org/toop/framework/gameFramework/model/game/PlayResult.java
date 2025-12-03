@@ -1,4 +1,4 @@
-package org.toop.framework.gameFramework;
+package org.toop.framework.gameFramework.model.game;
 
 import org.toop.framework.gameFramework.GameState;
 

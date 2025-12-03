@@ -1,12 +1,13 @@
 package org.toop.game.GameThreadBehaviour;
 
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.gameFramework.GUIEvents;
-import org.toop.framework.gameFramework.abstractClasses.GameR;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviourBase;
+import org.toop.framework.gameFramework.view.GUIEvents;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
-import org.toop.framework.gameFramework.interfaces.SupportsOnlinePlay;
-import org.toop.game.players.AbstractPlayer;
+import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
+import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.players.OnlinePlayer;
 
 /**
@@ -15,25 +16,27 @@ import org.toop.game.players.OnlinePlayer;
  * Reacts to server events, sending moves and updating the game state
  * for the local player while receiving moves from other players.
  */
-public class OnlineThreadBehaviour extends ThreadBehaviourBase implements SupportsOnlinePlay {
+public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBehaviourBase<T> implements SupportsOnlinePlay {
 
     /** The local player controlled by this client. */
-    private AbstractPlayer mainPlayer;
+    private final Player<T> mainPlayer;
+    private final int playerTurn;
 
     /**
      * Creates behaviour and sets the first local player
      * (non-online player) from the given array.
      */
-    public OnlineThreadBehaviour(TurnBasedGameR game, AbstractPlayer[] players) {
+    public OnlineThreadBehaviour(T game, Player<T>[] players) {
         super(game, players);
-        this.mainPlayer = getFirstNotOnlinePlayer(players);
+        this.playerTurn = getFirstNotOnlinePlayer(players);
+        this.mainPlayer = players[this.playerTurn];
     }
 
     /** Finds the first non-online player in the array. */
-    private AbstractPlayer getFirstNotOnlinePlayer(AbstractPlayer[] players) {
-        for (AbstractPlayer player : players) {
-            if (!(player instanceof OnlinePlayer)) {
-                return player;
+    private int getFirstNotOnlinePlayer(Player<T>[] players) {
+        for (int i = 0; i < players.length; i++) {
+            if (players[i] instanceof OnlinePlayer) {
+                return i;
             }
         }
         throw new RuntimeException("All players are online players");
@@ -56,9 +59,9 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
      * Sends the generated move back to the server.
      */
     @Override
-    public void yourTurn(NetworkEvents.YourTurnResponse event) {
+    public void onYourTurn(NetworkEvents.YourTurnResponse event) {
         if (!isRunning.get()) return;
-        int move = mainPlayer.getMove(game.clone());
+        int move = mainPlayer.getMove(game.deepCopy());
         new EventFlow().addPostEvent(NetworkEvents.SendMove.class, event.clientId(), (short) move).postEvent();
     }
 
@@ -67,7 +70,7 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
      * Updates the game state and triggers a UI refresh.
      */
     @Override
-    public void moveReceived(NetworkEvents.GameMoveResponse event) {
+    public void onMoveReceived(NetworkEvents.GameMoveResponse event) {
         if (!isRunning.get()) return;
         game.play(Integer.parseInt(event.move()));
         new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
@@ -80,9 +83,9 @@ public class OnlineThreadBehaviour extends ThreadBehaviourBase implements Suppor
     @Override
     public void gameFinished(NetworkEvents.GameResultResponse event) {
         switch(event.condition().toUpperCase()){
-            case "WIN" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, mainPlayer.getPlayerIndex()).postEvent();
-            case "DRAW" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, TurnBasedGameR.EMPTY).postEvent();
-            case "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, (mainPlayer.getPlayerIndex() + 1)%2).postEvent();
+            case "WIN" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, playerTurn).postEvent();
+            case "DRAW" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, AbstractGame.EMPTY).postEvent();
+            case "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, (playerTurn + 1)%2).postEvent();
             default -> {
                 logger.error("Invalid condition");
                 throw new RuntimeException("Unknown condition");
