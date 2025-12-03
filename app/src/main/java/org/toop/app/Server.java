@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import org.toop.app.gameControllers.AbstractGameController;
 import org.toop.app.gameControllers.ReversiController;
 import org.toop.app.gameControllers.TicTacToeController;
+import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.popup.ChallengePopup;
