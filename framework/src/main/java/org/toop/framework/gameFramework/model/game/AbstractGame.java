@@ -1,9 +1,12 @@
 package org.toop.framework.gameFramework.model.game;
 
+import org.toop.framework.gameFramework.model.player.Player;
+
 import java.util.Arrays;
 
 public abstract class AbstractGame<T extends TurnBasedGame<T>> implements TurnBasedGame<T> {
     private final int playerCount;  // How many players are playing
+    private final Player<T>[] players;
     private int turn = 0;           // What turn it is in the game
 
     /** Constant representing an empty position on the board. */
@@ -20,11 +23,13 @@ public abstract class AbstractGame<T extends TurnBasedGame<T>> implements TurnBa
 
 
 
-    protected AbstractGame(int rowSize, int columnSize, int playerCount) {
+    protected AbstractGame(int rowSize, int columnSize, int playerCount, Player<T>[] players) {
         assert rowSize > 0 && columnSize > 0;
 
         this.rowSize = rowSize;
         this.columnSize = columnSize;
+
+        this.players = players;
 
         board = new int[rowSize * columnSize];
         Arrays.fill(board, EMPTY);
@@ -38,6 +43,8 @@ public abstract class AbstractGame<T extends TurnBasedGame<T>> implements TurnBa
         this.board = other.board.clone();
         this.playerCount = other.playerCount;
         this.turn = other.turn;
+        // TODO: Make this a deep copy, add deep copy interface to Player
+        this.players = other.players;
 
     }
 
@@ -47,6 +54,10 @@ public abstract class AbstractGame<T extends TurnBasedGame<T>> implements TurnBa
             if (element == value) return true;
         }
         return false;
+    }
+
+    public Player<T> getPlayer(int index) {
+        return players[index];
     }
 
     public int getPlayerCount(){return this.playerCount;}

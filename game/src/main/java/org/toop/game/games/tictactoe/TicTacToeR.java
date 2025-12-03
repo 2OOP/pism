@@ -1,8 +1,9 @@
-package org.toop.game.tictactoe;
+package org.toop.game.games.tictactoe;
 
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.gameFramework.GameState;
+import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -10,8 +11,8 @@ import java.util.Objects;
 public final class TicTacToeR extends AbstractGame<TicTacToeR> {
     private int movesLeft;
 
-    public TicTacToeR() {
-        super(3, 3, 2);
+    public TicTacToeR(Player<TicTacToeR>[] players) {
+        super(3, 3, 2, players);
         movesLeft = this.getBoard().length;
     }
 

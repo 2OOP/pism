@@ -9,16 +9,16 @@ import org.toop.app.widget.WidgetContainer;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.gameFramework.view.GUIEvents;
-import org.toop.game.GameThreadBehaviour.LocalFixedRateThreadBehaviour;
-import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
+import org.toop.game.gameThreads.LocalFixedRateThreadBehaviour;
+import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.reversi.ReversiR;
+import org.toop.game.games.reversi.ReversiR;
 
 public class ReversiController extends AbstractGameController<ReversiR> {
     // TODO: Refactor GUI update methods to follow designed system
     public ReversiController(Player<ReversiR>[] players, boolean local) {
-        ReversiR ReversiR = new ReversiR();
+        ReversiR ReversiR = new ReversiR(players);
         super(
                 new ReversiCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}, (c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerMoveHovered.class, c).postEvent();}),
                 players,

@@ -1,9 +1,9 @@
-package org.toop.game.GameThreadBehaviour;
+package org.toop.game.gameThreads;
 
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
-import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviourBase;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.AbstractThreadBehaviour;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
@@ -14,7 +14,7 @@ import org.toop.framework.gameFramework.model.player.Player;
  * Runs a separate thread that executes game turns at a fixed frequency (default 60 updates/sec),
  * applying player moves, updating the game state, and dispatching UI events.
  */
-public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBehaviourBase<T> implements Runnable {
+public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements Runnable {
 
     /** All players participating in the game. */
     private final Player<T>[] players;
@@ -26,7 +26,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends T
      * @param players the list of players in turn order
      */
     public LocalFixedRateThreadBehaviour(T game, Player<T>[] players) {
-        super(game, players);
+        super(game);
         this.players = players;
     }
 
@@ -61,7 +61,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends T
             if (now >= nextUpdate) {
                 nextUpdate += UPDATE_INTERVAL;
 
-                Player<T> currentPlayer = getCurrentPlayer();
+                Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
                 int move = currentPlayer.getMove(game.deepCopy());
                 PlayResult result = game.play(move);
                 new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
@@ -85,11 +85,5 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends T
                 } catch (InterruptedException ignored) {}
             }
         }
-    }
-
-    /** Returns the player whose turn it currently is. */
-    @Override
-    public Player<T> getCurrentPlayer() {
-        return players[game.getCurrentTurn()];
     }
 }

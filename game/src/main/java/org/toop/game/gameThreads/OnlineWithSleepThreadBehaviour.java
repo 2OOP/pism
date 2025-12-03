@@ -1,4 +1,4 @@
-package org.toop.game.GameThreadBehaviour;
+package org.toop.game.gameThreads;
 
 import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.networking.events.NetworkEvents;

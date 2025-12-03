@@ -1,8 +1,9 @@
-package org.toop.game.reversi;
+package org.toop.game.games.reversi;
 
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
+import org.toop.framework.gameFramework.model.player.Player;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -24,8 +25,8 @@ public final class ReversiR extends AbstractGame<ReversiR> {
     // TODO: Don't hardcore for two players :)
     public record Score(int player1Score, int player2Score) {}
 
-	public ReversiR() {
-		super(8, 8, 2);
+	public ReversiR(Player<ReversiR>[] players) {
+		super(8, 8, 2, players);
         addStartPieces();
 	}
 

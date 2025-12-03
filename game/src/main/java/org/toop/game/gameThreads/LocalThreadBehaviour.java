@@ -1,7 +1,7 @@
-package org.toop.game.GameThreadBehaviour;
+package org.toop.game.gameThreads;
 
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviourBase;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.AbstractThreadBehaviour;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.GameState;
@@ -14,7 +14,7 @@ import org.toop.framework.gameFramework.model.player.Player;
  * Repeatedly gets the current player's move, applies it to the game,
  * updates the UI, and stops when the game ends or {@link #stop()} is called.
  */
-public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBehaviourBase<T> implements Runnable {
+public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements Runnable {
 
     /**
      * Creates a new behaviour for a local turn-based game.
@@ -23,7 +23,7 @@ public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBeha
      * @param players the list of players in turn order
      */
     public LocalThreadBehaviour(T game, Player<T>[] players) {
-        super(game, players);
+        super(game);
     }
 
     /** Starts the game loop in a new thread. */
@@ -47,7 +47,7 @@ public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBeha
     @Override
     public void run() {
         while (isRunning.get()) {
-            Player<T> currentPlayer = getCurrentPlayer();
+            Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
             int move = currentPlayer.getMove(game.deepCopy());
             PlayResult result = game.play(move);
             new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();

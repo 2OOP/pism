@@ -6,10 +6,10 @@ import org.toop.framework.gameFramework.controller.UpdatesGameUI;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.app.canvas.GameCanvas;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.framework.gameFramework.model.game.threadBehaviour.GameThreadStrategy;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviour;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
+import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.player.Player;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class AbstractGameController<T extends AbstractGame<T>> implements UpdatesGameUI, GameThreadStrategy<T> {
+public abstract class AbstractGameController<T extends AbstractGame<T>> implements UpdatesGameUI, ThreadBehaviour<T> {
     protected final EventFlow eventFlow = new EventFlow();
 
     protected final List<Consumer<?>> listeners = new ArrayList<>();
@@ -34,11 +34,11 @@ public abstract class AbstractGameController<T extends AbstractGame<T>> implemen
 
     private final Player<T>[] players;         // List of players, can't be changed.
     protected final T game;       // Reference to game instance
-    private final GameThreadStrategy<T> gameThreadBehaviour;
+    private final ThreadBehaviour<T> gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
     // TODO: Make visualisation of moves a behaviour.
-    protected AbstractGameController(GameCanvas<T> canvas, Player<T>[] players, T game, GameThreadStrategy<T> gameThreadBehaviour, String gameType) {
+    protected AbstractGameController(GameCanvas<T> canvas, Player<T>[] players, T game, ThreadBehaviour<T> gameThreadBehaviour, String gameType) {
         logger.info("Creating AbstractGameController");
         // Make sure player list matches expected size
         if (players.length != game.getPlayerCount()){
@@ -67,11 +67,11 @@ public abstract class AbstractGameController<T extends AbstractGame<T>> implemen
     }
 
     public Player<T> getCurrentPlayer(){
-        return gameThreadBehaviour.getCurrentPlayer();
+        return game.getPlayer(getCurrentPlayerIndex());
     };
 
     public int getCurrentPlayerIndex(){
-        return gameThreadBehaviour.getCurrentPlayerIndex();
+        return game.getCurrentTurn();
     }
 
     private void addListeners(){

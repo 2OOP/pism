@@ -2,7 +2,7 @@ package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
-import org.toop.game.tictactoe.TicTacToeR;
+import org.toop.game.games.tictactoe.TicTacToeR;
 
 import java.util.function.Consumer;
 

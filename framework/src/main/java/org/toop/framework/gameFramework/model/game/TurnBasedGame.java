@@ -1,5 +1,5 @@
 package org.toop.framework.gameFramework.model.game;
 
-public interface TurnBasedGame<T extends TurnBasedGame<T>> extends Playable, DeepCopyable<T> {
+public interface TurnBasedGame<T extends TurnBasedGame<T>> extends Playable, DeepCopyable<T>, PlayerProvider<T> {
     int getCurrentTurn();
 }

@@ -1,4 +1,4 @@
-package org.toop.game.reversi;
+package org.toop.game.games.reversi;
 
 import org.toop.framework.gameFramework.model.player.AbstractAI;
 

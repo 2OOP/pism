@@ -1,7 +1,7 @@
-package org.toop.game.GameThreadBehaviour;
+package org.toop.game.gameThreads;
 
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviourBase;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.AbstractThreadBehaviour;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
@@ -16,7 +16,7 @@ import org.toop.game.players.OnlinePlayer;
  * Reacts to server events, sending moves and updating the game state
  * for the local player while receiving moves from other players.
  */
-public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBehaviourBase<T> implements SupportsOnlinePlay {
+public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements SupportsOnlinePlay {
 
     /** The local player controlled by this client. */
     private final Player<T> mainPlayer;
@@ -27,7 +27,7 @@ public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends ThreadBeh
      * (non-online player) from the given array.
      */
     public OnlineThreadBehaviour(T game, Player<T>[] players) {
-        super(game, players);
+        super(game);
         this.playerTurn = getFirstNotOnlinePlayer(players);
         this.mainPlayer = players[this.playerTurn];
     }

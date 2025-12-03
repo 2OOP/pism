@@ -14,8 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * a running flag, a game reference, and a logger.
  * Subclasses implement the actual game-loop logic.
  */
-public abstract class ThreadBehaviourBase<T extends TurnBasedGame<T>> implements GameThreadStrategy<T> {
-    private final Player<T>[] players;
+public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implements ThreadBehaviour<T> {
 
     /** Indicates whether the game loop or event processing is active. */
     protected final AtomicBoolean isRunning = new AtomicBoolean();
@@ -31,20 +30,7 @@ public abstract class ThreadBehaviourBase<T extends TurnBasedGame<T>> implements
      *
      * @param game the turn-based game to control
      */
-    public ThreadBehaviourBase(T game, Player<T>[] players) {
+    public AbstractThreadBehaviour(T game) {
         this.game = game;
-        this.players = players;
     }
-
-    /**
-     * Returns the player whose turn it currently is.
-     *
-     * @return the current active player
-     */
-    @Override
-    public Player<T> getCurrentPlayer() {
-        return players[game.getCurrentTurn()];
-    }
-
-    public int getCurrentPlayerIndex() {return game.getCurrentTurn();}
 }

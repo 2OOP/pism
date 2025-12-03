@@ -1,4 +1,4 @@
-package org.toop.game.tictactoe;
+package org.toop.game.games.tictactoe;
 
 import org.toop.framework.gameFramework.model.player.AbstractAI;
 import org.toop.framework.gameFramework.model.game.PlayResult;

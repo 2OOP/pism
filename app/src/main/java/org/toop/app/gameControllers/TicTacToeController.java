@@ -8,17 +8,16 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
-import org.toop.game.GameThreadBehaviour.LocalThreadBehaviour;
-import org.toop.game.GameThreadBehaviour.OnlineThreadBehaviour;
+import org.toop.game.gameThreads.LocalThreadBehaviour;
+import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 import org.toop.app.widget.WidgetContainer;
-import org.toop.game.tictactoe.TicTacToeR;
+import org.toop.game.games.tictactoe.TicTacToeR;
 
 public class TicTacToeController extends AbstractGameController<TicTacToeR> {
 
     public TicTacToeController(Player<TicTacToeR>[] players, boolean local) {
-        TicTacToeR ticTacToeR = new TicTacToeR();
+        TicTacToeR ticTacToeR = new TicTacToeR(players);
         super(
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,

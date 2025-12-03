@@ -8,13 +8,12 @@ import org.toop.app.gameControllers.TicTacToeController;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
-import org.toop.game.reversi.ReversiAIR;
-import org.toop.game.tictactoe.TicTacToeAIR;
+import org.toop.game.games.reversi.ReversiAIR;
+import org.toop.game.games.tictactoe.TicTacToeAIR;
 import org.toop.app.widget.tutorial.*;
 import org.toop.local.AppContext;
 
