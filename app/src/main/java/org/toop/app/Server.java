@@ -99,7 +99,6 @@ public final class Server {
 		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
 
 			if (!e.successful()) {
-//				loading.triggerFailure();
 				return;
 			}
 
@@ -131,6 +130,9 @@ public final class Server {
                                 () -> {
                                     try {
                                         loading.setAmount(e.amount());
+                                        if (e.amount() >= loading.getMaxAmount()) {
+                                            loading.triggerFailure();
+                                        }
                                     } catch (Exception ex) {
                                         throw new RuntimeException(ex);
                                     }

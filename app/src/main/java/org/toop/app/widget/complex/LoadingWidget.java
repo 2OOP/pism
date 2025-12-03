@@ -118,9 +118,9 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
      * Forcefully trigger failure.
      */
     public void triggerFailure() {
-		if (successTriggered.compareAndSet(false, true)) {
+		if (failureTriggered.compareAndSet(false, true)) {
 			Platform.runLater(() -> {
-				if (success != null) success.run();
+				if (failure != null) failure.run();
 			});
 		}
     }
