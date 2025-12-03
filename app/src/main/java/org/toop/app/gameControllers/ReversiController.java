@@ -33,7 +33,7 @@ public class ReversiController extends AbstractGameController<ReversiR> {
 
     private void onHoverMove(GUIEvents.PlayerMoveHovered event){
         int cellEntered = event.move();
-        canvas.drawPlayerHover(-1, cellEntered, game);
+        //canvas.drawPlayerHover(-1, cellEntered, game);
         /*// (information.players[game.getCurrentTurn()].isHuman) {
             int[] legalMoves = game.getLegalMoves();
             boolean isLegalMove = false;
@@ -72,20 +72,20 @@ public class ReversiController extends AbstractGameController<ReversiR> {
             }
         }
 
-        final int[] flipped = game.getMostRecentlyFlippedPieces();
+        //final int[] flipped = game.getMostRecentlyFlippedPieces();
 
         final SequentialTransition animation = new SequentialTransition();
 
         final Color fromColor = getCurrentPlayerIndex() == 0? Color.WHITE : Color.BLACK;
         final Color toColor = getCurrentPlayerIndex() == 0? Color.BLACK : Color.WHITE;
 
-        if (animate && flipped != null) {
+        /*if (animate && flipped != null) {
             for (final int flip : flipped) {
                 canvas.clear(flip);
                 canvas.drawDot(fromColor, flip);
                 animation.getChildren().addFirst(canvas.flipDot(fromColor, toColor, flip));
             }
-        }
+        }*/
 
         animation.setOnFinished(_ -> {
 

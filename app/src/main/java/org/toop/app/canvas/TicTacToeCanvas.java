@@ -2,11 +2,11 @@ package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
-import org.toop.game.games.tictactoe.TicTacToeR;
+import org.toop.game.games.tictactoe.BitboardTicTacToe;
 
 import java.util.function.Consumer;
 
-public final class TicTacToeCanvas extends GameCanvas<TicTacToeR> {
+public final class TicTacToeCanvas extends GameCanvas<BitboardTicTacToe> {
 	public TicTacToeCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked) {
 		super(color, Color.TRANSPARENT, width, height, 3, 3, 30, false, onCellClicked,null);
 	}

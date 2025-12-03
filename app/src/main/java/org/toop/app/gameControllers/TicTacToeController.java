@@ -12,17 +12,17 @@ import org.toop.game.gameThreads.LocalThreadBehaviour;
 import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 import org.toop.app.widget.WidgetContainer;
-import org.toop.game.games.tictactoe.TicTacToeR;
+import org.toop.game.games.tictactoe.BitboardTicTacToe;
 
-public class TicTacToeController extends AbstractGameController<TicTacToeR> {
+public class TicTacToeController extends AbstractGameController<BitboardTicTacToe> {
 
-    public TicTacToeController(Player<TicTacToeR>[] players, boolean local) {
-        TicTacToeR ticTacToeR = new TicTacToeR(players);
+    public TicTacToeController(Player<BitboardTicTacToe>[] players, boolean local) {
+        BitboardTicTacToe BitboardTicTacToe = new BitboardTicTacToe(players);
         super(
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,
-                ticTacToeR,
-                local ? new LocalThreadBehaviour(ticTacToeR, players) : new OnlineThreadBehaviour<>(ticTacToeR, players), // TODO: Player order matters here, this won't work atm
+                BitboardTicTacToe,
+                local ? new LocalThreadBehaviour(BitboardTicTacToe, players) : new OnlineThreadBehaviour<>(BitboardTicTacToe, players), // TODO: Player order matters here, this won't work atm
                 "TicTacToe");
 
         initUI();
@@ -31,7 +31,7 @@ public class TicTacToeController extends AbstractGameController<TicTacToeR> {
         //new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}});
     }
 
-    public TicTacToeController(Player<TicTacToeR>[] players) {
+    public TicTacToeController(Player<BitboardTicTacToe>[] players) {
         this(players, true);
     }
 
@@ -53,7 +53,7 @@ public class TicTacToeController extends AbstractGameController<TicTacToeR> {
         int[] board = game.getBoard();
 
         // Draw each square
-        for (int i = 0; i < board.length; i++){
+        for (int i = 0; i < 9; i++){
             // If square isn't empty, draw player move
             if (board[i] != AbstractGame.EMPTY){
                 canvas.drawPlayerMove(board[i], i);

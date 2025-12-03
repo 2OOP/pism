@@ -1,14 +1,15 @@
-package org.toop.game.reversi;
+package org.toop.game.games.reversi;
 
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
-public class BitboardReversi extends BitboardGame {
+public class BitboardReversi extends BitboardGame<BitboardReversi> {
+
     @Override
-    public Player<BitboardGame> getPlayer(int index) {
-        return null;
+    public int[] getBoard() {
+        return translateBoard();
     }
 
     public record Score(int black, int white) {}
@@ -16,8 +17,8 @@ public class BitboardReversi extends BitboardGame {
 	private final long notAFile = 0xfefefefefefefefeL;
 	private final long notHFile = 0x7f7f7f7f7f7f7f7fL;
 
-	public BitboardReversi() {
-		super(8, 8, 2);
+	public BitboardReversi(Player<BitboardReversi>[] players) {
+		super(8, 8, 2, players);
 
 		// Black (player 0)
 		setPlayerBitboard(0, (1L << (3 + 4 * 8)) | (1L << (4 + 3 * 8)));
@@ -26,7 +27,7 @@ public class BitboardReversi extends BitboardGame {
 		setPlayerBitboard(1, (1L << (3 + 3 * 8)) | (1L << (4 + 4 * 8)));	}
 
 	public long getLegalMoves2() {
-		final long player = getPlayerBitboard(getCurrentPlayer());
+		final long player = getPlayerBitboard(getCurrentPlayerIndex());
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
 		long legalMoves = 0L;
@@ -43,7 +44,7 @@ public class BitboardReversi extends BitboardGame {
 	}
 
 	public long getFlips(long move) {
-		final long player = getPlayerBitboard(getCurrentPlayer());
+		final long player = getPlayerBitboard(getCurrentPlayerIndex());
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
 		long flips = 0L;
@@ -66,7 +67,7 @@ public class BitboardReversi extends BitboardGame {
 
     @Override
     public PlayResult play(int move) {
-        return new PlayResult(playBit(translateMove(move)), getCurrentPlayer());
+        return new PlayResult(playBit(translateMove(move)), getCurrentPlayerIndex());
     }
 
     // TODO: Implement
@@ -76,13 +77,13 @@ public class BitboardReversi extends BitboardGame {
 	public GameState playBit(long move) {
 		final long flips = getFlips(move);
 
-		long player = getPlayerBitboard(getCurrentPlayer());
+		long player = getPlayerBitboard(getCurrentPlayerIndex());
 		long opponent = getPlayerBitboard(getNextPlayer());
 
 		player |= move | flips;
 		opponent &= ~flips;
 
-		setPlayerBitboard(getCurrentPlayer(), player);
+		setPlayerBitboard(getCurrentPlayerIndex(), player);
 		setPlayerBitboard(getNextPlayer(), opponent);
 
 		nextTurn();

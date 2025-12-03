@@ -9,10 +9,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 import org.toop.framework.gameFramework.model.game.AbstractGame;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 import java.util.function.Consumer;
 
-public abstract class GameCanvas<T extends AbstractGame> implements DrawPlayerMove, DrawPlayerHover {
+public abstract class GameCanvas<T extends TurnBasedGame<T>> implements DrawPlayerMove, DrawPlayerHover {
 	protected record Cell(float x, float y, float width, float height) {
 		public boolean isInside(double x, double y) {
 			return x >= this.x && x <= this.x + width &&

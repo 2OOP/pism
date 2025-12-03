@@ -1,9 +1,11 @@
-package org.toop.game.tictactoe;
+package org.toop.game.games.tictactoe;
 
 import org.toop.framework.gameFramework.GameState;
+import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
-public class BitboardTicTacToe extends BitboardGame {
+public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 	private final long[] winningLines = {
 		0b111000000L, // top row
 		0b000111000L, // middle row
@@ -15,8 +17,8 @@ public class BitboardTicTacToe extends BitboardGame {
 		0b001010100L  // anti-diagonal
 	};
 
-	public BitboardTicTacToe() {
-		super(3, 3, 2);
+	public BitboardTicTacToe(Player<BitboardTicTacToe>[] players) {
+		super(3, 3, 2, players);
 	}
 
     @Override
@@ -24,7 +26,12 @@ public class BitboardTicTacToe extends BitboardGame {
         return translateLegalMoves(getLegalMoves2());
     }
 
-	public long getLegalMoves2() {
+    @Override
+    public PlayResult play(int move) {
+        return new PlayResult(play2(translateMove(move)), getCurrentPlayerIndex());
+    }
+
+    public long getLegalMoves2() {
 		final long xBitboard = getPlayerBitboard(0);
 		final long oBitboard = getPlayerBitboard(1);
 
@@ -32,22 +39,22 @@ public class BitboardTicTacToe extends BitboardGame {
 		return (~taken) & 0x1ffL;
 	}
 
-	@Override
-	public GameState play(long move) {
-		long playerBitboard = getPlayerBitboard(getCurrentPlayer());
+	public GameState play2(long move) {
+		long playerBitboard = getPlayerBitboard(getCurrentPlayerIndex());
 		playerBitboard |= move;
 
-		setPlayerBitboard(getCurrentPlayer(), playerBitboard);
+		setPlayerBitboard(getCurrentPlayerIndex(), playerBitboard);
+        nextTurn();
 
 		if (checkWin(playerBitboard)) {
 			return GameState.WIN;
 		}
 
-		if (getLegalMoves() <= 0L || checkEarlyDraw()) {
+		if (getLegalMoves2() <= 0L || checkEarlyDraw()) {
 			return GameState.DRAW;
 		}
 
-		nextTurn();
+
 
 		return GameState.NORMAL;
 	}
@@ -81,4 +88,15 @@ public class BitboardTicTacToe extends BitboardGame {
 
 		return true;
 	}
+
+    @Override
+    public int[] getBoard() {
+        return translateBoard();
+    }
+
+    // TODO: Implement
+    @Override
+    public BitboardTicTacToe deepCopy() {
+        return this;
+    }
 }

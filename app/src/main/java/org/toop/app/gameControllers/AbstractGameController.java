@@ -3,6 +3,7 @@ package org.toop.app.gameControllers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.gameFramework.controller.UpdatesGameUI;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.app.canvas.GameCanvas;
 import org.toop.framework.networking.events.NetworkEvents;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class AbstractGameController<T extends AbstractGame<T>> implements UpdatesGameUI, ThreadBehaviour<T> {
+public abstract class AbstractGameController<T extends TurnBasedGame<T>> implements UpdatesGameUI, ThreadBehaviour<T> {
     protected final EventFlow eventFlow = new EventFlow();
 
     protected final List<Consumer<?>> listeners = new ArrayList<>();
@@ -33,18 +34,13 @@ public abstract class AbstractGameController<T extends AbstractGame<T>> implemen
     protected final GameCanvas<T> canvas;
 
     private final Player<T>[] players;         // List of players, can't be changed.
-    protected final T game;       // Reference to game instance
+    protected final TurnBasedGame<T> game;       // Reference to game instance
     private final ThreadBehaviour<T> gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
     // TODO: Make visualisation of moves a behaviour.
     protected AbstractGameController(GameCanvas<T> canvas, Player<T>[] players, T game, ThreadBehaviour<T> gameThreadBehaviour, String gameType) {
         logger.info("Creating AbstractGameController");
-        // Make sure player list matches expected size
-        if (players.length != game.getPlayerCount()){
-            logger.error("Player count mismatch");
-            throw new IllegalArgumentException("players and game's players must have same length");
-        }
 
         this.canvas = canvas;
         this.players = players;

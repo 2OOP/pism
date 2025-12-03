@@ -2,22 +2,27 @@ package org.toop.game;
 
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class BitboardGame implements TurnBasedGame<BitboardGame> {
+public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBasedGame<T> {
 	private final int columnSize;
 	private final int rowSize;
+
+    private Player<T>[] players;
 
 	// long is 64 bits. Every game has a limit of 64 cells maximum.
 	private final long[] playerBitboard;
 	private int currentTurn;
 
-	public BitboardGame(int columnSize, int rowSize, int playerCount) {
+	public BitboardGame(int columnSize, int rowSize, int playerCount, Player<T>[] players) {
 		this.columnSize = columnSize;
 		this.rowSize = rowSize;
+
+        this.players = players;
 
 		this.playerBitboard = new long[playerCount];
 		this.currentTurn = 0;
@@ -34,6 +39,7 @@ public abstract class BitboardGame implements TurnBasedGame<BitboardGame> {
                 j++;
             }
         }
+        System.out.println(Arrays.toString(output));
         return output;
     }
 
@@ -43,6 +49,7 @@ public abstract class BitboardGame implements TurnBasedGame<BitboardGame> {
 
     protected int[] translateBoard(){
         int[] output = new int[64];
+        Arrays.fill(output, -1);
         for(int i = 0; i < this.playerBitboard.length; i++){
             for (int j = 0; j < 64; j++){
                 if ((this.playerBitboard[i] & (1L << j)) != 0){
@@ -82,16 +89,22 @@ public abstract class BitboardGame implements TurnBasedGame<BitboardGame> {
 	}
 
 	public int getCurrentTurn() {
-		return currentTurn;
+		return getCurrentPlayerIndex();
 	}
 
-	public int getCurrentPlayer() {
+    public Player<T> getPlayer(int index) {return players[index];}
+
+	public int getCurrentPlayerIndex() {
 		return currentTurn % playerBitboard.length;
 	}
 
 	public int getNextPlayer() {
 		return (currentTurn + 1) % playerBitboard.length;
 	}
+
+    public Player<T> getCurrentPlayer(){
+        return players[getCurrentPlayerIndex()];
+    }
 
 	public void nextTurn() {
 		currentTurn++;
