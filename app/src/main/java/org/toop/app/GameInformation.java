@@ -3,9 +3,7 @@ package org.toop.app;
 public class GameInformation {
 	public enum Type {
 		TICTACTOE(2, 5),
-		REVERSI(2, 10),
-        CONNECT4(2, 7),
-        BATTLESHIP(2, 5);
+		REVERSI(2, 10);
 
         private final int playerCount;
         private final int maxDepth;

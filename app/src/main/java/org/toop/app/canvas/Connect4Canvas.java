@@ -1,7 +1,7 @@
 package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
 
 import java.util.function.Consumer;
 
@@ -11,7 +11,7 @@ public class Connect4Canvas extends GameCanvas {
     }
 
     @Override
-    public void drawPlayerHover(int player, int move, TurnBasedGameR game) {
+    public void drawPlayerHover(int player, int move, AbstractGame game) {
 
     }
 }
