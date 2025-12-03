@@ -1,5 +1,6 @@
 package org.toop.app;
 
+import org.toop.Main;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
@@ -7,12 +8,17 @@ import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.display.SongDisplay;
 import org.toop.app.widget.popup.QuitPopup;
 import org.toop.app.widget.view.MainView;
+import org.toop.framework.audio.*;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.networking.NetworkingClientEventListener;
+import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.events.AssetLoaderEvents;
 import org.toop.framework.resource.resources.CssAsset;
+import org.toop.framework.resource.resources.MusicAsset;
+import org.toop.framework.resource.resources.SoundEffectAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 
@@ -37,6 +43,9 @@ public final class App extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
+		// Start loading localization
+		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/localization"));
+
         final StackPane root = WidgetContainer.setup();
 		final Scene scene = new Scene(root);
 
@@ -68,27 +77,17 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
-        var loading = new LoadingWidget(Primitive.text(
-                "Loading...", false), 0, 0, 9999
+        LoadingWidget loading = new LoadingWidget(Primitive.text(
+                "Loading...", false), 0, 0, Integer.MAX_VALUE // Just set a high default
         );
 
         WidgetContainer.add(Pos.CENTER, loading);
 
-        loading.setOnSuccess(() -> {
-            AppSettings.applySettings();
-            loading.hide();
-            WidgetContainer.add(Pos.CENTER, new MainView());
-            WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
-            stage.setOnCloseRequest(event -> {
-                event.consume();
-                startQuit();
-            });
-        });
+		setOnLoadingSuccess(loading);
 
-        var loadingFlow = new EventFlow();
+        EventFlow loadingFlow = new EventFlow();
         loadingFlow
                 .listen(AssetLoaderEvents.LoadingProgressUpdate.class, e -> {
-
                     loading.setMaxAmount(e.isLoadingAmount()-1);
 
                     try {
@@ -99,13 +98,53 @@ public final class App extends Application {
 
                     if (e.hasLoadedAmount() >= e.isLoadingAmount()-1) {
                         loading.triggerSuccess();
-                        loadingFlow.unsubscribe("initloading");
+                        loadingFlow.unsubscribe("init_loading");
                     }
 
-                }, false, "initloading");
+                }, false, "init_loading");
 
+		// Start loading assets
         ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
-        new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
+	}
+
+	private void setOnLoadingSuccess(LoadingWidget loading) {
+		loading.setOnSuccess(() -> {
+			initSystems();
+			AppSettings.applySettings();
+			new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
+			loading.hide();
+			WidgetContainer.add(Pos.CENTER, new MainView());
+			WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
+			stage.setOnCloseRequest(event -> {
+				event.consume();
+				startQuit();
+			});
+		});
+	}
+
+	private void initSystems() { // TODO Move to better place
+		new Thread(() -> new NetworkingClientEventListener(new NetworkingClientManager())).start();
+
+		new Thread(() -> {
+			MusicManager<MusicAsset> musicManager =
+					new MusicManager<>(ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class), true);
+
+			SoundEffectManager<SoundEffectAsset> soundEffectManager =
+					new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));
+
+			AudioVolumeManager audioVolumeManager = new AudioVolumeManager()
+					.registerManager(VolumeControl.MASTERVOLUME, musicManager)
+					.registerManager(VolumeControl.MASTERVOLUME, soundEffectManager)
+					.registerManager(VolumeControl.FX, soundEffectManager)
+					.registerManager(VolumeControl.MUSIC, musicManager);
+
+			new AudioEventListener<>(
+					musicManager,
+					soundEffectManager,
+					audioVolumeManager
+			).initListeners("medium-button-click.wav");
+
+		}).start();
 	}
 
 	public static void startQuit() {
