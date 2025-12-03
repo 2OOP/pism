@@ -1,9 +1,12 @@
 package org.toop.app;
 
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import org.toop.app.gameControllers.AbstractGameController;
 import org.toop.app.gameControllers.ReversiController;
 import org.toop.app.gameControllers.TicTacToeController;
 import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.popup.ChallengePopup;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
@@ -78,7 +81,13 @@ public final class Server {
 			return;
 		}
 
-		final int reconnectAttempts = 10;
+		final int reconnectAttempts = 5;
+
+		LoadingWidget loading = new LoadingWidget(
+                Primitive.text("connecting"), 0, 0, reconnectAttempts
+        );
+
+		WidgetContainer.getCurrentView().transitionNext(loading);
 
 		var a = new EventFlow()
 			.addPostEvent(NetworkEvents.StartClient.class,
@@ -86,8 +95,31 @@ public final class Server {
 				new NetworkingConnector(ip, parsedPort, reconnectAttempts, 1, TimeUnit.SECONDS)
 			);
 
+        loading.setOnFailure(() -> {
+            WidgetContainer.getCurrentView().transitionPrevious();
+            a.unsubscribe("connecting");
+            WidgetContainer.add(
+                    Pos.CENTER,
+                    new ErrorPopup(AppContext.getString("connecting-failed") + " " + ip + ":" + port)
+            );
+        });
+
 		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
 
+			if (!e.successful()) {
+//				loading.triggerFailure();
+				return;
+			}
+
+			try {
+				TimeUnit.MILLISECONDS.sleep(500); // TODO temp fix for index bug
+			} catch (InterruptedException ex) {
+				throw new RuntimeException(ex);
+			}
+
+			WidgetContainer.getCurrentView().transitionPrevious();
+
+			a.unsubscribe("connecting");
 			a.unsubscribe("startclient");
 
 			this.user = user;
@@ -98,10 +130,23 @@ public final class Server {
 			primary = new ServerView(user, this::sendChallenge, this::disconnect);
 			WidgetContainer.getCurrentView().transitionNext(primary);
 
-				startPopulateScheduler();
-				populateGameList();
-
-			}).postEvent();
+			startPopulateScheduler();
+			populateGameList();
+		}, false, "startclient")
+				.listen(
+                        NetworkEvents.ConnectTry.class,
+                        e -> Platform.runLater(
+                                () -> {
+                                    try {
+                                        loading.setAmount(e.amount());
+                                    } catch (Exception ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }
+                        ),
+                        false, "connecting"
+                )
+				.postEvent();
 
 		eventFlow.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false)
                 .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false)
