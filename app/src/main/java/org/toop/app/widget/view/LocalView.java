@@ -16,14 +16,9 @@ public class LocalView extends ViewWidget {
 			transitionNext(new LocalMultiplayerView(GameInformation.Type.REVERSI));
 		});
 
-		var connect4Button = Primitive.button("connect4", () -> {
-			transitionNext(new LocalMultiplayerView(GameInformation.Type.CONNECT4));
-		});
-
 		add(Pos.CENTER, Primitive.vbox(
 			ticTacToeButton,
-			reversiButton,
-			connect4Button
+			reversiButton
 		));
 	}
 }

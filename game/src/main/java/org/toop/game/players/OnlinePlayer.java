@@ -1,5 +1,8 @@
 package org.toop.game.players;
 
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.gameFramework.model.player.AbstractPlayer;
+
 /**
  * Represents a player controlled remotely or over a network.
  * <p>
@@ -8,7 +11,7 @@ package org.toop.game.players;
  * Currently, this class is a placeholder and does not implement move logic.
  * </p>
  */
-public class OnlinePlayer extends AbstractPlayer {
+public class OnlinePlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
 
     /**
      * Constructs a new OnlinePlayer.

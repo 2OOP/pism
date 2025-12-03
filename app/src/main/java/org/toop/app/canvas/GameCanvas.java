@@ -8,11 +8,11 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-import org.toop.framework.gameFramework.abstractClasses.TurnBasedGameR;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
 
 import java.util.function.Consumer;
 
-public abstract class GameCanvas<T extends TurnBasedGameR> implements DrawPlayerMove, DrawPlayerHover {
+public abstract class GameCanvas<T extends AbstractGame> implements DrawPlayerMove, DrawPlayerHover {
 	protected record Cell(float x, float y, float width, float height) {
 		public boolean isInside(double x, double y) {
 			return x >= this.x && x <= this.x + width &&
