@@ -148,6 +148,8 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
         if (maxAmount != 0) {
             percentage = (float) amount / maxAmount;
         }
-        if (!isInfiniteBar) progressBar.setProgress(percentage);
+        if (!isInfiniteBar) {
+            progressBar.setProgress(percentage);
+        }
     }
 }
