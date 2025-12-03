@@ -1,5 +1,6 @@
 package org.toop.app.widget.complex;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
@@ -7,6 +8,7 @@ import javafx.scene.text.Text;
 import org.toop.app.widget.Primitive;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoadingWidget extends ViewWidget implements Update { // TODO make of widget type
     private final ProgressBar progressBar;
@@ -14,8 +16,8 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
 
     private Runnable success = () -> {};
     private Runnable failure = () -> {};
-    private boolean successTriggered = false;
-    private boolean failureTriggered = false;
+    private AtomicBoolean successTriggered = new AtomicBoolean(false);
+    private AtomicBoolean failureTriggered = new AtomicBoolean(false);
     private int maxAmount;
     private int minAmount;
     private int amount;
@@ -66,7 +68,7 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
     }
 
     public boolean isTriggered() {
-        return (failureTriggered || successTriggered);
+        return (failureTriggered.get() || successTriggered.get());
     }
 
     /**
@@ -105,21 +107,27 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
      * Forcefully trigger success.
      */
     public void triggerSuccess() {
-        successTriggered = true; // TODO, else it will double call... why?
-        success.run();
+		if (successTriggered.compareAndSet(false, true)) {
+			Platform.runLater(() -> {
+				if (success != null) success.run();
+			});
+		}
     }
 
     /**
      * Forcefully trigger failure.
      */
     public void triggerFailure() {
-        failureTriggered = true; // TODO, else it will double call... why?
-        failure.run();
+		if (failureTriggered.compareAndSet(false, true)) {
+			Platform.runLater(() -> {
+				if (failure != null) failure.run();
+			});
+		}
     }
 
     @Override
     public void update() throws Exception { // TODO Better exception
-        if (successTriggered || failureTriggered) { // If already triggered, throw exception.
+        if (successTriggered.get() || failureTriggered.get()) { // If already triggered, throw exception.
             throw new RuntimeException();
         }
 
@@ -133,7 +141,9 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
             return;
         }
 
-        percentage = (float) amount / maxAmount;
+        if (maxAmount != 0) {
+            percentage = (float) amount / maxAmount;
+        }
         progressBar.setProgress(percentage);
 
     }

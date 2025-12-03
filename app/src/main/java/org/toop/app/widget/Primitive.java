@@ -23,7 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
-public final class  Primitive {
+public final class Primitive {
 	public static Text header(String key, boolean localize) {
 		var header = new Text();
 		header.getStyleClass().add("header");
@@ -78,7 +78,6 @@ public final class  Primitive {
 			button.setOnAction(_ -> {
                 onAction.run();
                 playButtonSound();
-                System.out.println("HI I got called button");
             });
 		}
 

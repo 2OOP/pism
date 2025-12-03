@@ -1,12 +1,17 @@
 package org.toop.app;
 
+import org.toop.app.widget.Primitive;
+import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
+import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.display.SongDisplay;
 import org.toop.app.widget.popup.QuitPopup;
 import org.toop.app.widget.view.MainView;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.events.AssetLoaderEvents;
 import org.toop.framework.resource.resources.CssAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
@@ -47,7 +52,7 @@ public final class App extends Application {
         stage.setMinHeight(720);
 		stage.setOnCloseRequest(event -> {
 			event.consume();
-			startQuit();
+			quit();
 		});
 
 		stage.setScene(scene);
@@ -63,11 +68,44 @@ public final class App extends Application {
 
 		App.isQuitting = false;
 
-		AppSettings.applySettings();
-		new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
+        var loading = new LoadingWidget(Primitive.text(
+                "Loading...", false), 0, 0, 9999
+        );
 
-        WidgetContainer.add(Pos.CENTER, new MainView());
-		WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
+        WidgetContainer.add(Pos.CENTER, loading);
+
+        loading.setOnSuccess(() -> {
+            AppSettings.applySettings();
+            loading.hide();
+            WidgetContainer.add(Pos.CENTER, new MainView());
+            WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
+            stage.setOnCloseRequest(event -> {
+                event.consume();
+                startQuit();
+            });
+        });
+
+        var loadingFlow = new EventFlow();
+        loadingFlow
+                .listen(AssetLoaderEvents.LoadingProgressUpdate.class, e -> {
+
+                    loading.setMaxAmount(e.isLoadingAmount()-1);
+
+                    try {
+                        loading.setAmount(e.hasLoadedAmount());
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+
+                    if (e.hasLoadedAmount() >= e.isLoadingAmount()-1) {
+                        loading.triggerSuccess();
+                        loadingFlow.unsubscribe("initloading");
+                    }
+
+                }, false, "initloading");
+
+        ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets"));
+        new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).asyncPostEvent();
 	}
 
 	public static void startQuit() {
