@@ -82,10 +82,10 @@ public final class Server {
 			return;
 		}
 
-		final int reconnectAttempts = 5;
+		final int reconnectAttempts = 10;
 
 		LoadingWidget loading = new LoadingWidget(
-                Primitive.text("connecting"), 0, 0, reconnectAttempts
+                Primitive.text("connecting"), 0, 0, reconnectAttempts, true
         );
 
 		WidgetContainer.getCurrentView().transitionNext(loading);
@@ -108,14 +108,7 @@ public final class Server {
 		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
 
 			if (!e.successful()) {
-//				loading.triggerFailure();
 				return;
-			}
-
-			try {
-				TimeUnit.MILLISECONDS.sleep(500); // TODO temp fix for index bug
-			} catch (InterruptedException ex) {
-				throw new RuntimeException(ex);
 			}
 
 			WidgetContainer.getCurrentView().transitionPrevious();
@@ -140,6 +133,9 @@ public final class Server {
                                 () -> {
                                     try {
                                         loading.setAmount(e.amount());
+                                        if (e.amount() >= loading.getMaxAmount()) {
+                                            loading.triggerFailure();
+                                        }
                                     } catch (Exception ex) {
                                         throw new RuntimeException(ex);
                                     }
@@ -307,7 +303,7 @@ public final class Server {
 			} else {
 				stopScheduler();
 			}
-		}, 0, 5, TimeUnit.SECONDS);
+		}, 0, 1, TimeUnit.SECONDS);
 	}
 
 	private void stopScheduler() {

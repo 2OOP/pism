@@ -27,16 +27,22 @@ public class AppSettings {
 
 		AppContext.setLocale(Locale.of(settingsData.locale));
 		App.setFullscreen(settingsData.fullScreen);
-		new EventFlow()
-			.addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume, VolumeControl.MASTERVOLUME))
-			.asyncPostEvent();
-		new EventFlow()
-			.addPostEvent(new AudioEvents.ChangeVolume(settingsData.fxVolume, VolumeControl.FX))
-			.asyncPostEvent();
-		new EventFlow()
-			.addPostEvent(new AudioEvents.ChangeVolume(settingsData.musicVolume, VolumeControl.MUSIC))
-			.asyncPostEvent();
+
 		App.setStyle(settingsAsset.getTheme(), settingsAsset.getLayoutSize());
+	}
+
+	public static void applyMusicVolumeSettings() {
+		Settings settingsData = settingsAsset.getContent();
+
+		new EventFlow()
+				.addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume, VolumeControl.MASTERVOLUME))
+				.asyncPostEvent();
+		new EventFlow()
+				.addPostEvent(new AudioEvents.ChangeVolume(settingsData.fxVolume, VolumeControl.FX))
+				.asyncPostEvent();
+		new EventFlow()
+				.addPostEvent(new AudioEvents.ChangeVolume(settingsData.musicVolume, VolumeControl.MUSIC))
+				.asyncPostEvent();
 	}
 
 	public static SettingsAsset getPath() {
