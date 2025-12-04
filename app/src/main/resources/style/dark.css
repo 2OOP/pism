@@ -16,7 +16,6 @@
     -fx-padding: 8 12 8 12;
     -fx-spacing: 6px;
     -fx-alignment: center;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.5, 0, 2);
     -fx-min-width: 220px;
     -fx-max-width: 260px;
 }
@@ -37,6 +36,18 @@
 
 .progress-bar > .bar {
     -fx-background-radius: 30px;
+}
+
+.loading-progress-bar {
+	-fx-progress-color: #3caf3f;
+}
+
+.loading-progress-bar > .bar {
+	-fx-background-color: #3caf3f;
+}
+
+.loading-progress-bar > .track {
+	-fx-background-color: rgba(0,0,0,0.15);
 }
 
 .progress-text {

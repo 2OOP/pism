@@ -33,7 +33,7 @@ public class SongDisplay extends VBox implements Widget {
 		songTitle.getStyleClass().add("song-title");
 
 		progressBar = new ProgressBar(0);
-		progressBar.getStyleClass().add("progress-bar");
+		progressBar.getStyleClass().add("loading-progress-bar");
 
 		progressText = new Text("0:00/0:00");
 		progressText.getStyleClass().add("progress-text");
