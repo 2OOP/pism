@@ -13,69 +13,79 @@
 }
 
 .song-display {
-    -fx-padding: 8 12 8 12;
-    -fx-spacing: 6px;
-    -fx-alignment: center;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.5, 0, 2);
-    -fx-min-width: 220px;
-    -fx-max-width: 260px;
+	-fx-padding: 8 12 8 12;
+	-fx-spacing: 6px;
+	-fx-alignment: center;
+	-fx-min-width: 220px;
+	-fx-max-width: 260px;
 }
 
 .song-title {
-    -fx-font-size: 14px;
-    -fx-fill: black;
+	-fx-font-size: 14px;
+	-fx-effect: null;
 }
 
 .progress-bar {
-    -fx-inner-background-color: black;
-    -fx-pref-width: 200px;
-    -fx-accent: red;
+	-fx-inner-background-color: black;
+	-fx-pref-width: 200px;
+	-fx-accent: red;
 }
 
 .progress-bar > .track {
-    -fx-background-radius: 30;
+	-fx-background-radius: 30;
 }
 
 .progress-bar > .bar {
-    -fx-background-radius: 30px;
+	-fx-background-radius: 30px;
+}
+
+.loading-progress-bar {
+	-fx-progress-color: #3caf3f;
+}
+
+.loading-progress-bar > .bar {
+	-fx-background-color: linear-gradient(to bottom, #a2d1a1, #b8e3b9);
+}
+
+.loading-progress-bar > .track {
+	-fx-background-color: rgba(0,0,0,0.15);
 }
 
 .progress-text {
-    -fx-font-size: 11px;
-    -fx-fill: black;
+	-fx-font-size: 11px;
+	-fx-effect: null;
 }
 
 .skip-button {
-    -fx-background-color: transparent;
-    -fx-background-radius: 0;
- 	-fx-cursor: hand;
- 	-fx-text-fill: black;
- 	}
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-cursor: hand;
+	-fx-effect: null;
+}
 
 .skip-button .text {
-    -fx-fill: black;
 }
 
 .pause-button {
-    -fx-background-color: transparent;
-    -fx-background-radius: 0;
- 	-fx-cursor: hand;
- 	-fx-text-fill: black;
- 	}
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-cursor: hand;
+	-fx-effect: null;
+}
 
 .pause-button .text {
-    -fx-fill: black;
+	-fx-effect: null;
 }
 
 .previous-button {
-    -fx-background-color: transparent;
-    -fx-background-radius: 0;
- 	-fx-cursor: hand;
- 	-fx-text-fill: black;
- 	}
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-cursor: hand;
+	-fx-effect: null;
+}
 
 .previous-button .text {
-    -fx-fill: black;
+	-fx-effect: null;
 }
 
 .button {
