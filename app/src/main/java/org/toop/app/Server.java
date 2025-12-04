@@ -199,7 +199,7 @@ public final class Server {
 
             switch (type){
                 case TICTACTOE ->{
-                    players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(), user);
+                    players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(9), user);
                 }
                 case REVERSI ->{
                     players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
