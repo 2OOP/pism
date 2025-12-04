@@ -48,6 +48,8 @@ public final class Server {
 
 	private ScheduledExecutorService scheduler;
 
+	private EventFlow connectFlow;
+
 	public static GameInformation.Type gameToType(String game) {
 		if (game.equalsIgnoreCase("tic-tac-toe")) {
 			return GameInformation.Type.TICTACTOE;
@@ -110,7 +112,8 @@ public final class Server {
 				return;
 			}
 
-			WidgetContainer.getCurrentView().transitionPrevious();
+			primary = new ServerView(user, this::sendChallenge);
+			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
 
 			a.unsubscribe("connecting");
 			a.unsubscribe("startclient");
@@ -120,11 +123,11 @@ public final class Server {
 
 			new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, user)).postEvent();
 
-			primary = new ServerView(user, this::sendChallenge);
-			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
-
 			startPopulateScheduler();
 			populateGameList();
+
+			primary.removeViewFromPreviousChain(loading);
+
 		}, false, "startclient")
 				.listen(
                         NetworkEvents.ConnectTry.class,
@@ -149,6 +152,8 @@ public final class Server {
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false, "game-result")
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false, "game-move")
                 .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn");
+
+		connectFlow = a;
 	}
 
 	private void sendChallenge(String opponent) {
@@ -262,7 +267,9 @@ public final class Server {
 		new EventFlow().addPostEvent(new NetworkEvents.CloseClient(clientId)).postEvent();
 		isPolling = false;
 		stopScheduler();
-		primary.transitionPrevious();
+		connectFlow.unsubscribeAll();
+
+		WidgetContainer.getCurrentView().transitionPrevious();
 	}
 
 	private void forfeitGame() {
