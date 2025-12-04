@@ -6,6 +6,7 @@ import org.toop.framework.gameFramework.model.player.Player;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// There is AI performance to be gained by getting rid of non-primitives and thus speeding up deepCopy
 public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBasedGame<T> {
 	private final int columnSize;
 	private final int rowSize;
