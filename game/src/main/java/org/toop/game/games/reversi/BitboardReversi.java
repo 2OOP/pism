@@ -26,21 +26,28 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		setPlayerBitboard(0, (1L << (3 + 4 * 8)) | (1L << (4 + 3 * 8)));
 
 		// White (player 1)
-		setPlayerBitboard(1, (1L << (3 + 3 * 8)) | (1L << (4 + 4 * 8)));	}
+		setPlayerBitboard(1, (1L << (3 + 3 * 8)) | (1L << (4 + 4 * 8)));
+	}
 
 	public long getLegalMoves2() {
 		final long player = getPlayerBitboard(getCurrentPlayerIndex());
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
 		long legalMoves = 0L;
+
+		// north & south
 		legalMoves |= computeMoves(player, opponent, 8, -1L);
 		legalMoves |= computeMoves(player, opponent, -8, -1L);
+
+		// east & west
 		legalMoves |= computeMoves(player, opponent, 1, notAFile);
 		legalMoves |= computeMoves(player, opponent, -1, notHFile);
+
+		// north-east & north-west & south-east & south-west
 		legalMoves |= computeMoves(player, opponent, 9, notAFile);
 		legalMoves |= computeMoves(player, opponent, 7, notHFile);
-		legalMoves |= computeMoves(player, opponent, -7, notHFile);
-		legalMoves |= computeMoves(player, opponent, -9, notAFile);
+		legalMoves |= computeMoves(player, opponent, -7, notAFile);
+		legalMoves |= computeMoves(player, opponent, -9, notHFile);
 
 		return legalMoves;
 	}
@@ -50,14 +57,20 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
 		long flips = 0L;
+
+		// north & south
 		flips |= computeFlips(move, player, opponent, 8, -1L);
 		flips |= computeFlips(move, player, opponent, -8, -1L);
+
+		// east & west
 		flips |= computeFlips(move, player, opponent, 1, notAFile);
 		flips |= computeFlips(move, player, opponent, -1, notHFile);
+
+		// north-east & north-west & south-east & south-west
 		flips |= computeFlips(move, player, opponent, 9, notAFile);
 		flips |= computeFlips(move, player, opponent, 7, notHFile);
-		flips |= computeFlips(move, player, opponent, -7, notHFile);
-		flips |= computeFlips(move, player, opponent, -9, notAFile);
+		flips |= computeFlips(move, player, opponent, -7, notAFile);
+		flips |= computeFlips(move, player, opponent, -9, notHFile);
 
 		return flips;
 	}
