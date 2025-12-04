@@ -12,6 +12,7 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
  *
  * @param <T> the specific type of game this AI can play, extending {@link GameR}
  */
-public abstract class AbstractAI<T extends TurnBasedGame> implements MoveProvider<T> {
+@Deprecated
+public abstract class AbstractAI<T extends TurnBasedGame<T>> implements MoveProvider<T> {
     // Concrete AI implementations should override findBestMove(T game, int depth)
 }

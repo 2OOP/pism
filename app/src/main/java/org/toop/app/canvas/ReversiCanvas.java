@@ -7,8 +7,8 @@ import org.toop.game.games.reversi.ReversiR;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-public final class ReversiCanvas extends GameCanvas<ReversiR> {
+@Deprecated
+public final class ReversiCanvas extends BaseGameCanvas<ReversiR> {
     private Move[] currentlyHighlightedMoves = null;
 	public ReversiCanvas(Color color, int width, int height, Consumer<Integer> onCellClicked,  Consumer<Integer> newCellEntered) {
 		super(color, new Color(0f,0.4f,0.2f,1f), width, height, 8, 8, 5, true, onCellClicked,  newCellEntered);

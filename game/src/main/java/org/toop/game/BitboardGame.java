@@ -1,12 +1,9 @@
 package org.toop.game;
 
-import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBasedGame<T> {
 	private final int columnSize;
@@ -21,9 +18,7 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 	public BitboardGame(int columnSize, int rowSize, int playerCount, Player<T>[] players) {
 		this.columnSize = columnSize;
 		this.rowSize = rowSize;
-
         this.players = players;
-
 		this.playerBitboard = new long[playerCount];
 		this.currentTurn = 0;
 
@@ -60,12 +55,13 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
         return output;
     }
 
-	public BitboardGame(BitboardGame other) {
+	public BitboardGame(BitboardGame<T> other) {
 		this.columnSize = other.columnSize;
 		this.rowSize = other.rowSize;
 
 		this.playerBitboard = Arrays.copyOf(other.playerBitboard, other.playerBitboard.length);
 		this.currentTurn = other.currentTurn;
+        this.players = Arrays.copyOf(other.players, other.players.length); // TODO: Make this a deep copy
 	}
 
 	public int getColumnSize() {

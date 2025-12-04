@@ -2,10 +2,14 @@ package org.toop.app.widget.view;
 
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
-import org.toop.app.gameControllers.AbstractGameController;
-import org.toop.app.gameControllers.ReversiController;
-import org.toop.app.gameControllers.TicTacToeController;
+import org.toop.app.canvas.ReversiBitCanvas;
+import org.toop.app.canvas.TicTacToeBitCanvas;
+import org.toop.app.gameControllers.GenericGameController;
+import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.player.Player;
+import org.toop.game.gameThreads.LocalThreadBehaviour;
+import org.toop.game.games.reversi.BitboardReversi;
+import org.toop.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.app.widget.Primitive;
@@ -22,10 +26,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import org.toop.local.AppSettings;
 
+import java.util.Arrays;
+
 public class LocalMultiplayerView extends ViewWidget {
 	private final GameInformation information;
 
-    private AbstractGameController<?> gameController;
+    private GameController gameController;
 
 	public LocalMultiplayerView(GameInformation.Type type) {
 		this(new GameInformation(type));
@@ -49,6 +55,7 @@ public class LocalMultiplayerView extends ViewWidget {
 
 			switch (information.type) {
                 case TICTACTOE:
+                    System.out.println("TicTacToe");
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
@@ -59,20 +66,24 @@ public class LocalMultiplayerView extends ViewWidget {
                     } else {
                         players[1] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[1].name);
                     }
+                    System.out.println(Arrays.toString(players));
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                         new ShowEnableTutorialWidget(
                                 () -> new TicTacToeTutorialWidget(() -> {
-                                    gameController = new TicTacToeController(players);
+                                    BitboardTicTacToe game = new BitboardTicTacToe(players); // TODO: ThreadBehaviour might need to be created by game idk
+                                    gameController = new GenericGameController<BitboardTicTacToe>(new TicTacToeBitCanvas(), game, new LocalThreadBehaviour<BitboardTicTacToe>(game), "TicTacToe");
                                     gameController.start();
                                 }),
                                 () -> Platform.runLater(() -> {
-                                    gameController = new TicTacToeController(players);
+                                    BitboardTicTacToe game = new BitboardTicTacToe(players); // TODO: ThreadBehaviour might need to be created by game idk
+                                    gameController = new GenericGameController<BitboardTicTacToe>(new TicTacToeBitCanvas(), game, new LocalThreadBehaviour<BitboardTicTacToe>(game), "TicTacToe");
                                     gameController.start();
                                 }),
                                 () -> AppSettings.getSettings().setFirstTTT(false)
                         );
                     } else {
-                        gameController = new TicTacToeController(players);
+                        BitboardTicTacToe game = new BitboardTicTacToe(players); // TODO: ThreadBehaviour might need to be created by game idk
+                        gameController = new GenericGameController<BitboardTicTacToe>(new TicTacToeBitCanvas(), game, new LocalThreadBehaviour<BitboardTicTacToe>(game), "TicTacToe");
                         gameController.start();
                     }
                     break;
@@ -90,17 +101,20 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(
                                 () -> new ReversiTutorialWidget(() -> {
-                                    gameController = new ReversiController(players);
+                                    BitboardReversi game = new BitboardReversi(players);
+                                    gameController = new GenericGameController<>(new ReversiBitCanvas(), game, new LocalThreadBehaviour<>(game), "Reversi");
                                     gameController.start();
                                 }),
                                 () -> Platform.runLater(() -> {
-                                    gameController = new ReversiController(players);
+                                    BitboardReversi game = new BitboardReversi(players);
+                                    gameController = new GenericGameController<>(new ReversiBitCanvas(), game, new LocalThreadBehaviour<>(game), "Reversi");
                                     gameController.start();
                                 }),
                                 () -> AppSettings.getSettings().setFirstReversi(false)
                         );
                     } else {
-                        gameController = new ReversiController(players);
+                        BitboardReversi game = new BitboardReversi(players);
+                        gameController = new GenericGameController<>(new ReversiBitCanvas(), game, new LocalThreadBehaviour<>(game), "Reversi");
                         gameController.start();
                     }
                     break;

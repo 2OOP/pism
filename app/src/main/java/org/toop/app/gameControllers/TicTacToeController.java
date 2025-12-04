@@ -13,7 +13,7 @@ import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.game.games.tictactoe.BitboardTicTacToe;
-
+@Deprecated
 public class TicTacToeController extends AbstractGameController<BitboardTicTacToe> {
 
     public TicTacToeController(Player<BitboardTicTacToe>[] players, boolean local) {
@@ -22,7 +22,7 @@ public class TicTacToeController extends AbstractGameController<BitboardTicTacTo
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,
                 BitboardTicTacToe,
-                local ? new LocalThreadBehaviour(BitboardTicTacToe, players) : new OnlineThreadBehaviour<>(BitboardTicTacToe, players), // TODO: Player order matters here, this won't work atm
+                local ? new LocalThreadBehaviour(BitboardTicTacToe) : new OnlineThreadBehaviour<>(BitboardTicTacToe, players), // TODO: Player order matters here, this won't work atm
                 "TicTacToe");
 
         initUI();

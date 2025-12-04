@@ -20,9 +20,8 @@ public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractTh
      * Creates a new behaviour for a local turn-based game.
      *
      * @param game    the game instance
-     * @param players the list of players in turn order
      */
-    public LocalThreadBehaviour(T game, Player<T>[] players) {
+    public LocalThreadBehaviour(T game) {
         super(game);
     }
 

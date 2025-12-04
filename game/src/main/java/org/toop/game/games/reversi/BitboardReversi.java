@@ -5,6 +5,8 @@ import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
+import java.util.Arrays;
+
 public class BitboardReversi extends BitboardGame<BitboardReversi> {
 
     @Override
@@ -62,6 +64,7 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 
     @Override
     public int[] getLegalMoves(){
+        System.out.println(Arrays.toString(translateLegalMoves(getLegalMoves2())));
         return translateLegalMoves(getLegalMoves2());
     }
 

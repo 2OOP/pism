@@ -9,5 +9,5 @@ import org.toop.framework.gameFramework.model.player.Player;
  * <p>
  * Defines how a game's execution is started, stopped, and which player is active.
  */
-public interface ThreadBehaviour<T extends TurnBasedGame<T>> extends Controllable {
+public interface ThreadBehaviour extends Controllable {
 }

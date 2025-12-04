@@ -1,24 +1,28 @@
 package org.toop.app.gameControllers;
 
+import javafx.geometry.Pos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.gameFramework.controller.UpdatesGameUI;
-import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.framework.gameFramework.view.GUIEvents;
-import org.toop.app.canvas.BaseGameCanvas;
-import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviour;
+import org.toop.app.canvas.GameCanvas;
+import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.game.gameThreads.OnlineThreadBehaviour;
+import org.toop.framework.gameFramework.controller.GameController;
+import org.toop.framework.gameFramework.controller.UpdatesGameUI;
 import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviour;
 import org.toop.framework.gameFramework.model.player.Player;
+import org.toop.framework.gameFramework.view.GUIEvents;
+import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.game.gameThreads.OnlineThreadBehaviour;
+import org.toop.game.players.LocalPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-@Deprecated
-public abstract class AbstractGameController<T extends TurnBasedGame<T>> implements UpdatesGameUI, ThreadBehaviour {
+
+public class GenericGameController<T extends TurnBasedGame<T>> implements GameController {
     protected final EventFlow eventFlow = new EventFlow();
 
     protected final List<Consumer<?>> listeners = new ArrayList<>();
@@ -27,32 +31,34 @@ public abstract class AbstractGameController<T extends TurnBasedGame<T>> impleme
     protected final Logger logger = LogManager.getLogger(this.getClass());
 
     // Reference to gameView view
-    protected final GameView primary;
+    protected final GameView gameView;
 
     // Reference to game canvas
-    protected final BaseGameCanvas<T> canvas;
+    protected final GameCanvas<T> canvas;
 
-    private final Player<T>[] players;         // List of players, can't be changed.
     protected final TurnBasedGame<T> game;       // Reference to game instance
     private final ThreadBehaviour gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
     // TODO: Make visualisation of moves a behaviour.
-    protected AbstractGameController(BaseGameCanvas<T> canvas, Player<T>[] players, T game, ThreadBehaviour gameThreadBehaviour, String gameType) {
-        logger.info("Creating AbstractGameController");
+    public GenericGameController(GameCanvas<T> canvas, T game, ThreadBehaviour gameThreadBehaviour, String gameType) {
+        logger.info("Creating: " + this.getClass());
 
         this.canvas = canvas;
-        this.players = players;
         this.game = game;
         this.gameThreadBehaviour = gameThreadBehaviour;
 
-        primary = new GameView(null, null, null, gameType);
+
+        gameView = new GameView(null, null, null, gameType);
+        gameView.add(Pos.CENTER, canvas.getCanvas());
+        WidgetContainer.getCurrentView().transitionNext(gameView, true);
         addListeners();
     }
 
     public void start(){
         logger.info("Starting GameManager");
-        gameThreadBehaviour.start();;
+        updateUI();
+        gameThreadBehaviour.start();
     }
 
     public void stop(){
@@ -72,7 +78,8 @@ public abstract class AbstractGameController<T extends TurnBasedGame<T>> impleme
     private void addListeners(){
         eventFlow
                 .listen(GUIEvents.RefreshGameCanvas.class, this::onUpdateGameUI, false)
-                .listen(GUIEvents.GameEnded.class, this::onGameFinish, false);
+                .listen(GUIEvents.GameEnded.class, this::onGameFinish, false)
+                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}, false);
     }
 
     private void removeListeners(){
@@ -86,16 +93,16 @@ public abstract class AbstractGameController<T extends TurnBasedGame<T>> impleme
     private void onGameFinish(GUIEvents.GameEnded event){
         logger.info("Game Finished");
         String name = event.winner() == -1 ? null : getPlayer(event.winner()).getName();
-        primary.gameOver(event.winOrTie(), name);
+        gameView.gameOver(event.winOrTie(), name);
         stop();
     }
 
     public Player<T> getPlayer(int player){
-        if (player < 0 || player >= players.length){
+        if (player < 0 || player >= 2){ // TODO: Make game turn player count
             logger.error("Invalid player index");
             throw new IllegalArgumentException("player out of range");
         }
-        return players[player];
+        return game.getPlayer(player);
     }
 
     private boolean isOnline(){
@@ -118,5 +125,10 @@ public abstract class AbstractGameController<T extends TurnBasedGame<T>> impleme
         if (isOnline()){
             ((OnlineThreadBehaviour<T>) this.gameThreadBehaviour).gameFinished(event);
         }
+    }
+
+    @Override
+    public void updateUI() {
+        canvas.redraw(game.deepCopy());
     }
 }

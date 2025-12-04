@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * a running flag, a game reference, and a logger.
  * Subclasses implement the actual game-loop logic.
  */
-public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implements ThreadBehaviour<T> {
+public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implements ThreadBehaviour {
 
     /** Indicates whether the game loop or event processing is active. */
     protected final AtomicBoolean isRunning = new AtomicBoolean();

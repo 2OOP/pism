@@ -14,7 +14,7 @@ import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.games.reversi.ReversiR;
-
+@Deprecated
 public class ReversiController extends AbstractGameController<ReversiR> {
     // TODO: Refactor GUI update methods to follow designed system
     public ReversiController(Player<ReversiR>[] players, boolean local) {
