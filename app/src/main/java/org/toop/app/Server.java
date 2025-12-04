@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
-    // TODO: Keep track of listeners. Remove them on Server connection close so reference is deleted.
 	private String user = "";
 	private long clientId = -1;
 
