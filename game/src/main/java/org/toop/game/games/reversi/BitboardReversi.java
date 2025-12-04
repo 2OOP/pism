@@ -123,35 +123,33 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 	}
 
 	private long computeMoves(long player, long opponent, int shift, long mask) {
-		long moves = player;
+		long moves = shift(player, shift, mask) & opponent;
+		long captured = moves;
 
-		while (true) {
-			if (shift > 0) moves = (moves << shift) & mask;
-			else moves = (moves >>> -shift) & mask;
-
-			long newMoves = moves & opponent;
-			if (newMoves == 0) break;
-			moves = newMoves;
+		while (moves != 0) {
+			moves = shift(moves, shift, mask) & opponent;
+			captured |= moves;
 		}
 
-		if (shift > 0) moves = (moves << shift) & mask;
-		else moves = (moves >>> -shift) & mask;
-
-		return moves & ~(player | opponent);
+		long landing = shift(captured, shift, mask);
+		return landing & ~(player | opponent);
 	}
 
 	private long computeFlips(long move, long player, long opponent, int shift, long mask) {
 		long flips = 0L;
-
-		long moves = move;
+		long pos = move;
 
 		while (true) {
-			if (shift > 0) moves = (moves << shift) & mask;
-			else moves = (moves >>> -shift) & mask;
+			pos = shift(pos, shift, mask);
+			if (pos == 0) return 0L;
 
-			if ((moves & opponent) != 0) flips |= moves;
-			else if ((moves & player) != 0) return flips;
+			if ((pos & opponent) != 0) flips |= pos;
+			else if ((pos & player) != 0) return flips;
 			else return 0L;
 		}
+	}
+
+	private long shift(long bit, int shift, long mask) {
+		return shift > 0 ? (bit << shift) & mask : (bit >>> -shift) & mask;
 	}
 }
