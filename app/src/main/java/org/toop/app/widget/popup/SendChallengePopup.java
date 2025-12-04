@@ -34,7 +34,7 @@ public final class SendChallengePopup extends PopupWidget {
 		// --- Left side: challenge text and buttons ---
 		var challengeText = Primitive.text("challenge");
 
-		var opponentHeader = Primitive.header(opponent);
+		var opponentHeader = Primitive.header(opponent, false);
 
 		var gameText = Primitive.text("to-a-game-of");
 

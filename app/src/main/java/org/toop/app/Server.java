@@ -158,10 +158,12 @@ public final class Server {
 	private void sendChallenge(String opponent) {
 		if (!isPolling) return;
 
-		new SendChallengePopup(this, opponent, (playerInformation, gameType) -> {
+		var a = new SendChallengePopup(this, opponent, (playerInformation, gameType) -> {
 			new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(clientId, opponent, gameType)).postEvent();
             isSingleGame.set(true);
 		});
+
+		a.show(Pos.CENTER);
 	}
 
     private void handleMatchResponse(NetworkEvents.GameMatchResponse response) {
@@ -251,11 +253,13 @@ public final class Server {
 		String challengerName = extractQuotedValue(response.challengerName());
 		String gameType = extractQuotedValue(response.gameType());
 		final String finalGameType = gameType;
-		new ChallengePopup(challengerName, gameType, (playerInformation) -> {
+		var a = new ChallengePopup(challengerName, gameType, (playerInformation) -> {
 			final int challengeId = Integer.parseInt(response.challengeId().replaceAll("\\D", ""));
 			new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientId, challengeId)).postEvent();
             isSingleGame.set(true);
 		});
+
+		a.show(Pos.CENTER);
 	}
 
 	private void sendMessage(String message) {

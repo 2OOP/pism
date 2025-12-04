@@ -8,6 +8,7 @@ import org.toop.app.widget.complex.PopupWidget;
 import java.util.function.Consumer;
 
 import javafx.geometry.Pos;
+import org.toop.local.AppContext;
 
 public final class ChallengePopup extends PopupWidget {
 	private final GameInformation.Player playerInformation;
@@ -28,11 +29,9 @@ public final class ChallengePopup extends PopupWidget {
 	private void setupLayout() {
 		var challengeText = Primitive.text("you-were-challenged-by");
 
-		var challengerHeader = Primitive.header("");
-		challengerHeader.setText(challenger);
+		var challengerHeader = Primitive.header(challenger, false);
 
-		var gameText = Primitive.text("to-a-game-of");
-		gameText.setText(gameText.getText() + " " + game);
+		var gameText = Primitive.text(AppContext.getString("to-a-game-of") + " " + game, false);
 
 		var acceptButton = Primitive.button("accept", () -> onAccept.accept(playerInformation));
 		var denyButton = Primitive.button("deny", () -> hide());
