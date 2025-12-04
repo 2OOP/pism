@@ -2,6 +2,7 @@ package org.toop.game.players;
 
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;
+import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -14,6 +15,10 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
 
     public LocalPlayer(String name) {
         super(name);
+    }
+
+    public LocalPlayer(LocalPlayer<T> other) {
+        super(other);
     }
 
     @Override
@@ -55,6 +60,11 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
             move = getMove2(gameCopy.deepCopy());
         }
         return move;
+    }
+
+    @Override
+    public LocalPlayer<T> deepCopy() {
+        return new LocalPlayer<T>(this.getName());
     }
 
     /*public void register() {

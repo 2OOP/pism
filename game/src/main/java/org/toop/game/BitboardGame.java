@@ -60,7 +60,9 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 
 		this.playerBitboard = Arrays.copyOf(other.playerBitboard, other.playerBitboard.length);
 		this.currentTurn = other.currentTurn;
-        this.players = Arrays.copyOf(other.players, other.players.length); // TODO: Make this a deep copy
+        this.players = Arrays.stream(other.players)
+                .map(Player<T>::deepCopy)
+                .toArray(Player[]::new);
 	}
 
 	public int getColumnSize() {

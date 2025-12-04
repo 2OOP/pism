@@ -1,5 +1,6 @@
 package org.toop.game.games.tictactoe;
 
+import org.toop.framework.gameFramework.model.player.AI;
 import org.toop.framework.gameFramework.model.player.AbstractAI;
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.GameState;
@@ -98,5 +99,10 @@ public final class TicTacToeAIR extends AbstractAI<BitboardTicTacToe> {
         }
 
         return score;
+    }
+
+    @Override
+    public AI<BitboardTicTacToe> deepCopy() {
+        return new TicTacToeAIR();
     }
 }

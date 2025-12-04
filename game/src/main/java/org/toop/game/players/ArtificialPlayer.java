@@ -1,8 +1,6 @@
 package org.toop.game.players;
 
-import org.toop.framework.gameFramework.model.player.AbstractAI;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
-import org.toop.framework.gameFramework.model.player.MoveProvider;
+import org.toop.framework.gameFramework.model.player.*;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 /**
@@ -17,16 +15,21 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 public class ArtificialPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
 
     /** The AI instance used to calculate moves. */
-    private final MoveProvider<T> ai;
+    private final AI<T> ai;
 
     /**
      * Constructs a new ArtificialPlayer using the specified AI.
      *
      * @param ai the AI instance that determines moves for this player
      */
-    public ArtificialPlayer(MoveProvider<T> ai, String name) {
+    public ArtificialPlayer(AI<T> ai, String name) {
         super(name);
         this.ai = ai;
+    }
+
+    public ArtificialPlayer(ArtificialPlayer<T> other) {
+        super(other);
+        this.ai = other.ai.deepCopy();
     }
 
     /**
@@ -43,5 +46,10 @@ public class ArtificialPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer
      */
     public int getMove(T gameCopy) {
         return ai.getMove(gameCopy);
+    }
+
+    @Override
+    public ArtificialPlayer<T> deepCopy() {
+        return new ArtificialPlayer<T>(this);
     }
 }
