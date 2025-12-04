@@ -123,7 +123,7 @@ public final class Server {
 			new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, user)).postEvent();
 
 			primary = new ServerView(user, this::sendChallenge, this::disconnect);
-			WidgetContainer.getCurrentView().transitionNext(primary);
+			WidgetContainer.getCurrentView().transitionNextCustom(primary);
 
 			startPopulateScheduler();
 			populateGameList();

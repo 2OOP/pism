@@ -37,6 +37,11 @@ public abstract class ViewWidget extends StackWidget {
 		view.add(Pos.BOTTOM_LEFT, Primitive.vbox(backButton));
 	}
 
+	public void transitionNextCustom(ViewWidget view) {
+		view.previous = this;
+		replace(Pos.CENTER, view);
+	}
+
 	public void transitionPrevious() {
 		if (previous == null) {
 			return;
