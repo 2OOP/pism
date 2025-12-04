@@ -42,7 +42,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                     msg);
             new EventFlow()
                     .addPostEvent(new NetworkEvents.ServerResponse(this.connectionId))
-                    .postEvent();
+                    .asyncPostEvent();
             parseServerReturn(rec);
             return;
         }
@@ -117,7 +117,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                 .addPostEvent(
                         new NetworkEvents.GameMoveResponse(
                                 this.connectionId, msg[0], msg[1], msg[2]))
-                .postEvent();
+                .asyncPostEvent();
     }
 
     private void gameWinConditionHandler(String rec) {
@@ -130,7 +130,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
 
         new EventFlow()
                 .addPostEvent(new NetworkEvents.GameResultResponse(this.connectionId, condition))
-                .postEvent();
+                .asyncPostEvent();
     }
 
     private void gameChallengeHandler(String rec) {
@@ -149,13 +149,13 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                         .addPostEvent(
                                 new NetworkEvents.ChallengeCancelledResponse(
                                         this.connectionId, msg[0]))
-                        .postEvent();
+                        .asyncPostEvent();
             else
                 new EventFlow()
                         .addPostEvent(
                                 new NetworkEvents.ChallengeResponse(
                                         this.connectionId, msg[0], msg[1], msg[2]))
-                        .postEvent();
+                        .asyncPostEvent();
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Array out of bounds for: {}", rec, e);
         }
@@ -175,7 +175,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                     .addPostEvent(
                             new NetworkEvents.GameMatchResponse(
                                     this.connectionId, msg[0], msg[1], msg[2]))
-                    .postEvent();
+                    .asyncPostEvent();
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Array out of bounds for: {}", rec, e);
         }
@@ -192,7 +192,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
 
         new EventFlow()
                 .addPostEvent(new NetworkEvents.YourTurnResponse(this.connectionId, msg))
-                .postEvent();
+                .asyncPostEvent();
     }
 
     private void playerlistHandler(String rec) {
@@ -205,7 +205,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
 
         new EventFlow()
                 .addPostEvent(new NetworkEvents.PlayerlistResponse(this.connectionId, players))
-                .postEvent();
+                .asyncPostEvent();
     }
 
     private void gamelistHandler(String rec) {
@@ -218,7 +218,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
 
         new EventFlow()
                 .addPostEvent(new NetworkEvents.GamelistResponse(this.connectionId, gameTypes))
-                .postEvent();
+                .asyncPostEvent();
     }
 
     private void helpHandler(String rec) {
