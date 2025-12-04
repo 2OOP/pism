@@ -50,7 +50,7 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 			return GameState.WIN;
 		}
 
-		if (getLegalMoves2() <= 0L || checkEarlyDraw()) {
+		if (getLegalMoves2() == 0L || checkEarlyDraw()) {
 			return GameState.DRAW;
 		}
 

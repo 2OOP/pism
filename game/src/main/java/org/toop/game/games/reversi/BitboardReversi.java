@@ -93,12 +93,12 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 
 		final long nextLegalMoves = getLegalMoves2();
 
-		if (nextLegalMoves <= 0) {
+		if (nextLegalMoves == 0) {
 			nextTurn();
 
 			final long skippedLegalMoves = getLegalMoves2();
 
-			if (skippedLegalMoves <= 0) {
+			if (skippedLegalMoves == 0) {
 				final long black = getPlayerBitboard(0);
 				final long white = getPlayerBitboard(1);
 
