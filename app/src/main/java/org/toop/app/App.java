@@ -5,7 +5,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 import org.toop.app.widget.Primitive;
-import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.display.SongDisplay;
@@ -38,9 +37,6 @@ public final class App extends Application {
 
     private static int height;
     private static int width;
-
-	private static boolean isEscActive; // TODO kut variable
-	private static EscapePopup escPopup; // TODO kut variable
 
 	public static void run(String[] args) {
 		launch(args);
@@ -142,14 +138,16 @@ public final class App extends Application {
 	}
 
 	public void escapePopup() {
-		if (App.escPopup == null) App.escPopup = new EscapePopup();
-		if (!App.isEscActive) {
-			App.isEscActive = true;
-			escPopup.show(Pos.CENTER);
-		} else {
-			escPopup.hide();
-			App.isEscActive = false;
+		if (WidgetContainer.getAllWidgets().stream().anyMatch(
+				e -> e instanceof QuitPopup || e instanceof EscapePopup
+		)) {
+			WidgetContainer.findRemove(QuitPopup.class);
+			WidgetContainer.findRemove(EscapePopup.class);
+			return;
 		}
+
+		EscapePopup escPopup = new EscapePopup();
+		escPopup.show(Pos.CENTER);
 	}
 
 	private void setOnLoadingSuccess(LoadingWidget loading) {
@@ -163,15 +161,10 @@ public final class App extends Application {
 			stage.setOnCloseRequest(event -> {
 				event.consume();
 
-				var abc = WidgetContainer.getAllWidgets();
-				for (Widget widget : abc) {
-					IO.println(widget.getClass().getSimpleName());
-				}
-
 				if (WidgetContainer.getAllWidgets().stream().anyMatch(e -> e instanceof QuitPopup)) return;
 
-				var a = new QuitPopup();
-				a.show(Pos.CENTER); // TODO disable allow having multiple
+				QuitPopup a = new QuitPopup();
+				a.show(Pos.CENTER);
 
 			});
 		});

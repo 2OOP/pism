@@ -62,6 +62,14 @@ public final class WidgetContainer {
 		});
 	}
 
+	public static void findRemove(Class<? extends Widget> widgetClass) {
+		if (root == null || currentView == null) return;
+
+		Platform.runLater(() ->
+				currentView.getChildren().removeIf(widget -> widget.getClass().isAssignableFrom(widgetClass))
+		);
+	}
+
 	public static ViewWidget getCurrentView() {
 		return currentView;
 	}
