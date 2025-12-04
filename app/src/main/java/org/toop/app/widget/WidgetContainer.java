@@ -7,6 +7,9 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class WidgetContainer {
 	private static StackPane root;
 	private static ViewWidget currentView;
@@ -74,4 +77,16 @@ public final class WidgetContainer {
             currentView = view;
         });
     }
+
+	public static List<Widget> getAllWidgets() {
+		final List<Widget> children = new ArrayList<>();
+
+		for (var child : root.getChildren()) {
+			if (child instanceof Widget widget) {
+				children.add(widget);
+			}
+		}
+
+		return children;
+	}
 }
