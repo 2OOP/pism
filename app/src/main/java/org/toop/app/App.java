@@ -141,8 +141,8 @@ public final class App extends Application {
 		if (WidgetContainer.getAllWidgets().stream().anyMatch(
 				e -> e instanceof QuitPopup || e instanceof EscapePopup
 		)) {
-			WidgetContainer.findRemove(QuitPopup.class);
-			WidgetContainer.findRemove(EscapePopup.class);
+			WidgetContainer.findRemoveFirst(QuitPopup.class);
+			WidgetContainer.findRemoveFirst(EscapePopup.class);
 			return;
 		}
 

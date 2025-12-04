@@ -1,5 +1,6 @@
 package org.toop.app.widget;
 
+import javafx.scene.Node;
 import org.toop.app.widget.complex.PopupWidget;
 import org.toop.app.widget.complex.ViewWidget;
 
@@ -68,6 +69,19 @@ public final class WidgetContainer {
 		Platform.runLater(() ->
 				currentView.getChildren().removeIf(widget -> widget.getClass().isAssignableFrom(widgetClass))
 		);
+	}
+
+	public static void findRemoveFirst(Class<? extends Widget> widgetClass) {
+		if (root == null || currentView == null) return;
+
+		Platform.runLater(() -> {
+			for (Node widget : currentView.getChildren()) {
+				if (widgetClass.isAssignableFrom(widget.getClass())) {
+					currentView.getChildren().remove(widget);
+					break;
+				}
+			}
+		});
 	}
 
 	public static ViewWidget getCurrentView() {
