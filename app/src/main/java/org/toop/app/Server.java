@@ -48,8 +48,6 @@ public final class Server {
 
 	private ScheduledExecutorService scheduler;
 
-    private EventFlow eventFlow = new EventFlow();
-
 	public static GameInformation.Type gameToType(String game) {
 		if (game.equalsIgnoreCase("tic-tac-toe")) {
 			return GameInformation.Type.TICTACTOE;
@@ -98,9 +96,8 @@ public final class Server {
 			);
 
         loading.setOnFailure(() -> {
-            WidgetContainer.getCurrentView().transitionPrevious();
-            a.unsubscribe("connecting");
-			a.unsubscribe("startclient");
+            if (WidgetContainer.getCurrentView() == loading) WidgetContainer.getCurrentView().transitionPrevious();
+			a.unsubscribeAll();
             WidgetContainer.add(
                     Pos.CENTER,
                     new ErrorPopup(AppContext.getString("connecting-failed") + " " + ip + ":" + port)
@@ -147,11 +144,11 @@ public final class Server {
                 )
 				.postEvent();
 
-		eventFlow.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false)
-                .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false)
-                .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false)
-                .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false)
-                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false);
+		a.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false, "challenge")
+                .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false, "match-response")
+                .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false, "game-result")
+                .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false, "game-move")
+                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn");
 	}
 
 	private void sendChallenge(String opponent) {
