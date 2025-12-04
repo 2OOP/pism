@@ -88,7 +88,7 @@ public final class Server {
 		final int reconnectAttempts = 10;
 
 		LoadingWidget loading = new LoadingWidget(
-                Primitive.text("connecting"), 0, 0, reconnectAttempts, true
+                Primitive.text("connecting"), 0, 0, reconnectAttempts, true, true
         );
 
 		WidgetContainer.getCurrentView().transitionNext(loading);
@@ -102,6 +102,7 @@ public final class Server {
         loading.setOnFailure(() -> {
             WidgetContainer.getCurrentView().transitionPrevious();
             a.unsubscribe("connecting");
+			a.unsubscribe("startclient");
             WidgetContainer.add(
                     Pos.CENTER,
                     new ErrorPopup(AppContext.getString("connecting-failed") + " " + ip + ":" + port)
@@ -153,8 +154,6 @@ public final class Server {
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false)
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false)
                 .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false);
-        startPopulateScheduler();
-        populateGameList();
 	}
 
 	private void sendChallenge(String opponent) {

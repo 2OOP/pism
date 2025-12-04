@@ -142,7 +142,7 @@ public final class GlobalEventBus {
                 try {
                     callListener(listener, event);
                 } catch (Throwable e) {
-//                    e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
         }
@@ -153,7 +153,7 @@ public final class GlobalEventBus {
                 try {
                     callListener(listener, event);
                 } catch (Throwable e) {
-                    // e.printStackTrace();
+                     e.printStackTrace();
                 }
             }
         }
