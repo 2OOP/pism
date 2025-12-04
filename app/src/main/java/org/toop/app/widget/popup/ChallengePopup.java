@@ -33,7 +33,10 @@ public final class ChallengePopup extends PopupWidget {
 
 		var gameText = Primitive.text(AppContext.getString("to-a-game-of") + " " + game, false);
 
-		var acceptButton = Primitive.button("accept", () -> onAccept.accept(playerInformation));
+		var acceptButton = Primitive.button("accept", () -> {
+			onAccept.accept(playerInformation);
+			this.hide();
+		});
 		var denyButton = Primitive.button("deny", () -> hide());
 
 		var leftSection = Primitive.vbox(

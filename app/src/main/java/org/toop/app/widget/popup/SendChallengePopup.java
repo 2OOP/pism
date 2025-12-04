@@ -61,7 +61,7 @@ public final class SendChallengePopup extends PopupWidget {
 
 		var sendButton = Primitive.button(
 			"send",
-			() -> onSend.accept(playerInformation, gameChoice.getValue())
+			() -> { onSend.accept(playerInformation, gameChoice.getValue()); this.hide(); }
 		);
 
 		var cancelButton = Primitive.button("cancel", () -> hide());
