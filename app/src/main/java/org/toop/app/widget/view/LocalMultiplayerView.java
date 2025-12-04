@@ -5,6 +5,8 @@ import org.toop.app.GameInformation;
 import org.toop.app.canvas.ReversiBitCanvas;
 import org.toop.app.canvas.TicTacToeBitCanvas;
 import org.toop.app.gameControllers.GenericGameController;
+import org.toop.app.gameControllers.ReversiBitController;
+import org.toop.app.gameControllers.TicTacToeBitController;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.gameThreads.LocalThreadBehaviour;
@@ -70,20 +72,17 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                         new ShowEnableTutorialWidget(
                                 () -> new TicTacToeTutorialWidget(() -> {
-                                    BitboardTicTacToe game = new BitboardTicTacToe(players); // TODO: ThreadBehaviour might need to be created by game idk
-                                    gameController = new GenericGameController<BitboardTicTacToe>(new TicTacToeBitCanvas(), game, new LocalThreadBehaviour<BitboardTicTacToe>(game), "TicTacToe");
+                                    gameController = new TicTacToeBitController(players);
                                     gameController.start();
                                 }),
                                 () -> Platform.runLater(() -> {
-                                    BitboardTicTacToe game = new BitboardTicTacToe(players); // TODO: ThreadBehaviour might need to be created by game idk
-                                    gameController = new GenericGameController<BitboardTicTacToe>(new TicTacToeBitCanvas(), game, new LocalThreadBehaviour<BitboardTicTacToe>(game), "TicTacToe");
+                                    gameController = new TicTacToeBitController(players);
                                     gameController.start();
                                 }),
                                 () -> AppSettings.getSettings().setFirstTTT(false)
                         );
                     } else {
-                        BitboardTicTacToe game = new BitboardTicTacToe(players); // TODO: ThreadBehaviour might need to be created by game idk
-                        gameController = new GenericGameController<BitboardTicTacToe>(new TicTacToeBitCanvas(), game, new LocalThreadBehaviour<BitboardTicTacToe>(game), "TicTacToe");
+                        gameController = new TicTacToeBitController(players);
                         gameController.start();
                     }
                     break;
@@ -101,20 +100,17 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(
                                 () -> new ReversiTutorialWidget(() -> {
-                                    BitboardReversi game = new BitboardReversi(players);
-                                    gameController = new GenericGameController<>(new ReversiBitCanvas(), game, new LocalThreadBehaviour<>(game), "Reversi");
+                                    gameController = new ReversiBitController(players);
                                     gameController.start();
                                 }),
                                 () -> Platform.runLater(() -> {
-                                    BitboardReversi game = new BitboardReversi(players);
-                                    gameController = new GenericGameController<>(new ReversiBitCanvas(), game, new LocalThreadBehaviour<>(game), "Reversi");
+                                    gameController = new ReversiBitController(players);
                                     gameController.start();
                                 }),
                                 () -> AppSettings.getSettings().setFirstReversi(false)
                         );
                     } else {
-                        BitboardReversi game = new BitboardReversi(players);
-                        gameController = new GenericGameController<>(new ReversiBitCanvas(), game, new LocalThreadBehaviour<>(game), "Reversi");
+                        gameController = new ReversiBitController(players);
                         gameController.start();
                     }
                     break;

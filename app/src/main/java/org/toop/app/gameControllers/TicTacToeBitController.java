@@ -1,10 +1,9 @@
 package org.toop.app.gameControllers;
 
-import org.toop.app.canvas.GameCanvas;
 import org.toop.app.canvas.TicTacToeBitCanvas;
-import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviour;
 import org.toop.framework.gameFramework.model.player.Player;
+import org.toop.game.gameThreads.LocalFixedRateThreadBehaviour;
 import org.toop.game.gameThreads.LocalThreadBehaviour;
 import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.gameThreads.OnlineWithSleepThreadBehaviour;
@@ -17,7 +16,7 @@ public class TicTacToeBitController extends GenericGameController<BitboardTicTac
         ThreadBehaviour thread = new LocalThreadBehaviour<>(game);
         for (Player<BitboardTicTacToe> player : players) {
             if (player instanceof OnlinePlayer<BitboardTicTacToe>){
-                thread = new OnlineWithSleepThreadBehaviour<>(game);
+                thread = new OnlineThreadBehaviour<>(game);
             }
         }
         super(new TicTacToeBitCanvas(), game, thread , "TicTacToe");

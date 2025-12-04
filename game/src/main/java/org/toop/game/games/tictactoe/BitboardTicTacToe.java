@@ -20,6 +20,9 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 	public BitboardTicTacToe(Player<BitboardTicTacToe>[] players) {
 		super(3, 3, 2, players);
 	}
+    public BitboardTicTacToe(BitboardTicTacToe other) {
+        super(other);
+    }
 
     @Override
     public int[] getLegalMoves(){
@@ -28,7 +31,7 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 
     @Override
     public PlayResult play(int move) {
-        return new PlayResult(play2(translateMove(move)), getCurrentPlayerIndex());
+        return play2(translateMove(move));
     }
 
     public long getLegalMoves2() {
@@ -39,24 +42,34 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 		return (~taken) & 0x1ffL;
 	}
 
-	public GameState play2(long move) {
+	public PlayResult play2(long move) {
+        // Player loses if move is invalid
+        if ((move & getLegalMoves2()) == 0 || Long.bitCount(move) != 1){
+            return new PlayResult(GameState.WIN, getNextPlayer());
+        }
+
+        // Move is legal, make move
 		long playerBitboard = getPlayerBitboard(getCurrentPlayerIndex());
 		playerBitboard |= move;
 
 		setPlayerBitboard(getCurrentPlayerIndex(), playerBitboard);
+
+        // Check if current player won
+        if (checkWin(playerBitboard)) {
+            return new PlayResult(GameState.WIN, getCurrentPlayerIndex());
+        }
+
+        // Proceed to next turn
         nextTurn();
 
-		if (checkWin(playerBitboard)) {
-			return GameState.WIN;
-		}
 
+        // Check for early draw
 		if (getLegalMoves2() == 0L || checkEarlyDraw()) {
-			return GameState.DRAW;
+			return new PlayResult(GameState.DRAW, -1);
 		}
 
-
-
-		return GameState.NORMAL;
+        // Nothing weird happened, continue on as normal
+		return new PlayResult(GameState.NORMAL, -1);
 	}
 
 	private boolean checkWin(long board) {
@@ -94,9 +107,8 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
         return translateBoard();
     }
 
-    // TODO: Implement
     @Override
     public BitboardTicTacToe deepCopy() {
-        return this;
+        return new BitboardTicTacToe(this);
     }
 }
