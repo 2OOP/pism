@@ -6,6 +6,7 @@ import org.toop.app.gameControllers.AbstractGameController;
 import org.toop.app.gameControllers.ReversiController;
 import org.toop.app.gameControllers.TicTacToeController;
 import org.toop.framework.gameFramework.model.player.Player;
+import org.toop.game.games.tictactoe.TicTacToeAIRSleep;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.LocalPlayer;
 import org.toop.app.widget.Primitive;
@@ -52,12 +53,12 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new TicTacToeAIR(information.players[0].computerDifficulty), information.players[0].name);
+                        players[0] = new ArtificialPlayer<>(new TicTacToeAIRSleep(information.players[0].computerDifficulty, information.players[1].computerThinkTime), information.players[0].name);
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new TicTacToeAIR(information.players[1].computerDifficulty), information.players[1].name);
+                        players[1] = new ArtificialPlayer<>(new TicTacToeAIRSleep(information.players[1].computerDifficulty, information.players[1].computerThinkTime), information.players[1].name);
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                         new ShowEnableTutorialWidget(
