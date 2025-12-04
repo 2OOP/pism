@@ -32,7 +32,7 @@ public final class ChallengePopup extends PopupWidget {
 		var challengerHeader = Primitive.header(challenger, false);
 
 		var toAGameOfText = Primitive.text("to-a-game-of");
-		var gameText = Primitive.text(game, false);
+		var gameHeader = Primitive.header(game, false);
 
 		var acceptButton = Primitive.button("accept", () -> {
 			onAccept.accept(playerInformation);
@@ -44,7 +44,7 @@ public final class ChallengePopup extends PopupWidget {
 			challengeText,
 			challengerHeader,
 			toAGameOfText,
-			gameText,
+			gameHeader,
 			Primitive.separator(),
 			Primitive.hbox(
 				acceptButton,
