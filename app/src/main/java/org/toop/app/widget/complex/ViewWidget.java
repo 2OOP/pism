@@ -59,6 +59,17 @@ public abstract class ViewWidget extends StackWidget {
 		previous = null;
 	}
 
+	public void replacePrevious(int index) {
+		if (previous == null) {
+			return;
+		}
+
+		while (index > 0 && previous.previous != null) {
+			previous = previous.previous;
+			index--;
+		}
+	}
+
 	public void reload(ViewWidget view) {
 		view.previous = previous;
 		replace(Pos.CENTER, view);
