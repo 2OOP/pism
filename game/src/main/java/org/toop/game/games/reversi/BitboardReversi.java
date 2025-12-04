@@ -77,8 +77,6 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 
     @Override
     public int[] getLegalMoves(){
-        System.out.println(Arrays.toString(translateLegalMoves(getLegalMoves2())));
-        System.out.println(Long.toBinaryString(getLegalMoves2()));
         return translateLegalMoves(getLegalMoves2());
     }
 

@@ -57,7 +57,6 @@ public class LocalMultiplayerView extends ViewWidget {
 
 			switch (information.type) {
                 case TICTACTOE:
-                    System.out.println("TicTacToe");
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
@@ -68,7 +67,6 @@ public class LocalMultiplayerView extends ViewWidget {
                     } else {
                         players[1] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[1].name);
                     }
-                    System.out.println(Arrays.toString(players));
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                         new ShowEnableTutorialWidget(
                                 () -> new TicTacToeTutorialWidget(() -> {

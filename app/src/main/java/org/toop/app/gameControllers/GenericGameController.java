@@ -40,7 +40,6 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
     private final ThreadBehaviour gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
-    // TODO: Make visualisation of moves a behaviour.
     public GenericGameController(GameCanvas<T> canvas, T game, ThreadBehaviour gameThreadBehaviour, String gameType) {
         logger.info("Creating: " + this.getClass());
 

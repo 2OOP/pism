@@ -34,7 +34,6 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
                 j++;
             }
         }
-        System.out.println(Arrays.toString(output));
         return output;
     }
 
@@ -91,7 +90,6 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
     public Player<T> getPlayer(int index) {return players[index];}
 
 	public int getCurrentPlayerIndex() {
-        System.out.println(currentTurn % playerBitboard.length);
         return currentTurn % playerBitboard.length;
 	}
 
@@ -104,7 +102,6 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
     }
 
 	public void nextTurn() {
-        System.out.println("Incrementing turn");
         currentTurn++;
 	}
 }
