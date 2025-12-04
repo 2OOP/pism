@@ -59,14 +59,32 @@ public abstract class ViewWidget extends StackWidget {
 		previous = null;
 	}
 
-	public void replacePrevious(int index) {
-		if (previous == null) {
-			return;
-		}
+	public void removeIndexFromPreviousChain(int index) {
+		ViewWidget view = previous;
 
-		while (index > 0 && previous.previous != null) {
-			previous = previous.previous;
+		while (index > 0 && view != null) {
 			index--;
+
+			if (index == 0) {
+				if (view.previous != null && view.previous.previous != null) {
+					view.previous = view.previous.previous;
+				}
+			}
+
+			view = view.previous;
+		}
+	}
+
+	public void removeViewFromPreviousChain(ViewWidget view) {
+		int index = 0;
+
+		while (previous != null) {
+			index++;
+
+			if (previous == view) {
+				removeIndexFromPreviousChain(index);
+				break;
+			}
 		}
 	}
 
