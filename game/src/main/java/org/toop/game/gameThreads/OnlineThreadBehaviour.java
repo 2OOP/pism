@@ -17,19 +17,12 @@ import org.toop.game.players.OnlinePlayer;
  * for the local player while receiving moves from other players.
  */
 public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements SupportsOnlinePlay {
-
-    /** The local player controlled by this client. */
-    private final Player<T> mainPlayer;
-    private final int playerTurn;
-
     /**
      * Creates behaviour and sets the first local player
      * (non-online player) from the given array.
      */
-    public OnlineThreadBehaviour(T game, Player<T>[] players) {
+    public OnlineThreadBehaviour(T game) {
         super(game);
-        this.playerTurn = getFirstNotOnlinePlayer(players);
-        this.mainPlayer = players[this.playerTurn];
     }
 
     /** Finds the first non-online player in the array. */
@@ -61,7 +54,7 @@ public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractT
     @Override
     public void onYourTurn(NetworkEvents.YourTurnResponse event) {
         if (!isRunning.get()) return;
-        int move = mainPlayer.getMove(game.deepCopy());
+        int move = game.getPlayer(game.getCurrentTurn()).getMove(game.deepCopy());
         new EventFlow().addPostEvent(NetworkEvents.SendMove.class, event.clientId(), (short) move).postEvent();
     }
 
@@ -83,9 +76,9 @@ public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractT
     @Override
     public void gameFinished(NetworkEvents.GameResultResponse event) {
         switch(event.condition().toUpperCase()){
-            case "WIN" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, playerTurn).postEvent();
+            case "WIN" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, game.getCurrentTurn()).postEvent();
             case "DRAW" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, AbstractGame.EMPTY).postEvent();
-            case "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, (playerTurn + 1)%2).postEvent();
+            case "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, (game.getCurrentTurn() + 1)%2).postEvent();
             default -> {
                 logger.error("Invalid condition");
                 throw new RuntimeException("Unknown condition");

@@ -4,6 +4,7 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBasedGame<T> {
 	private final int columnSize;
@@ -13,14 +14,13 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 
 	// long is 64 bits. Every game has a limit of 64 cells maximum.
 	private final long[] playerBitboard;
-	private int currentTurn;
+	private AtomicInteger currentTurn = new AtomicInteger(0);
 
 	public BitboardGame(int columnSize, int rowSize, int playerCount, Player<T>[] players) {
 		this.columnSize = columnSize;
 		this.rowSize = rowSize;
         this.players = players;
 		this.playerBitboard = new long[playerCount];
-		this.currentTurn = 0;
 
 		Arrays.fill(playerBitboard, 0L);
 	}
@@ -91,11 +91,12 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
     public Player<T> getPlayer(int index) {return players[index];}
 
 	public int getCurrentPlayerIndex() {
-		return currentTurn % playerBitboard.length;
+        System.out.println(currentTurn.get() % playerBitboard.length);
+        return currentTurn.get() % playerBitboard.length;
 	}
 
 	public int getNextPlayer() {
-		return (currentTurn + 1) % playerBitboard.length;
+		return (currentTurn.get() + 1) % playerBitboard.length;
 	}
 
     public Player<T> getCurrentPlayer(){
@@ -103,6 +104,7 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
     }
 
 	public void nextTurn() {
-		currentTurn++;
+        System.out.println("Incrementing turn");
+        currentTurn.incrementAndGet();
 	}
 }

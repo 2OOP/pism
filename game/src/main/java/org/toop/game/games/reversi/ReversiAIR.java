@@ -4,8 +4,8 @@ import org.toop.framework.gameFramework.model.player.AbstractAI;
 
 import java.util.Random;
 
-public final class ReversiAIR extends AbstractAI<ReversiR> {
-	public int getMove(ReversiR game) {
+public final class ReversiAIR extends AbstractAI<BitboardReversi> {
+	public int getMove(BitboardReversi game) {
         int[] moves = game.getLegalMoves();
         if (moves.length == 0) return -1;
 

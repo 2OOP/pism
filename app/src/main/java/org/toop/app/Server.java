@@ -2,9 +2,7 @@ package org.toop.app;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import org.toop.app.gameControllers.AbstractGameController;
-import org.toop.app.gameControllers.ReversiController;
-import org.toop.app.gameControllers.TicTacToeController;
+import org.toop.app.gameControllers.*;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.LoadingWidget;
@@ -13,11 +11,15 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.types.NetworkingConnector;
+import org.toop.game.games.reversi.BitboardReversi;
+import org.toop.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.game.players.ArtificialPlayer;
+import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.OnlinePlayer;
 import org.toop.game.games.reversi.ReversiAIR;
 import org.toop.game.games.reversi.ReversiR;
@@ -42,7 +44,7 @@ public final class Server {
 	private ServerView primary;
 	private boolean isPolling = true;
 
-    private AbstractGameController<?> gameController;
+    private GameController gameController;
 
     private final AtomicBoolean isSingleGame = new AtomicBoolean(false);
 
@@ -195,26 +197,31 @@ public final class Server {
             information.players[0].computerThinkTime = 1;
             information.players[1].name = response.opponent();
 
-            Player[] players = new Player[2];
-
-            players[(myTurn + 1) % 2] = new OnlinePlayer<ReversiR>(response.opponent());
-
-            switch (type){
+            /*switch (type){
                 case TICTACTOE ->{
                     players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(), user);
                 }
                 case REVERSI ->{
                     players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
                 }
-            }
+            }*/
+
+
 
             switch (type) {
                 case TICTACTOE ->{
-                        gameController = new TicTacToeController(players, false);
+                        Player<BitboardTicTacToe>[] players = new Player[2];
+                        players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
+                        players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(), user);
+                        gameController = new TicTacToeBitController(players);
                 }
-                case REVERSI ->
-                        gameController = new ReversiController(players, false);
+                case REVERSI -> {
+                    Player<BitboardReversi>[] players = new Player[2];
+                    players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
+                    players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
+                    gameController = new ReversiBitController(players);}
                 default -> new ErrorPopup("Unsupported game type.");
+
             }
 
             if (gameController != null){

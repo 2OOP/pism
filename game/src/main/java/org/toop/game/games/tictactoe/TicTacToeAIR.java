@@ -13,7 +13,7 @@ import org.toop.framework.gameFramework.GameState;
  * opening or when no clear best move is found.
  * </p>
  */
-public final class TicTacToeAIR extends AbstractAI<TicTacToeR> {
+public final class TicTacToeAIR extends AbstractAI<BitboardTicTacToe> {
 
     /**
      * Determines the best move for the given Tic-Tac-Toe game state.
@@ -27,7 +27,7 @@ public final class TicTacToeAIR extends AbstractAI<TicTacToeR> {
      * @param depth the depth of lookahead for evaluating moves (non-negative)
      * @return the index of the best move, or -1 if no moves are available
      */
-    public int getMove(TicTacToeR game) {
+    public int getMove(BitboardTicTacToe game) {
         int depth = 9;
         assert game != null;
         final int[] legalMoves = game.getLegalMoves();
@@ -71,8 +71,8 @@ public final class TicTacToeAIR extends AbstractAI<TicTacToeR> {
      * @param maximizing true if the AI is to maximize score, false if minimizing
      * @return the score of the move
      */
-    private int getMoveScore(TicTacToeR game, int depth, int move, boolean maximizing) {
-        final TicTacToeR copy = game.deepCopy();
+    private int getMoveScore(BitboardTicTacToe game, int depth, int move, boolean maximizing) {
+        final BitboardTicTacToe copy = game.deepCopy();
         final PlayResult result = copy.play(move);
 
         GameState state = result.state();

@@ -1,6 +1,7 @@
 package org.toop.game.gameThreads;
 
 import org.toop.framework.gameFramework.model.game.AbstractGame;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 
@@ -11,16 +12,15 @@ import org.toop.framework.gameFramework.model.player.AbstractPlayer;
  * This is identical to {@link OnlineThreadBehaviour}, but inserts a
  * short sleep before delegating to the base implementation.
  */
-public class OnlineWithSleepThreadBehaviour extends OnlineThreadBehaviour {
+public class OnlineWithSleepThreadBehaviour<T extends TurnBasedGame<T>> extends OnlineThreadBehaviour<T> {
 
     /**
      * Creates the behaviour and forwards the players to the base class.
      *
      * @param game    the online-capable turn-based game
-     * @param players the list of local and remote players
      */
-    public OnlineWithSleepThreadBehaviour(AbstractGame game, AbstractPlayer[] players) {
-        super(game, players);
+    public OnlineWithSleepThreadBehaviour(T game) {
+        super(game);
     }
 
     /**
@@ -32,7 +32,7 @@ public class OnlineWithSleepThreadBehaviour extends OnlineThreadBehaviour {
     public void onYourTurn(NetworkEvents.YourTurnResponse event) {
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

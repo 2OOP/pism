@@ -22,7 +22,7 @@ public class TicTacToeController extends AbstractGameController<BitboardTicTacTo
                 new TicTacToeCanvas(Color.GRAY, (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3,(c) -> {new EventFlow().addPostEvent(GUIEvents.PlayerAttemptedMove.class, c).postEvent();}),
                 players,
                 BitboardTicTacToe,
-                local ? new LocalThreadBehaviour(BitboardTicTacToe) : new OnlineThreadBehaviour<>(BitboardTicTacToe, players), // TODO: Player order matters here, this won't work atm
+                local ? new LocalThreadBehaviour(BitboardTicTacToe) : new OnlineThreadBehaviour<>(BitboardTicTacToe), // TODO: Player order matters here, this won't work atm
                 "TicTacToe");
 
         initUI();
