@@ -31,7 +31,8 @@ public final class ChallengePopup extends PopupWidget {
 
 		var challengerHeader = Primitive.header(challenger, false);
 
-		var gameText = Primitive.text(AppContext.getString("to-a-game-of") + " " + game, false);
+		var toAGameOfText = Primitive.text("to-a-game-of");
+		var gameText = Primitive.text(game, false);
 
 		var acceptButton = Primitive.button("accept", () -> {
 			onAccept.accept(playerInformation);
@@ -42,6 +43,7 @@ public final class ChallengePopup extends PopupWidget {
 		var leftSection = Primitive.vbox(
 			challengeText,
 			challengerHeader,
+			toAGameOfText,
 			gameText,
 			Primitive.separator(),
 			Primitive.hbox(
