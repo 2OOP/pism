@@ -60,7 +60,7 @@ public abstract class ViewWidget extends StackWidget {
 	}
 
 	public void removeIndexFromPreviousChain(int index) {
-		ViewWidget view = previous;
+		ViewWidget view = this;
 
 		while (index > 0 && view != null) {
 			index--;
@@ -76,15 +76,18 @@ public abstract class ViewWidget extends StackWidget {
 	}
 
 	public void removeViewFromPreviousChain(ViewWidget view) {
+		ViewWidget prev = previous;
 		int index = 0;
 
-		while (previous != null) {
+		while (prev != null) {
 			index++;
 
-			if (previous == view) {
+			if (prev == view) {
 				removeIndexFromPreviousChain(index);
 				break;
 			}
+
+			prev = prev.previous;
 		}
 	}
 
