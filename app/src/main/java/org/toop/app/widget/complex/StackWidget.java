@@ -7,7 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
-public abstract class StackWidget implements Widget {
+public abstract class StackWidget extends StackPane implements Widget {
     private final StackPane container;
 
 	public StackWidget(String cssClass) {

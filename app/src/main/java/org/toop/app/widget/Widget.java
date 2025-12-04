@@ -4,7 +4,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.resource.ResourceLoader;
 
 public interface Widget {
     Logger logger = LogManager.getLogger(Widget.class);

@@ -41,7 +41,7 @@ public final class WidgetContainer {
 				root.getChildren().addFirst(view.getNode());
 				currentView = view;
 			} else if (widget instanceof PopupWidget popup) {
-				currentView.add(Pos.CENTER, popup);
+				currentView.add(Pos.CENTER, (Widget) popup);
 			} else {
 				root.getChildren().add(widget.getNode());
 			}
@@ -55,7 +55,7 @@ public final class WidgetContainer {
 
 		Platform.runLater(() -> {
 			if (widget instanceof PopupWidget popup) {
-				currentView.remove(popup);
+				currentView.remove((Widget) popup);
 			} else {
 				root.getChildren().remove(widget.getNode());
 			}
