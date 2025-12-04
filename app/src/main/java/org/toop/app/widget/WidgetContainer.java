@@ -87,6 +87,12 @@ public final class WidgetContainer {
 			}
 		}
 
+		for (var child : currentView.getNode().getChildren()) {
+			if (child instanceof Widget widget) {
+				children.add(widget);
+			}
+		}
+
 		return children;
 	}
 }

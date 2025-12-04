@@ -41,7 +41,7 @@ public abstract class StackWidget implements Widget {
 	}
 
 	@Override
-	public Node getNode() {
+	public StackPane getNode() {
 		return container;
 	}
 }
