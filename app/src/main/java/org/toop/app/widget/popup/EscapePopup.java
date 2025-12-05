@@ -10,7 +10,7 @@ import org.toop.app.widget.view.OptionsView;
 
 public class EscapePopup extends PopupWidget {
     public EscapePopup() {
-        var con = Primitive.button("Continue", () -> { hide(); }, false); // TODO, localize
+        var con = Primitive.button("Continue", this::hide, false); // TODO, localize
 
         var qui = Primitive.button("quit", () -> {
             hide();

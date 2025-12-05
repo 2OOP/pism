@@ -1,5 +1,6 @@
 package org.toop.app.widget;
 
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import org.toop.app.widget.complex.PopupWidget;
 import org.toop.app.widget.complex.ViewWidget;
@@ -10,6 +11,7 @@ import javafx.scene.layout.StackPane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public final class WidgetContainer {
 	private static StackPane root;
@@ -63,7 +65,7 @@ public final class WidgetContainer {
 		});
 	}
 
-	public static void findRemove(Class<? extends Widget> widgetClass) {
+	public static void remove(Class<? extends Widget> widgetClass) {
 		if (root == null || currentView == null) return;
 
 		Platform.runLater(() ->
@@ -71,7 +73,7 @@ public final class WidgetContainer {
 		);
 	}
 
-	public static void findRemoveFirst(Class<? extends Widget> widgetClass) {
+	public static void removeFirst(Class<? extends Widget> widgetClass) {
 		if (root == null || currentView == null) return;
 
 		Platform.runLater(() -> {
@@ -82,6 +84,33 @@ public final class WidgetContainer {
 				}
 			}
 		});
+	}
+
+	public static List<Widget> find(Class<? extends Widget> widgetClass) {
+		if (root == null || currentView == null) return null;
+
+		return getAllWidgets()
+				.stream()
+				.filter(widget -> widget.getClass().isAssignableFrom(widgetClass))
+				.toList();
+    }
+
+	public static List<Widget> find(Predicate<Widget> predicate) {
+		if (root == null || currentView == null) return null;
+
+		return getAllWidgets()
+				.stream()
+				.filter(predicate)
+				.toList();
+	}
+
+	public static Widget findFirst(Class<? extends Widget> widgetClass) {
+		if (root == null || currentView == null) return null;
+
+		return getAllWidgets()
+				.stream()
+				.filter(widget -> widget.getClass().isAssignableFrom(widgetClass))
+				.findFirst().orElse(null);
 	}
 
 	public static ViewWidget getCurrentView() {

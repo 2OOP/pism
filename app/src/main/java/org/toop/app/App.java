@@ -31,6 +31,8 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public final class App extends Application {
 	private static Stage stage;
 	private static Scene scene;
@@ -138,11 +140,11 @@ public final class App extends Application {
 	}
 
 	public void escapePopup() {
-		if (WidgetContainer.getAllWidgets().stream().anyMatch(
-				e -> e instanceof QuitPopup || e instanceof EscapePopup
-		)) {
-			WidgetContainer.findRemoveFirst(QuitPopup.class);
-			WidgetContainer.findRemoveFirst(EscapePopup.class);
+		if (!Objects.requireNonNull(
+				WidgetContainer.find(widget -> widget instanceof QuitPopup || widget instanceof EscapePopup)
+		).isEmpty()) {
+			WidgetContainer.removeFirst(QuitPopup.class);
+			WidgetContainer.removeFirst(EscapePopup.class);
 			return;
 		}
 
