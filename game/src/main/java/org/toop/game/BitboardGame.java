@@ -26,40 +26,11 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 		Arrays.fill(playerBitboard, 0L);
 	}
 
-    protected int[] translateLegalMoves(long legalMoves){
-        int[] output = new int[Long.bitCount(legalMoves)];
-        int j = 0;
-        for(int i = 0; i < 64; i++){
-            if ((legalMoves & (1L << i)) != 0){
-                output[j] = i;
-                j++;
-            }
-        }
-        return output;
-    }
-
-    protected long translateMove(int move){
-        return 1L << move;
-    }
-
-    protected int[] translateBoard(){
-        int[] output = new int[64];
-        Arrays.fill(output, -1);
-        for(int i = 0; i < this.playerBitboard.length; i++){
-            for (int j = 0; j < 64; j++){
-                if ((this.playerBitboard[i] & (1L << j)) != 0){
-                    output[j] = i;
-                }
-            }
-        }
-        return output;
-    }
-
 	public BitboardGame(BitboardGame<T> other) {
 		this.columnSize = other.columnSize;
 		this.rowSize = other.rowSize;
 
-		this.playerBitboard = Arrays.copyOf(other.playerBitboard, other.playerBitboard.length);
+		this.playerBitboard = other.playerBitboard.clone();
 		this.currentTurn = other.currentTurn;
         this.players = Arrays.stream(other.players)
                 .map(Player<T>::deepCopy)
@@ -103,6 +74,9 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
     public Player<T> getCurrentPlayer(){
         return players[getCurrentPlayerIndex()];
     }
+
+    @Override
+    public long[] getBoard() {return this.playerBitboard;}
 
 	public void nextTurn() {
         currentTurn++;

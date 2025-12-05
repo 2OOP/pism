@@ -11,7 +11,7 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
     // Future can be used with event system, IF unsubscribeAfterSuccess works...
     // private CompletableFuture<Integer> LastMove = new CompletableFuture<>();
 
-    private CompletableFuture<Integer> LastMove;
+    private CompletableFuture<Long> LastMove;
 
     public LocalPlayer(String name) {
         super(name);
@@ -22,11 +22,11 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
     }
 
     @Override
-    public int getMove(T gameCopy) {
+    public long getMove(T gameCopy) {
         return getValidMove(gameCopy);
     }
 
-    public void setMove(int move) {
+    public void setMove(long move) {
         LastMove.complete(move);
     }
 
@@ -36,11 +36,12 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
         return false;
     }
 
-    private int getMove2(T gameCopy) {
+    private long getMove2(T gameCopy) {
         LastMove = new CompletableFuture<>();
-        int move = -1;
+        long move = 0;
         try {
             move = LastMove.get();
+            System.out.println(Long.toBinaryString(move));
         } catch (InterruptedException | ExecutionException e) {
             // TODO: Add proper logging.
             e.printStackTrace();
@@ -48,14 +49,14 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
         return move;
     }
 
-    protected int getValidMove(T gameCopy){
+    protected long getValidMove(T gameCopy){
         // Get this player's valid moves
-        int[] validMoves = gameCopy.getLegalMoves();
+        long validMoves = gameCopy.getLegalMoves();
         // Make sure provided move is valid
         // TODO: Limit amount of retries?
         // TODO: Stop copying game so many times
-        int move = getMove2(gameCopy.deepCopy());
-        while (!contains(validMoves, move)) {
+        long move = getMove2(gameCopy.deepCopy());
+        while ((validMoves & move) == 0) {
             System.out.println("Not a valid move, try again");
             move = getMove2(gameCopy.deepCopy());
         }

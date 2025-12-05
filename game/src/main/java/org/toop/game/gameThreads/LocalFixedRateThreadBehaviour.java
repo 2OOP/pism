@@ -58,7 +58,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
                 nextUpdate += UPDATE_INTERVAL;
 
                 Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
-                int move = currentPlayer.getMove(game.deepCopy());
+                long move = currentPlayer.getMove(game.deepCopy());
                 PlayResult result = game.play(move);
                 new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
 

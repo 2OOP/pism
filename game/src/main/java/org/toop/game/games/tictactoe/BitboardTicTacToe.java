@@ -24,17 +24,7 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
         super(other);
     }
 
-    @Override
-    public int[] getLegalMoves(){
-        return translateLegalMoves(getLegalMoves2());
-    }
-
-    @Override
-    public PlayResult play(int move) {
-        return play2(translateMove(move));
-    }
-
-    public long getLegalMoves2() {
+    public long getLegalMoves() {
 		final long xBitboard = getPlayerBitboard(0);
 		final long oBitboard = getPlayerBitboard(1);
 
@@ -42,9 +32,9 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 		return (~taken) & 0x1ffL;
 	}
 
-	public PlayResult play2(long move) {
+	public PlayResult play(long move) {
         // Player loses if move is invalid
-        if ((move & getLegalMoves2()) == 0 || Long.bitCount(move) != 1){
+        if ((move & getLegalMoves()) == 0 || Long.bitCount(move) != 1){
             return new PlayResult(GameState.WIN, getNextPlayer());
         }
 
@@ -64,7 +54,7 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 
 
         // Check for early draw
-		if (getLegalMoves2() == 0L || checkEarlyDraw()) {
+		if (getLegalMoves() == 0L || checkEarlyDraw()) {
 			return new PlayResult(GameState.DRAW, -1);
 		}
 
@@ -101,11 +91,6 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 
 		return true;
 	}
-
-    @Override
-    public int[] getBoard() {
-        return translateBoard();
-    }
 
     @Override
     public BitboardTicTacToe deepCopy() {

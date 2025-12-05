@@ -12,7 +12,7 @@ public interface Playable {
      *
      * @return an array of integers representing legal moves
      */
-    int[] getLegalMoves();
+    long getLegalMoves();
 
     /**
      * Plays the given move and returns the resulting game state.
@@ -20,5 +20,5 @@ public interface Playable {
      * @param move the move to apply
      * @return the {@link GameState} and additional info after the move
      */
-    PlayResult play(int move);
+    PlayResult play(long move);
 }

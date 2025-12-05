@@ -47,9 +47,9 @@ public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractTh
     public void run() {
         while (isRunning.get()) {
             Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
-            int move = currentPlayer.getMove(game.deepCopy());
+            long move = currentPlayer.getMove(game.deepCopy());
             PlayResult result = game.play(move);
-            new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
+            controller.updateUI();
 
             GameState state = result.state();
             switch (state) {

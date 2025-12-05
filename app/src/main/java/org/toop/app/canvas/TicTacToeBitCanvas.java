@@ -2,12 +2,9 @@ package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
 import org.toop.app.App;
-import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.gameFramework.model.game.AbstractGame;
-import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.game.games.tictactoe.BitboardTicTacToe;
 
-import java.util.function.Consumer;
+import java.util.Arrays;
 
 public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
     public TicTacToeBitCanvas() {
@@ -26,14 +23,14 @@ public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
     @Override
     public void redraw(BitboardTicTacToe gameCopy) {
         clearAll();
-        drawMoves(gameCopy.getBoard());
+        drawMoves(translateBoard(gameCopy.getBoard()));
     }
 
     private void drawMoves(int[] gameBoard){
         // Draw each square
         for (int i = 0; i < 9; i++){
             // If square isn't empty, draw player move
-            if (gameBoard[i] != AbstractGame.EMPTY){
+            if (gameBoard[i] != -1){
                 drawPlayerMove(gameBoard[i], i);
             }
         }

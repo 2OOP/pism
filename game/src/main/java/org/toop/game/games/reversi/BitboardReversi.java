@@ -5,14 +5,7 @@ import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
-import java.util.Arrays;
-
 public class BitboardReversi extends BitboardGame<BitboardReversi> {
-
-    @Override
-    public int[] getBoard() {
-        return translateBoard();
-    }
 
     public record Score(int black, int white) {}
 
@@ -29,7 +22,11 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		setPlayerBitboard(1, (1L << (3 + 3 * 8)) | (1L << (4 + 4 * 8)));
 	}
 
-	public long getLegalMoves2() {
+    public BitboardReversi(BitboardReversi other) {
+        super(other);
+    }
+
+	public long getLegalMoves() {
 		final long player = getPlayerBitboard(getCurrentPlayerIndex());
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
@@ -76,20 +73,9 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 	}
 
     @Override
-    public int[] getLegalMoves(){
-        return translateLegalMoves(getLegalMoves2());
-    }
+    public BitboardReversi deepCopy() {return new BitboardReversi(this);}
 
-    @Override
-    public PlayResult play(int move) {
-        return new PlayResult(playBit(translateMove(move)), getCurrentPlayerIndex());
-    }
-
-    // TODO: Implement
-    @Override
-    public BitboardReversi deepCopy() {return this;};
-
-	public GameState playBit(long move) {
+	public PlayResult play(long move) {
 		final long flips = getFlips(move);
 
 		long player = getPlayerBitboard(getCurrentPlayerIndex());
@@ -103,12 +89,12 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 
 		nextTurn();
 
-		final long nextLegalMoves = getLegalMoves2();
+		final long nextLegalMoves = getLegalMoves();
 
 		if (nextLegalMoves == 0) {
 			nextTurn();
 
-			final long skippedLegalMoves = getLegalMoves2();
+			final long skippedLegalMoves = getLegalMoves();
 
 			if (skippedLegalMoves == 0) {
 				final long black = getPlayerBitboard(0);
@@ -118,16 +104,16 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 				final int whiteCount = Long.bitCount(white);
 
 				if (blackCount == whiteCount) {
-					return GameState.DRAW;
+					return new PlayResult(GameState.DRAW, -1);
 				}
 
-				return GameState.WIN;
+				return new PlayResult(GameState.WIN, blackCount > whiteCount ? 0 : 1);
 			}
 
-			return GameState.TURN_SKIPPED;
+			return new PlayResult(GameState.TURN_SKIPPED, getCurrentPlayerIndex());
 		}
 
-		return GameState.NORMAL;
+		return new PlayResult(GameState.NORMAL, getCurrentPlayerIndex());
 	}
 
 	public Score getScore() {

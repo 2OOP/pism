@@ -2,6 +2,7 @@ package org.toop.framework.gameFramework.model.game.threadBehaviour;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Subclasses implement the actual game-loop logic.
  */
 public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implements ThreadBehaviour {
-
+    protected GameController controller;
     /** Indicates whether the game loop or event processing is active. */
     protected final AtomicBoolean isRunning = new AtomicBoolean();
 
@@ -32,5 +33,10 @@ public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implem
      */
     public AbstractThreadBehaviour(T game) {
         this.game = game;
+    }
+
+    @Override
+    public void setController(GameController controller) {
+        this.controller = controller;
     }
 }

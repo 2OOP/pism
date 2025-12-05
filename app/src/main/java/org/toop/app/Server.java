@@ -19,11 +19,8 @@ import org.toop.framework.networking.types.NetworkingConnector;
 import org.toop.game.games.reversi.BitboardReversi;
 import org.toop.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.game.players.ArtificialPlayer;
-import org.toop.game.players.LocalPlayer;
 import org.toop.game.players.OnlinePlayer;
-import org.toop.game.games.reversi.ReversiAIR;
-import org.toop.game.games.reversi.ReversiR;
-import org.toop.game.games.tictactoe.TicTacToeAIR;
+import org.toop.game.players.RandomAI;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -211,13 +208,13 @@ public final class Server {
                 case TICTACTOE ->{
                         Player<BitboardTicTacToe>[] players = new Player[2];
                         players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
-                        players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(), user);
+                        players[myTurn] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), user);
                         gameController = new TicTacToeBitController(players);
                 }
                 case REVERSI -> {
                     Player<BitboardReversi>[] players = new Player[2];
                     players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
-                    players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
+                    players[myTurn] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), user);
                     gameController = new ReversiBitController(players);}
                 default -> new ErrorPopup("Unsupported game type.");
 

@@ -13,6 +13,7 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.game.BitboardGame;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public abstract class BitGameCanvas<T extends BitboardGame<T>> implements GameCanvas<T> {
@@ -99,6 +100,31 @@ public abstract class BitGameCanvas<T extends BitboardGame<T>> implements GameCa
 
 		render();
 	}
+
+    protected int[] translateLegalMoves(long legalMoves){
+        int[] output = new int[Long.bitCount(legalMoves)];
+        int j = 0;
+        for(int i = 0; i < 64; i++){
+            if ((legalMoves & (1L << i)) != 0){
+                output[j] = i;
+                j++;
+            }
+        }
+        return output;
+    }
+
+    protected static int[] translateBoard(long[] playerBitboard){
+        int[] output = new int[64];
+        Arrays.fill(output, -1);
+        for(int i = 0; i < playerBitboard.length; i++){
+            for (int j = 0; j < 64; j++){
+                if ((playerBitboard[i] & (1L << j)) != 0){
+                    output[j] = i;
+                }
+            }
+        }
+        return output;
+    }
 
 	private void render() {
 		graphics.setFill(backgroundColor);

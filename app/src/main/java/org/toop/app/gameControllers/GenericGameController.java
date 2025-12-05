@@ -8,14 +8,12 @@ import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.controller.GameController;
-import org.toop.framework.gameFramework.controller.UpdatesGameUI;
 import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviour;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.players.LocalPlayer;
 
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
 
     protected final List<Consumer<?>> listeners = new ArrayList<>();
 
-    // Logger for logging ofcourse
+    // Logger for logging
     protected final Logger logger = LogManager.getLogger(this.getClass());
 
     // Reference to gameView view
@@ -46,6 +44,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         this.canvas = canvas;
         this.game = game;
         this.gameThreadBehaviour = gameThreadBehaviour;
+        this.gameThreadBehaviour.setController(this);
 
 
         gameView = new GameView(null, null, null, gameType);
@@ -78,7 +77,11 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         eventFlow
                 .listen(GUIEvents.RefreshGameCanvas.class, this::onUpdateGameUI, false)
                 .listen(GUIEvents.GameEnded.class, this::onGameFinish, false)
-                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}}, false);
+                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer<T> lp){lp.setMove(translateMove(event.move()));}}, false);
+    }
+
+    protected long translateMove(int move){
+        return 1L << move;
     }
 
     private void removeListeners(){
@@ -110,24 +113,32 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
 
     public void onYourTurn(NetworkEvents.YourTurnResponse event){
         if (isOnline()){
-            ((OnlineThreadBehaviour<T>) this.gameThreadBehaviour).onYourTurn(event);
+            ((SupportsOnlinePlay) this.gameThreadBehaviour).onYourTurn(event.clientId());
         }
     }
 
     public void onMoveReceived(NetworkEvents.GameMoveResponse event){
         if (isOnline()){
-            ((OnlineThreadBehaviour<T>) this.gameThreadBehaviour).onMoveReceived(event);
+            ((SupportsOnlinePlay) this.gameThreadBehaviour).onMoveReceived(
+                    translateMove(Integer.parseInt(event.move())));
         }
     }
 
     public void gameFinished(NetworkEvents.GameResultResponse event){
         if (isOnline()){
-            ((OnlineThreadBehaviour<T>) this.gameThreadBehaviour).gameFinished(event);
+            ((SupportsOnlinePlay) this.gameThreadBehaviour).gameFinished(event.condition());
         }
     }
 
     @Override
+    public void sendMove(long clientId, long move) {
+        new EventFlow().addPostEvent(NetworkEvents.SendMove.class, clientId, (short) Long.numberOfTrailingZeros(move)).asyncPostEvent();
+    }
+
+    @Override
     public void updateUI() {
+        System.out.println("DRAWING GAME");
+        // Drawing game
         canvas.redraw(game.deepCopy());
     }
 }

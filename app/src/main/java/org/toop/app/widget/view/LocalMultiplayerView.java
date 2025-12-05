@@ -9,7 +9,6 @@ import org.toop.app.gameControllers.ReversiBitController;
 import org.toop.app.gameControllers.TicTacToeBitController;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.gameThreads.LocalThreadBehaviour;
 import org.toop.game.games.reversi.BitboardReversi;
 import org.toop.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.game.players.ArtificialPlayer;
@@ -18,9 +17,8 @@ import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
-import org.toop.game.games.reversi.ReversiAIR;
-import org.toop.game.games.tictactoe.TicTacToeAIR;
 import org.toop.app.widget.tutorial.*;
+import org.toop.game.players.RandomAI;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -52,7 +50,7 @@ public class LocalMultiplayerView extends ViewWidget {
 				}
 			}
 
-            // TODO: Fix this temporary ass way of setting the players (Only works for TicTacToe)
+            // TODO: Fix this temporary ass way of setting the players
             Player[] players = new Player[2];
 
 			switch (information.type) {
@@ -60,12 +58,12 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[0].name);
+                        players[0] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), information.players[0].name);
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new TicTacToeAIR(), information.players[1].name);
+                        players[1] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), information.players[1].name);
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                         new ShowEnableTutorialWidget(
@@ -88,12 +86,12 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new ReversiAIR(), information.players[0].name);
+                        players[0] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), information.players[0].name);
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new ReversiAIR(), information.players[1].name);
+                        players[1] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), information.players[1].name);
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(

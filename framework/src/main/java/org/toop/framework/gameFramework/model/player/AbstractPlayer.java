@@ -39,7 +39,7 @@ public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Play
      * @return an integer representing the chosen move
      * @throws UnsupportedOperationException if the method is not overridden
      */
-    public int getMove(T gameCopy) {
+    public long getMove(T gameCopy) {
         logger.error("Method getMove not implemented.");
         throw new UnsupportedOperationException("Not supported yet.");
     }

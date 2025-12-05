@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.game.games.reversi.BitboardReversi;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi>{
@@ -31,21 +32,14 @@ public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi>{
             return column + row * rowSize;
         }
 
-    public void drawStartingDots() {
-        drawDot(Color.BLACK, 28);
-        drawDot(Color.WHITE, 36);
-        drawDot(Color.BLACK, 35);
-        drawDot(Color.WHITE, 27);
-    }
-
     @Override
     public void redraw(BitboardReversi gameCopy) {
         clearAll();
-        drawStartingDots();
-        for (int i = 0; i < gameCopy.getBoard().length; i++) {
-            if (gameCopy.getBoard()[i] == 0) {
+        int[] board = translateBoard(gameCopy.getBoard());
+        for (int i = 0; i < board.length; i++) {
+            if (board[i] == 0) {
                 drawDot(Color.WHITE, i);
-            } else if (gameCopy.getBoard()[i] == 1) {
+            } else if (board[i] == 1) {
                 drawDot(Color.BLACK, i);
             }
         }

@@ -1,5 +1,6 @@
 package org.toop.framework.gameFramework.model.game.threadBehaviour;
 
+import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 import org.toop.framework.gameFramework.model.player.Player;
@@ -10,4 +11,5 @@ import org.toop.framework.gameFramework.model.player.Player;
  * Defines how a game's execution is started, stopped, and which player is active.
  */
 public interface ThreadBehaviour extends Controllable {
+    void setController(GameController controller);
 }
