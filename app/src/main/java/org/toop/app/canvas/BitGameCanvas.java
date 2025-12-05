@@ -11,12 +11,10 @@ import javafx.util.Duration;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.view.GUIEvents;
-import org.toop.game.BitboardGame;
 
-import java.util.Arrays;
 import java.util.function.Consumer;
 
-public abstract class BitGameCanvas<T extends BitboardGame<T>> implements GameCanvas<T> {
+public abstract class BitGameCanvas<T extends TurnBasedGame<T>> implements GameCanvas<T> {
 	protected record Cell(float x, float y, float width, float height) {
 		public boolean isInside(double x, double y) {
 			return x >= this.x && x <= this.x + width &&
