@@ -61,7 +61,6 @@ public class MiniMaxAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
         }
 
         long chosenMove = bestMoves.get(random.nextInt(bestMoves.size()));
-        System.out.println("[DEBUG] Selected move: " + Long.toBinaryString(chosenMove) + " | score: " + bestScore);
         return chosenMove;
     }
 

@@ -19,11 +19,8 @@ public class RandomAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 
     @Override
     public long getMove(T game) {
-        System.out.println("Getting move?");
         long legalMoves = game.getLegalMoves();
         int move = new Random().nextInt(Long.bitCount(legalMoves));
-        System.out.println("Legal moves: " + Long.toBinaryString(legalMoves));
-        System.out.println("Playing: " + Long.toBinaryString(nthBitIndex(legalMoves, move)));
         return nthBitIndex(legalMoves, move);
     }
 

@@ -49,7 +49,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         this.gameThreadBehaviour.setOnSendMove((id, m) -> GlobalEventBus.postAsync(new NetworkEvents.SendMove(id, (short)translateMove(m))));
 
         // Tell thread how to update UI
-        this.gameThreadBehaviour.setOnUpdateUI(() -> Platform.runLater(() -> canvas.redraw(game.deepCopy())));
+        this.gameThreadBehaviour.setOnUpdateUI(() -> Platform.runLater(this::updateUI));
 
         // Change scene to game view
         gameView = new GameView(null, null, null, gameType);
@@ -139,8 +139,6 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
 
     @Override
     public void updateUI() {
-        System.out.println("DRAWING GAME");
-        // Drawing game
         canvas.redraw(game.deepCopy());
     }
 }

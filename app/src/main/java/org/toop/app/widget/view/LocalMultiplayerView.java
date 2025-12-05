@@ -60,12 +60,12 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new MiniMaxAI<BitboardTicTacToe>(9), information.players[0].name);
+                        players[0] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), "Random AI");
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), information.players[1].name);
+                        players[1] = new ArtificialPlayer<>(new MiniMaxAI<BitboardTicTacToe>(9), "MiniMax AI");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                         new ShowEnableTutorialWidget(
