@@ -32,6 +32,10 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 		return (~taken) & 0x1ffL;
 	}
 
+    public int getWinner(){
+        return getCurrentPlayerIndex();
+    }
+
 	public PlayResult play(long move) {
         // Player loses if move is invalid
         if ((move & getLegalMoves()) == 0 || Long.bitCount(move) != 1){

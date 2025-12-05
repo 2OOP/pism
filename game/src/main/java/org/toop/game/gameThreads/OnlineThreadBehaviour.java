@@ -53,7 +53,7 @@ public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractT
     public void onYourTurn(long clientId) {
         if (!isRunning.get()) return;
         long move = game.getPlayer(game.getCurrentTurn()).getMove(game.deepCopy());
-        controller.sendMove(clientId, move);
+        sendMove(clientId, move);
     }
 
     /**
@@ -63,7 +63,8 @@ public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractT
     public void onMoveReceived(long move) {
         if (!isRunning.get()) return;
         game.play(move);
-        new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
+
+        updateUI();
     }
 
     /**
@@ -72,9 +73,8 @@ public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractT
      */
     public void gameFinished(String condition) {
         switch(condition.toUpperCase()){
-            case "WIN" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, game.getCurrentTurn()).postEvent();
+            case "WIN", "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, game.getWinner()).postEvent();
             case "DRAW" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, -1).postEvent();
-            case "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, (game.getCurrentTurn() + 1)%2).postEvent();
             default -> {
                 logger.error("Invalid condition");
                 throw new RuntimeException("Unknown condition");

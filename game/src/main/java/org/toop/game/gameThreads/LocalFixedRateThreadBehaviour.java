@@ -8,6 +8,8 @@ import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
+import java.util.function.Consumer;
+
 /**
  * Handles local turn-based game logic at a fixed update rate.
  * <p>
@@ -22,7 +24,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
      *
      * @param game    the game instance
      */
-    public LocalFixedRateThreadBehaviour(T game) {
+    public LocalFixedRateThreadBehaviour(T game, Consumer<Long> onSendMove) {
         super(game);
     }
 
@@ -60,7 +62,8 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
                 Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
                 long move = currentPlayer.getMove(game.deepCopy());
                 PlayResult result = game.play(move);
-                new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
+
+                updateUI();
 
                 GameState state = result.state();
                 switch (state) {

@@ -41,9 +41,9 @@ public abstract class BitGameCanvas<T extends BitboardGame<T>> implements GameCa
 
 	protected final Cell[] cells;
 
-    private Consumer<Integer> onCellCLicked;
+    private Consumer<Long> onCellCLicked;
 
-    public void setOnCellClicked(Consumer<Integer> onClick) {
+    public void setOnCellClicked(Consumer<Long> onClick) {
         this.onCellCLicked = onClick;
     }
 
@@ -91,7 +91,7 @@ public abstract class BitGameCanvas<T extends BitboardGame<T>> implements GameCa
 
 			if (cell.isInside(event.getX(), event.getY())) {
 				event.consume();
-				this.onCellCLicked.accept(column + row * rowSize);
+				this.onCellCLicked.accept(1L << (column + row * rowSize));
 			}
 		});
 

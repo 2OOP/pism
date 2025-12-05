@@ -97,17 +97,13 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 			final long skippedLegalMoves = getLegalMoves();
 
 			if (skippedLegalMoves == 0) {
-				final long black = getPlayerBitboard(0);
-				final long white = getPlayerBitboard(1);
+				int winner = getWinner();
 
-				final int blackCount = Long.bitCount(black);
-				final int whiteCount = Long.bitCount(white);
-
-				if (blackCount == whiteCount) {
+				if (winner == -1) {
 					return new PlayResult(GameState.DRAW, -1);
 				}
 
-				return new PlayResult(GameState.WIN, blackCount > whiteCount ? 0 : 1);
+				return new PlayResult(GameState.WIN, winner);
 			}
 
 			return new PlayResult(GameState.TURN_SKIPPED, getCurrentPlayerIndex());
@@ -122,6 +118,24 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 			Long.bitCount(getPlayerBitboard(1))
 		);
 	}
+
+    public int getWinner(){
+        final long black = getPlayerBitboard(0);
+        final long white = getPlayerBitboard(1);
+
+        final int blackCount = Long.bitCount(black);
+        final int whiteCount = Long.bitCount(white);
+
+        if (blackCount == whiteCount){
+            return -1;
+        }
+        else if (blackCount > whiteCount){
+            return 0;
+        }
+        else{
+            return 1;
+        }
+    }
 
 	private long computeMoves(long player, long opponent, int shift, long mask) {
 		long moves = shift(player, shift, mask) & opponent;

@@ -1,5 +1,6 @@
 package org.toop.app.gameControllers;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,6 +8,7 @@ import org.toop.app.canvas.GameCanvas;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
@@ -22,8 +24,6 @@ import java.util.function.Consumer;
 
 public class GenericGameController<T extends TurnBasedGame<T>> implements GameController {
     protected final EventFlow eventFlow = new EventFlow();
-
-    protected final List<Consumer<?>> listeners = new ArrayList<>();
 
     // Logger for logging
     protected final Logger logger = LogManager.getLogger(this.getClass());
@@ -44,13 +44,22 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         this.canvas = canvas;
         this.game = game;
         this.gameThreadBehaviour = gameThreadBehaviour;
-        this.gameThreadBehaviour.setController(this);
 
+        // Tell thread how to send moves
+        this.gameThreadBehaviour.setOnSendMove((id, m) -> GlobalEventBus.postAsync(new NetworkEvents.SendMove(id, (short)translateMove(m))));
 
+        // Tell thread how to update UI
+        this.gameThreadBehaviour.setOnUpdateUI(() -> Platform.runLater(() -> canvas.redraw(game.deepCopy())));
+
+        // Change scene to game view
         gameView = new GameView(null, null, null, gameType);
         gameView.add(Pos.CENTER, canvas.getCanvas());
         WidgetContainer.getCurrentView().transitionNext(gameView, true);
-        addListeners();
+
+        // Listen to updates
+        eventFlow
+                .listen(GUIEvents.GameEnded.class, this::onGameFinish, false)
+                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer<T> lp){lp.setMove(event.move());}}, false);
     }
 
     public void start(){
@@ -73,23 +82,16 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         return game.getCurrentTurn();
     }
 
-    private void addListeners(){
-        eventFlow
-                .listen(GUIEvents.RefreshGameCanvas.class, this::onUpdateGameUI, false)
-                .listen(GUIEvents.GameEnded.class, this::onGameFinish, false)
-                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer<T> lp){lp.setMove(translateMove(event.move()));}}, false);
-    }
-
     protected long translateMove(int move){
         return 1L << move;
     }
 
-    private void removeListeners(){
-        eventFlow.unsubscribeAll();
+    protected int translateMove(long move){
+        return Long.numberOfTrailingZeros(move);
     }
 
-    private void onUpdateGameUI(GUIEvents.RefreshGameCanvas event){
-        this.updateUI();
+    private void removeListeners(){
+        eventFlow.unsubscribeAll();
     }
 
     private void onGameFinish(GUIEvents.GameEnded event){
