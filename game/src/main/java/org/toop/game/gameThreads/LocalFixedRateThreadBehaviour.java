@@ -24,7 +24,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
      *
      * @param game    the game instance
      */
-    public LocalFixedRateThreadBehaviour(T game, Consumer<Long> onSendMove) {
+    public LocalFixedRateThreadBehaviour(T game) {
         super(game);
     }
 
