@@ -5,6 +5,7 @@ import org.toop.app.App;
 import org.toop.game.games.tictactoe.BitboardTicTacToe;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
     public TicTacToeBitCanvas() {
@@ -23,26 +24,15 @@ public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
     @Override
     public void redraw(BitboardTicTacToe gameCopy) {
         clearAll();
-        drawMoves(translateBoard(gameCopy.getBoard()));
+        drawMoves(gameCopy.getBoard());
     }
 
-    private void drawMoves(int[] gameBoard){
-        // Draw each square
-        for (int i = 0; i < 9; i++){
-            // If square isn't empty, draw player move
-            if (gameBoard[i] != -1){
-                drawPlayerMove(gameBoard[i], i);
-            }
-        }
+    private void drawMoves(long[] gameBoard){
+        loopOverBoard(gameBoard[0], (i) -> drawX(Color.RED, i));
+        loopOverBoard(gameBoard[1], (i) -> drawO(Color.BLUE, i));
+
     }
 
-    public void drawPlayerMove(int player, int move) {
-        switch (player) {
-            case 0 -> drawX(Color.RED, move);
-            case 1 -> drawO(Color.BLUE, move);
-            default -> super.drawPlayerMove(player, move);
-        }
-    }
 
     public void drawX(Color color, int cell) {
         graphics.setStroke(color);

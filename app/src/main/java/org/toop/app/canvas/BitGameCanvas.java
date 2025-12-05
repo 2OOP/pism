@@ -101,29 +101,13 @@ public abstract class BitGameCanvas<T extends BitboardGame<T>> implements GameCa
 		render();
 	}
 
-    protected int[] translateLegalMoves(long legalMoves){
-        int[] output = new int[Long.bitCount(legalMoves)];
-        int j = 0;
-        for(int i = 0; i < 64; i++){
-            if ((legalMoves & (1L << i)) != 0){
-                output[j] = i;
-                j++;
-            }
-        }
-        return output;
-    }
+    public void loopOverBoard(long bb, Consumer<Integer> onCell){
+        while (bb != 0) {
+            int idx = Long.numberOfTrailingZeros(bb); // index of least-significant 1-bit
+            onCell.accept(idx);
 
-    protected static int[] translateBoard(long[] playerBitboard){
-        int[] output = new int[64];
-        Arrays.fill(output, -1);
-        for(int i = 0; i < playerBitboard.length; i++){
-            for (int j = 0; j < 64; j++){
-                if ((playerBitboard[i] & (1L << j)) != 0){
-                    output[j] = i;
-                }
-            }
+            bb &= bb - 1; // clear LSB 1-bit
         }
-        return output;
     }
 
 	private void render() {

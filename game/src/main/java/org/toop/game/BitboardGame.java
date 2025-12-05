@@ -75,6 +75,8 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
         return players[getCurrentPlayerIndex()];
     }
 
+
+
     @Override
     public long[] getBoard() {return this.playerBitboard;}
 
