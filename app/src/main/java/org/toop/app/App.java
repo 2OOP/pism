@@ -140,6 +140,12 @@ public final class App extends Application {
 	}
 
 	public void escapePopup() {
+
+		if (   WidgetContainer.getCurrentView() == null
+			|| WidgetContainer.getCurrentView() instanceof MainView) {
+			return;
+		}
+
 		if (!Objects.requireNonNull(
 				WidgetContainer.find(widget -> widget instanceof QuitPopup || widget instanceof EscapePopup)
 		).isEmpty()) {
