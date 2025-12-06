@@ -13,10 +13,13 @@ import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.events.ResponseToUniqueEvent;
 import org.toop.framework.eventbus.events.UniqueEvent;
+import org.toop.framework.eventbus.bus.EventBus;
+import org.toop.framework.eventbus.subscriber.DefaultSubscriber;
+import org.toop.framework.eventbus.subscriber.Subscriber;
 
 /**
  * EventFlow is a utility class for creating, posting, and optionally subscribing to events in a
- * type-safe and chainable manner. It is designed to work with the {@link GlobalEventBus}.
+ * type-safe and chainable manner. It is designed to work with the {@link EventBus}.
  *
  * <p>This class supports automatic UUID assignment for {@link UniqueEvent} events, and
  * allows filtering subscribers so they only respond to events with a specific UUID. All
@@ -31,6 +34,8 @@ public class EventFlow {
     /** Cache of constructor handles for event classes to avoid repeated reflection lookups. */
     private static final Map<Class<?>, MethodHandle> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
 
+    private final EventBus eventBus;
+
     /** Automatically assigned UUID for {@link UniqueEvent} events. */
     private long eventSnowflake = -1;
 
@@ -38,13 +43,19 @@ public class EventFlow {
     private EventType event = null;
 
     /** The listener returned by GlobalEventBus subscription. Used for unsubscription. */
-    private final List<ListenerHandler<?>> listeners = new ArrayList<>();
+    private final List<Subscriber<?, ?>> listeners = new ArrayList<>();
 
     /** Holds the results returned from the subscribed event, if any. */
     private Map<String, ?> result = null;
 
     /** Empty constructor (event must be added via {@link #addPostEvent(Class, Object...)}). */
-    public EventFlow() {}
+    public EventFlow(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
+    public EventFlow() {
+        this.eventBus = GlobalEventBus.get();
+    }
 
     /**
      *
@@ -145,21 +156,19 @@ public class EventFlow {
 
             action.accept(eventClass);
 
-            if (unsubscribeAfterSuccess) unsubscribe(id);
+            if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
 
             this.result = eventClass.result();
         };
 
-        // TODO Remove casts
-        var listener = new ListenerHandler<>(
-                id,
+        var subscriber = new DefaultSubscriber<>(
                 name,
-                (Class<ResponseToUniqueEvent>) event,
-                (Consumer<ResponseToUniqueEvent>) newAction
+                event,
+                newAction
         );
 
-        GlobalEventBus.get().subscribe(listener);
-        this.listeners.add(listener);
+        eventBus.subscribe(subscriber);
+        this.listeners.add(subscriber);
         return this;
     }
 
@@ -227,7 +236,7 @@ public class EventFlow {
                     TT typedEvent = (TT) uuidEvent;
                     action.accept(typedEvent);
 
-                    if (unsubscribeAfterSuccess) unsubscribe(id);
+                    if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
 
                     this.result = typedEvent.result();
                 } catch (ClassCastException _) {
@@ -239,14 +248,13 @@ public class EventFlow {
             }
         };
 
-        var listener = new ListenerHandler<>(
-                id,
+        var listener = new DefaultSubscriber<>(
                 name,
                 (Class<TT>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0],
                 newAction
         );
 
-        GlobalEventBus.get().subscribe(listener);
+        eventBus.subscribe(listener);
         this.listeners.add(listener);
         return this;
     }
@@ -284,17 +292,16 @@ public class EventFlow {
         Consumer<TT> newAction = eventc -> {
             action.accept(eventc);
 
-            if (unsubscribeAfterSuccess) unsubscribe(id);
+            if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
         };
 
-        var listener = new ListenerHandler<>(
-                        id,
+        var listener = new DefaultSubscriber<>(
                         name,
                         event,
                         newAction
                 );
 
-        GlobalEventBus.get().subscribe(listener);
+        eventBus.subscribe(listener);
         this.listeners.add(listener);
         return this;
     }
@@ -362,7 +369,7 @@ public class EventFlow {
             try {
                 TT typedEvent = (TT) nonUuidEvent;
                 action.accept(typedEvent);
-                if (unsubscribeAfterSuccess) unsubscribe(id);
+                if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
             } catch (ClassCastException _) {
                 throw new ClassCastException(
                         "Cannot cast "
@@ -371,14 +378,13 @@ public class EventFlow {
             }
         };
 
-        var listener = new ListenerHandler<>(
-                id,
+        var listener = new DefaultSubscriber<>(
                 name,
                 eventClass,
                 newAction
         );
 
-        GlobalEventBus.get().subscribe(listener);
+        eventBus.subscribe(listener);
         this.listeners.add(listener);
         return this;
     }
@@ -401,7 +407,7 @@ public class EventFlow {
      * Posts the event added through {@link #addPostEvent}.
      */
     public EventFlow postEvent() {
-        GlobalEventBus.get().post(this.event);
+        eventBus.post(this.event);
         return this;
     }
 
@@ -412,7 +418,7 @@ public class EventFlow {
      */
     @Deprecated
     public EventFlow asyncPostEvent() {
-        GlobalEventBus.get().post(this.event);
+        eventBus.post(this.event);
         return this;
     }
 
@@ -420,28 +426,12 @@ public class EventFlow {
      *
      * Unsubscribe from an event.
      *
-     * @param listenerObject The listener object to remove and unsubscribe.
+     * @param action The listener object to remove and unsubscribe.
      */
-    public void unsubscribe(Object listenerObject) {
+    public void unsubscribe(Consumer<?> action) {
         this.listeners.removeIf(handler -> {
-            if (handler.getListener() == listenerObject) {
-                GlobalEventBus.get().unsubscribe(handler);
-                return true;
-            }
-            return false;
-        });
-    }
-
-    /**
-     *
-     * Unsubscribe from an event.
-     *
-     * @param listenerId The id given to the {@link ListenerHandler}.
-     */
-    public void unsubscribe(long listenerId) {
-        this.listeners.removeIf(handler -> {
-            if (handler.getId() == listenerId) {
-                GlobalEventBus.get().unsubscribe(handler);
+            if (handler.getAction().equals(action)) {
+                eventBus.unsubscribe(handler);
                 return true;
             }
             return false;
@@ -455,8 +445,8 @@ public class EventFlow {
      */
     public void unsubscribe(String name) {
         this.listeners.removeIf(handler -> {
-            if (handler.getName().equals(name)) {
-                GlobalEventBus.get().unsubscribe(handler);
+            if (handler.getId().equals(name)) {
+                eventBus.unsubscribe(handler);
                 return true;
             }
             return false;
@@ -468,7 +458,7 @@ public class EventFlow {
      */
     public void unsubscribeAll() {
         listeners.removeIf(handler -> {
-            GlobalEventBus.get().unsubscribe(handler);
+            eventBus.unsubscribe(handler);
             return true;
         });
     }
@@ -506,8 +496,8 @@ public class EventFlow {
      *
      * @return Copy of the list of listeners.
      */
-    public ListenerHandler[] getListeners() {
-        return listeners.toArray(new ListenerHandler[0]);
+    public Subscriber<?, ?>[] getListeners() {
+        return listeners.toArray(new Subscriber[0]);
     }
 
     /**
