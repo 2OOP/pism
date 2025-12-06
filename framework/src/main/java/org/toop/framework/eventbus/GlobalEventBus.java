@@ -142,7 +142,7 @@ public final class GlobalEventBus {
                 try {
                     callListener(listener, event);
                 } catch (Throwable e) {
-                    e.printStackTrace();
+                    logger.warn("Exception while handling event: {}", event, e);
                 }
             }
         }
@@ -153,7 +153,7 @@ public final class GlobalEventBus {
                 try {
                     callListener(listener, event);
                 } catch (Throwable e) {
-                     e.printStackTrace();
+                    logger.warn("Exception while handling event: {}", event, e);
                 }
             }
         }

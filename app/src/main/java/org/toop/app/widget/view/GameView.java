@@ -26,7 +26,6 @@ public final class GameView extends ViewWidget {
     private Circle player2Icon;
 	private final Button forfeitButton;
 	private final Button exitButton;
-    private final Button tutorialButton;
     private final TextField chatInput;
     private final Text keyThingy;
     private boolean hasSet = false;
@@ -61,15 +60,16 @@ public final class GameView extends ViewWidget {
 			chatInput = null;
 		}
 
-        switch(gameType) {
+        switch (gameType) {
             case "TicTacToe":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> new TicTacToeTutorialWidget(() -> {})); break;
+                AppContext.setCurrentTutorial(new TicTacToeTutorialWidget(() -> {}));
+                break;
             case "Reversi":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> new ReversiTutorialWidget(() -> {})); break;
+                AppContext.setCurrentTutorial(new ReversiTutorialWidget(() -> {}));
+                break;
             case "Connect4":
-                this.tutorialButton = Primitive.button("tutorialstring", () -> new Connect4TutorialWidget(() -> {})); break;
-            default:
-                this.tutorialButton = null; break;
+                AppContext.setCurrentTutorial(new Connect4TutorialWidget(() -> {}));
+                break;
         }
 
 		setupLayout();
@@ -92,10 +92,6 @@ public final class GameView extends ViewWidget {
 		if (chatInput != null) {
 			add(Pos.BOTTOM_RIGHT, Primitive.vbox(chatInput));
 		}
-
-        if (tutorialButton != null) {
-            add(Pos.TOP_LEFT, tutorialButton);
-        }
 	}
 
 	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer, char GameType) {
