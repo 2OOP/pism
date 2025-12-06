@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.exceptions.ClientNotFoundException;
 import org.toop.framework.networking.exceptions.CouldNotConnectException;
@@ -18,9 +18,13 @@ import org.toop.framework.networking.types.NetworkingConnector;
 
 public class NetworkingClientManager implements org.toop.framework.networking.interfaces.NetworkingClientManager {
     private static final Logger logger = LogManager.getLogger(NetworkingClientManager.class);
+
+    private final EventBus eventBus;
     private final Map<Long, NetworkingClient> networkClients = new ConcurrentHashMap<>();
 
-    public NetworkingClientManager() {}
+    public NetworkingClientManager(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     private void connectHelper(
             long id,
@@ -55,7 +59,7 @@ public class NetworkingClientManager implements org.toop.framework.networking.in
                     nClient.connect(id, nConnector.host(), nConnector.port());
                     networkClients.put(id, nClient);
                     logger.info("New client started successfully for {}:{}", nConnector.host(), nConnector.port());
-                    GlobalEventBus.get().post(new NetworkEvents.ConnectTry(id, attempts, nConnector.reconnectAttempts(), true));
+                    eventBus.post(new NetworkEvents.ConnectTry(id, attempts, nConnector.reconnectAttempts(), true));
                     onSuccess.run();
                     scheduler.shutdown();
                 } catch (CouldNotConnectException e) {
@@ -63,17 +67,17 @@ public class NetworkingClientManager implements org.toop.framework.networking.in
                     if (attempts < nConnector.reconnectAttempts()) {
                         logger.warn("Could not connect to {}:{}. Retrying in {} {}",
                                 nConnector.host(), nConnector.port(), nConnector.timeout(), nConnector.timeUnit());
-                        GlobalEventBus.get().post(new NetworkEvents.ConnectTry(id, attempts, nConnector.reconnectAttempts(), false));
+                        eventBus.post(new NetworkEvents.ConnectTry(id, attempts, nConnector.reconnectAttempts(), false));
                         scheduler.schedule(this, nConnector.timeout(), nConnector.timeUnit());
                     } else {
                         logger.error("Failed to start client for {}:{} after {} attempts", nConnector.host(), nConnector.port(), attempts);
-                        GlobalEventBus.get().post(new NetworkEvents.ConnectTry(id, -1, nConnector.reconnectAttempts(), false));
+                        eventBus.post(new NetworkEvents.ConnectTry(id, -1, nConnector.reconnectAttempts(), false));
                         onFailure.run();
                         scheduler.shutdown();
                     }
                 } catch (Exception e) {
                     logger.error("Unexpected exception during startClient", e);
-                    GlobalEventBus.get().post(new NetworkEvents.ConnectTry(id, -1, nConnector.reconnectAttempts(), false));
+                    eventBus.post(new NetworkEvents.ConnectTry(id, -1, nConnector.reconnectAttempts(), false));
                     onFailure.run();
                     scheduler.shutdown();
                 }

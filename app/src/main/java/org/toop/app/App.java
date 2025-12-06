@@ -14,6 +14,7 @@ import org.toop.app.widget.view.MainView;
 import org.toop.framework.audio.*;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.networking.NetworkingClientEventListener;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.resource.ResourceLoader;
@@ -179,11 +180,18 @@ public final class App extends Application {
 	}
 
 	private void initSystems() { // TODO Move to better place
-		new Thread(() -> new NetworkingClientEventListener(new NetworkingClientManager())).start();
+		new Thread(() -> new NetworkingClientEventListener(
+				GlobalEventBus.get(),
+				new NetworkingClientManager(GlobalEventBus.get()))
+		).start();
 
 		new Thread(() -> {
 			MusicManager<MusicAsset> musicManager =
-					new MusicManager<>(ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class), true);
+					new MusicManager<>(
+							GlobalEventBus.get(),
+							ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class),
+							true
+					);
 
 			SoundEffectManager<SoundEffectAsset> soundEffectManager =
 					new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));
@@ -195,6 +203,7 @@ public final class App extends Application {
 					.registerManager(VolumeControl.MUSIC, musicManager);
 
 			new AudioEventListener<>(
+					GlobalEventBus.get(),
 					musicManager,
 					soundEffectManager,
 					audioVolumeManager

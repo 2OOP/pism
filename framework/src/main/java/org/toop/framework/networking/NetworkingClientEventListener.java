@@ -4,19 +4,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.exceptions.ClientNotFoundException;
 import org.toop.framework.networking.interfaces.NetworkingClientManager;
 
 public class NetworkingClientEventListener {
-
     private static final Logger logger = LogManager.getLogger(NetworkingClientEventListener.class);
+
     private final NetworkingClientManager clientManager;
 
     /** Starts a connection manager, to manage, connections. */
-    public NetworkingClientEventListener(NetworkingClientManager clientManager) {
+    public NetworkingClientEventListener(EventBus eventBus, NetworkingClientManager clientManager) {
         this.clientManager = clientManager;
-        new EventFlow()
+        new EventFlow(eventBus)
                 .listen(NetworkEvents.StartClient.class, this::handleStartClient, false)
                 .listen(NetworkEvents.SendCommand.class, this::handleCommand, false)
                 .listen(NetworkEvents.SendLogin.class, this::handleSendLogin, false)

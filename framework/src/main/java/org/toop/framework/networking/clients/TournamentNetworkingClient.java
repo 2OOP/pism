@@ -11,6 +11,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.networking.exceptions.CouldNotConnectException;
 import org.toop.framework.networking.handlers.NetworkingGameClientHandler;
 import org.toop.framework.networking.interfaces.NetworkingClient;
@@ -19,9 +20,13 @@ import java.net.InetSocketAddress;
 
 public class TournamentNetworkingClient implements NetworkingClient {
     private static final Logger logger = LogManager.getLogger(TournamentNetworkingClient.class);
+
+    private final EventBus eventBus;
     private Channel channel;
 
-    public TournamentNetworkingClient() {}
+    public TournamentNetworkingClient(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     @Override
     public InetSocketAddress getAddress() {
@@ -40,7 +45,7 @@ public class TournamentNetworkingClient implements NetworkingClient {
                     new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            NetworkingGameClientHandler handler = new NetworkingGameClientHandler(clientId);
+                            NetworkingGameClientHandler handler = new NetworkingGameClientHandler(eventBus, clientId);
 
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new LineBasedFrameDecoder(1024)); // split at \n

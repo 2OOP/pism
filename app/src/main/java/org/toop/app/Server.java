@@ -13,6 +13,7 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.networking.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.events.NetworkEvents;
@@ -92,7 +93,7 @@ public final class Server {
 
 		var a = new EventFlow()
 			.addPostEvent(NetworkEvents.StartClient.class,
-				new TournamentNetworkingClient(),
+				new TournamentNetworkingClient(GlobalEventBus.get()),
 				new NetworkingConnector(ip, parsedPort, reconnectAttempts, 1, TimeUnit.SECONDS)
 			);
 

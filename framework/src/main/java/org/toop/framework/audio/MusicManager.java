@@ -6,7 +6,7 @@ import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.dispatch.interfaces.Dispatcher;
 import org.toop.framework.dispatch.JavaFXDispatcher;
 import org.toop.annotations.TestsOnly;
-import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.resource.types.AudioResource;
 
 import java.util.*;
@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class MusicManager<T extends AudioResource> implements org.toop.framework.audio.interfaces.MusicManager<T> {
     private static final Logger logger = LogManager.getLogger(MusicManager.class);
 
+    private final EventBus eventBus;
     private final List<T> backgroundMusic = new ArrayList<>();
     private final Dispatcher dispatcher;
     private final List<T> resources;
@@ -26,7 +27,8 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
     private ScheduledExecutorService scheduler;
 
 
-    public MusicManager(List<T> resources, boolean shuffleMusic) {
+    public MusicManager(EventBus eventbus, List<T> resources, boolean shuffleMusic) {
+        this.eventBus = eventbus;
         this.dispatcher = new JavaFXDispatcher();
         this.resources = resources;
         // Shuffle if wanting to shuffle
@@ -39,7 +41,8 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
      * {@code @TestsOnly} DO NOT USE
      */
     @TestsOnly
-    public MusicManager(List<T> resources, Dispatcher dispatcher) {
+    public MusicManager(EventBus eventBus, List<T> resources, Dispatcher dispatcher) {
+        this.eventBus = eventBus;
         this.dispatcher = dispatcher;
         this.resources = new ArrayList<>(resources);
         backgroundMusic.addAll(resources);
@@ -123,7 +126,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         Runnable currentMusicTask = new Runnable() {
             @Override
             public void run() {
-                GlobalEventBus.get().post(new AudioEvents.PlayingMusic(track.getName(), track.currentPosition(), track.duration()));
+                eventBus.post(new AudioEvents.PlayingMusic(track.getName(), track.currentPosition(), track.duration()));
                 scheduler.schedule(this, 1, TimeUnit.SECONDS);
             }
         };
