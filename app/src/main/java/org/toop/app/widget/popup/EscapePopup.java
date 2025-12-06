@@ -7,7 +7,6 @@ import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PopupWidget;
 import org.toop.app.widget.complex.ViewWidget;
-import org.toop.app.widget.tutorial.*;
 import org.toop.app.widget.view.GameView;
 import org.toop.app.widget.view.OptionsView;
 import org.toop.local.AppContext;
