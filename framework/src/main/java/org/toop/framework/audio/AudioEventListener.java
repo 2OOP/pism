@@ -73,7 +73,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleGetVolume(AudioEvents.GetVolume event) {
-        GlobalEventBus.postAsync(new AudioEvents.GetVolumeResponse(
+        GlobalEventBus.get().post(new AudioEvents.GetVolumeResponse(
                 audioVolumeManager.getVolume(event.controlType()),
                 event.identifier()));
     }

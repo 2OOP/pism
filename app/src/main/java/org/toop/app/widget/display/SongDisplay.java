@@ -49,11 +49,11 @@ public class SongDisplay extends VBox implements Widget {
 		previousButton.getStyleClass().setAll("previous-button");
 
 		skipButton.setOnAction( event -> {
-			GlobalEventBus.post(new AudioEvents.SkipMusic());
+			GlobalEventBus.get().post(new AudioEvents.SkipMusic());
 		});
 
 		pauseButton.setOnAction(event -> {
-			GlobalEventBus.post(new AudioEvents.PauseMusic());
+			GlobalEventBus.get().post(new AudioEvents.PauseMusic());
 			if (pauseButton.getText().equals("⏸")) {
 				pauseButton.setText("▶");
 			}
@@ -63,7 +63,7 @@ public class SongDisplay extends VBox implements Widget {
 		});
 
 		previousButton.setOnAction( event -> {
-			GlobalEventBus.post(new AudioEvents.PreviousMusic());
+			GlobalEventBus.get().post(new AudioEvents.PreviousMusic());
 		});
 
 		HBox control = new HBox(10, previousButton, pauseButton, skipButton);

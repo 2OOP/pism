@@ -6,7 +6,6 @@ import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.dispatch.interfaces.Dispatcher;
 import org.toop.framework.dispatch.JavaFXDispatcher;
 import org.toop.annotations.TestsOnly;
-import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.resource.types.AudioResource;
 
@@ -124,7 +123,7 @@ public class MusicManager<T extends AudioResource> implements org.toop.framework
         Runnable currentMusicTask = new Runnable() {
             @Override
             public void run() {
-                GlobalEventBus.post(new AudioEvents.PlayingMusic(track.getName(), track.currentPosition(), track.duration()));
+                GlobalEventBus.get().post(new AudioEvents.PlayingMusic(track.getName(), track.currentPosition(), track.duration()));
                 scheduler.schedule(this, 1, TimeUnit.SECONDS);
             }
         };

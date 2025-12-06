@@ -88,7 +88,7 @@ public final class Server {
                 Primitive.text("connecting"), 0, 0, reconnectAttempts, true, true
         );
 
-		WidgetContainer.getCurrentView().transitionNext(loading);
+		WidgetContainer.getCurrentView().transitionNextCustom(loading, "disconnect", this::disconnect);
 
 		var a = new EventFlow()
 			.addPostEvent(NetworkEvents.StartClient.class,
@@ -105,8 +105,9 @@ public final class Server {
             );
         });
 
-		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
+		a.onResponse(NetworkEvents.CreatedIdForClient.class, e -> clientId = e.clientId(), true);
 
+		a.onResponse(NetworkEvents.StartClientResponse.class, e -> {
 			if (!e.successful()) {
 				return;
 			}
@@ -118,7 +119,6 @@ public final class Server {
 			a.unsubscribe("startclient");
 
 			this.user = user;
-			clientId = e.clientId();
 
 			new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, user)).postEvent();
 
@@ -129,21 +129,24 @@ public final class Server {
 
 		}, false, "startclient")
 				.listen(
-                        NetworkEvents.ConnectTry.class,
-                        e -> Platform.runLater(
-                                () -> {
-                                    try {
-                                        loading.setAmount(e.amount());
-                                        if (e.amount() >= loading.getMaxAmount()) {
-                                            loading.triggerFailure();
-                                        }
-                                    } catch (Exception ex) {
-                                        throw new RuntimeException(ex);
-                                    }
-                                }
-                        ),
-                        false, "connecting"
-                )
+						NetworkEvents.ConnectTry.class,
+						e -> {
+							if (clientId != e.clientId()) return;
+							Platform.runLater(
+									() -> {
+										try {
+											loading.setAmount(e.amount());
+											if (e.amount() >= loading.getMaxAmount()) {
+												loading.triggerFailure();
+											}
+										} catch (Exception ex) {
+											throw new RuntimeException(ex);
+										}
+									}
+							);
+						},
+						false, "connecting"
+				)
 				.postEvent();
 
 		a.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false, "challenge")

@@ -158,7 +158,7 @@ public class EventFlow {
                 (Consumer<ResponseToUniqueEvent>) newAction
         );
 
-        GlobalEventBus.subscribe(listener);
+        GlobalEventBus.get().subscribe(listener);
         this.listeners.add(listener);
         return this;
     }
@@ -246,7 +246,7 @@ public class EventFlow {
                 newAction
         );
 
-        GlobalEventBus.subscribe(listener);
+        GlobalEventBus.get().subscribe(listener);
         this.listeners.add(listener);
         return this;
     }
@@ -294,7 +294,7 @@ public class EventFlow {
                         newAction
                 );
 
-        GlobalEventBus.subscribe(listener);
+        GlobalEventBus.get().subscribe(listener);
         this.listeners.add(listener);
         return this;
     }
@@ -378,7 +378,7 @@ public class EventFlow {
                 newAction
         );
 
-        GlobalEventBus.subscribe(listener);
+        GlobalEventBus.get().subscribe(listener);
         this.listeners.add(listener);
         return this;
     }
@@ -401,15 +401,18 @@ public class EventFlow {
      * Posts the event added through {@link #addPostEvent}.
      */
     public EventFlow postEvent() {
-        GlobalEventBus.post(this.event);
+        GlobalEventBus.get().post(this.event);
         return this;
     }
 
     /**
      * Posts the event added through {@link #addPostEvent} asynchronously.
+     *
+     * @deprecated use {@link #postEvent()} instead.
      */
+    @Deprecated
     public EventFlow asyncPostEvent() {
-        GlobalEventBus.postAsync(this.event);
+        GlobalEventBus.get().post(this.event);
         return this;
     }
 
@@ -422,7 +425,7 @@ public class EventFlow {
     public void unsubscribe(Object listenerObject) {
         this.listeners.removeIf(handler -> {
             if (handler.getListener() == listenerObject) {
-                GlobalEventBus.unsubscribe(handler);
+                GlobalEventBus.get().unsubscribe(handler);
                 return true;
             }
             return false;
@@ -438,7 +441,7 @@ public class EventFlow {
     public void unsubscribe(long listenerId) {
         this.listeners.removeIf(handler -> {
             if (handler.getId() == listenerId) {
-                GlobalEventBus.unsubscribe(handler);
+                GlobalEventBus.get().unsubscribe(handler);
                 return true;
             }
             return false;
@@ -453,7 +456,7 @@ public class EventFlow {
     public void unsubscribe(String name) {
         this.listeners.removeIf(handler -> {
             if (handler.getName().equals(name)) {
-                GlobalEventBus.unsubscribe(handler);
+                GlobalEventBus.get().unsubscribe(handler);
                 return true;
             }
             return false;
@@ -465,7 +468,7 @@ public class EventFlow {
      */
     public void unsubscribeAll() {
         listeners.removeIf(handler -> {
-            GlobalEventBus.unsubscribe(handler);
+            GlobalEventBus.get().unsubscribe(handler);
             return true;
         });
     }

@@ -40,6 +40,7 @@ public class NetworkingClientEventListener {
 
     void handleStartClient(NetworkEvents.StartClient event) {
         long clientId = SnowflakeGenerator.nextId();
+        new EventFlow().addPostEvent(new NetworkEvents.CreatedIdForClient(clientId, event.identifier())).postEvent();
         clientManager.startClient(
                 clientId,
                 event.networkingClient(),
