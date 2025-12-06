@@ -1,34 +1,44 @@
 package org.toop.app.widget.view;
 
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.GameOverPopup;
-
 import java.util.function.Consumer;
-
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import org.toop.app.widget.tutorial.BaseTutorialWidget;
 import org.toop.app.widget.tutorial.Connect4TutorialWidget;
 import org.toop.app.widget.tutorial.ReversiTutorialWidget;
 import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
+import org.toop.local.AppContext;
 
 public final class GameView extends ViewWidget {
-	private final Text currentPlayerHeader;
-	private final Text currentMoveHeader;
-	private final Text nextPlayerHeader;
+	private final Text playerHeader;
+	private final Text turnHeader;
+    private final Text player1Header;
+    private final Text player2Header;
+    private Circle player1Icon;
+    private Circle player2Icon;
 	private final Button forfeitButton;
 	private final Button exitButton;
     private final Button tutorialButton;
     private final TextField chatInput;
+    private final Text keyThingy;
+    private boolean hasSet = false;
 
 	public GameView(Runnable onForfeit, Runnable onExit, Consumer<String> onMessage, String gameType) {
-		currentPlayerHeader = Primitive.header("");
-		currentMoveHeader = Primitive.header("");
-		nextPlayerHeader = Primitive.header("");
+		playerHeader = Primitive.header("");
+		turnHeader = Primitive.header("");
+        keyThingy = Primitive.text("turnof");
+        player1Header = Primitive.header("");
+        player2Header = Primitive.header("");
+        player1Icon = new Circle();
+        player2Icon = new Circle();
 
 		if (onForfeit != null) {
 			forfeitButton = Primitive.button("forfeit", () -> onForfeit.run());
@@ -66,17 +76,11 @@ public final class GameView extends ViewWidget {
 	}
 
 	private void setupLayout() {
-		var playerInfo = Primitive.vbox(
-			currentPlayerHeader,
-			Primitive.hbox(
-				Primitive.separator(),
-				currentMoveHeader,
-				Primitive.separator()
-			),
-			nextPlayerHeader
-		);
+        var turnInfo = Primitive.vbox(
+                turnHeader
+        );
 
-		add(Pos.TOP_RIGHT, playerInfo);
+        add(Pos.TOP_CENTER, turnInfo);
 
 		var buttons = Primitive.vbox(
 			forfeitButton,
@@ -94,21 +98,86 @@ public final class GameView extends ViewWidget {
         }
 	}
 
-	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer) {
+	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer, char GameType) {
 		Platform.runLater(() -> {
-			currentPlayerHeader.setText(currentPlayer);
-			currentMoveHeader.setText(currentMove);
-			nextPlayerHeader.setText(nextPlayer);
-
-			if (isMe) {
-				currentPlayerHeader.getStyleClass().add("my-turn");
-			} else {
-				currentPlayerHeader.getStyleClass().remove("my-turn");
-			}
+            if (!(hasSet)) {
+                playerHeader.setText(currentPlayer + " vs. " + nextPlayer);
+                hasSet = true;
+                setPlayerHeaders(isMe, currentPlayer, nextPlayer, GameType);
+            }
+            //TODO idk if theres any way to check this? only EN uses 's and the rest doesnt. if theres a better way to do this pls let me know
+            if (AppContext.getLocale().toLanguageTag().equals("en")) {
+                turnHeader.setText(currentPlayer + keyThingy.getText());
+            }
 		});
 	}
 
 	public void gameOver(boolean iWon, String winner) {
 		new GameOverPopup(iWon, winner).show(Pos.CENTER);
 	}
+
+    private void setPlayerHeaders(boolean isMe, String currentPlayer, String nextPlayer, char GameType) {
+        if (GameType == 'T') {
+            if (isMe) {
+                player1Header.setText("X: " + currentPlayer);
+                player2Header.setText("O: " + nextPlayer);
+            }
+            else {
+                player1Header.setText("X: " + nextPlayer);
+                player2Header.setText("O: " + currentPlayer);
+            }
+            setPlayerInfoTTT();
+        }
+        else if (GameType == 'R') {
+            if (isMe) {
+                player1Header.setText(currentPlayer);
+                player2Header.setText(nextPlayer);
+            }
+            else {
+                player1Header.setText(nextPlayer);
+                player2Header.setText(currentPlayer);
+            }
+            setPlayerInfoReversi();
+        }
+    }
+
+    private void setPlayerInfoTTT() {
+        var playerInfo = Primitive.vbox(
+                playerHeader,
+                Primitive.separator(),
+                player1Header,
+                player2Header
+        );
+
+        add(Pos.TOP_RIGHT, playerInfo);
+    }
+
+    private void setPlayerInfoReversi() {
+        var player1box = Primitive.hbox(
+                player1Icon,
+                player1Header
+        );
+
+        player1box.getStyleClass().add("hboxspacing");
+
+        var player2box = Primitive.hbox(
+                player2Icon,
+                player2Header
+        );
+
+        player2box.getStyleClass().add("hboxspacing");
+
+        var playerInfo = Primitive.vbox(
+                playerHeader,
+                Primitive.separator(),
+                player1box,
+                player2box
+        );
+
+        player1Icon.setRadius(player1Header.fontProperty().map(Font::getSize).getValue());
+        player2Icon.setRadius(player2Header.fontProperty().map(Font::getSize).getValue());
+        player1Icon.setFill(Color.BLACK);
+        player2Icon.setFill(Color.WHITE);
+        add(Pos.TOP_RIGHT, playerInfo);
+    }
 }

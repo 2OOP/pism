@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
-    // TODO: Keep track of listeners. Remove them on Server connection close so reference is deleted.
 	private String user = "";
 	private long clientId = -1;
 
@@ -47,7 +46,7 @@ public final class Server {
 
 	private ScheduledExecutorService scheduler;
 
-    private EventFlow eventFlow = new EventFlow();
+	private EventFlow connectFlow;
 
 	public static GameInformation.Type gameToType(String game) {
 		if (game.equalsIgnoreCase("tic-tac-toe")) {
@@ -97,9 +96,8 @@ public final class Server {
 			);
 
         loading.setOnFailure(() -> {
-            WidgetContainer.getCurrentView().transitionPrevious();
-            a.unsubscribe("connecting");
-			a.unsubscribe("startclient");
+            if (WidgetContainer.getCurrentView() == loading) WidgetContainer.getCurrentView().transitionPrevious();
+			a.unsubscribeAll();
             WidgetContainer.add(
                     Pos.CENTER,
                     new ErrorPopup(AppContext.getString("connecting-failed") + " " + ip + ":" + port)
@@ -112,7 +110,8 @@ public final class Server {
 				return;
 			}
 
-			WidgetContainer.getCurrentView().transitionPrevious();
+			primary = new ServerView(user, this::sendChallenge);
+			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
 
 			a.unsubscribe("connecting");
 			a.unsubscribe("startclient");
@@ -122,11 +121,11 @@ public final class Server {
 
 			new EventFlow().addPostEvent(new NetworkEvents.SendLogin(clientId, user)).postEvent();
 
-			primary = new ServerView(user, this::sendChallenge, this::disconnect);
-			WidgetContainer.getCurrentView().transitionNext(primary);
-
 			startPopulateScheduler();
 			populateGameList();
+
+			primary.removeViewFromPreviousChain(loading);
+
 		}, false, "startclient")
 				.listen(
                         NetworkEvents.ConnectTry.class,
@@ -146,20 +145,24 @@ public final class Server {
                 )
 				.postEvent();
 
-		eventFlow.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false)
-                .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false)
-                .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false)
-                .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false)
-                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false);
+		a.listen(NetworkEvents.ChallengeResponse.class, this::handleReceivedChallenge, false, "challenge")
+                .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false, "match-response")
+                .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false, "game-result")
+                .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false, "game-move")
+                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn");
+
+		connectFlow = a;
 	}
 
 	private void sendChallenge(String opponent) {
 		if (!isPolling) return;
 
-		new SendChallengePopup(this, opponent, (playerInformation, gameType) -> {
+		var a = new SendChallengePopup(this, opponent, (playerInformation, gameType) -> {
 			new EventFlow().addPostEvent(new NetworkEvents.SendChallenge(clientId, opponent, gameType)).postEvent();
             isSingleGame.set(true);
 		});
+
+		a.show(Pos.CENTER);
 	}
 
     private void handleMatchResponse(NetworkEvents.GameMatchResponse response) {
@@ -195,7 +198,7 @@ public final class Server {
 
             /*switch (type){
                 case TICTACTOE ->{
-                    players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(), user);
+                    players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(9), user);
                 }
                 case REVERSI ->{
                     players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
@@ -254,11 +257,13 @@ public final class Server {
 		String challengerName = extractQuotedValue(response.challengerName());
 		String gameType = extractQuotedValue(response.gameType());
 		final String finalGameType = gameType;
-		new ChallengePopup(challengerName, gameType, (playerInformation) -> {
+		var a = new ChallengePopup(challengerName, gameType, (playerInformation) -> {
 			final int challengeId = Integer.parseInt(response.challengeId().replaceAll("\\D", ""));
 			new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientId, challengeId)).postEvent();
             isSingleGame.set(true);
 		});
+
+		a.show(Pos.CENTER);
 	}
 
 	private void sendMessage(String message) {
@@ -269,7 +274,9 @@ public final class Server {
 		new EventFlow().addPostEvent(new NetworkEvents.CloseClient(clientId)).postEvent();
 		isPolling = false;
 		stopScheduler();
-		primary.transitionPrevious();
+		connectFlow.unsubscribeAll();
+
+		WidgetContainer.getCurrentView().transitionPrevious();
 	}
 
 	private void forfeitGame() {

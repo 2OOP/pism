@@ -1,13 +1,14 @@
 package org.toop.app;
 
 import javafx.application.Platform;
-import javafx.scene.paint.Color;
-import org.toop.Main;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+
 import org.toop.app.widget.Primitive;
-import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.display.SongDisplay;
+import org.toop.app.widget.popup.EscapePopup;
 import org.toop.app.widget.popup.QuitPopup;
 import org.toop.app.widget.view.MainView;
 import org.toop.framework.audio.*;
@@ -30,14 +31,14 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public final class App extends Application {
 	private static Stage stage;
 	private static Scene scene;
 
     private static int height;
     private static int width;
-
-	private static boolean isQuitting;
 
 	public static void run(String[] args) {
 		launch(args);
@@ -78,9 +79,9 @@ public final class App extends Application {
 		App.width = (int)stage.getWidth();
 		App.height = (int)stage.getHeight();
 
-		App.isQuitting = false;
-
 		AppSettings.applySettings();
+
+		setKeybinds(root);
 
         LoadingWidget loading = new LoadingWidget(Primitive.text(
                 "Loading...", false), 0, 0, Integer.MAX_VALUE, false, false // Just set a high default
@@ -130,6 +131,27 @@ public final class App extends Application {
 
 	}
 
+	private void setKeybinds(StackPane root) {
+		root.addEventHandler(KeyEvent.KEY_PRESSED,event -> {
+			if (event.getCode() == KeyCode.ESCAPE) {
+				escapePopup();
+			}
+		});
+	}
+
+	public void escapePopup() {
+		if (!Objects.requireNonNull(
+				WidgetContainer.find(widget -> widget instanceof QuitPopup || widget instanceof EscapePopup)
+		).isEmpty()) {
+			WidgetContainer.removeFirst(QuitPopup.class);
+			WidgetContainer.removeFirst(EscapePopup.class);
+			return;
+		}
+
+		EscapePopup escPopup = new EscapePopup();
+		escPopup.show(Pos.CENTER);
+	}
+
 	private void setOnLoadingSuccess(LoadingWidget loading) {
 		loading.setOnSuccess(() -> {
 			initSystems();
@@ -140,7 +162,12 @@ public final class App extends Application {
 			WidgetContainer.add(Pos.BOTTOM_RIGHT, new SongDisplay());
 			stage.setOnCloseRequest(event -> {
 				event.consume();
-				startQuit();
+
+				if (WidgetContainer.getAllWidgets().stream().anyMatch(e -> e instanceof QuitPopup)) return;
+
+				QuitPopup a = new QuitPopup();
+				a.show(Pos.CENTER);
+
 			});
 		});
 	}
@@ -176,19 +203,6 @@ public final class App extends Application {
             throw new RuntimeException(e);
         }
     }
-
-	public static void startQuit() {
-		if (isQuitting) {
-			return;
-		}
-
-		WidgetContainer.add(Pos.CENTER, new QuitPopup());
-		isQuitting = true;
-	}
-
-	public static void stopQuit() {
-		isQuitting = false;
-	}
 
 	public static void quit() {
 		stage.close();
