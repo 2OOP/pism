@@ -75,6 +75,7 @@ public class DisruptorEventBus implements EventBus {
     public <T> void post(T event) {
         long seq = ringBuffer.next();
         try {
+            @SuppressWarnings("unchecked")
             EventHolder<T> holder = (EventHolder<T>) ringBuffer.get(seq);
             holder.event = event;
         } finally {
@@ -105,6 +106,7 @@ public class DisruptorEventBus implements EventBus {
             }
         }
 
+        // TODO, Still needed?
         CopyOnWriteArrayList<Subscriber<?, ?>> genericListeners = (CopyOnWriteArrayList<Subscriber<?, ?>>) eventsHolder.get(Object.class);
         if (genericListeners != null) {
             for (Subscriber<?, ?> listener : genericListeners) {
