@@ -59,8 +59,6 @@ public class BaseTutorialWidget extends PopupWidget implements Updatable {
         var x = Primitive.vbox(imagery, tutorialText);
 
         add(Pos.CENTER, Primitive.vbox(x, w));
-
-        WidgetContainer.add(Pos.CENTER, this);
     }
 
     @Override

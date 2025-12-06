@@ -3,12 +3,12 @@ package org.toop.app.widget.popup;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import org.toop.app.widget.Primitive;
+import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.PopupWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.tutorial.*;
 import org.toop.app.widget.view.GameView;
-import org.toop.app.widget.view.MainView;
 import org.toop.app.widget.view.OptionsView;
 import org.toop.local.AppContext;
 
@@ -30,9 +30,11 @@ public class EscapePopup extends PopupWidget {
         }
 
         if (currentView.getClass().isAssignableFrom(GameView.class)) {
-            BaseTutorialWidget tut = AppContext.currentTutorial();
+            Widget tut = AppContext.currentTutorial();
             if (tut != null) {
-                nodes.add(Primitive.button("tutorialstring", () -> {}));
+                nodes.add(Primitive.button("tutorialstring", () -> {
+                    WidgetContainer.getCurrentView().add(Pos.CENTER, tut);
+                }));
             }
         }
 
