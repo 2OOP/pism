@@ -4,6 +4,7 @@ import com.lmax.disruptor.BusySpinWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.events.EventType;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -11,16 +12,18 @@ import java.util.concurrent.ThreadFactory;
 
 public class DisruptorEventBus<T extends EventType> implements EventBus<T> {
     /** Wrapper used inside the ring buffer. */
-    private class EventHolder {
+    private static class EventHolder {
         EventType event;
     }
 
-    EventsHolder eventsHolder;
+    private final Logger logger;
+    private final EventsHolder eventsHolder;
 
     private final Disruptor<EventHolder> disruptor;
     private final RingBuffer<EventHolder> ringBuffer;
 
-    public DisruptorEventBus(EventsHolder eventsHolder) {
+    public DisruptorEventBus(Logger logger, EventsHolder eventsHolder) {
+        this.logger = logger;
         this.eventsHolder = eventsHolder;
 
         ThreadFactory threadFactory =
@@ -94,7 +97,7 @@ public class DisruptorEventBus<T extends EventType> implements EventBus<T> {
                 try {
                     callListener(listener, event);
                 } catch (Throwable e) {
-                    // logger.warn("Exception while handling event: {}", event, e); TODO
+                    logger.warn("Exception while handling event: {}", event, e);
                 }
             }
         }
@@ -105,7 +108,7 @@ public class DisruptorEventBus<T extends EventType> implements EventBus<T> {
                 try {
                     callListener(listener, event);
                 } catch (Throwable e) {
-                    // logger.warn("Exception while handling event: {}", event, e); TODO
+                    logger.warn("Exception while handling event: {}", event, e);
                 }
             }
         }
@@ -113,6 +116,7 @@ public class DisruptorEventBus<T extends EventType> implements EventBus<T> {
 
 
     private static <T extends EventType> void callListener(ListenerHandler<T> handler, EventType event) {
-        handler.getListener().accept((T) event);
+        T casted = handler.getListenerClass().cast(event);
+        handler.getListener().accept(casted);
     }
 }
