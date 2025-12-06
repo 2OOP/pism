@@ -1,15 +1,16 @@
 package org.toop.framework.eventbus;
 
 import org.apache.logging.log4j.LogManager;
+import org.toop.framework.eventbus.bus.DefaultEventBus;
 import org.toop.framework.eventbus.bus.DisruptorEventBus;
-import org.toop.framework.eventbus.holder.DisruptorEventsHolder;
 import org.toop.framework.eventbus.bus.EventBus;
+import org.toop.framework.eventbus.holder.SyncEventsHolder;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 public class GlobalEventBus implements EventBus {
-    private static final EventBus INSTANCE = new DisruptorEventBus(
+    private static final EventBus INSTANCE = new DefaultEventBus(
             LogManager.getLogger(DisruptorEventBus.class),
-            new DisruptorEventsHolder()
+            new SyncEventsHolder()
     );
 
     private GlobalEventBus() {}

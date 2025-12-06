@@ -4,8 +4,8 @@ import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 public interface EventBus {
-    void subscribe(Subscriber<?, ?> listener);
-    void unsubscribe(Subscriber<?, ?> listener);
+    void subscribe(Subscriber<?, ?> subscriber);
+    void unsubscribe(Subscriber<?, ?> subscriber);
     <T> void post(T event);
     void shutdown();
     void reset();
