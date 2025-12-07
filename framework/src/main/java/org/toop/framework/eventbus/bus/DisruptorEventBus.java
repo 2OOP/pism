@@ -7,7 +7,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.holder.EventsHolder;
+import org.toop.framework.eventbus.holder.SubscriberStore;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
@@ -20,12 +20,12 @@ public class DisruptorEventBus implements EventBus {
     }
 
     private final Logger logger;
-    private final EventsHolder eventsHolder;
+    private final SubscriberStore eventsHolder;
 
     private final Disruptor<EventHolder<?>> disruptor;
     private final RingBuffer<EventHolder<?>> ringBuffer;
 
-    public DisruptorEventBus(Logger logger, EventsHolder eventsHolder) {
+    public DisruptorEventBus(Logger logger, SubscriberStore eventsHolder) {
         this.logger = logger;
         this.eventsHolder = eventsHolder;
 

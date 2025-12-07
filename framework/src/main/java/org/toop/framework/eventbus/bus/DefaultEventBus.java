@@ -1,9 +1,8 @@
 package org.toop.framework.eventbus.bus;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.holder.EventsHolder;
+import org.toop.framework.eventbus.holder.SubscriberStore;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 import java.util.ArrayList;
@@ -12,9 +11,9 @@ import java.util.function.Consumer;
 
 public class DefaultEventBus implements EventBus {
     private final Logger logger;
-    private final EventsHolder eventsHolder;
+    private final SubscriberStore eventsHolder;
 
-    public DefaultEventBus(Logger logger, EventsHolder eventsHolder) {
+    public DefaultEventBus(Logger logger, SubscriberStore eventsHolder) {
         this.logger = logger;
         this.eventsHolder = eventsHolder;
     }
