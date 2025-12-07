@@ -4,7 +4,7 @@ import org.toop.framework.eventbus.subscriber.Subscriber;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AsyncArraySubscriberStore implements SubscriberStore {
+public class DefaultSubscriberStore implements SubscriberStore {
 
     private static final Subscriber<?, ?>[] EMPTY = new Subscriber[0];
 
