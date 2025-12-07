@@ -7,22 +7,19 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
-public abstract class StackWidget implements Widget {
-    private final StackPane container;
-
+public abstract class StackWidget extends StackPane implements Widget {
 	public StackWidget(String cssClass) {
-        container = new StackPane();
-		container.getStyleClass().add(cssClass);
+		this.getStyleClass().add(cssClass);
 	}
 
 	public void add(Pos position, Node node) {
 		Platform.runLater(() -> {
-			if (container.getChildren().contains(node)) {
+			if (this.getChildren().contains(node)) {
 				return;
 			}
 
 			StackPane.setAlignment(node, position);
-			container.getChildren().add(node);
+			this.getChildren().add(node);
 		});
 	}
 
@@ -32,7 +29,7 @@ public abstract class StackWidget implements Widget {
 
 	public void remove(Node node) {
 		Platform.runLater(() -> {
-			container.getChildren().remove(node);
+			this.getChildren().remove(node);
 		});
 	}
 
@@ -41,7 +38,7 @@ public abstract class StackWidget implements Widget {
 	}
 
 	@Override
-	public Node getNode() {
-		return container;
+	public StackPane getNode() {
+		return this;
 	}
 }

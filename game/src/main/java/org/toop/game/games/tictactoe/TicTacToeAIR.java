@@ -13,7 +13,7 @@ import org.toop.framework.gameFramework.GameState;
  * opening or when no clear best move is found.
  * </p>
  */
-public final class TicTacToeAIR extends AbstractAI<TicTacToeR> {
+public class TicTacToeAIR extends AbstractAI<TicTacToeR> {
 
     /**
      * Determines the best move for the given Tic-Tac-Toe game state.
@@ -27,8 +27,14 @@ public final class TicTacToeAIR extends AbstractAI<TicTacToeR> {
      * @param depth the depth of lookahead for evaluating moves (non-negative)
      * @return the index of the best move, or -1 if no moves are available
      */
+
+    private int depth;
+
+    public TicTacToeAIR(int depth) {
+        this.depth = depth;
+    }
+
     public int getMove(TicTacToeR game) {
-        int depth = 9;
         assert game != null;
         final int[] legalMoves = game.getLegalMoves();
 

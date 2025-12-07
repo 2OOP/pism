@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class TicTacToeAIRTest {
 
-    private final TicTacToeAIR ai = new TicTacToeAIR();
+    private final TicTacToeAIR ai = new TicTacToeAIR(9);
 
     // Helper: play multiple moves in sequence on a fresh board
     private TicTacToeR playSequence(int... moves) {

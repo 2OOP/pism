@@ -2,6 +2,7 @@ package org.toop.app.widget.complex;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
@@ -144,11 +145,11 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
 
         if (successTrigger.call()) {
             triggerSuccess();
-            this.remove(this);
+            this.remove((Node) this);
             return;
         } else if (failureTrigger.call()) {
             triggerFailure();
-            this.remove(this);
+            this.remove((Node) this);
             return;
         }
 

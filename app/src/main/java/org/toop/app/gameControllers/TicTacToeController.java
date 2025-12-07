@@ -39,7 +39,7 @@ public class TicTacToeController extends AbstractGameController<TicTacToeR> {
     public void updateUI() {
         canvas.clearAll();
         // TODO: wtf is even this pile of poop temp fix
-        primary.nextPlayer(true, getCurrentPlayer().getName(), game.getCurrentTurn() == 0 ? "X" : "O", getPlayer((game.getCurrentTurn() + 1) % 2).getName());
+        primary.nextPlayer(true, getCurrentPlayer().getName(), game.getCurrentTurn() == 0 ? "X" : "O", getPlayer((game.getCurrentTurn() + 1) % 2).getName(), 'T');
         drawMoves();
     }
 

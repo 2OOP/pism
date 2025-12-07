@@ -14,14 +14,12 @@ import javafx.scene.control.ListView;
 public final class ServerView extends ViewWidget {
 	private final String user;
 	private final Consumer<String> onPlayerClicked;
-	private final Runnable onDisconnect;
 
 	private final ListView<Button> listView;
 
-	public ServerView(String user, Consumer<String> onPlayerClicked, Runnable onDisconnect) {
+	public ServerView(String user, Consumer<String> onPlayerClicked) {
 		this.user = user;
 		this.onPlayerClicked = onPlayerClicked;
-		this.onDisconnect = onDisconnect;
 
 		this.listView = new ListView<>();
 
@@ -40,7 +38,6 @@ public final class ServerView extends ViewWidget {
 		add(Pos.CENTER, playerListSection);
 
 		var disconnectButton = Primitive.button("disconnect", () -> {
-			onDisconnect.run();
 			transitionPrevious();
 		});
 

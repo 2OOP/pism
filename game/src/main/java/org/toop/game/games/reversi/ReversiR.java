@@ -25,10 +25,10 @@ public final class ReversiR extends AbstractGame<ReversiR> {
     // TODO: Don't hardcore for two players :)
     public record Score(int player1Score, int player2Score) {}
 
-	public ReversiR(Player<ReversiR>[] players) {
-		super(8, 8, 2, players);
+    public ReversiR(Player<ReversiR>[] players) {
+        super(8, 8, 2, players);
         addStartPieces();
-	}
+    }
 
     public ReversiR(ReversiR other) {
         super(other);
@@ -53,8 +53,8 @@ public final class ReversiR extends AbstractGame<ReversiR> {
         }
     }
 
-	@Override
-	public int[] getLegalMoves() {
+    @Override
+    public int[] getLegalMoves() {
         final ArrayList<Integer> legalMoves = new ArrayList<>();
         int[][] boardGrid = makeBoardAGrid();
         int currentPlayer = this.getCurrentTurn();
@@ -67,7 +67,7 @@ public final class ReversiR extends AbstractGame<ReversiR> {
             }
         }
         return legalMoves.stream().mapToInt(Integer::intValue).toArray();
-	}
+    }
 
     private Set<Point> getAdjacentCells(int[][] boardGrid) {
         Set<Point> possibleCells = new HashSet<>();
@@ -76,7 +76,7 @@ public final class ReversiR extends AbstractGame<ReversiR> {
                 for (int deltaRow = -1; deltaRow <= 1; deltaRow++){                 //orthogonally and diagonally
                     int newX =  point.x + deltaColumn, newY =  point.y + deltaRow;
                     if (deltaColumn == 0 && deltaRow == 0                           //continue if out of bounds
-                    || !isOnBoard(newX, newY)) {
+                            || !isOnBoard(newX, newY)) {
                         continue;
                     }
                     if (boardGrid[newY][newX] == EMPTY) {                           //check if the cell is empty

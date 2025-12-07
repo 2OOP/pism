@@ -4,6 +4,7 @@ import org.toop.app.App;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.ViewWidget;
 import javafx.geometry.Pos;
+import org.toop.app.widget.popup.QuitPopup;
 
 public class MainView extends ViewWidget {
 	public MainView() {
@@ -24,7 +25,8 @@ public class MainView extends ViewWidget {
 		});
 
 		var quitButton = Primitive.button("quit", () -> {
-			App.startQuit();
+			var a = new QuitPopup();
+			a.show(Pos.CENTER);
 		});
 
 		add(Pos.CENTER, Primitive.vbox(

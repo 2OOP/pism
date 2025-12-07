@@ -6,25 +6,29 @@ import org.toop.framework.audio.interfaces.SoundEffectManager;
 import org.toop.framework.audio.interfaces.VolumeManager;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.resource.types.AudioResource;
 
 public class AudioEventListener<T extends AudioResource, K extends AudioResource> {
+    private final EventBus eventBus;
     private final MusicManager<T> musicManager;
     private final SoundEffectManager<K> soundEffectManager;
     private final VolumeManager audioVolumeManager;
 
     public AudioEventListener(
+            EventBus eventBus,
             MusicManager<T> musicManager,
             SoundEffectManager<K> soundEffectManager,
             VolumeManager audioVolumeManager
     ) {
+        this.eventBus = eventBus;
         this.musicManager = musicManager;
         this.soundEffectManager = soundEffectManager;
         this.audioVolumeManager = audioVolumeManager;
     }
 
     public AudioEventListener<?, ?> initListeners(String buttonSoundToPlay) {
-        new EventFlow()
+        new EventFlow(eventBus)
                 .listen(AudioEvents.StopAudioManager.class, this::handleStopMusicManager, false)
                 .listen(AudioEvents.PlayEffect.class, this::handlePlaySound, false)
                 .listen(AudioEvents.SkipMusic.class, this::handleSkipSong, false)
@@ -73,7 +77,7 @@ public class AudioEventListener<T extends AudioResource, K extends AudioResource
     }
 
     private void handleGetVolume(AudioEvents.GetVolume event) {
-        GlobalEventBus.postAsync(new AudioEvents.GetVolumeResponse(
+        eventBus.post(new AudioEvents.GetVolumeResponse(
                 audioVolumeManager.getVolume(event.controlType()),
                 event.identifier()));
     }

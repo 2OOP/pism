@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import org.toop.annotations.AutoResponseResult;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.eventbus.events.*;
 import org.toop.framework.networking.interfaces.NetworkingClient;
 import org.toop.framework.networking.types.NetworkingConnector;
@@ -11,7 +12,7 @@ import org.toop.framework.networking.types.NetworkingConnector;
 /**
  * Defines all event types related to the networking subsystem.
  * <p>
- * These events are used in conjunction with the {@link org.toop.framework.eventbus.GlobalEventBus}
+ * These events are used in conjunction with the {@link GlobalEventBus}
  * and {@link org.toop.framework.eventbus.EventFlow} to communicate between components
  * such as networking clients, managers, and listeners.
  * </p>
@@ -166,6 +167,10 @@ public class NetworkEvents extends EventsBase {
             long identifier)
             implements UniqueEvent {}
 
+    public record CreatedIdForClient(long clientId, long identifier) implements ResponseToUniqueEvent {}
+
+    public record ConnectTry(long clientId, int amount, int maxAmount, boolean success) implements GenericEvent {}
+
     /**
      * Response confirming that a client has been successfully started.
      * <p>
@@ -180,8 +185,6 @@ public class NetworkEvents extends EventsBase {
     @AutoResponseResult
     public record StartClientResponse(long clientId, boolean successful, long identifier)
             implements ResponseToUniqueEvent {}
-
-    public record ConnectTry(long clientId, int amount, int maxAmount, boolean success) implements GenericEvent {}
 
     /**
      * Requests reconnection of an existing client using its previous configuration.

@@ -15,14 +15,12 @@ public class QuitPopup extends PopupWidget {
 		});
 
 		confirmWidget.addButton("no", () -> {
-			App.stopQuit();
 			hide();
 		});
 
 		add(Pos.CENTER, confirmWidget);
 
 		setOnPop(() -> {
-			App.stopQuit();
 			hide();
 		});
 	}

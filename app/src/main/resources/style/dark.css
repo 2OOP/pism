@@ -166,7 +166,7 @@
 	-fx-effect: dropshadow(gaussian, #88cc8899, 5, 0, 0, 1);
 }
 
-.my-turn {
+.text.my-turn {
 	-fx-fill: #e05656;
 	-fx-font-weight: bold;
 }

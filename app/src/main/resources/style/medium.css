@@ -23,6 +23,11 @@
 	-fx-spacing: 10;
 }
 
+.hboxspacing {
+    -fx-padding: 2;
+    -fx-spacing: 10;
+}
+
 .current-player {
 	-fx-font-size: 24px;
 }
