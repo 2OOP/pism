@@ -127,9 +127,14 @@ public final class App extends Application {
 
                 }, false, "init_loading");
 
-		// Start loading assets
-		new Thread(() -> ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets")))
-				.start();
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			executor.submit(
+				() -> ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets")
+			));
+		} finally {
+			executor.shutdown();
+		}
 
 		stage.show();
 
@@ -164,8 +169,14 @@ public final class App extends Application {
 
 	private void setOnLoadingSuccess(LoadingWidget loading) {
 		loading.setOnSuccess(() -> {
-			initSystems();
-			AppSettings.applyMusicVolumeSettings();
+
+            try {
+                initSystems();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            AppSettings.applyMusicVolumeSettings();
 			new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).postEvent();
             loading.hide();
 			WidgetContainer.add(Pos.CENTER, new MainView());
@@ -182,52 +193,55 @@ public final class App extends Application {
 		});
 	}
 
-	private void initSystems() { // TODO Move to better place
+	private void initSystems() throws InterruptedException { // TODO Move to better place
 
 		final int THREAD_COUNT = 2;
 		CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
+
+		@SuppressWarnings("resource")
 		ExecutorService threads = Executors.newFixedThreadPool(THREAD_COUNT);
 
-		threads.submit(() -> {
-			new NetworkingClientEventListener(
-					GlobalEventBus.get(),
-					new NetworkingClientManager(GlobalEventBus.get()));
+		try {
 
-			latch.countDown();
-		});
+			threads.submit(() -> {
+				new NetworkingClientEventListener(
+						GlobalEventBus.get(),
+						new NetworkingClientManager(GlobalEventBus.get()));
 
-		threads.submit(() -> {
-			MusicManager<MusicAsset> musicManager =
-					new MusicManager<>(
-							GlobalEventBus.get(),
-							ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class),
-							true
-					);
+				latch.countDown();
+			});
 
-			SoundEffectManager<SoundEffectAsset> soundEffectManager =
-					new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));
+			threads.submit(() -> {
+				MusicManager<MusicAsset> musicManager =
+						new MusicManager<>(
+								GlobalEventBus.get(),
+								ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class),
+								true
+						);
 
-			AudioVolumeManager audioVolumeManager = new AudioVolumeManager()
-					.registerManager(VolumeControl.MASTERVOLUME, musicManager)
-					.registerManager(VolumeControl.MASTERVOLUME, soundEffectManager)
-					.registerManager(VolumeControl.FX, soundEffectManager)
-					.registerManager(VolumeControl.MUSIC, musicManager);
+				SoundEffectManager<SoundEffectAsset> soundEffectManager =
+						new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));
 
-			new AudioEventListener<>(
-					GlobalEventBus.get(),
-					musicManager,
-					soundEffectManager,
-					audioVolumeManager
-			).initListeners("medium-button-click.wav");
+				AudioVolumeManager audioVolumeManager = new AudioVolumeManager()
+						.registerManager(VolumeControl.MASTERVOLUME, musicManager)
+						.registerManager(VolumeControl.MASTERVOLUME, soundEffectManager)
+						.registerManager(VolumeControl.FX, soundEffectManager)
+						.registerManager(VolumeControl.MUSIC, musicManager);
 
-			latch.countDown();
-		});
+				new AudioEventListener<>(
+						GlobalEventBus.get(),
+						musicManager,
+						soundEffectManager,
+						audioVolumeManager
+				).initListeners("medium-button-click.wav");
 
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+				latch.countDown();
+			});
+
+		} finally {
+			latch.await();
+			threads.shutdown();
+		}
     }
 
 	public static void quit() {
