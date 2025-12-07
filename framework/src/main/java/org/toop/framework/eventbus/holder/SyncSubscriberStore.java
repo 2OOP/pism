@@ -13,12 +13,12 @@ public class SyncSubscriberStore implements SubscriberStore {
 
     @Override
     public void add(Subscriber<?, ?> sub) {
-        LISTENERS.computeIfAbsent(sub.getEvent(), _ -> new ArrayList<>()).add(sub);
+        LISTENERS.computeIfAbsent(sub.event(), _ -> new ArrayList<>()).add(sub);
     }
 
     @Override
     public void remove(Subscriber<?, ?> sub) {
-        LISTENERS.getOrDefault(sub.getEvent(), new ArrayList<>()).remove(sub);
+        LISTENERS.getOrDefault(sub.event(), new ArrayList<>()).remove(sub);
         LISTENERS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
     }
 

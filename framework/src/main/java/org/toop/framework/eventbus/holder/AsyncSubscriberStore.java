@@ -11,16 +11,16 @@ public class AsyncSubscriberStore implements SubscriberStore {
 
     @Override
     public void add(Subscriber<?, ?> sub) {
-        queues.computeIfAbsent(sub.getEvent(), _ -> new ConcurrentLinkedQueue<>()).add(sub);
-        rebuildSnapshot(sub.getEvent());
+        queues.computeIfAbsent(sub.event(), _ -> new ConcurrentLinkedQueue<>()).add(sub);
+        rebuildSnapshot(sub.event());
     }
 
     @Override
     public void remove(Subscriber<?, ?> sub) {
-        ConcurrentLinkedQueue<Subscriber<?, ?>> queue = queues.get(sub.getEvent());
+        ConcurrentLinkedQueue<Subscriber<?, ?>> queue = queues.get(sub.event());
         if (queue != null) {
             queue.remove(sub);
-            rebuildSnapshot(sub.getEvent());
+            rebuildSnapshot(sub.event());
         }
     }
 

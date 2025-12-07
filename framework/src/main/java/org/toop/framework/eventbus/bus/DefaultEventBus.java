@@ -33,8 +33,8 @@ public class DefaultEventBus implements EventBus {
         var subs = eventsHolder.get(eventType);
         if (subs != null) {
             for (Subscriber<?, ?> subscriber : subs) {
-                Class<T> eventClass = (Class<T>) subscriber.getEvent();
-                Consumer<EventType> action = (Consumer<EventType>) subscriber.getAction();
+                Class<T> eventClass = (Class<T>) subscriber.event();
+                Consumer<EventType> action = (Consumer<EventType>) subscriber.handler();
 
                 action.accept((EventType) eventClass.cast(event));
             }

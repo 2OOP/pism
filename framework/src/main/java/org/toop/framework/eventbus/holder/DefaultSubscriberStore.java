@@ -13,7 +13,7 @@ public class DefaultSubscriberStore implements SubscriberStore {
 
     @Override
     public void add(Subscriber<?, ?> sub) {
-        listeners.compute(sub.getEvent(), (_, arr) -> {
+        listeners.compute(sub.event(), (_, arr) -> {
             if (arr == null || arr.length == 0) {
                 return new Subscriber<?, ?>[]{sub};
             }
@@ -28,7 +28,7 @@ public class DefaultSubscriberStore implements SubscriberStore {
 
     @Override
     public void remove(Subscriber<?, ?> sub) {
-        listeners.computeIfPresent(sub.getEvent(), (_, arr) -> {
+        listeners.computeIfPresent(sub.event(), (_, arr) -> {
             int len = arr.length;
 
             if (len == 1) {

@@ -430,7 +430,7 @@ public class EventFlow {
      */
     public void unsubscribe(Consumer<?> action) {
         this.listeners.removeIf(handler -> {
-            if (handler.getAction().equals(action)) {
+            if (handler.handler().equals(action)) {
                 eventBus.unsubscribe(handler);
                 return true;
             }
@@ -445,7 +445,7 @@ public class EventFlow {
      */
     public void unsubscribe(String name) {
         this.listeners.removeIf(handler -> {
-            if (handler.getId().equals(name)) {
+            if (handler.id().equals(name)) {
                 eventBus.unsubscribe(handler);
                 return true;
             }
