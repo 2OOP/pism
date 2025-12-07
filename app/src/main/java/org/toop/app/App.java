@@ -33,6 +33,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class App extends Application {
 	private static Stage stage;
@@ -46,7 +49,7 @@ public final class App extends Application {
 	}
 
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(Stage stage) {
 		// Start loading localization
 		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/localization"));
 		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/style"));
@@ -180,12 +183,20 @@ public final class App extends Application {
 	}
 
 	private void initSystems() { // TODO Move to better place
-		new Thread(() -> new NetworkingClientEventListener(
-				GlobalEventBus.get(),
-				new NetworkingClientManager(GlobalEventBus.get()))
-		).start();
 
-		new Thread(() -> {
+		final int THREAD_COUNT = 2;
+		CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
+		ExecutorService threads = Executors.newFixedThreadPool(THREAD_COUNT);
+
+		threads.submit(() -> {
+			new NetworkingClientEventListener(
+					GlobalEventBus.get(),
+					new NetworkingClientManager(GlobalEventBus.get()));
+
+			latch.countDown();
+		});
+
+		threads.submit(() -> {
 			MusicManager<MusicAsset> musicManager =
 					new MusicManager<>(
 							GlobalEventBus.get(),
@@ -209,11 +220,11 @@ public final class App extends Application {
 					audioVolumeManager
 			).initListeners("medium-button-click.wav");
 
-		}).start();
+			latch.countDown();
+		});
 
-		// Threads must be ready, before continue, TODO use latch instead
         try {
-            Thread.sleep(200);
+            latch.await();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
