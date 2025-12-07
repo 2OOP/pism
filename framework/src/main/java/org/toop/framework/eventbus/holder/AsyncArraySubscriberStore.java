@@ -18,7 +18,6 @@ public class AsyncArraySubscriberStore implements SubscriberStore {
                 return new Subscriber<?, ?>[]{sub};
             }
 
-            // FAST copy append
             int len = arr.length;
             Subscriber<?, ?>[] newArr = new Subscriber[len + 1];
             System.arraycopy(arr, 0, newArr, 0, len);
