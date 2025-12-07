@@ -5,8 +5,6 @@ import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.holder.SubscriberStore;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 public class DefaultEventBus implements EventBus {

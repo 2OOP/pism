@@ -9,7 +9,6 @@ import org.toop.framework.eventbus.subscriber.Subscriber;
 import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.holder.SubscriberStore;
 
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
