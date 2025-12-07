@@ -1,6 +1,5 @@
 package org.toop.framework.eventbus.bus;
 
-import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 public interface EventBus {
