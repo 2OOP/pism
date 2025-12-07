@@ -20,26 +20,26 @@ public class GlobalEventBus implements EventBus {
 
     @Override
     public void subscribe(Subscriber<?, ?> listener) {
-        get().subscribe(listener);
+        INSTANCE.subscribe(listener);
     }
 
     @Override
     public void unsubscribe(Subscriber<?, ?> listener) {
-        get().unsubscribe(listener);
+        INSTANCE.unsubscribe(listener);
     }
 
     @Override
     public <T> void post(T event) {
-        get().post(event);
+        INSTANCE.post(event);
     }
 
     @Override
     public void shutdown() {
-        get().shutdown();
+        INSTANCE.shutdown();
     }
 
     @Override
     public void reset() {
-        get().reset();
+        INSTANCE.reset();
     }
 }
