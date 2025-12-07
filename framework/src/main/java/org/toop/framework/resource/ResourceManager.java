@@ -92,11 +92,6 @@ public class ResourceManager {
         return asset.getResource();
     }
 
-    //    @SuppressWarnings("unchecked")
-    //    public static <T extends BaseResource> ArrayList<ResourceMeta<T>> getAllOfType() {
-    //        return (ArrayList<ResourceMeta<T>>) (ArrayList<?>) new ArrayList<>(assets.values());
-    //    }
-
     /**
      * Retrieve all assets of a specific resource type.
      *

@@ -36,13 +36,13 @@ public class AppSettings {
 
 		new EventFlow()
 				.addPostEvent(new AudioEvents.ChangeVolume(settingsData.volume, VolumeControl.MASTERVOLUME))
-				.asyncPostEvent();
+				.postEvent();
 		new EventFlow()
 				.addPostEvent(new AudioEvents.ChangeVolume(settingsData.fxVolume, VolumeControl.FX))
-				.asyncPostEvent();
+				.postEvent();
 		new EventFlow()
 				.addPostEvent(new AudioEvents.ChangeVolume(settingsData.musicVolume, VolumeControl.MUSIC))
-				.asyncPostEvent();
+				.postEvent();
 	}
 
 	public static SettingsAsset getPath() {
