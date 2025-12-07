@@ -105,18 +105,6 @@ public class DisruptorEventBus implements EventBus {
                 }
             }
         }
-
-        // TODO, Still needed?
-        CopyOnWriteArrayList<Subscriber<?, ?>> genericListeners = (CopyOnWriteArrayList<Subscriber<?, ?>>) eventsHolder.get(Object.class);
-        if (genericListeners != null) {
-            for (Subscriber<?, ?> listener : genericListeners) {
-                try {
-                    callListener(listener, event);
-                } catch (Throwable e) {
-                    logger.warn("Exception while handling event: {}", event, e);
-                }
-            }
-        }
     }
 
 
