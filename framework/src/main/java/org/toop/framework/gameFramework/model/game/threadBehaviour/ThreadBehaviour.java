@@ -1,8 +1,6 @@
 package org.toop.framework.gameFramework.model.game.threadBehaviour;
 
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
-import org.toop.framework.gameFramework.model.player.Player;
 
 /**
  * Strategy interface for controlling game thread behavior.

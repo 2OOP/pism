@@ -1,6 +1,5 @@
 package org.toop.app.widget;
 
-import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import org.toop.app.widget.complex.PopupWidget;
 import org.toop.app.widget.complex.ViewWidget;

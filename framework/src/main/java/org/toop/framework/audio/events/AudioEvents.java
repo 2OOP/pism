@@ -2,8 +2,6 @@ package org.toop.framework.audio.events;
 
 import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.eventbus.events.*;
-import org.toop.framework.eventbus.events.ResponseToUniqueEvent;
-import org.toop.framework.eventbus.events.UniqueEvent;
 
 public class AudioEvents extends EventsBase {
     /** Stops the audio manager. */

@@ -3,7 +3,6 @@ package org.toop.framework.gameFramework.model.game.threadBehaviour;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

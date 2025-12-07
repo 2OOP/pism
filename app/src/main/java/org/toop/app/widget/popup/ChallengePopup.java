@@ -8,7 +8,6 @@ import org.toop.app.widget.complex.PopupWidget;
 import java.util.function.Consumer;
 
 import javafx.geometry.Pos;
-import org.toop.local.AppContext;
 
 public final class ChallengePopup extends PopupWidget {
 	private final GameInformation.Player playerInformation;

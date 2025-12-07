@@ -14,7 +14,6 @@ import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.game.games.reversi.ReversiAIR;
-import org.toop.game.games.tictactoe.TicTacToeAIR;
 import org.toop.app.widget.tutorial.*;
 import org.toop.local.AppContext;
 

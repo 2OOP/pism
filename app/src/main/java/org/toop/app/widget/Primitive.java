@@ -6,7 +6,6 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.resources.ImageAsset;
 import org.toop.local.AppContext;
 
-import java.io.File;
 import java.util.function.Consumer;
 
 import javafx.collections.FXCollections;

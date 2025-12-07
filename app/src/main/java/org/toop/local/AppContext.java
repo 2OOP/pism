@@ -1,6 +1,5 @@
 package org.toop.local;
 
-import java.util.Locale;
 import java.util.MissingResourceException;
 
 import org.apache.logging.log4j.LogManager;
