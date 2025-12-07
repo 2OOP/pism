@@ -3,6 +3,7 @@ package org.toop.framework.audio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.toop.framework.dispatch.interfaces.Dispatcher;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.resource.resources.BaseResource;
 import org.toop.framework.resource.types.AudioResource;
 
@@ -94,7 +95,7 @@ public class MusicManagerTest {
 
         List<MockAudioResource> resources = List.of(track1, track2, track3);
 
-        manager = new MusicManager<>(resources, dispatcher);
+        manager = new MusicManager<>(GlobalEventBus.get(), resources, dispatcher);
     }
 
     @Test
@@ -188,7 +189,7 @@ public class MusicManagerTest {
             manyTracks.add(new MockAudioResource("track" + i));
         }
 
-        MusicManager<MockAudioResource> multiManager = new MusicManager<>(manyTracks, dispatcher);
+        MusicManager<MockAudioResource> multiManager = new MusicManager<>(GlobalEventBus.get(), manyTracks, dispatcher);
 
         for (int i = 0; i < manyTracks.size() - 1; i++) {
             multiManager.play();

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SyncSubscriberStore implements SubscriberStore {
     private final Map<Class<?>, List<Subscriber<?, ?>>> LISTENERS = new ConcurrentHashMap<>();
+    private static final Subscriber<?, ?>[] EMPTY = new Subscriber[0];
 
     @Override
     public void add(Subscriber<?, ?> sub) {
@@ -22,8 +23,10 @@ public class SyncSubscriberStore implements SubscriberStore {
     }
 
     @Override
-    public List<Subscriber<?, ?>> get(Class<?> event) {
-        return LISTENERS.get(event);
+    public Subscriber<?, ?>[] get(Class<?> event) {
+        List<Subscriber<?, ?>> list = LISTENERS.get(event);
+        if (list == null || list.isEmpty()) return EMPTY;
+        return list.toArray(EMPTY);
     }
 
     @Override

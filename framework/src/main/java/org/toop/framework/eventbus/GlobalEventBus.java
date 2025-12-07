@@ -3,13 +3,13 @@ package org.toop.framework.eventbus;
 import org.apache.logging.log4j.LogManager;
 import org.toop.framework.eventbus.bus.DisruptorEventBus;
 import org.toop.framework.eventbus.bus.EventBus;
-import org.toop.framework.eventbus.holder.AsyncSubscriberStore;
+import org.toop.framework.eventbus.holder.AsyncArraySubscriberStore;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 public class GlobalEventBus implements EventBus {
     private static final EventBus INSTANCE = new DisruptorEventBus(
             LogManager.getLogger(DisruptorEventBus.class),
-            new AsyncSubscriberStore()
+            new AsyncArraySubscriberStore()
     );
 
     private GlobalEventBus() {}

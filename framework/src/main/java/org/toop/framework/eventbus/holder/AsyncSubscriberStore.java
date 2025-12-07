@@ -2,32 +2,45 @@ package org.toop.framework.eventbus.holder;
 
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AsyncSubscriberStore implements SubscriberStore {
-    private final Map<Class<?>, CopyOnWriteArrayList<Subscriber<?, ?>>> LISTENERS = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<?>, ConcurrentLinkedQueue<Subscriber<?, ?>>> queues = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<?>, Subscriber<?, ?>[]> snapshots = new ConcurrentHashMap<>();
 
     @Override
     public void add(Subscriber<?, ?> sub) {
-        LISTENERS.computeIfAbsent(sub.getEvent(), _ -> new CopyOnWriteArrayList<>()).add(sub);
+        queues.computeIfAbsent(sub.getEvent(), _ -> new ConcurrentLinkedQueue<>()).add(sub);
+        rebuildSnapshot(sub.getEvent());
     }
 
     @Override
     public void remove(Subscriber<?, ?> sub) {
-        LISTENERS.getOrDefault(sub.getEvent(), new CopyOnWriteArrayList<>()).remove(sub);
-        LISTENERS.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+        ConcurrentLinkedQueue<Subscriber<?, ?>> queue = queues.get(sub.getEvent());
+        if (queue != null) {
+            queue.remove(sub);
+            rebuildSnapshot(sub.getEvent());
+        }
     }
 
     @Override
-    public List<Subscriber<?, ?>> get(Class<?> event) {
-        return LISTENERS.get(event);
+    public Subscriber<?, ?>[] get(Class<?> event) {
+        return snapshots.getOrDefault(event, new Subscriber[0]);
     }
 
     @Override
     public void reset() {
-        LISTENERS.clear();
+        queues.clear();
+        snapshots.clear();
+    }
+
+    private void rebuildSnapshot(Class<?> event) {
+        ConcurrentLinkedQueue<Subscriber<?, ?>> queue = queues.get(event);
+        if (queue != null) {
+            snapshots.put(event, queue.toArray(new Subscriber[0]));
+        } else {
+            snapshots.put(event, new Subscriber[0]);
+        }
     }
 }

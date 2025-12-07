@@ -95,7 +95,7 @@ public class DisruptorEventBus implements EventBus {
     }
 
     private <T> void dispatchEvent(T event) {
-        CopyOnWriteArrayList<Subscriber<?, ?>> classListeners = (CopyOnWriteArrayList<Subscriber<?, ?>>) eventsHolder.get(event.getClass());
+        var classListeners = eventsHolder.get(event.getClass());
         if (classListeners != null) {
             for (Subscriber<?, ?> listener : classListeners) {
                 try {
