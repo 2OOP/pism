@@ -2,7 +2,7 @@ package org.toop.framework.eventbus.bus;
 
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.holder.SubscriberStore;
+import org.toop.framework.eventbus.store.SubscriberStore;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 import java.util.function.Consumer;

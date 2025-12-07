@@ -7,7 +7,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 import org.toop.framework.eventbus.events.EventType;
-import org.toop.framework.eventbus.holder.SubscriberStore;
+import org.toop.framework.eventbus.store.SubscriberStore;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;

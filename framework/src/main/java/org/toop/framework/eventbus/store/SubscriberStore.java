@@ -1,4 +1,4 @@
-package org.toop.framework.eventbus.holder;
+package org.toop.framework.eventbus.store;
 
 import org.toop.framework.eventbus.subscriber.Subscriber;
 

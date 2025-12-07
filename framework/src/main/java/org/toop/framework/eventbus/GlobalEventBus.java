@@ -3,7 +3,7 @@ package org.toop.framework.eventbus;
 import org.apache.logging.log4j.LogManager;
 import org.toop.framework.eventbus.bus.DisruptorEventBus;
 import org.toop.framework.eventbus.bus.EventBus;
-import org.toop.framework.eventbus.holder.DefaultSubscriberStore;
+import org.toop.framework.eventbus.store.DefaultSubscriberStore;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 public class GlobalEventBus implements EventBus {
