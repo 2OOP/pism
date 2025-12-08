@@ -16,14 +16,16 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
  * </p>
  */
 public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Player<T> {
-    private int playerIndex = -1;
-
-    private Logger logger = LogManager.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String name;
 
     protected AbstractPlayer(String name) {
         this.name = name;
+    }
+
+    protected AbstractPlayer(AbstractPlayer<T> other) {
+        this.name = other.name;
     }
     /**
      * Determines the next move based on the provided game state.
@@ -37,7 +39,7 @@ public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Play
      * @return an integer representing the chosen move
      * @throws UnsupportedOperationException if the method is not overridden
      */
-    public int getMove(T gameCopy) {
+    public long getMove(T gameCopy) {
         logger.error("Method getMove not implemented.");
         throw new UnsupportedOperationException("Not supported yet.");
     }

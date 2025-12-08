@@ -8,6 +8,8 @@ import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
+import java.util.function.Consumer;
+
 /**
  * Handles local turn-based game logic in its own thread.
  * <p>
@@ -20,9 +22,8 @@ public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractTh
      * Creates a new behaviour for a local turn-based game.
      *
      * @param game    the game instance
-     * @param players the list of players in turn order
      */
-    public LocalThreadBehaviour(T game, Player<T>[] players) {
+    public LocalThreadBehaviour(T game) {
         super(game);
     }
 
@@ -48,9 +49,10 @@ public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractTh
     public void run() {
         while (isRunning.get()) {
             Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
-            int move = currentPlayer.getMove(game.deepCopy());
+            long move = currentPlayer.getMove(game.deepCopy());
             PlayResult result = game.play(move);
-            new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
+
+            updateUI();
 
             GameState state = result.state();
             switch (state) {

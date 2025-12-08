@@ -2,6 +2,7 @@ package org.toop.game.players;
 
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;
+import org.toop.framework.gameFramework.model.player.Player;
 
 /**
  * Represents a player controlled remotely or over a network.
@@ -22,5 +23,14 @@ public class OnlinePlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> 
      */
     public OnlinePlayer(String name) {
         super(name);
+    }
+
+    public OnlinePlayer(OnlinePlayer<T> other) {
+        super(other);
+    }
+
+    @Override
+    public Player<T> deepCopy() {
+        return new OnlinePlayer<>(this);
     }
 }

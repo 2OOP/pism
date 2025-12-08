@@ -10,11 +10,11 @@ import org.toop.framework.networking.events.NetworkEvents;
 public interface SupportsOnlinePlay {
 
     /** Called when it is this player's turn to make a move. */
-    void onYourTurn(NetworkEvents.YourTurnResponse event);
+    void onYourTurn(long clientId);
 
     /** Called when a move from another player is received. */
-    void onMoveReceived(NetworkEvents.GameMoveResponse event);
+    void onMoveReceived(long move);
 
     /** Called when the game has finished, with the final result. */
-    void gameFinished(NetworkEvents.GameResultResponse event);
+    void gameFinished(String condition);
 }
