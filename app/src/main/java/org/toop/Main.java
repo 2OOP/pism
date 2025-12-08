@@ -38,8 +38,8 @@ public final class Main {
         }).start();
 
 
-        //NeuralNetwork nn = new NeuralNetwork();
-        //nn.init();
+        NeuralNetwork nn = new NeuralNetwork();
+        nn.init();
     }
 
 }

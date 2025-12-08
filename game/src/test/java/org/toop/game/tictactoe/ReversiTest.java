@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.toop.game.AI;
 import org.toop.game.enumerators.GameState;
 import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
@@ -18,6 +19,8 @@ class ReversiTest {
     private ReversiAI ai;
     private ReversiAIML aiml;
     private ReversiAISimple aiSimple;
+    private AI<Reversi> player1;
+    private AI<Reversi> player2;
 
     @BeforeEach
     void setup() {
@@ -32,20 +35,20 @@ class ReversiTest {
     @Test
     void testCorrectStartPiecesPlaced() {
         assertNotNull(game);
-        assertEquals('W',game.getBoard()[27]);
-        assertEquals('B',game.getBoard()[28]);
-        assertEquals('B',game.getBoard()[35]);
-        assertEquals('W',game.getBoard()[36]);
+        assertEquals('W', game.getBoard()[27]);
+        assertEquals('B', game.getBoard()[28]);
+        assertEquals('B', game.getBoard()[35]);
+        assertEquals('W', game.getBoard()[36]);
     }
 
     @Test
     void testGetLegalMovesAtStart() {
         Move[] moves = game.getLegalMoves();
         List<Move> expectedMoves = List.of(
-                new Move(19,'B'),
-                new Move(26,'B'),
-                new Move(37,'B'),
-                new Move(44,'B')
+                new Move(19, 'B'),
+                new Move(26, 'B'),
+                new Move(37, 'B'),
+                new Move(44, 'B')
         );
         assertNotNull(moves);
         assertTrue(moves.length > 0);
@@ -83,12 +86,12 @@ class ReversiTest {
 
     @Test
     void testCountScoreCorrectlyAtStart() {
-        long start =  System.nanoTime();
+        long start = System.nanoTime();
         Reversi.Score score = game.getScore();
         assertEquals(2, score.player1Score()); // Black
         assertEquals(2, score.player2Score()); // White
-        long end  =  System.nanoTime();
-        IO.println((end-start));
+        long end = System.nanoTime();
+        IO.println((end - start));
     }
 
     @Test
@@ -97,7 +100,7 @@ class ReversiTest {
         game.play(new Move(20, 'W'));
         Move[] moves = game.getLegalMoves();
         List<Move> expectedMoves = List.of(
-                new Move(13,'B'),
+                new Move(13, 'B'),
                 new Move(21, 'B'),
                 new Move(29, 'B'),
                 new Move(37, 'B'),
@@ -110,11 +113,11 @@ class ReversiTest {
 
     @Test
     void testCountScoreCorrectlyAtEnd() {
-        for (int i = 0; i < 1; i++){
-            game =  new Reversi();
+        for (int i = 0; i < 1; i++) {
+            game = new Reversi();
             Move[] legalMoves = game.getLegalMoves();
-            while(legalMoves.length > 0) {
-                game.play(legalMoves[(int)(Math.random()*legalMoves.length)]);
+            while (legalMoves.length > 0) {
+                game.play(legalMoves[(int) (Math.random() * legalMoves.length)]);
                 legalMoves = game.getLegalMoves();
             }
             Reversi.Score score = game.getScore();
@@ -152,8 +155,8 @@ class ReversiTest {
         game.play(new Move(60, 'W'));
         game.play(new Move(59, 'B'));
         assertEquals('B', game.getCurrentPlayer());
-        game.play(ai.findBestMove(game,5));
-        game.play(ai.findBestMove(game,5));
+        game.play(ai.findBestMove(game, 5));
+        game.play(ai.findBestMove(game, 5));
     }
 
     @Test
@@ -186,9 +189,9 @@ class ReversiTest {
 
     @Test
     void testAISelectsLegalMove() {
-        Move move = ai.findBestMove(game,4);
+        Move move = ai.findBestMove(game, 4);
         assertNotNull(move);
-        assertTrue(containsMove(game.getLegalMoves(),move), "AI should always choose a legal move");
+        assertTrue(containsMove(game.getLegalMoves(), move), "AI should always choose a legal move");
     }
 
     private boolean containsMove(Move[] moves, Move move) {
@@ -199,33 +202,60 @@ class ReversiTest {
     }
 
     @Test
-    void testAIvsAIML(){
-        IO.println("Testing AI simple ...");
-        int totalGames = 5000;
+    void testAis() {
+        player1 = aiml;
+        player2 = ai;
+        testAIvsAIML();
+        player2 = aiSimple;
+        testAIvsAIML();
+        player1 = ai;
+        testAIvsAIML();
+        player2 = aiml;
+        testAIvsAIML();
+        player1 = aiml;
+        testAIvsAIML();
+        player1 = aiSimple;
+        testAIvsAIML();
+    }
+
+    @Test
+    void testAIvsAIML() {
+        if(player1 == null || player2 == null) {
+            player1 = aiml;
+            player2 = ai;
+        }
+        int totalGames = 2000;
+        IO.println("Testing... " + player1.getClass().getSimpleName() + " vs " + player2.getClass().getSimpleName() + " for " + totalGames + " games");
         int p1wins = 0;
         int p2wins = 0;
         int draws = 0;
+        List<Integer> moves = new ArrayList<>();
         for (int i = 0; i < totalGames; i++) {
-            game =  new Reversi();
+            game = new Reversi();
             while (!game.isGameOver()) {
                 char curr = game.getCurrentPlayer();
-                if (curr == 'W') {
-                    game.play(ai.findBestMove(game,5));
+                Move move;
+                if (curr == 'B') {
+                    move = player1.findBestMove(game, 5);
+                } else {
+                    move = player2.findBestMove(game, 5);
                 }
-                else {
-                    game.play(ai.findBestMove(game,5));
-                }
+                if (i%500 == 0) moves.add(move.position());
+                game.play(move);
+            }
+            if (i%500 == 0) {
+                IO.println(moves);
+                moves.clear();
             }
             int winner = game.getWinner();
             if (winner == 1) {
                 p1wins++;
-            }else if (winner == 2) {
+            } else if (winner == 2) {
                 p2wins++;
-            }
-            else{
+            } else {
                 draws++;
             }
         }
-        IO.println("p1 winrate: " + p1wins + "/" + totalGames + " = " + (double)p1wins/totalGames + "\np2wins: " + p2wins + " draws: " + draws);
+        IO.println("p1 winrate: " + p1wins + "/" + totalGames + " = " + (double) p1wins / totalGames + "\np2wins: " + p2wins + " draws: " + draws);
     }
 }

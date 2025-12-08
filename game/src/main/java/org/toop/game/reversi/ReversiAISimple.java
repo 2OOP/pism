@@ -33,6 +33,12 @@ public class ReversiAISimple extends AI<Reversi> {
                 bestScore = numSco;
                 bestMoveScore = move;
             }
+            if (numSco == bestScore || numOpt == bestOptions) {
+                if (Math.random() < 0.5) {
+                    bestMoveOptions = move;
+                    bestMoveScore = move;
+                }
+            }
 
             //IO.println("Move: " + move.position() + ". Options: " + numOpt + ". Score: " + numSco);
         }

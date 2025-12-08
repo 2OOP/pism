@@ -10,6 +10,8 @@ import org.toop.game.records.Move;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static java.lang.Math.random;
+
 public class ReversiAIML extends AI<Reversi>{
 
     MultiLayerNetwork model;
@@ -28,23 +30,27 @@ public class ReversiAIML extends AI<Reversi>{
         INDArray boardInput = Nd4j.create(new int[][] { input });
         INDArray prediction = model.output(boardInput);
 
-        int move = pickLegalMove(prediction, reversi);
+        int move = pickLegalMove(prediction,reversi);
         return new Move(move, reversi.getCurrentPlayer());
     }
 
-    private int pickLegalMove(INDArray prediction, Reversi reversi){
-        double[] probs = prediction.toDoubleVector();
+    private int pickLegalMove(INDArray prediction, Reversi reversi) {
+        double[] logits = prediction.toDoubleVector();
         Move[] legalMoves = reversi.getLegalMoves();
 
         if (legalMoves.length == 0) return -1;
 
         int bestMove = legalMoves[0].position();
-        double bestVal = probs[bestMove];
+        double bestVal = logits[bestMove];
 
-        for (Move move : legalMoves){
-            if (probs[move.position()] > bestVal){
-                bestMove = move.position();
-                bestVal = probs[bestMove];
+        if (random() < 0.01){
+            return legalMoves[(int)(random()*legalMoves.length-.5)].position();
+        }
+        for (Move move : legalMoves) {
+            int pos = move.position();
+            if (logits[pos] > bestVal) {
+                bestMove = pos;
+                bestVal = logits[pos];
             }
         }
         return bestMove;
