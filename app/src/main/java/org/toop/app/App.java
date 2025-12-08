@@ -2,6 +2,8 @@ package org.toop.app;
 
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
 import org.toop.app.widget.Primitive;
@@ -86,6 +88,12 @@ public final class App extends Application {
 		AppSettings.applySettings();
 
 		setKeybinds(root);
+
+        stage.setFullScreenExitKeyCombination(
+                new KeyCodeCombination(
+                        KeyCode.F11
+                )
+        );
 
         LoadingWidget loading = new LoadingWidget(Primitive.text(
                 "Loading...", false), 0, 0, Integer.MAX_VALUE, false, false // Just set a high default
