@@ -46,7 +46,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         this.gameThreadBehaviour = gameThreadBehaviour;
 
         // Tell thread how to send moves
-        this.gameThreadBehaviour.setOnSendMove((id, m) -> GlobalEventBus.postAsync(new NetworkEvents.SendMove(id, (short)translateMove(m))));
+        this.gameThreadBehaviour.setOnSendMove((id, m) -> GlobalEventBus.get().post(new NetworkEvents.SendMove(id, (short)translateMove(m))));
 
         // Tell thread how to update UI
         this.gameThreadBehaviour.setOnUpdateUI(() -> Platform.runLater(this::updateUI));
