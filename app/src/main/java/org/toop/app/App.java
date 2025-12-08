@@ -69,8 +69,8 @@ public final class App extends Application {
 
 		scene.getRoot();
 
-        stage.setMinWidth(1080);
-        stage.setMinHeight(720);
+        stage.setMinWidth(1200);
+        stage.setMinHeight(800);
 		stage.setOnCloseRequest(event -> {
 			event.consume();
 			quit();
