@@ -3,8 +3,6 @@ package org.toop.framework.gameFramework.model.game.threadBehaviour;
 import org.toop.framework.gameFramework.LongPairConsumer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
-import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.function.Consumer;
 

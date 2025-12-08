@@ -2,7 +2,6 @@ package org.toop.app.widget.popup;
 
 import org.toop.app.widget.complex.ConfirmWidget;
 import org.toop.app.widget.complex.PopupWidget;
-import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 

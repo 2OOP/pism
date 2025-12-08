@@ -1,31 +1,48 @@
 package org.toop.app.widget.popup;
 
 import javafx.geometry.Pos;
-import org.toop.app.App;
+import javafx.scene.Node;
 import org.toop.app.widget.Primitive;
+import org.toop.app.widget.Widget;
 import org.toop.app.widget.WidgetContainer;
-import org.toop.app.widget.complex.ConfirmWidget;
 import org.toop.app.widget.complex.PopupWidget;
+import org.toop.app.widget.complex.ViewWidget;
+import org.toop.app.widget.view.GameView;
 import org.toop.app.widget.view.OptionsView;
+import org.toop.local.AppContext;
+
+import java.util.ArrayList;
 
 public class EscapePopup extends PopupWidget {
     public EscapePopup() {
-        var con = Primitive.button("Continue", this::hide, false); // TODO, localize
+        ViewWidget currentView = WidgetContainer.getCurrentView();
+        ArrayList<Node> nodes = new ArrayList<>();
 
-        var qui = Primitive.button("quit", () -> {
-            hide();
-            WidgetContainer.add(Pos.CENTER, new QuitPopup());
-        });
+        nodes.add(Primitive.button("Continue", this::hide, false)); // TODO, localize
 
-        if (!(WidgetContainer.getCurrentView().getClass().isAssignableFrom(OptionsView.class))) {
+        if (!(currentView.getClass().isAssignableFrom(OptionsView.class))) {
             var opt = Primitive.button("options", () -> {
                 hide();
                 WidgetContainer.getCurrentView().transitionNext(new OptionsView());
             });
-            add(Pos.CENTER, Primitive.vbox(con, opt, qui));
-        } else {
-            add(Pos.CENTER, Primitive.vbox(con, qui));
+            nodes.add(opt);
         }
+
+        if (currentView.getClass().isAssignableFrom(GameView.class)) {
+            Widget tut = AppContext.currentTutorial();
+            if (tut != null) {
+                nodes.add(Primitive.button("tutorialstring", () -> {
+                    WidgetContainer.getCurrentView().add(Pos.CENTER, tut);
+                }));
+            }
+        }
+
+        nodes.add(Primitive.button("quit", () -> {
+            hide();
+            WidgetContainer.add(Pos.CENTER, new QuitPopup());
+        }));
+
+        add(Pos.CENTER, Primitive.vbox(nodes.toArray(new Node[0])));
 
     }
 }

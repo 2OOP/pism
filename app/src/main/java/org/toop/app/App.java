@@ -2,6 +2,8 @@ package org.toop.app;
 
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
 import org.toop.app.widget.Primitive;
@@ -14,6 +16,7 @@ import org.toop.app.widget.view.MainView;
 import org.toop.framework.audio.*;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.networking.NetworkingClientEventListener;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.resource.ResourceLoader;
@@ -32,6 +35,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class App extends Application {
 	private static Stage stage;
@@ -45,7 +51,7 @@ public final class App extends Application {
 	}
 
 	@Override
-	public void start(Stage stage) throws Exception {
+	public void start(Stage stage) {
 		// Start loading localization
 		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/localization"));
 		ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/style"));
@@ -63,8 +69,8 @@ public final class App extends Application {
 
 		scene.getRoot();
 
-        stage.setMinWidth(1080);
-        stage.setMinHeight(720);
+        stage.setMinWidth(1200);
+        stage.setMinHeight(800);
 		stage.setOnCloseRequest(event -> {
 			event.consume();
 			quit();
@@ -123,9 +129,14 @@ public final class App extends Application {
 
                 }, false, "init_loading");
 
-		// Start loading assets
-		new Thread(() -> ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets")))
-				.start();
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			executor.submit(
+				() -> ResourceManager.loadAssets(new ResourceLoader("app/src/main/resources/assets")
+			));
+		} finally {
+			executor.shutdown();
+		}
 
 		stage.show();
 
@@ -137,9 +148,20 @@ public final class App extends Application {
 				escapePopup();
 			}
 		});
+        stage.setFullScreenExitKeyCombination(
+                new KeyCodeCombination(
+                        KeyCode.F11
+                )
+        );
 	}
 
 	public void escapePopup() {
+
+		if (   WidgetContainer.getCurrentView() == null
+			|| WidgetContainer.getCurrentView() instanceof MainView) {
+			return;
+		}
+
 		if (!Objects.requireNonNull(
 				WidgetContainer.find(widget -> widget instanceof QuitPopup || widget instanceof EscapePopup)
 		).isEmpty()) {
@@ -154,8 +176,14 @@ public final class App extends Application {
 
 	private void setOnLoadingSuccess(LoadingWidget loading) {
 		loading.setOnSuccess(() -> {
-			initSystems();
-			AppSettings.applyMusicVolumeSettings();
+
+            try {
+                initSystems();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            AppSettings.applyMusicVolumeSettings();
 			new EventFlow().addPostEvent(new AudioEvents.StartBackgroundMusic()).postEvent();
             loading.hide();
 			WidgetContainer.add(Pos.CENTER, new MainView());
@@ -172,36 +200,55 @@ public final class App extends Application {
 		});
 	}
 
-	private void initSystems() { // TODO Move to better place
-		new Thread(() -> new NetworkingClientEventListener(new NetworkingClientManager())).start();
+	private void initSystems() throws InterruptedException { // TODO Move to better place
 
-		new Thread(() -> {
-			MusicManager<MusicAsset> musicManager =
-					new MusicManager<>(ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class), true);
+		final int THREAD_COUNT = 2;
+		CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
 
-			SoundEffectManager<SoundEffectAsset> soundEffectManager =
-					new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));
+		@SuppressWarnings("resource")
+		ExecutorService threads = Executors.newFixedThreadPool(THREAD_COUNT);
 
-			AudioVolumeManager audioVolumeManager = new AudioVolumeManager()
-					.registerManager(VolumeControl.MASTERVOLUME, musicManager)
-					.registerManager(VolumeControl.MASTERVOLUME, soundEffectManager)
-					.registerManager(VolumeControl.FX, soundEffectManager)
-					.registerManager(VolumeControl.MUSIC, musicManager);
+		try {
 
-			new AudioEventListener<>(
-					musicManager,
-					soundEffectManager,
-					audioVolumeManager
-			).initListeners("medium-button-click.wav");
+			threads.submit(() -> {
+				new NetworkingClientEventListener(
+						GlobalEventBus.get(),
+						new NetworkingClientManager(GlobalEventBus.get()));
 
-		}).start();
+				latch.countDown();
+			});
 
-		// Threads must be ready, before continue, TODO use latch instead
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+			threads.submit(() -> {
+				MusicManager<MusicAsset> musicManager =
+						new MusicManager<>(
+								GlobalEventBus.get(),
+								ResourceManager.getAllOfTypeAndRemoveWrapper(MusicAsset.class),
+								true
+						);
+
+				SoundEffectManager<SoundEffectAsset> soundEffectManager =
+						new SoundEffectManager<>(ResourceManager.getAllOfType(SoundEffectAsset.class));
+
+				AudioVolumeManager audioVolumeManager = new AudioVolumeManager()
+						.registerManager(VolumeControl.MASTERVOLUME, musicManager)
+						.registerManager(VolumeControl.MASTERVOLUME, soundEffectManager)
+						.registerManager(VolumeControl.FX, soundEffectManager)
+						.registerManager(VolumeControl.MUSIC, musicManager);
+
+				new AudioEventListener<>(
+						GlobalEventBus.get(),
+						musicManager,
+						soundEffectManager,
+						audioVolumeManager
+				).initListeners("medium-button-click.wav");
+
+				latch.countDown();
+			});
+
+		} finally {
+			latch.await();
+			threads.shutdown();
+		}
     }
 
 	public static void quit() {

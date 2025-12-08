@@ -79,7 +79,7 @@
             executor.submit(() -> {
                 for (int i = 0; i < EVENTS_PER_THREAD; i++) {
                     var _ = new EventFlow().addPostEvent(HeavyEvent.class, "payload-" + i)
-                            .asyncPostEvent();
+                            .postEvent();
                 }
             });
         }

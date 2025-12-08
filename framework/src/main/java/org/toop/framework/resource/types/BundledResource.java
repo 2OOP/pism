@@ -69,9 +69,4 @@ public interface BundledResource {
      * @return the base name used to identify this bundled resource
      */
     String getBaseName();
-
-    //    /**
-    //    Returns the name
-    //    */
-    //    String getDefaultName();
 }

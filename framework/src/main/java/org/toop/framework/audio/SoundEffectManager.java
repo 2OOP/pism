@@ -2,18 +2,10 @@ package org.toop.framework.audio;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.ResourceMeta;
 import org.toop.framework.resource.resources.BaseResource;
-import org.toop.framework.resource.resources.MusicAsset;
-import org.toop.framework.resource.resources.SoundEffectAsset;
 import org.toop.framework.resource.types.AudioResource;
 
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
