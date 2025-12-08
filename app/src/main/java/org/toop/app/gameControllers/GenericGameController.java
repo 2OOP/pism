@@ -18,10 +18,6 @@ import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.players.LocalPlayer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
 public class GenericGameController<T extends TurnBasedGame<T>> implements GameController {
     protected final EventFlow eventFlow = new EventFlow();
 
@@ -76,7 +72,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
 
     public Player<T> getCurrentPlayer(){
         return game.getPlayer(getCurrentPlayerIndex());
-    };
+    }
 
     public int getCurrentPlayerIndex(){
         return game.getCurrentTurn();
