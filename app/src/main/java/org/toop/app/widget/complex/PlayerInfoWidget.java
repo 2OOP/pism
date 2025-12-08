@@ -23,11 +23,6 @@ public class PlayerInfoWidget {
 	}
 
 	private ToggleWidget buildToggle() {
-        if(container != null) {
-            container.setMinHeight(container.getHeight());
-            container.setPrefHeight(container.getHeight());
-            container.setMaxHeight(container.getHeight());
-        }
         return new ToggleWidget(
 			"computer", "player",
 			information.isHuman,
