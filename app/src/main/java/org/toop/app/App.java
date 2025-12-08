@@ -89,12 +89,6 @@ public final class App extends Application {
 
 		setKeybinds(root);
 
-        stage.setFullScreenExitKeyCombination(
-                new KeyCodeCombination(
-                        KeyCode.F11
-                )
-        );
-
         LoadingWidget loading = new LoadingWidget(Primitive.text(
                 "Loading...", false), 0, 0, Integer.MAX_VALUE, false, false // Just set a high default
         );
@@ -154,6 +148,11 @@ public final class App extends Application {
 				escapePopup();
 			}
 		});
+        stage.setFullScreenExitKeyCombination(
+                new KeyCodeCombination(
+                        KeyCode.F11
+                )
+        );
 	}
 
 	public void escapePopup() {

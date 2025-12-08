@@ -39,10 +39,10 @@ public final class ReversiR extends AbstractGame<ReversiR> {
 
 
     private void addStartPieces() {
-        this.setBoard(27, 1);
-        this.setBoard(28, 0);
-        this.setBoard(35, 0);
-        this.setBoard(36, 1);
+        this.setBoard(27, 0);
+        this.setBoard(28, 1);
+        this.setBoard(35, 1);
+        this.setBoard(36, 0);
         updateFilledCellsSet();
     }
     private void updateFilledCellsSet() {

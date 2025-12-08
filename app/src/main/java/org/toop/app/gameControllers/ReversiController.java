@@ -65,9 +65,9 @@ public class ReversiController extends AbstractGameController<ReversiR> {
         canvas.clearAll();
 
         for (int i = 0; i < game.getBoard().length; i++) {
-            if (game.getBoard()[i] == 0) {
+            if (game.getBoard()[i] == 1) {
                 canvas.drawDot(Color.WHITE, i);
-            } else if (game.getBoard()[i] == 1) {
+            } else if (game.getBoard()[i] == 0) {
                 canvas.drawDot(Color.BLACK, i);
             }
         }
@@ -109,7 +109,7 @@ public class ReversiController extends AbstractGameController<ReversiR> {
 
     public void drawLegalPosition(int cell, int player) {
         Color innerColor;
-        if (player == 1) {
+        if (player == 0) {
             innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
         }
         else {
