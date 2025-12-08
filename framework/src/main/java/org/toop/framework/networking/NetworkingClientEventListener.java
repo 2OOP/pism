@@ -4,42 +4,44 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.framework.networking.exceptions.ClientNotFoundException;
 import org.toop.framework.networking.interfaces.NetworkingClientManager;
 
 public class NetworkingClientEventListener {
-
     private static final Logger logger = LogManager.getLogger(NetworkingClientEventListener.class);
+
     private final NetworkingClientManager clientManager;
 
     /** Starts a connection manager, to manage, connections. */
-    public NetworkingClientEventListener(NetworkingClientManager clientManager) {
+    public NetworkingClientEventListener(EventBus eventBus, NetworkingClientManager clientManager) {
         this.clientManager = clientManager;
-        new EventFlow()
-                .listen(this::handleStartClient)
-                .listen(this::handleCommand)
-                .listen(this::handleSendLogin)
-                .listen(this::handleSendLogout)
-                .listen(this::handleSendGetPlayerlist)
-                .listen(this::handleSendGetGamelist)
-                .listen(this::handleSendSubscribe)
-                .listen(this::handleSendMove)
-                .listen(this::handleSendChallenge)
-                .listen(this::handleSendAcceptChallenge)
-                .listen(this::handleSendForfeit)
-                .listen(this::handleSendMessage)
-                .listen(this::handleSendHelp)
-                .listen(this::handleSendHelpForCommand)
-                .listen(this::handleCloseClient)
-                .listen(this::handleReconnect)
-                .listen(this::handleChangeAddress)
-                .listen(this::handleGetAllConnections)
-                .listen(this::handleShutdownAll);
+        new EventFlow(eventBus)
+                .listen(NetworkEvents.StartClient.class, this::handleStartClient, false)
+                .listen(NetworkEvents.SendCommand.class, this::handleCommand, false)
+                .listen(NetworkEvents.SendLogin.class, this::handleSendLogin, false)
+                .listen(NetworkEvents.SendLogout.class, this::handleSendLogout, false)
+                .listen(NetworkEvents.SendGetPlayerlist.class, this::handleSendGetPlayerlist, false)
+                .listen(NetworkEvents.SendGetGamelist.class, this::handleSendGetGamelist, false)
+                .listen(NetworkEvents.SendSubscribe.class, this::handleSendSubscribe, false)
+                .listen(NetworkEvents.SendMove.class, this::handleSendMove, false)
+                .listen(NetworkEvents.SendChallenge.class, this::handleSendChallenge, false)
+                .listen(NetworkEvents.SendAcceptChallenge.class, this::handleSendAcceptChallenge, false)
+                .listen(NetworkEvents.SendForfeit.class, this::handleSendForfeit, false)
+                .listen(NetworkEvents.SendMessage.class, this::handleSendMessage, false)
+                .listen(NetworkEvents.SendHelp.class, this::handleSendHelp, false)
+                .listen(NetworkEvents.SendHelpForCommand.class, this::handleSendHelpForCommand, false)
+                .listen(NetworkEvents.CloseClient.class, this::handleCloseClient, false)
+                .listen(NetworkEvents.Reconnect.class, this::handleReconnect, false)
+                .listen(NetworkEvents.ChangeAddress.class, this::handleChangeAddress, false)
+                .listen(NetworkEvents.RequestsAllClients.class, this::handleGetAllConnections, false)
+                .listen(NetworkEvents.ForceCloseAllClients.class, this::handleShutdownAll, false);
     }
 
     void handleStartClient(NetworkEvents.StartClient event) {
         long clientId = SnowflakeGenerator.nextId();
+        new EventFlow().addPostEvent(new NetworkEvents.CreatedIdForClient(clientId, event.identifier())).postEvent();
         clientManager.startClient(
                 clientId,
                 event.networkingClient(),

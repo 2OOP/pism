@@ -2,19 +2,23 @@ package org.toop.framework.networking.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.networking.events.NetworkEvents;
 
 public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LogManager.getLogger(NetworkingGameClientHandler.class);
 
+    private final EventBus eventBus;
     private final long connectionId;
 
-    public NetworkingGameClientHandler(long connectionId) {
+    public NetworkingGameClientHandler(EventBus eventBus, long connectionId) {
+        this.eventBus = eventBus;
         this.connectionId = connectionId;
     }
 
@@ -38,9 +42,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                     "Received SVR message from server-{}, data: {}",
                     ctx.channel().remoteAddress(),
                     msg);
-            new EventFlow()
-                    .addPostEvent(new NetworkEvents.ServerResponse(this.connectionId))
-                    .asyncPostEvent();
+            eventBus.post(new NetworkEvents.ServerResponse(this.connectionId));
             parseServerReturn(rec);
             return;
         }
@@ -70,7 +72,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                 case "CHALLENGE":
                     gameChallengeHandler(recSrvRemoved);
                     return;
-                case "WIN", "DRAW", "LOSE":
+                case "WIN", "DRAW", "LOSS":
                     gameWinConditionHandler(recSrvRemoved);
                     return;
                 default:
@@ -111,25 +113,18 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                         .map(m -> m.group(1).trim())
                         .toArray(String[]::new);
 
-        new EventFlow()
-                .addPostEvent(
-                        new NetworkEvents.GameMoveResponse(
-                                this.connectionId, msg[0], msg[1], msg[2]))
-                .asyncPostEvent();
+        eventBus.post(new NetworkEvents.GameMoveResponse(this.connectionId, msg[0], msg[1], msg[2]));
     }
 
     private void gameWinConditionHandler(String rec) {
-        @SuppressWarnings("StreamToString")
-        String condition =
-                Pattern.compile("\\b(win|draw|lose)\\b", Pattern.CASE_INSENSITIVE)
-                        .matcher(rec)
-                        .results()
-                        .toString()
-                        .trim();
+        String condition = Pattern.compile("\\b(win|draw|loss)\\b", Pattern.CASE_INSENSITIVE)
+                .matcher(rec)
+                .results()
+                .map(MatchResult::group)
+                .findFirst()
+                .orElse("");
 
-        new EventFlow()
-                .addPostEvent(new NetworkEvents.GameResultResponse(this.connectionId, condition))
-                .asyncPostEvent();
+        eventBus.post(new NetworkEvents.GameResultResponse(this.connectionId, condition));
     }
 
     private void gameChallengeHandler(String rec) {
@@ -144,17 +139,9 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                             .toArray(String[]::new);
 
             if (isCancelled)
-                new EventFlow()
-                        .addPostEvent(
-                                new NetworkEvents.ChallengeCancelledResponse(
-                                        this.connectionId, msg[0]))
-                        .asyncPostEvent();
+                eventBus.post(new NetworkEvents.GameResultResponse(this.connectionId, msg[0]));
             else
-                new EventFlow()
-                        .addPostEvent(
-                                new NetworkEvents.ChallengeResponse(
-                                        this.connectionId, msg[0], msg[1], msg[2]))
-                        .asyncPostEvent();
+                eventBus.post(new NetworkEvents.ChallengeResponse(this.connectionId, msg[0], msg[1], msg[2]));
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Array out of bounds for: {}", rec, e);
         }
@@ -170,11 +157,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                             .toArray(String[]::new);
 
             // [0] playerToMove, [1] gameType, [2] opponent
-            new EventFlow()
-                    .addPostEvent(
-                            new NetworkEvents.GameMatchResponse(
-                                    this.connectionId, msg[0], msg[1], msg[2]))
-                    .asyncPostEvent();
+            eventBus.post(new NetworkEvents.GameMatchResponse(this.connectionId, msg[0], msg[1], msg[2]));
         } catch (ArrayIndexOutOfBoundsException e) {
             logger.error("Array out of bounds for: {}", rec, e);
         }
@@ -189,9 +172,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                         .toString()
                         .trim();
 
-        new EventFlow()
-                .addPostEvent(new NetworkEvents.YourTurnResponse(this.connectionId, msg))
-                .asyncPostEvent();
+        eventBus.post(new NetworkEvents.YourTurnResponse(this.connectionId, msg));
     }
 
     private void playerlistHandler(String rec) {
@@ -202,9 +183,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                         .map(m -> m.group(1).trim())
                         .toArray(String[]::new);
 
-        new EventFlow()
-                .addPostEvent(new NetworkEvents.PlayerlistResponse(this.connectionId, players))
-                .asyncPostEvent();
+        eventBus.post(new NetworkEvents.PlayerlistResponse(this.connectionId, players));
     }
 
     private void gamelistHandler(String rec) {
@@ -215,9 +194,7 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                         .map(m -> m.group(1).trim())
                         .toArray(String[]::new);
 
-        new EventFlow()
-                .addPostEvent(new NetworkEvents.GamelistResponse(this.connectionId, gameTypes))
-                .asyncPostEvent();
+        eventBus.post(new NetworkEvents.GamelistResponse(this.connectionId, gameTypes));
     }
 
     private void helpHandler(String rec) {

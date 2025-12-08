@@ -2,6 +2,8 @@ package org.toop.app.widget.complex;
 
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.Widget;
+import org.toop.framework.audio.events.AudioEvents;
+import org.toop.framework.eventbus.EventFlow;
 import org.toop.local.AppContext;
 
 import java.util.function.Consumer;
@@ -29,8 +31,9 @@ public class ToggleWidget implements Widget {
 			state = !state;
 			updateText();
 			if (onToggle != null) {
-				onToggle.accept(state);
-			}
+                onToggle.accept(state);
+                new EventFlow().addPostEvent(new AudioEvents.ClickButton()).postEvent(); // TODO FIX PRIMITIVES
+            }
 		});
 
 		container = Primitive.vbox(button);

@@ -22,7 +22,7 @@ public class SongDisplay extends VBox implements Widget {
 
 	public SongDisplay() {
 		new EventFlow()
-			.listen(this::updateTheSong);
+				.listen(AudioEvents.PlayingMusic.class, this::updateTheSong, false);
 
 		setAlignment(Pos.CENTER);
 		setMaxHeight(Region.USE_PREF_SIZE);
@@ -33,7 +33,7 @@ public class SongDisplay extends VBox implements Widget {
 		songTitle.getStyleClass().add("song-title");
 
 		progressBar = new ProgressBar(0);
-		progressBar.getStyleClass().add("progress-bar");
+		progressBar.getStyleClass().add("loading-progress-bar");
 
 		progressText = new Text("0:00/0:00");
 		progressText.getStyleClass().add("progress-text");
@@ -49,11 +49,11 @@ public class SongDisplay extends VBox implements Widget {
 		previousButton.getStyleClass().setAll("previous-button");
 
 		skipButton.setOnAction( event -> {
-			GlobalEventBus.post(new AudioEvents.SkipMusic());
+			GlobalEventBus.get().post(new AudioEvents.SkipMusic());
 		});
 
 		pauseButton.setOnAction(event -> {
-			GlobalEventBus.post(new AudioEvents.PauseMusic());
+			GlobalEventBus.get().post(new AudioEvents.PauseMusic());
 			if (pauseButton.getText().equals("⏸")) {
 				pauseButton.setText("▶");
 			}
@@ -63,7 +63,7 @@ public class SongDisplay extends VBox implements Widget {
 		});
 
 		previousButton.setOnAction( event -> {
-			GlobalEventBus.post(new AudioEvents.PreviousMusic());
+			GlobalEventBus.get().post(new AudioEvents.PreviousMusic());
 		});
 
 		HBox control = new HBox(10, previousButton, pauseButton, skipButton);

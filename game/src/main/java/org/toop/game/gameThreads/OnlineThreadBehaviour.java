@@ -1,0 +1,95 @@
+package org.toop.game.gameThreads;
+
+import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.AbstractThreadBehaviour;
+import org.toop.framework.gameFramework.view.GUIEvents;
+import org.toop.framework.gameFramework.model.game.AbstractGame;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
+import org.toop.framework.gameFramework.model.player.Player;
+import org.toop.game.players.OnlinePlayer;
+
+/**
+ * Handles online multiplayer game logic.
+ * <p>
+ * Reacts to server events, sending moves and updating the game state
+ * for the local player while receiving moves from other players.
+ */
+public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements SupportsOnlinePlay {
+
+    /** The local player controlled by this client. */
+    private final Player<T> mainPlayer;
+    private final int playerTurn;
+
+    /**
+     * Creates behaviour and sets the first local player
+     * (non-online player) from the given array.
+     */
+    public OnlineThreadBehaviour(T game, Player<T>[] players) {
+        super(game);
+        this.playerTurn = getFirstNotOnlinePlayer(players);
+        this.mainPlayer = players[this.playerTurn];
+    }
+
+    /** Finds the first non-online player in the array. */
+    private int getFirstNotOnlinePlayer(Player<T>[] players) {
+        for (int i = 0; i < players.length; i++) {
+            if (!(players[i] instanceof OnlinePlayer)) {
+                return i;
+            }
+        }
+        throw new RuntimeException("All players are online players");
+    }
+
+    /** Starts processing network events for the local player. */
+    @Override
+    public void start() {
+        isRunning.set(true);
+    }
+
+    /** Stops processing network events. */
+    @Override
+    public void stop() {
+        isRunning.set(false);
+    }
+
+    /**
+     * Called when the server notifies that it is the local player's turn.
+     * Sends the generated move back to the server.
+     */
+    @Override
+    public void onYourTurn(NetworkEvents.YourTurnResponse event) {
+        if (!isRunning.get()) return;
+        int move = mainPlayer.getMove(game.deepCopy());
+        new EventFlow().addPostEvent(NetworkEvents.SendMove.class, event.clientId(), (short) move).postEvent();
+    }
+
+    /**
+     * Handles a move received from the server for any player.
+     * Updates the game state and triggers a UI refresh.
+     */
+    @Override
+    public void onMoveReceived(NetworkEvents.GameMoveResponse event) {
+        if (!isRunning.get()) return;
+        game.play(Integer.parseInt(event.move()));
+        new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
+    }
+
+    /**
+     * Handles the end of the game as notified by the server.
+     * Updates the UI to show a win or draw result for the local player.
+     */
+    @Override
+    public void gameFinished(NetworkEvents.GameResultResponse event) {
+        switch(event.condition().toUpperCase()){
+            case "WIN" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, playerTurn).postEvent();
+            case "DRAW" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, false, AbstractGame.EMPTY).postEvent();
+            case "LOSS" -> new EventFlow().addPostEvent(GUIEvents.GameEnded.class, true, (playerTurn + 1)%2).postEvent();
+            default -> {
+                logger.error("Invalid condition");
+                throw new RuntimeException("Unknown condition");
+            }
+        }
+    }
+}

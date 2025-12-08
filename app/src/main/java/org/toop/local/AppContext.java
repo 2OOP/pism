@@ -1,10 +1,10 @@
 package org.toop.local;
 
-import java.util.Locale;
 import java.util.MissingResourceException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.app.widget.tutorial.BaseTutorialWidget;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.resources.LocalizationAsset;
 
@@ -16,11 +16,13 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class AppContext {
+    private static final Logger logger = LogManager.getLogger(AppContext.class);
+
     private static final LocalizationAsset localization = ResourceManager.get("localization");
     private static Locale locale = Locale.forLanguageTag("en");
 
 	private static final ObjectProperty<Locale> localeProperty = new SimpleObjectProperty<>(locale);
-    private static final Logger logger = LogManager.getLogger(AppContext.class);
+    private static BaseTutorialWidget tutorialWidget;
 
     public static LocalizationAsset getLocalization() {
         return localization;
@@ -58,10 +60,27 @@ public class AppContext {
         return "MISSING RESOURCE";
     }
 
-	public static StringBinding bindToKey(String key) {
-		return Bindings.createStringBinding(
-			() -> localization.getString(key, locale),
-			localeProperty
-		);
+	public static StringBinding bindToKey(String key, boolean localize) {
+        if (localize) return Bindings.createStringBinding(
+                () -> localization.getString(key, locale),
+                localeProperty
+        );
+
+        return Bindings.createStringBinding(
+                () -> key
+        );
+
 	}
+
+    public static StringBinding bindToKey(String key) {
+        return bindToKey(key, true);
+    }
+
+    public static void setCurrentTutorial(BaseTutorialWidget tutorial) {
+        AppContext.tutorialWidget = tutorial;
+    }
+
+    public static BaseTutorialWidget currentTutorial() {
+        return AppContext.tutorialWidget;
+    }
 }

@@ -100,6 +100,12 @@
             <version>2.42.0</version>
         </dependency>
         <dependency>
+            <groupId>org.toop</groupId>
+            <artifactId>framework</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
             <version>1.0.0-M2.1</version>
@@ -110,7 +116,7 @@
             <version>1.0.0-M2.1</version>
         </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

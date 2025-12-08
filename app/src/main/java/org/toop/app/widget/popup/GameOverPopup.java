@@ -2,23 +2,21 @@ package org.toop.app.widget.popup;
 
 import org.toop.app.widget.complex.ConfirmWidget;
 import org.toop.app.widget.complex.PopupWidget;
-import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 
 public final class GameOverPopup extends PopupWidget {
-	public GameOverPopup(boolean iWon, String winner) {
+	public GameOverPopup(boolean winOrTie, String winner) {
 		var confirmWidget = new ConfirmWidget("game-over");
 
-		if (winner.isEmpty()) {
-			confirmWidget.setMessage(AppContext.getString("the-game-ended-in-a-draw"));
-		} else if (iWon) {
-			confirmWidget.setMessage(AppContext.getString("you-win"));
-		} else {
-			confirmWidget.setMessage(AppContext.getString("you-lost-against") + ": " + winner);
-		}
+        if (winOrTie) {
+            confirmWidget.setMessage(winner + " won the game!");
+        }
+        else{
+            confirmWidget.setMessage("It was a tie!");
+        }
 
-		confirmWidget.addButton("ok", () -> hide());
+		confirmWidget.addButton("ok", this::hide);
 
 		add(Pos.CENTER, confirmWidget);
 	}

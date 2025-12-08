@@ -13,10 +13,13 @@ import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.events.ResponseToUniqueEvent;
 import org.toop.framework.eventbus.events.UniqueEvent;
+import org.toop.framework.eventbus.bus.EventBus;
+import org.toop.framework.eventbus.subscriber.DefaultSubscriber;
+import org.toop.framework.eventbus.subscriber.Subscriber;
 
 /**
  * EventFlow is a utility class for creating, posting, and optionally subscribing to events in a
- * type-safe and chainable manner. It is designed to work with the {@link GlobalEventBus}.
+ * type-safe and chainable manner. It is designed to work with the {@link EventBus}.
  *
  * <p>This class supports automatic UUID assignment for {@link UniqueEvent} events, and
  * allows filtering subscribers so they only respond to events with a specific UUID. All
@@ -31,6 +34,8 @@ public class EventFlow {
     /** Cache of constructor handles for event classes to avoid repeated reflection lookups. */
     private static final Map<Class<?>, MethodHandle> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
 
+    private final EventBus eventBus;
+
     /** Automatically assigned UUID for {@link UniqueEvent} events. */
     private long eventSnowflake = -1;
 
@@ -38,24 +43,29 @@ public class EventFlow {
     private EventType event = null;
 
     /** The listener returned by GlobalEventBus subscription. Used for unsubscription. */
-    private final List<ListenerHandler> listeners = new ArrayList<>();
+    private final List<Subscriber<?, ?>> listeners = new ArrayList<>();
 
     /** Holds the results returned from the subscribed event, if any. */
     private Map<String, ?> result = null;
 
     /** Empty constructor (event must be added via {@link #addPostEvent(Class, Object...)}). */
-    public EventFlow() {}
-
-    public EventFlow addPostEvent(EventType event) {
-        this.event = event;
-        return this;
+    public EventFlow(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
-    public EventFlow addPostEvent(Supplier<? extends EventType> eventSupplier) {
-        this.event = eventSupplier.get();
-        return this;
+    public EventFlow() {
+        this.eventBus = GlobalEventBus.get();
     }
 
+    /**
+     *
+     * Add an event that will be triggered when {@link #postEvent()} or {@link #asyncPostEvent()} is called.
+     *
+     * @param eventClass The event that will be posted.
+     * @param args The event arguments, see the added event record for more information.
+     * @return {@link #EventFlow}
+     *
+     */
     public <T extends EventType> EventFlow addPostEvent(Class<T> eventClass, Object... args) {
         try {
             boolean isUuidEvent = UniqueEvent.class.isAssignableFrom(eventClass);
@@ -98,155 +108,403 @@ public class EventFlow {
         }
     }
 
-    /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
-    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(
-            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                eventClass,
-                                event -> {
-                                    if (event.getIdentifier() != this.eventSnowflake) return;
-
-                                    action.accept(event);
-
-                                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                                        GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                        this.listeners.remove(listenerHolder[0]);
-                                    }
-
-                                    this.result = event.result();
-                                }));
-        this.listeners.add(listenerHolder[0]);
+    /**
+     *
+     * Add an event that will be triggered when {@link #postEvent()} or {@link #asyncPostEvent()} is called.
+     *
+     * @param event The event to be posted.
+     * @return {@link #EventFlow}
+     *
+     */
+    public EventFlow addPostEvent(EventType event) {
+        this.event = event;
         return this;
     }
 
-    /** Subscribe by ID: only fires if UUID matches this publisher's eventId. */
-    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> eventClass, Consumer<TT> action) {
-        return this.onResponse(eventClass, action, true);
+    /**
+     *
+     * Add an event that will be triggered when {@link #postEvent()} or {@link #asyncPostEvent()} is called.
+     *
+     * @param eventSupplier The event that will be posted through a Supplier.
+     * @return {@link #EventFlow}
+     *
+     */
+    public EventFlow addPostEvent(Supplier<? extends EventType> eventSupplier) {
+        this.event = eventSupplier.get();
+        return this;
     }
 
-    /** Subscribe by ID without explicit class. */
+    /**
+     *
+     * Start listening for an event and trigger when ID correlates.
+     *
+     * @param event The {@link ResponseToUniqueEvent} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @param unsubscribeAfterSuccess Enable/disable auto unsubscribing to event after being triggered.
+     * @param name A name given to the event, can later be used to unsubscribe.
+     * @return {@link #EventFlow}
+     *
+     */
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(
+            Class<TT> event, Consumer<TT> action, boolean unsubscribeAfterSuccess, String name
+    ) {
+
+        final long id = SnowflakeGenerator.nextId();
+
+        Consumer<TT> newAction = eventClass -> {
+            if (eventClass.getIdentifier() != this.eventSnowflake) return;
+
+            action.accept(eventClass);
+
+            if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
+
+            this.result = eventClass.result();
+        };
+
+        var subscriber = new DefaultSubscriber<>(
+                name,
+                event,
+                newAction
+        );
+
+        eventBus.subscribe(subscriber);
+        this.listeners.add(subscriber);
+        return this;
+    }
+
+    /**
+     *
+     * Start listening for an event and trigger when ID correlates, auto unsubscribes after being triggered and adds an empty name.
+     *
+     * @param event The {@link ResponseToUniqueEvent} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @return {@link #EventFlow}
+     *
+     */
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> event, Consumer<TT> action) {
+        return this.onResponse(event, action, true, "");
+    }
+
+    /**
+     *
+     * Start listening for an event and trigger when ID correlates, auto adds an empty name.
+     *
+     * @param event The {@link ResponseToUniqueEvent} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @param unsubscribeAfterSuccess Enable/disable auto unsubscribing to event after being triggered.
+     * @return {@link #EventFlow}
+     *
+     */
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> event, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
+        return this.onResponse(event, action, unsubscribeAfterSuccess, "");
+    }
+
+    /**
+     *
+     * Start listening for an event and trigger when ID correlates, auto unsubscribes after being triggered.
+     *
+     * @param event The {@link ResponseToUniqueEvent} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @param name A name given to the event, can later be used to unsubscribe.
+     * @return {@link #EventFlow}
+     *
+     */
+    public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Class<TT> event, Consumer<TT> action, String name) {
+        return this.onResponse(event, action, true, name);
+    }
+
+    /**
+     *
+     * Subscribe by ID without explicit class.
+     *
+     * @param action The lambda to run when triggered.
+     * @return {@link #EventFlow}
+     *
+     * @deprecated use {@link #onResponse(Class, Consumer, boolean, String)} instead.
+     */
+    @Deprecated
     @SuppressWarnings("unchecked")
     public <TT extends ResponseToUniqueEvent> EventFlow onResponse(
-            Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                event -> {
-                                    if (!(event instanceof UniqueEvent uuidEvent)) return;
-                                    if (uuidEvent.getIdentifier() == this.eventSnowflake) {
-                                        try {
-                                            TT typedEvent = (TT) uuidEvent;
-                                            action.accept(typedEvent);
-                                            if (unsubscribeAfterSuccess
-                                                    && listenerHolder[0] != null) {
-                                                GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                                this.listeners.remove(listenerHolder[0]);
-                                            }
-                                            this.result = typedEvent.result();
-                                        } catch (ClassCastException _) {
-                                            throw new ClassCastException(
-                                                    "Cannot cast "
-                                                            + event.getClass().getName()
-                                                            + " to UniqueEvent");
-                                        }
-                                    }
-                                }));
-        this.listeners.add(listenerHolder[0]);
+            Consumer<TT> action, boolean unsubscribeAfterSuccess, String name) {
+
+        final long id = SnowflakeGenerator.nextId();
+
+        Consumer<TT> newAction = event -> {
+            if (!(event instanceof UniqueEvent uuidEvent)) return;
+            if (uuidEvent.getIdentifier() == this.eventSnowflake) {
+                try {
+                    TT typedEvent = (TT) uuidEvent;
+                    action.accept(typedEvent);
+
+                    if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
+
+                    this.result = typedEvent.result();
+                } catch (ClassCastException _) {
+                    throw new ClassCastException(
+                            "Cannot cast "
+                                    + event.getClass().getName()
+                                    + " to UniqueEvent");
+                }
+            }
+        };
+
+        var listener = new DefaultSubscriber<>(
+                name,
+                (Class<TT>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0],
+                newAction
+        );
+
+        eventBus.subscribe(listener);
+        this.listeners.add(listener);
         return this;
     }
 
+    /**
+     *
+     * Subscribe by ID without explicit class.
+     *
+     * @param action The lambda to run when triggered.
+     * @return {@link #EventFlow}
+     *
+     * @deprecated use {@link #onResponse(Class, Consumer)} instead.
+     */
+    @Deprecated
     public <TT extends ResponseToUniqueEvent> EventFlow onResponse(Consumer<TT> action) {
-        return this.onResponse(action, true);
+        return this.onResponse(action, true, "");
     }
 
+    /**
+     *
+     * Start listening for an event, and run a lambda when triggered.
+     *
+     * @param event The {@link EventType} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @param unsubscribeAfterSuccess Enable/disable auto unsubscribing to event after being triggered.
+     * @param name A name given to the event, can later be used to unsubscribe.
+     * @return {@link #EventFlow}
+     *
+     */
     public <TT extends EventType> EventFlow listen(
-            Class<TT> eventClass, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                eventClass,
-                                event -> {
-                                    action.accept(event);
+            Class<TT> event, Consumer<TT> action, boolean unsubscribeAfterSuccess, String name) {
 
-                                    if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                                        GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                        this.listeners.remove(listenerHolder[0]);
-                                    }
-                                }));
-        this.listeners.add(listenerHolder[0]);
+        long id = SnowflakeGenerator.nextId();
+
+        Consumer<TT> newAction = eventc -> {
+            action.accept(eventc);
+
+            if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
+        };
+
+        var listener = new DefaultSubscriber<>(
+                        name,
+                        event,
+                        newAction
+                );
+
+        eventBus.subscribe(listener);
+        this.listeners.add(listener);
         return this;
     }
 
-    public <TT extends EventType> EventFlow listen(Class<TT> eventClass, Consumer<TT> action) {
-        return this.listen(eventClass, action, true);
+    /**
+     *
+     * Start listening for an event, and run a lambda when triggered, auto unsubscribes.
+     *
+     * @param event The {@link EventType} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @param name A name given to the event, can later be used to unsubscribe.
+     * @return {@link #EventFlow}
+     *
+     */
+    public <TT extends EventType> EventFlow listen(Class<TT> event, Consumer<TT> action, String name) {
+        return this.listen(event, action, true, name);
     }
 
+    /**
+     *
+     * Start listening for an event, and run a lambda when triggered, auto unsubscribe and gives it an empty name.
+     *
+     * @param event The {@link EventType} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @return {@link #EventFlow}
+     *
+     */
+    public <TT extends EventType> EventFlow listen(Class<TT> event, Consumer<TT> action) {
+        return this.listen(event, action, true, "");
+    }
+
+    /**
+     *
+     * Start listening for an event, and run a lambda when triggered, adds an empty name.
+     *
+     * @param event The {@link EventType} to trigger the lambda.
+     * @param action The lambda to run when triggered.
+     * @param unsubscribeAfterSuccess Enable/disable auto unsubscribing to event after being triggered.
+     * @return {@link #EventFlow}
+     *
+     */
+    public <TT extends EventType> EventFlow listen(Class<TT> event, Consumer<TT> action, boolean unsubscribeAfterSuccess) {
+        return this.listen(event, action, unsubscribeAfterSuccess, "");
+    }
+
+    /**
+     *
+     * Start listening to an event.
+     *
+     * @param action The lambda to run when triggered.
+     * @return {@link EventFlow}
+     *
+     * @deprecated use {@link #listen(Class, Consumer, boolean, String)} instead.
+     */
+    @Deprecated
     @SuppressWarnings("unchecked")
     public <TT extends EventType> EventFlow listen(
-            Consumer<TT> action, boolean unsubscribeAfterSuccess) {
-        ListenerHandler[] listenerHolder = new ListenerHandler[1];
-        listenerHolder[0] =
-                new ListenerHandler(
-                        GlobalEventBus.subscribe(
-                                event -> {
-                                    if (!(event instanceof EventType nonUuidEvent)) return;
-                                    try {
-                                        TT typedEvent = (TT) nonUuidEvent;
-                                        action.accept(typedEvent);
-                                        if (unsubscribeAfterSuccess && listenerHolder[0] != null) {
-                                            GlobalEventBus.unsubscribe(listenerHolder[0]);
-                                            this.listeners.remove(listenerHolder[0]);
-                                        }
-                                    } catch (ClassCastException _) {
-                                        throw new ClassCastException(
-                                                "Cannot cast "
-                                                        + event.getClass().getName()
-                                                        + " to UniqueEvent");
-                                    }
-                                }));
-        this.listeners.add(listenerHolder[0]);
+            Consumer<TT> action, boolean unsubscribeAfterSuccess, String name) {
+        long id = SnowflakeGenerator.nextId();
+
+        Class<TT> eventClass = (Class<TT>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0];
+
+        Consumer<TT> newAction = event -> {
+            if (!(event instanceof EventType nonUuidEvent)) return;
+            try {
+                TT typedEvent = (TT) nonUuidEvent;
+                action.accept(typedEvent);
+                if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
+            } catch (ClassCastException _) {
+                throw new ClassCastException(
+                        "Cannot cast "
+                                + event.getClass().getName()
+                                + " to UniqueEvent");
+            }
+        };
+
+        var listener = new DefaultSubscriber<>(
+                name,
+                eventClass,
+                newAction
+        );
+
+        eventBus.subscribe(listener);
+        this.listeners.add(listener);
         return this;
     }
 
+    /**
+     *
+     * Start listening to an event.
+     *
+     * @param action The lambda to run when triggered.
+     * @return {@link EventFlow}
+     *
+     * @deprecated use {@link #listen(Class, Consumer)} instead.
+     */
+    @Deprecated
     public <TT extends EventType> EventFlow listen(Consumer<TT> action) {
-        return this.listen(action, true);
+        return this.listen(action, true, "");
     }
 
-    /** Post synchronously */
+    /**
+     * Posts the event added through {@link #addPostEvent}.
+     */
     public EventFlow postEvent() {
-        GlobalEventBus.post(this.event);
+        eventBus.post(this.event);
         return this;
     }
 
-    /** Post asynchronously */
+    /**
+     * Posts the event added through {@link #addPostEvent} asynchronously.
+     *
+     * @deprecated use {@link #postEvent()} instead.
+     */
+    @Deprecated
     public EventFlow asyncPostEvent() {
-        GlobalEventBus.postAsync(this.event);
+        eventBus.post(this.event);
         return this;
     }
 
+    /**
+     *
+     * Unsubscribe from an event.
+     *
+     * @param action The listener object to remove and unsubscribe.
+     */
+    public void unsubscribe(Consumer<?> action) {
+        this.listeners.removeIf(handler -> {
+            if (handler.handler().equals(action)) {
+                eventBus.unsubscribe(handler);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Unsubscribe from an event.
+     *
+     * @param name The name given to the listener.
+     */
+    public void unsubscribe(String name) {
+        this.listeners.removeIf(handler -> {
+            if (handler.id().equals(name)) {
+                eventBus.unsubscribe(handler);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Unsubscribe all events.
+     */
+    public void unsubscribeAll() {
+        listeners.removeIf(handler -> {
+            eventBus.unsubscribe(handler);
+            return true;
+        });
+    }
+
+    /**
+     * Clean and remove everything inside {@link EventFlow}.
+     */
     private void clean() {
-        this.listeners.clear();
+        unsubscribeAll();
         this.event = null;
         this.result = null;
     } // TODO
 
+    /**
+     *  TODO
+     *
+     * @return TODO
+     */
     public Map<String, ?> getResult() {
         return this.result;
     }
 
+    /**
+     *  TODO
+     *
+     * @return TODO
+     */
     public EventType getEvent() {
         return event;
     }
 
-    public ListenerHandler[] getListeners() {
-        return listeners.toArray(new ListenerHandler[0]);
+    /**
+     *
+     * Returns a copy of the list of listeners.
+     *
+     * @return Copy of the list of listeners.
+     */
+    public Subscriber<?, ?>[] getListeners() {
+        return listeners.toArray(new Subscriber[0]);
     }
 
+    /**
+     *  Returns the generated snowflake for the {@link EventFlow}
+     *
+     * @return The generated snowflake for this {@link EventFlow}
+     */
     public long getEventSnowflake() {
         return eventSnowflake;
     }
