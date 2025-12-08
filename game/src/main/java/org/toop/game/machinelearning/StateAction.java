@@ -1,4 +1,4 @@
-package org.toop.framework.machinelearning;
+package org.toop.game.machinelearning;
 
 public class StateAction {
     int[] state;

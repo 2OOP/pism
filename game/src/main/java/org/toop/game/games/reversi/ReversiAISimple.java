@@ -1,28 +1,33 @@
-package org.toop.game.reversi;
+package org.toop.game.games.reversi;
 
-import org.toop.game.AI;
-import org.toop.game.records.Move;
+import org.toop.framework.gameFramework.model.player.AbstractAI;
 
-import java.util.Arrays;
+import java.awt.*;
 
-public class ReversiAISimple extends AI<Reversi> {
+public class ReversiAISimple  extends AbstractAI<ReversiR> {
+
+
+    private int getNumberOfOptions(ReversiR game, int move){
+        ReversiR copy = game.deepCopy();
+        copy.play(move);
+        return copy.getLegalMoves().length;
+    }
+
+    private int getScore(ReversiR game, int move){
+        return game.getFlipsForPotentialMove(new Point(move%game.getColumnSize(),move/game.getRowSize()),game.getCurrentTurn()).length;
+    }
 
     @Override
-    public Move findBestMove(Reversi game, int depth) {
-        //IO.println("****START FIND BEST MOVE****");
+    public int getMove(ReversiR game) {
 
-        Move[] moves = game.getLegalMoves();
+        int[] moves = game.getLegalMoves();
 
-
-        //game.printBoard();
-        //IO.println("Legal moves: " + Arrays.toString(moves));
-
-        Move bestMove;
-        Move bestMoveScore = moves[0];
-        Move bestMoveOptions = moves[0];
+        int bestMove;
+        int bestMoveScore = moves[0];
+        int bestMoveOptions = moves[0];
         int bestScore = -1;
         int bestOptions = -1;
-        for (Move move : moves){
+        for (int move : moves){
             int numOpt = getNumberOfOptions(game, move);
             if (numOpt > bestOptions) {
                 bestOptions = numOpt;
@@ -49,15 +54,5 @@ public class ReversiAISimple extends AI<Reversi> {
             bestMove = bestMoveOptions;
         }
         return bestMove;
-    }
-
-    private int getNumberOfOptions(Reversi game, Move move){
-        Reversi copy = new Reversi(game);
-        copy.play(move);
-        return copy.getLegalMoves().length;
-    }
-
-    private int getScore(Reversi game, Move move){
-        return game.getFlipsForPotentialMove(move).length;
     }
 }

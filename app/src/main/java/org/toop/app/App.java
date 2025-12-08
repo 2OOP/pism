@@ -15,6 +15,7 @@ import org.toop.framework.audio.*;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.game.machinelearning.NeuralNetwork;
 import org.toop.framework.networking.NetworkingClientEventListener;
 import org.toop.framework.networking.NetworkingClientManager;
 import org.toop.framework.resource.ResourceLoader;
@@ -138,7 +139,13 @@ public final class App extends Application {
 
 		stage.show();
 
+        //startML();
 	}
+
+    private void startML() {
+        NeuralNetwork nn = new NeuralNetwork();
+        nn.init();
+    }
 
 	private void setKeybinds(StackPane root) {
 		root.addEventHandler(KeyEvent.KEY_PRESSED,event -> {

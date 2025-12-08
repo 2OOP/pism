@@ -1,4 +1,4 @@
-package org.toop.framework.machinelearning;
+package org.toop.game.machinelearning;
 
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -13,13 +13,14 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.toop.game.AI;
-import org.toop.game.enumerators.GameState;
-import org.toop.game.records.Move;
-import org.toop.game.reversi.Reversi;
-import org.toop.game.reversi.ReversiAI;
-import org.toop.game.reversi.ReversiAIML;
-import org.toop.game.reversi.ReversiAISimple;
+import org.toop.framework.gameFramework.GameState;
+import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.player.AbstractAI;
+import org.toop.framework.gameFramework.model.player.Player;
+import org.toop.game.games.reversi.ReversiAIR;
+import org.toop.game.games.reversi.ReversiR;
+import org.toop.game.games.reversi.ReversiAIML;
+import org.toop.game.games.reversi.ReversiAISimple;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,11 +34,10 @@ public class NeuralNetwork {
 
     private MultiLayerConfiguration conf;
     private MultiLayerNetwork model;
-    private AI<Reversi> opponentAI;
-    private ReversiAI reversiAI =  new ReversiAI();
-    private AI<Reversi> opponentRand = new ReversiAI();
-    private AI<Reversi> opponentSimple = new ReversiAISimple();
-    private AI<Reversi> opponentAIML = new ReversiAIML();
+    private AbstractAI<ReversiR> opponentAI;
+    private AbstractAI<ReversiR> opponentRand = new ReversiAIR();
+    private AbstractAI<ReversiR> opponentSimple = new ReversiAISimple();
+    private AbstractAI<ReversiR> opponentAIML = new ReversiAIML();
 
 
     public NeuralNetwork() {}
@@ -89,27 +89,27 @@ public class NeuralNetwork {
     }
 
     public void trainingLoop(){
-        int totalGames = 50000;
+        int totalGames = 5000;
         double epsilon = 0.05;
 
         long start =  System.nanoTime();
 
         for (int game = 0; game<totalGames; game++){
             char modelPlayer = random()<0.5?'B':'W';
-            Reversi reversi = new Reversi();
+            ReversiR reversi = new ReversiR(new Player[2]);
             opponentAI = getOpponentAI();
             List<StateAction> gameHistory = new ArrayList<>();
-            GameState state = GameState.NORMAL;
+            PlayResult state = new PlayResult(GameState.NORMAL,reversi.getCurrentTurn());
 
             double reward = 0;
 
-            while (state != GameState.DRAW && state != GameState.WIN){
-                char curr = reversi.getCurrentPlayer();
-                Move move;
+            while (state.state() != GameState.DRAW && state.state() != GameState.WIN){
+                int curr = reversi.getCurrentTurn();
+                int move;
                 if (curr == modelPlayer) {
-                    int[] input = reversi.getBoardInt();
+                    int[] input = reversi.getBoard();
                     if (Math.random() < epsilon) {
-                        Move[] moves = reversi.getLegalMoves();
+                        int[] moves = reversi.getLegalMoves();
                         move = moves[(int) (Math.random() * moves.length - .5f)];
                     } else {
                         INDArray boardInput = Nd4j.create(new int[][]{input});
@@ -117,16 +117,16 @@ public class NeuralNetwork {
 
                         int location = pickLegalMove(prediction, reversi);
                         gameHistory.add(new StateAction(input, location));
-                        move = new Move(location, reversi.getCurrentPlayer());
+                        move = location;
                     }
                 }else{
-                    move = opponentAI.findBestMove(reversi,5);
+                    move = opponentAI.getMove(reversi);
                 }
                 state = reversi.play(move);
             }
 
             //IO.println(model.params());
-            Reversi.Score score = reversi.getScore();
+            ReversiR.Score score = reversi.getScore();
             int scoreDif = abs(score.player1Score() - score.player2Score());
             if (score.player1Score() > score.player2Score()){
                 reward = 1 + ((scoreDif / 64.0) * 0.5);
@@ -155,29 +155,26 @@ public class NeuralNetwork {
         IO.println((end-start));
     }
 
-    private boolean isInCorner(Move move){
-        return move.position() == 0 || move.position() == 7 || move.position() == 56 || move.position() == 63;
-    }
 
-    private int pickLegalMove(INDArray prediction, Reversi reversi){
+    private int pickLegalMove(INDArray prediction, ReversiR reversi){
         double[] probs = prediction.toDoubleVector();
-        Move[] legalMoves = reversi.getLegalMoves();
+        int[] legalMoves = reversi.getLegalMoves();
 
         if (legalMoves.length == 0) return -1;
 
-        int bestMove = legalMoves[0].position();
+        int bestMove = legalMoves[0];
         double bestVal = probs[bestMove];
 
-        for (Move move : legalMoves){
-            if (probs[move.position()] > bestVal){
-                bestMove = move.position();
+        for (int move : legalMoves){
+            if (probs[move] > bestVal){
+                bestMove = move;
                 bestVal = probs[bestMove];
             }
         }
         return bestMove;
     }
 
-    private AI<Reversi> getOpponentAI(){
+    private AbstractAI<ReversiR> getOpponentAI(){
         return switch ((int) (Math.random() * 4)) {
             case 0 -> opponentRand;
             case 1 -> opponentSimple;

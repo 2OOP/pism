@@ -254,7 +254,24 @@ public final class ReversiR extends AbstractGame<ReversiR> {
         });
         return Arrays.stream(moves).mapToInt(Integer::intValue).toArray();
     }
+
     public int[] getMostRecentlyFlippedPieces() {
         return mostRecentlyFlippedPieces;
+    }
+
+    public Score getScore() {
+        int[] board = getBoard();
+        int p1 = 0;
+        int p2 = 0;
+        for (int i = 0; i < this.getColumnSize() * this.getRowSize(); i++) {
+            if (board[i] == 1) {
+                p1 += 1;
+            }
+            if (board[i] == 2) {
+                p2 += 1;
+            }
+
+        }
+        return new Score(p1, p2);
     }
 }

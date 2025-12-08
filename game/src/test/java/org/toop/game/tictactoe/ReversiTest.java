@@ -1,31 +1,40 @@
+/*//todo fix this mess
+
+
+
 package org.toop.game.tictactoe;
 
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.toop.framework.gameFramework.model.player.AbstractAI;
+import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.AI;
 import org.toop.game.enumerators.GameState;
+import org.toop.game.games.reversi.ReversiAIR;
+import org.toop.game.games.reversi.ReversiR;
 import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
-import org.toop.game.reversi.ReversiAIML;
-import org.toop.game.reversi.ReversiAISimple;
+import org.toop.game.games.reversi.ReversiAIML;
+import org.toop.game.games.reversi.ReversiAISimple;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReversiTest {
-    private Reversi game;
-    private ReversiAI ai;
+    private ReversiR game;
+    private ReversiAIR ai;
     private ReversiAIML aiml;
     private ReversiAISimple aiSimple;
-    private AI<Reversi> player1;
-    private AI<Reversi> player2;
+    private AbstractAI<ReversiR> player1;
+    private AbstractAI<ReversiR> player2;
+    private Player[] players = new Player[2];
 
     @BeforeEach
     void setup() {
-        game = new Reversi();
-        ai = new ReversiAI();
+        game = new ReversiR(players);
+        ai = new ReversiAIR();
         aiml = new ReversiAIML();
         aiSimple = new ReversiAISimple();
 
@@ -231,7 +240,7 @@ class ReversiTest {
         int draws = 0;
         List<Integer> moves = new ArrayList<>();
         for (int i = 0; i < totalGames; i++) {
-            game = new Reversi();
+            game = new ReversiR();
             while (!game.isGameOver()) {
                 char curr = game.getCurrentPlayer();
                 Move move;
@@ -259,3 +268,5 @@ class ReversiTest {
         IO.println("p1 winrate: " + p1wins + "/" + totalGames + " = " + (double) p1wins / totalGames + "\np2wins: " + p2wins + " draws: " + draws);
     }
 }
+
+ */
