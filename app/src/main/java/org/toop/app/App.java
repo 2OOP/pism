@@ -3,7 +3,6 @@ package org.toop.app;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 
 import org.toop.app.widget.Primitive;
@@ -112,20 +111,19 @@ public final class App extends Application {
 						Platform.runLater(() -> stage.setOpacity(1.0));
 					}
 
-					Platform.runLater(() -> loading.setMaxAmount(e.isLoadingAmount()));
-
 					Platform.runLater(() -> {
+                        loading.setMaxAmount(e.isLoadingAmount());
 						try {
 							loading.setAmount(e.hasLoadedAmount());
 						} catch (Exception ex) {
 							throw new RuntimeException(ex);
 						}
+                        if (e.hasLoadedAmount() >= e.isLoadingAmount()-1) {
+                            Platform.runLater(loading::triggerSuccess);
+                            loadingFlow.unsubscribe("init_loading");
+                        }
 					});
 
-                    if (e.hasLoadedAmount() >= e.isLoadingAmount()) {
-                        Platform.runLater(loading::triggerSuccess);
-                        loadingFlow.unsubscribe("init_loading");
-                    }
 
                 }, false, "init_loading");
 
