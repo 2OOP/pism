@@ -147,24 +147,6 @@ public class LocalizationAsset extends BaseResource implements LoadableResource,
         return this.baseName;
     }
 
-    //    /**
-    //     * Extracts the base name from a file name.
-    //     *
-    //     * @param fileName the file name
-    //     * @return base name without locale or extension
-    //     */
-    //    private String getBaseName(String fileName) {
-    //        int dotIndex = fileName.lastIndexOf('.');
-    //        String nameWithoutExtension = (dotIndex > 0) ? fileName.substring(0, dotIndex) :
-    // fileName;
-    //
-    //        int underscoreIndex = nameWithoutExtension.indexOf('_');
-    //        if (underscoreIndex > 0) {
-    //            return nameWithoutExtension.substring(0, underscoreIndex);
-    //        }
-    //        return nameWithoutExtension;
-    //    }
-
     /**
      * Extracts a locale from a file name based on the pattern "base_LOCALE.properties".
      *

@@ -1,27 +1,33 @@
 package org.toop.app.widget.complex;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.toop.app.widget.Primitive;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoadingWidget extends ViewWidget implements Update { // TODO make of widget type
-    private final ProgressBar progressBar;
-    private final Text loadingText;
+    private final Text loadingText; // TODO Make changeable
+    private final ProgressIndicator progressBar;
+    private final AtomicBoolean successTriggered = new AtomicBoolean(false);
+    private final AtomicBoolean failureTriggered = new AtomicBoolean(false);
 
     private Runnable success = () -> {};
     private Runnable failure = () -> {};
-    private boolean successTriggered = false;
-    private boolean failureTriggered = false;
     private int maxAmount;
     private int minAmount;
     private int amount;
     private Callable<Boolean> successTrigger = () -> (amount >= maxAmount);
     private Callable<Boolean> failureTrigger = () -> (amount < minAmount);
     private float percentage = 0.0f;
+
+    private boolean isInfinite = false;
 
     /**
      *
@@ -32,15 +38,18 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
      * @param startAmount The starting amount.
      * @param maxAmount The max amount.
      */
-    public LoadingWidget(Text loadingText, int minAmount, int startAmount, int maxAmount) {
+    public LoadingWidget(Text loadingText, int minAmount, int startAmount, int maxAmount, boolean infinite, boolean circle) {
+        isInfinite = infinite;
+
         this.maxAmount = maxAmount;
         this.minAmount = minAmount;
         amount = startAmount;
 
-        progressBar = new ProgressBar();
         this.loadingText = loadingText;
+        progressBar = circle ? new ProgressIndicator() : new ProgressBar();
 
         VBox box = Primitive.vbox(this.loadingText, progressBar);
+        progressBar.getStyleClass().add("loading-progress-bar");
         add(Pos.CENTER, box);
     }
 
@@ -66,7 +75,11 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
     }
 
     public boolean isTriggered() {
-        return (failureTriggered || successTriggered);
+        return (failureTriggered.get() || successTriggered.get());
+    }
+
+    public ProgressIndicator getProgressBar() {
+        return progressBar;
     }
 
     /**
@@ -105,36 +118,45 @@ public class LoadingWidget extends ViewWidget implements Update { // TODO make o
      * Forcefully trigger success.
      */
     public void triggerSuccess() {
-        successTriggered = true; // TODO, else it will double call... why?
-        success.run();
+		if (successTriggered.compareAndSet(false, true)) {
+			Platform.runLater(() -> {
+				if (success != null) success.run();
+			});
+		}
     }
 
     /**
      * Forcefully trigger failure.
      */
     public void triggerFailure() {
-        failureTriggered = true; // TODO, else it will double call... why?
-        failure.run();
+		if (failureTriggered.compareAndSet(false, true)) {
+			Platform.runLater(() -> {
+				if (failure != null) failure.run();
+			});
+		}
     }
 
     @Override
     public void update() throws Exception { // TODO Better exception
-        if (successTriggered || failureTriggered) { // If already triggered, throw exception.
+        if (successTriggered.get() || failureTriggered.get()) { // If already triggered, throw exception.
             throw new RuntimeException();
         }
 
         if (successTrigger.call()) {
             triggerSuccess();
-            this.remove(this);
+            this.remove((Node) this);
             return;
         } else if (failureTrigger.call()) {
             triggerFailure();
-            this.remove(this);
+            this.remove((Node) this);
             return;
         }
 
-        percentage = (float) amount / maxAmount;
-        progressBar.setProgress(percentage);
-
+        if (maxAmount != 0) {
+            percentage = (float) amount / maxAmount;
+        }
+        if (!isInfinite) {
+            progressBar.setProgress(percentage);
+        }
     }
 }

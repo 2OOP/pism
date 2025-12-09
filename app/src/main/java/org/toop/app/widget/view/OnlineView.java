@@ -3,7 +3,6 @@ package org.toop.app.widget.view;
 import org.toop.app.Server;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.LabeledInputWidget;
-import org.toop.app.widget.complex.LoadingWidget;
 import org.toop.app.widget.complex.ViewWidget;
 
 import javafx.geometry.Pos;

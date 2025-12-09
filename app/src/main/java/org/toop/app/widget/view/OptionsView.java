@@ -74,7 +74,7 @@ public class OptionsView extends ViewWidget {
 				AppSettings.getSettings().setVolume(val);
 				new EventFlow()
 					.addPostEvent(new AudioEvents.ChangeVolume(val, VolumeControl.MASTERVOLUME))
-					.asyncPostEvent();
+					.postEvent();
 			}
 		);
 
@@ -86,7 +86,7 @@ public class OptionsView extends ViewWidget {
 				AppSettings.getSettings().setFxVolume(val);
 				new EventFlow()
 					.addPostEvent(new AudioEvents.ChangeVolume(val, VolumeControl.FX))
-					.asyncPostEvent();
+					.postEvent();
 			}
 		);
 
@@ -98,7 +98,7 @@ public class OptionsView extends ViewWidget {
 				AppSettings.getSettings().setMusicVolume(val);
 				new EventFlow()
 					.addPostEvent(new AudioEvents.ChangeVolume(val, VolumeControl.MUSIC))
-					.asyncPostEvent();
+					.postEvent();
 			}
 		);
 
