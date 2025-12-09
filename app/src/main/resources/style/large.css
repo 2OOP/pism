@@ -1,0 +1,61 @@
+.button {
+	-fx-background-radius: 6;
+	-fx-cursor: hand;
+	-fx-padding: 14 28;
+}
+
+.combo-box {
+	-fx-background-radius: 4;
+	-fx-cursor: hand;
+	-fx-padding: 12;
+}
+
+.combo-box .arrow-button {
+	-fx-padding: 0;
+}
+
+.combo-box-popup .list-cell {
+	-fx-padding: 8 0 8 0;
+}
+
+.container {
+	-fx-padding: 28;
+	-fx-spacing: 14;
+}
+
+.hboxspacing {
+    -fx-padding: 2;
+    -fx-spacing: 10;
+}
+
+.current-player {
+	-fx-font-size: 32px;
+}
+
+.header {
+	-fx-font-size: 28px;
+	-fx-font-weight: bold;
+}
+
+.input {
+	-fx-background-radius: 4;
+	-fx-padding: 12;
+}
+
+.separator {
+	-fx-padding: 14 0;
+}
+
+.slider {
+	-fx-padding: 10 0;
+}
+
+.text {
+	-fx-font-size: 22px;
+	-fx-font-weight: normal;
+}
+
+.image {
+    -fx-max-width: 200px;
+    -fx-max-height: 200px;
+}

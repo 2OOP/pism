@@ -2,202 +2,139 @@ package org.toop.framework.networking;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.bus.EventBus;
 import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.framework.networking.exceptions.ClientNotFoundException;
+import org.toop.framework.networking.exceptions.CouldNotConnectException;
+import org.toop.framework.networking.interfaces.NetworkingClient;
+import org.toop.framework.networking.types.NetworkingConnector;
 
-public class NetworkingClientManager {
-
+public class NetworkingClientManager implements org.toop.framework.networking.interfaces.NetworkingClientManager {
     private static final Logger logger = LogManager.getLogger(NetworkingClientManager.class);
 
-    /** Map of serverId -> Server instances */
-    final Map<Long, NetworkingClient> networkClients = new ConcurrentHashMap<>();
+    private final EventBus eventBus;
+    private final Map<Long, NetworkingClient> networkClients = new ConcurrentHashMap<>();
 
-    /** Starts a connection manager, to manage, connections. */
-    public NetworkingClientManager() throws NetworkingInitializationException {
-        try {
-            new EventFlow()
-                    .listen(this::handleStartClient)
-                    .listen(this::handleCommand)
-                    .listen(this::handleSendLogin)
-                    .listen(this::handleSendLogout)
-                    .listen(this::handleSendGetPlayerlist)
-                    .listen(this::handleSendGetGamelist)
-                    .listen(this::handleSendSubscribe)
-                    .listen(this::handleSendMove)
-                    .listen(this::handleSendChallenge)
-                    .listen(this::handleSendAcceptChallenge)
-                    .listen(this::handleSendForfeit)
-                    .listen(this::handleSendMessage)
-                    .listen(this::handleSendHelp)
-                    .listen(this::handleSendHelpForCommand)
-                    .listen(this::handleCloseClient)
-                    .listen(this::handleChangeClientHost)
-                    .listen(this::handleGetAllConnections)
-                    .listen(this::handleShutdownAll);
-            logger.info("NetworkingClientManager initialized");
-        } catch (Exception e) {
-            logger.error("Failed to initialize the client manager", e);
-            throw e;
+    public NetworkingClientManager(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
+    private void connectHelper(
+            long id,
+            NetworkingClient nClient,
+            NetworkingConnector nConnector,
+            Runnable onSuccess,
+            Runnable onFailure
+    ) {
+
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        EventFlow closeEvent = new EventFlow()
+                .listen(
+                    NetworkEvents.CloseClient.class,
+                    e -> {
+                            if (e.clientId() == id) scheduler.shutdownNow();
+                        }, "close");
+
+        Runnable connectTask = new Runnable() {
+            int attempts = 0;
+
+            @Override
+            public void run() {
+
+                NetworkingClient qClient = networkClients.get(id);
+                if (qClient != null) {
+                    qClient.closeConnection();
+                    networkClients.remove(id);
+                }
+
+                try {
+                    nClient.connect(id, nConnector.host(), nConnector.port());
+                    networkClients.put(id, nClient);
+                    logger.info("New client started successfully for {}:{}", nConnector.host(), nConnector.port());
+                    eventBus.post(new NetworkEvents.ConnectTry(id, attempts, nConnector.reconnectAttempts(), true));
+                    onSuccess.run();
+                    scheduler.shutdown();
+                } catch (CouldNotConnectException e) {
+                    attempts++;
+                    if (attempts < nConnector.reconnectAttempts()) {
+                        logger.warn("Could not connect to {}:{}. Retrying in {} {}",
+                                nConnector.host(), nConnector.port(), nConnector.timeout(), nConnector.timeUnit());
+                        eventBus.post(new NetworkEvents.ConnectTry(id, attempts, nConnector.reconnectAttempts(), false));
+                        scheduler.schedule(this, nConnector.timeout(), nConnector.timeUnit());
+                    } else {
+                        logger.error("Failed to start client for {}:{} after {} attempts", nConnector.host(), nConnector.port(), attempts);
+                        eventBus.post(new NetworkEvents.ConnectTry(id, -1, nConnector.reconnectAttempts(), false));
+                        onFailure.run();
+                        scheduler.shutdown();
+                    }
+                } catch (Exception e) {
+                    logger.error("Unexpected exception during startClient", e);
+                    eventBus.post(new NetworkEvents.ConnectTry(id, -1, nConnector.reconnectAttempts(), false));
+                    onFailure.run();
+                    scheduler.shutdown();
+                }
+            }
+        };
+
+        scheduler.schedule(connectTask, 0, TimeUnit.MILLISECONDS);
+//
+//        closeEvent.unsubscribe("close");
+    }
+
+    @Override
+    public void startClient(
+            long id,
+            NetworkingClient nClient,
+            NetworkingConnector nConnector,
+            Runnable onSuccess,
+            Runnable onFailure
+    ) {
+        connectHelper(
+            id,
+            nClient,
+            nConnector,
+            onSuccess,
+            onFailure
+        );
+    }
+
+    @Override
+    public void sendCommand(long id, String command) throws ClientNotFoundException {
+        logger.info("Sending command to client for {}:{}", id, command);
+        if (command.isEmpty()) {
+            IllegalArgumentException e = new IllegalArgumentException("command is empty");
+            logger.error("Invalid command received", e);
+            return;
         }
-    }
 
-    long startClientRequest(String ip, int port) {
-        long connectionId = new SnowflakeGenerator().nextId(); // TODO: Maybe use the one generated
-        try { //        With EventFlow
-            NetworkingClient client =
-                    new NetworkingClient(
-                            () -> new NetworkingGameClientHandler(connectionId),
-                            ip,
-                            port,
-                            connectionId);
-            client.setConnectionId(connectionId);
-            this.networkClients.put(connectionId, client);
-            logger.info("New client started successfully for {}:{}", ip, port);
-        } catch (Exception e) {
-            logger.error(e);
+        NetworkingClient client = this.networkClients.get(id);
+        if (client == null) {
+            throw new ClientNotFoundException(id);
         }
-        return connectionId;
+
+        String toSend = command.trim();
+
+        if (toSend.endsWith("\n")) { client.writeAndFlush(toSend); }
+        else { client.writeAndFlush(toSend + "\n"); }
+
     }
 
-    private long startClientRequest(String ip, int port, long clientId) {
-        try { //        With EventFlow
-            NetworkingClient client =
-                    new NetworkingClient(
-                            () -> new NetworkingGameClientHandler(clientId), ip, port, clientId);
-            client.setConnectionId(clientId);
-            this.networkClients.replace(clientId, client);
-            logger.info(
-                    "New client started successfully for {}:{}, replaced: {}", ip, port, clientId);
-        } catch (Exception e) {
-            logger.error(e);
+    @Override
+    public void closeClient(long id) throws ClientNotFoundException {
+        NetworkingClient client = this.networkClients.get(id);
+        if (client == null) {
+            throw new ClientNotFoundException(id);
         }
-        logger.info("Client {} started", clientId);
-        return clientId;
-    }
 
-    void handleStartClient(NetworkEvents.StartClient event) {
-        long id = this.startClientRequest(event.ip(), event.port());
-        new Thread(
-                        () -> {
-                            try {
-                                Thread.sleep(100); // TODO: Is this a good idea?
-                                new EventFlow()
-                                        .addPostEvent(
-                                                NetworkEvents.StartClientResponse.class,
-                                                id,
-                                                event.eventSnowflake())
-                                        .asyncPostEvent();
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
-                .start();
-    }
-
-    void handleCommand(
-            NetworkEvents.SendCommand
-                    event) { // TODO: Move this to ServerConnection class, keep it internal.
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        String args = String.join(" ", event.args());
-        sendCommand(client, args);
-    }
-
-    void handleSendLogin(NetworkEvents.SendLogin event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, String.format("LOGIN %s", event.username()));
-    }
-
-    private void handleSendLogout(NetworkEvents.SendLogout event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, "LOGOUT");
-    }
-
-    private void handleSendGetPlayerlist(NetworkEvents.SendGetPlayerlist event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, "GET PLAYERLIST");
-    }
-
-    private void handleSendGetGamelist(NetworkEvents.SendGetGamelist event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, "GET GAMELIST");
-    }
-
-    private void handleSendSubscribe(NetworkEvents.SendSubscribe event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, String.format("SUBSCRIBE %s", event.gameType()));
-    }
-
-    private void handleSendMove(NetworkEvents.SendMove event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, String.format("MOVE %d", event.moveNumber()));
-    }
-
-    private void handleSendChallenge(NetworkEvents.SendChallenge event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(
-                client,
-                String.format("CHALLENGE %s %s", event.usernameToChallenge(), event.gameType()));
-    }
-
-    private void handleSendAcceptChallenge(NetworkEvents.SendAcceptChallenge event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, String.format("CHALLENGE ACCEPT %d", event.challengeId()));
-    }
-
-    private void handleSendForfeit(NetworkEvents.SendForfeit event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, "FORFEIT");
-    }
-
-    private void handleSendMessage(NetworkEvents.SendMessage event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, String.format("MESSAGE %s", event.message()));
-    }
-
-    private void handleSendHelp(NetworkEvents.SendHelp event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, "HELP");
-    }
-
-    private void handleSendHelpForCommand(NetworkEvents.SendHelpForCommand event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        sendCommand(client, String.format("HELP %s", event.command()));
-    }
-
-    private void sendCommand(NetworkingClient client, String command) {
-        logger.info(
-                "Preparing to send command: {} to server: {}:{}. clientId: {}",
-                command.trim(),
-                client.getHost(),
-                client.getPort(),
-                client.getId());
-        client.writeAndFlushnl(command);
-    }
-
-    private void handleChangeClientHost(NetworkEvents.ChangeClientHost event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
         client.closeConnection();
-        startClientRequest(event.ip(), event.port(), event.clientId());
-    }
 
-    void handleCloseClient(NetworkEvents.CloseClient event) {
-        NetworkingClient client = this.networkClients.get(event.clientId());
-        client.closeConnection(); // TODO: Check if not blocking, what if error, mb not remove?
-        this.networkClients.remove(event.clientId());
-        logger.info("Client {} closed successfully.", event.clientId());
-    }
-
-    void handleGetAllConnections(NetworkEvents.RequestsAllClients request) {
-        List<NetworkingClient> a = new ArrayList<>(this.networkClients.values());
-        request.future().complete(a);
-    }
-
-    public void handleShutdownAll(NetworkEvents.ForceCloseAllClients request) {
-        this.networkClients.values().forEach(NetworkingClient::closeConnection);
-        this.networkClients.clear();
-        logger.info("All servers shut down");
     }
 }

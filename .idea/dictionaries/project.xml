@@ -5,14 +5,17 @@
       <w>clid</w>
       <w>dcompile</w>
       <w>errorprone</w>
+      <w>español</w>
       <w>flushnl</w>
       <w>gaaf</w>
       <w>gamelist</w>
+      <w>pism</w>
       <w>playerlist</w>
       <w>tictactoe</w>
       <w>toop</w>
       <w>vmoptions</w>
       <w>xplugin</w>
+      <w>yourturn</w>
     </words>
   </dictionary>
 </component>

@@ -1,98 +1,40 @@
 package org.toop.framework.audio.events;
 
-import java.util.Map;
-import org.toop.framework.eventbus.events.EventWithSnowflake;
-import org.toop.framework.eventbus.events.EventWithoutSnowflake;
-import org.toop.framework.eventbus.events.EventsBase;
+import org.toop.framework.audio.VolumeControl;
+import org.toop.framework.eventbus.events.*;
 
 public class AudioEvents extends EventsBase {
-    /** Starts playing a sound. */
-    public record PlayEffect(String fileName, boolean loop) implements EventWithoutSnowflake {}
+    /** Stops the audio manager. */
+    public record StopAudioManager() implements GenericEvent {}
 
-    public record StopEffect(long clipId) implements EventWithoutSnowflake {}
+    /** Start playing a sound effect. */
+    public record PlayEffect(String fileName, boolean loop) implements GenericEvent {}
 
-    public record StartBackgroundMusic() implements EventWithoutSnowflake {}
+    /** Stop playing a sound effect. */
+    public record StopEffect(String fileName) implements GenericEvent {}
 
-    public record ChangeVolume(double newVolume) implements EventWithoutSnowflake {}
+    /** Start background music. */
+    public record StartBackgroundMusic() implements GenericEvent {}
 
-    public record ChangeFxVolume(double newVolume) implements EventWithoutSnowflake {}
+    /** Gives back the name of the song, the position its currently at (in seconds) and how long it takes (in seconds) */
+    public record PlayingMusic(String name, long currentPosition, long duration) implements GenericEvent {}
 
-    public record ChangeMusicVolume(double newVolume) implements EventWithoutSnowflake {}
+    /** Skips the song to the last second of the song resulting in a skip effect */
+    public record SkipMusic() implements GenericEvent {}
 
-    public record GetCurrentVolume(long snowflakeId) implements EventWithSnowflake {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of();
-        }
+    public record PreviousMusic() implements GenericEvent {}
 
-        @Override
-        public long eventSnowflake() {
-            return snowflakeId;
-        }
-    }
+    public record PauseMusic() implements GenericEvent {}
 
-    public record GetCurrentVolumeResponse(double currentVolume, long snowflakeId)
-            implements EventWithSnowflake {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of();
-        }
+    /** Change volume, choose type with {@link VolumeControl}. */
+    public record ChangeVolume(double newVolume, VolumeControl controlType) implements GenericEvent {}
 
-        @Override
-        public long eventSnowflake() {
-            return snowflakeId;
-        }
-    }
+    /** Requests the desired volume by selecting it with {@link VolumeControl}. */
+    public record GetVolume(VolumeControl controlType, long identifier) implements UniqueEvent {}
 
-    public record GetCurrentFxVolume(long snowflakeId) implements EventWithSnowflake {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of();
-        }
+    /** Response to GetVolume. */
+    public record GetVolumeResponse(double currentVolume, long identifier) implements ResponseToUniqueEvent {}
 
-        @Override
-        public long eventSnowflake() {
-            return this.snowflakeId;
-        }
-    }
-
-    public record GetCurrentMusicVolume(long snowflakeId) implements EventWithSnowflake {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of();
-        }
-
-        @Override
-        public long eventSnowflake() {
-            return this.snowflakeId;
-        }
-    }
-
-    public record GetCurrentFxVolumeResponse(double currentVolume, long snowflakeId)
-            implements EventWithSnowflake {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of();
-        }
-
-        @Override
-        public long eventSnowflake() {
-            return this.snowflakeId;
-        }
-    }
-
-    public record GetCurrentMusicVolumeResponse(double currentVolume, long snowflakeId)
-            implements EventWithSnowflake {
-        @Override
-        public Map<String, Object> result() {
-            return Map.of();
-        }
-
-        @Override
-        public long eventSnowflake() {
-            return this.snowflakeId;
-        }
-    }
-
-    public record ClickButton() implements EventWithoutSnowflake {}
+    /** Plays the predetermined sound for pressing a button. */
+    public record ClickButton() implements GenericEvent {}
 }

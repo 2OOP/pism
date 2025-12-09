@@ -1,0 +1,208 @@
+.bg-primary {
+	-fx-background-color: linear-gradient(to bottom, #121b22, #0a0f14);
+}
+
+.bg-secondary {
+	-fx-background-color: linear-gradient(to bottom, #1a2b35, #0d181f);
+}
+
+.bg-popup {
+	-fx-background-color: rgba(10, 20, 30, 0.95);
+	-fx-background-radius: 8;
+	-fx-effect: dropshadow(gaussian, #1f6a22ff, 10, 0, 0, 3);
+}
+
+.song-display {
+	-fx-padding: 8 12 8 12;
+	-fx-spacing: 6px;
+	-fx-alignment: center;
+	-fx-min-width: 220px;
+	-fx-max-width: 260px;
+}
+
+.song-title {
+	-fx-font-size: 14px;
+	-fx-fill: white;
+}
+
+.progress-bar {
+	-fx-inner-background-color: black;
+	-fx-pref-width: 200px;
+	-fx-accent: red;
+}
+
+.progress-bar > .track {
+	-fx-background-radius: 30;
+}
+
+.progress-bar > .bar {
+	-fx-background-radius: 30px;
+}
+
+.loading-progress-bar {
+	-fx-progress-color: #28a428;
+}
+
+.loading-progress-bar > .bar {
+	-fx-background-color: #28a428;
+}
+
+.loading-progress-bar > .track {
+	-fx-background-color: rgba(0,0,0,0.15);
+}
+
+.progress-text {
+	-fx-font-size: 11px;
+	-fx-fill: white;
+}
+
+.skip-button {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-cursor: hand;
+}
+
+.skip-button > .text {
+	-fx-fill: white;
+}
+
+.pause-button {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-cursor: hand;
+}
+
+.pause-button > .text {
+	-fx-fill: white;
+}
+
+.previous-button {
+	-fx-background-color: transparent;
+	-fx-background-radius: 0;
+	-fx-cursor: hand;
+}
+
+.previous-button > .text {
+	-fx-fill: white;
+}
+
+.button {
+	-fx-background-color: linear-gradient(to bottom, #1b7a1b, #2da32d);
+	-fx-background-radius: 8;
+	-fx-border-color: #28a428;
+	-fx-cursor: hand;
+	-fx-effect: dropshadow(gaussian, #28a428ff, 8, 0, 0, 3);
+	-fx-text-fill: #e0ffe0;
+	-fx-font-weight: bold;
+}
+
+.button:hover {
+	-fx-background-color: linear-gradient(to bottom, #45d045, #60e060);
+	-fx-border-color: #1c841c;
+}
+
+.combo-box {
+	-fx-background-color: linear-gradient(to bottom, #26473b, #1a2e25);
+	-fx-background-radius: 6;
+	-fx-border-color: #28a428;
+	-fx-cursor: hand;
+}
+
+.combo-box:hover {
+	-fx-border-color: #52c352;
+}
+
+.combo-box:focused {
+	-fx-border-color: #70e070;
+	-fx-effect: dropshadow(gaussian, #70e070cc, 6, 0, 0, 2);
+}
+
+.combo-box .arrow,
+.combo-box .arrow-button {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+}
+
+.combo-box .list-cell {
+	-fx-background-color: transparent;
+	-fx-text-fill: #a8f0a8;
+}
+
+.combo-box .list-view {
+	-fx-background-color: #16321f;
+	-fx-background-radius: 6;
+	-fx-border-color: #28a428;
+}
+
+.combo-box-popup .list-cell {
+	-fx-text-fill: #a8f0a8;
+}
+
+.combo-box-popup .list-cell:hover {
+	-fx-background-color: #45d045;
+}
+
+.combo-box-popup .list-cell:selected {
+	-fx-background-color: #2da32d;
+	-fx-text-fill: #f0fff0;
+}
+
+.input {
+	-fx-background-color: linear-gradient(to bottom, #15331a, #0e2b15);
+	-fx-background-radius: 6;
+	-fx-border-color: #28a428;
+	-fx-text-fill: #a8f0a8;
+	-fx-font-weight: normal;
+}
+
+.input:hover {
+	-fx-border-color: #52c352;
+}
+
+.input:focused {
+	-fx-border-color: #70e070;
+	-fx-effect: dropshadow(gaussian, #70e070cc, 6, 0, 0, 2);
+}
+
+.text.my-turn {
+	-fx-fill: #ff4b4b;
+	-fx-font-weight: bold;
+}
+
+.separator .line {
+	-fx-border-color: #52c352;
+	-fx-opacity: 1;
+}
+
+.slider {
+	-fx-background-color: transparent;
+}
+
+.slider .thumb {
+	-fx-background-color: linear-gradient(to bottom, #2da32d, #45d045);
+	-fx-background-radius: 50%;
+	-fx-effect: dropshadow(gaussian, #28a428ff, 6, 0, 0, 2);
+}
+
+.slider .thumb:hover {
+	-fx-scale-x: 1.15;
+	-fx-scale-y: 1.15;
+}
+
+.slider .track {
+	-fx-background-color: linear-gradient(to left, #60e060, #ff5555);
+	-fx-background-insets: 0;
+	-fx-background-radius: 6;
+}
+
+.text {
+	-fx-fill: #a8f0a8;
+	-fx-font-weight: normal;
+	-fx-text-fill: #a8f0a8;
+}
+
+.header {
+	-fx-fill: #70e070;
+	-fx-font-weight: bold;
+	-fx-text-fill: #70e070;
+}

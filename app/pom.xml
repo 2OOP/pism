@@ -1,8 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.toop</groupId>
-	<artifactId>pism_app</artifactId>
+	<parent>
+		<groupId>org.toop</groupId>
+		<artifactId>pism</artifactId>
+		<version>0.1</version>
+	</parent>
+
+	<artifactId>app</artifactId>
 	<version>0.1</version>
 
 	<properties>
@@ -24,24 +29,36 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
-		<dependency>
-			<groupId>org.toop</groupId>
-			<artifactId>pism_framework</artifactId>
-			<version>0.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.toop</groupId>
-			<artifactId>pism_game</artifactId>
-			<version>0.1</version>
-			<scope>compile</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
 			<version>25</version>
 		</dependency>
+
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_core</artifactId>
+            <version>2.42.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <version>2.42.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.toop</groupId>
+            <artifactId>framework</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.toop</groupId>
+			<artifactId>game</artifactId>
+			<version>0.1</version>
+			<scope>compile</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -112,14 +129,56 @@
 					</java>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>25</source>
-					<target>25</target>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <fork>true</fork>
+                    <executable>${java.home}/bin/javac</executable>
+                    <source>25</source>
+                    <target>25</target>
+                    <release>25</release>
+                    <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                        <arg>
+                            -Xplugin:ErrorProne \
+                        </arg>
+						<!--						TODO-->
+						<!--						-Xep:RestrictedApi:ERROR \-->
+						<!--						-XepOpt:RestrictedApi:annotation=org.toop.annotations.TestsOnly \-->
+						<!--						-XepOpt:RestrictedApi:allowlistRegex=(?s).*/src/test/java/.*|.*test\.java \-->
+						<!--						-XepOpt:RestrictedApi:message=This API is marked @TestsOnly and shouldn't be normally used.-->
+                        <arg>-XDcompilePolicy=simple</arg>
+                        <arg>--should-stop=ifError=FLOW</arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>2.42.0</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_core</artifactId>
+                        <version>2.42.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
 		</plugins>
 	</build>
 </project>

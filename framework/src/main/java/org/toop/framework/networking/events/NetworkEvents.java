@@ -1,213 +1,222 @@
 package org.toop.framework.networking.events;
 
-import java.lang.reflect.RecordComponent;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.toop.framework.eventbus.events.EventWithSnowflake;
-import org.toop.framework.eventbus.events.EventWithoutSnowflake;
-import org.toop.framework.eventbus.events.EventsBase;
-import org.toop.framework.networking.NetworkingClient;
+
+import org.toop.annotations.AutoResponseResult;
+import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.framework.eventbus.events.*;
+import org.toop.framework.networking.interfaces.NetworkingClient;
+import org.toop.framework.networking.types.NetworkingConnector;
 
 /**
- * A collection of networking-related event records for use with the {@link
- * org.toop.framework.eventbus.GlobalEventBus}.
+ * Defines all event types related to the networking subsystem.
+ * <p>
+ * These events are used in conjunction with the {@link GlobalEventBus}
+ * and {@link org.toop.framework.eventbus.EventFlow} to communicate between components
+ * such as networking clients, managers, and listeners.
+ * </p>
  *
- * <p>This class defines all the events that can be posted or listened to in the networking
- * subsystem. Events are separated into those with unique IDs (EventWithSnowflake) and those without
- * (EventWithoutSnowflake).
+ * <h2>Important</h2>
+ * For all {@link UniqueEvent} and {@link ResponseToUniqueEvent} types:
+ * the {@code identifier} field is automatically generated and injected
+ * by {@link org.toop.framework.eventbus.EventFlow}. It should <strong>never</strong>
+ * be manually assigned by user code. (Exceptions may apply)
  */
 public class NetworkEvents extends EventsBase {
 
+    // ------------------------------------------------------
+    // Generic Request & Response Events (no identifier)
+    // ------------------------------------------------------
+
     /**
-     * Requests all active client connections.
-     *
-     * <p>This is a blocking event. The result will be delivered via the provided {@link
-     * CompletableFuture}.
-     *
-     * @param future CompletableFuture to receive the list of active {@link NetworkingClient}
-     *     instances.
+     * Requests a list of all active networking clients.
+     * <p>
+     * This is a blocking request that returns the list asynchronously
+     * via the provided {@link CompletableFuture}.
      */
     public record RequestsAllClients(CompletableFuture<List<NetworkingClient>> future)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Forces all active client connections to close immediately. */
-    public record ForceCloseAllClients() implements EventWithoutSnowflake {}
+    /** Signals all active clients should be forcefully closed. */
+    public record ForceCloseAllClients() implements GenericEvent {}
 
-    /** Response indicating a challenge was cancelled. */
+    /** Indicates a challenge was cancelled by the server. */
     public record ChallengeCancelledResponse(long clientId, String challengeId)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Response indicating a challenge was received. */
-    public record ChallengeResponse(
-            long clientId, String challengerName, String challengeId, String gameType)
-            implements EventWithoutSnowflake {}
+    /** Indicates an incoming challenge from another player. */
+    public record ChallengeResponse(long clientId, String challengerName, String challengeId, String gameType)
+            implements GenericEvent {}
 
-    /** Response containing a list of players for a client. */
+    /** Contains the list of players currently available on the server. */
     public record PlayerlistResponse(long clientId, String[] playerlist)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Response containing a list of games for a client. */
+    /** Contains the list of available game types for a client. */
     public record GamelistResponse(long clientId, String[] gamelist)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Response indicating a game match information for a client. */
-    public record GameMatchResponse(
-            long clientId, String playerToMove, String gameType, String opponent)
-            implements EventWithoutSnowflake {}
+    /** Provides match information when a new game starts. */
+    public record GameMatchResponse(long clientId, String playerToMove, String gameType, String opponent)
+            implements GenericEvent {}
 
-    /** Response indicating the result of a game. */
+    /** Indicates the outcome or completion of a game. */
     public record GameResultResponse(long clientId, String condition)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Response indicating a game move occurred. */
+    /** Indicates that a game move has been processed or received. */
     public record GameMoveResponse(long clientId, String player, String move, String details)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Response indicating it is the player's turn. */
+    /** Indicates it is the current player's turn to move. */
     public record YourTurnResponse(long clientId, String message)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Request to send login credentials for a client. */
-    public record SendLogin(long clientId, String username) implements EventWithoutSnowflake {}
+    /** Requests a login operation for the given client. */
+    public record SendLogin(long clientId, String username)
+            implements GenericEvent {}
 
-    /** Request to log out a client. */
-    public record SendLogout(long clientId) implements EventWithoutSnowflake {}
+    /** Requests logout for the specified client. */
+    public record SendLogout(long clientId)
+            implements GenericEvent {}
 
-    /** Request to retrieve the player list for a client. */
-    public record SendGetPlayerlist(long clientId) implements EventWithoutSnowflake {}
+    /** Requests the player list from the server. */
+    public record SendGetPlayerlist(long clientId)
+            implements GenericEvent {}
 
-    /** Request to retrieve the game list for a client. */
-    public record SendGetGamelist(long clientId) implements EventWithoutSnowflake {}
+    /** Requests the game list from the server. */
+    public record SendGetGamelist(long clientId)
+            implements GenericEvent {}
 
-    /** Request to subscribe a client to a game type. */
-    public record SendSubscribe(long clientId, String gameType) implements EventWithoutSnowflake {}
+    /** Requests a subscription to updates for a given game type. */
+    public record SendSubscribe(long clientId, String gameType)
+            implements GenericEvent {}
 
-    /** Request to make a move in a game. */
-    public record SendMove(long clientId, short moveNumber) implements EventWithoutSnowflake {}
+    /** Sends a game move command to the server. */
+    public record SendMove(long clientId, short moveNumber)
+            implements GenericEvent {}
 
-    /** Request to challenge another player. */
+    /** Requests to challenge another player to a game. */
     public record SendChallenge(long clientId, String usernameToChallenge, String gameType)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Request to accept a challenge. */
+    /** Requests to accept an existing challenge. */
     public record SendAcceptChallenge(long clientId, int challengeId)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Request to forfeit a game. */
-    public record SendForfeit(long clientId) implements EventWithoutSnowflake {}
+    /** Requests to forfeit the current game. */
+    public record SendForfeit(long clientId)
+            implements GenericEvent {}
 
-    /** Request to send a message from a client. */
-    public record SendMessage(long clientId, String message) implements EventWithoutSnowflake {}
+    /** Sends a chat or informational message from a client. */
+    public record SendMessage(long clientId, String message)
+            implements GenericEvent {}
 
-    /** Request to display help to a client. */
-    public record SendHelp(long clientId) implements EventWithoutSnowflake {}
+    /** Requests general help information from the server. */
+    public record SendHelp(long clientId)
+            implements GenericEvent {}
 
-    /** Request to display help for a specific command. */
+    /** Requests help information specific to a given command. */
     public record SendHelpForCommand(long clientId, String command)
-            implements EventWithoutSnowflake {}
+            implements GenericEvent {}
 
-    /** Request to close a specific client connection. */
-    public record CloseClient(long clientId) implements EventWithoutSnowflake {}
+    /** Requests to close an active client connection. */
+    public record CloseClient(long clientId)
+            implements GenericEvent {}
 
-    /**
-     * Event to start a new client connection.
-     *
-     * <p>Carries IP, port, and a unique event ID for correlation with responses.
-     *
-     * @param ip Server IP address.
-     * @param port Server port.
-     * @param eventSnowflake Unique event identifier for correlation.
-     */
-    public record StartClient(String ip, int port, long eventSnowflake)
-            implements EventWithSnowflake {
-
-        @Override
-        public Map<String, Object> result() {
-            return Stream.of(this.getClass().getRecordComponents())
-                    .collect(
-                            Collectors.toMap(
-                                    RecordComponent::getName,
-                                    rc -> {
-                                        try {
-                                            return rc.getAccessor().invoke(this);
-                                        } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }));
-        }
-
-        @Override
-        public long eventSnowflake() {
-            return this.eventSnowflake;
-        }
-    }
+    /** A generic event indicating a raw server response. */
+    public record ServerResponse(long clientId)
+            implements GenericEvent {}
 
     /**
-     * Response confirming a client was started.
+     * Sends a raw command string to the server.
      *
-     * @param clientId The client ID assigned to the new connection.
-     * @param eventSnowflake Event ID used for correlation.
-     */
-    public record StartClientResponse(long clientId, long eventSnowflake)
-            implements EventWithSnowflake {
-        @Override
-        public Map<String, Object> result() {
-            return Stream.of(this.getClass().getRecordComponents())
-                    .collect(
-                            Collectors.toMap(
-                                    RecordComponent::getName,
-                                    rc -> {
-                                        try {
-                                            return rc.getAccessor().invoke(this);
-                                        } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }));
-        }
-
-        @Override
-        public long eventSnowflake() {
-            return this.eventSnowflake;
-        }
-    }
-
-    /** Generic server response. */
-    public record ServerResponse(long clientId) implements EventWithoutSnowflake {}
-
-    /**
-     * Request to send a command to a server.
-     *
-     * @param clientId The client connection ID.
+     * @param clientId The client ID to send the command from.
      * @param args The command arguments.
      */
-    public record SendCommand(long clientId, String... args) implements EventWithoutSnowflake {}
+    public record SendCommand(long clientId, String... args)
+            implements GenericEvent {}
 
-    /** WIP (Not working) Request to reconnect a client to a previous address. */
-    public record Reconnect(long clientId) implements EventWithoutSnowflake {}
+    /** Event fired when a message is received from the server. */
+    public record ReceivedMessage(long clientId, String message)
+            implements GenericEvent {}
+
+    /** Indicates that a client connection has been closed. */
+    public record ClosedConnection(long clientId)
+            implements GenericEvent {}
+
+    // ------------------------------------------------------
+    // Unique Request & Response Events (with identifier)
+    // ------------------------------------------------------
 
     /**
-     * Response triggered when a message is received from a server.
+     * Requests creation and connection of a new client.
+     * <p>
+     * The {@code identifier} is automatically assigned by {@link org.toop.framework.eventbus.EventFlow}
+     * to correlate with its corresponding {@link StartClientResponse}.
+     * </p>
      *
-     * @param clientId The connection ID that received the message.
-     * @param message The message content.
+     * @param networkingClient The client instance to start.
+     * @param networkingConnector Connection details (host, port, etc.).
+     * @param identifier Automatically injected unique identifier.
      */
-    public record ReceivedMessage(long clientId, String message) implements EventWithoutSnowflake {}
+    public record StartClient(
+            NetworkingClient networkingClient,
+            NetworkingConnector networkingConnector,
+            long identifier)
+            implements UniqueEvent {}
+
+    public record CreatedIdForClient(long clientId, long identifier) implements ResponseToUniqueEvent {}
+
+    public record ConnectTry(long clientId, int amount, int maxAmount, boolean success) implements GenericEvent {}
 
     /**
-     * Request to change a client connection to a new server.
+     * Response confirming that a client has been successfully started.
+     * <p>
+     * The {@code identifier} value is automatically propagated from
+     * the original {@link StartClient} request by {@link org.toop.framework.eventbus.EventFlow}.
+     * </p>
      *
-     * @param clientId The client connection ID.
-     * @param ip The new server IP.
-     * @param port The new server port.
+     * @param clientId The newly assigned client ID.
+     * @param successful Whether the connection succeeded.
+     * @param identifier Automatically injected correlation ID.
      */
-    public record ChangeClientHost(long clientId, String ip, int port)
-            implements EventWithoutSnowflake {}
+    @AutoResponseResult
+    public record StartClientResponse(long clientId, boolean successful, long identifier)
+            implements ResponseToUniqueEvent {}
 
-    /** WIP (Not working) Response indicating that the client could not connect. */
-    public record CouldNotConnect(long clientId) implements EventWithoutSnowflake {}
+    /**
+     * Requests reconnection of an existing client using its previous configuration.
+     * <p>
+     * The {@code identifier} is automatically injected by {@link org.toop.framework.eventbus.EventFlow}.
+     * </p>
+     */
+    public record Reconnect(
+            long clientId,
+            NetworkingClient networkingClient,
+            NetworkingConnector networkingConnector,
+            long identifier)
+            implements UniqueEvent {}
 
-    /** Event indicating a client connection was closed. */
-    public record ClosedConnection(long clientId) implements EventWithoutSnowflake {}
+    /** Response to a {@link Reconnect} event, carrying the success result. */
+    public record ReconnectResponse(boolean successful, long identifier)
+            implements ResponseToUniqueEvent {}
+
+    /**
+     * Requests to change the connection target (host/port) for a client.
+     * <p>
+     * The {@code identifier} is automatically injected by {@link org.toop.framework.eventbus.EventFlow}.
+     * </p>
+     */
+    public record ChangeAddress(
+            long clientId,
+            NetworkingClient networkingClient,
+            NetworkingConnector networkingConnector,
+            long identifier)
+            implements UniqueEvent {}
+
+    /** Response to a {@link ChangeAddress} event, carrying the success result. */
+    public record ChangeAddressResponse(boolean successful, long identifier)
+            implements ResponseToUniqueEvent {}
 }

@@ -1,0 +1,42 @@
+.combo-box .list-cell {
+	-fx-alignment: CENTER;
+	-fx-padding: 0;
+}
+
+.container {
+	-fx-alignment: TOP_CENTER;
+	-fx-background-color: transparent;
+}
+
+.scroll,
+.scroll .viewport {
+	-fx-background-color: transparent;
+	-fx-border-color: transparent;
+}
+
+.scroll .scroll-bar .decrement-arrow,
+.scroll .scroll-bar .decrement-button,
+.scroll .scroll-bar .increment-arrow,
+.scroll .scroll-bar .increment-button {
+	-fx-padding: 0;
+	-fx-pref-height: 0;
+	-fx-pref-width: 0;
+	-fx-shape: "";
+}
+
+.scroll .scroll-bar .thumb {
+	-fx-background-color: #888;
+	-fx-background-insets: 0;
+	-fx-background-radius: 1px;
+}
+
+.scroll .scroll-bar:horizontal,
+.scroll .scroll-bar:vertical {
+	-fx-pref-height: 4px;
+	-fx-pref-width: 4px;
+}
+
+.header,
+.text {
+	-fx-font-family: "Arial";
+}
