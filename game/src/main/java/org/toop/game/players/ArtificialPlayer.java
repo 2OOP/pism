@@ -44,7 +44,7 @@ public class ArtificialPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer
      * @return the integer representing the chosen move
      * @throws ClassCastException if {@code gameCopy} is not of type {@code T}
      */
-    public long getMove(T gameCopy) {
+    protected long determineMove(T gameCopy) {
         return ai.getMove(gameCopy);
     }
 

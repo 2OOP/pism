@@ -21,7 +21,7 @@ import org.toop.game.games.reversi.BitboardReversi;
 import org.toop.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.game.players.ArtificialPlayer;
 import org.toop.game.players.OnlinePlayer;
-import org.toop.game.players.RandomAI;
+import org.toop.game.players.ai.RandomAI;
 import org.toop.local.AppContext;
 
 import java.util.List;
