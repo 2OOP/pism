@@ -22,7 +22,7 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
     }
 
     @Override
-    public long getMove(T gameCopy) {
+    protected long determineMove(T gameCopy) {
         return getValidMove(gameCopy);
     }
 
