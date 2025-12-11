@@ -57,6 +57,10 @@ public class SettingsAsset extends JsonAsset<Settings> {
         return getContent().firstReversi;
     }
 
+    public boolean getSwitchReversi() {
+        return getContent().switchReversi;
+    }
+
     public void setVolume(int volume) {
         getContent().volume = volume;
         save();
@@ -112,6 +116,11 @@ public class SettingsAsset extends JsonAsset<Settings> {
         save();
     }
 
+    public void setSwitchReversi(boolean switchReversi) {
+        getContent().switchReversi = switchReversi;
+        save();
+    }
+
     public void setContent(Settings settings) {
         setVolume(settings.volume);
         setFxVolume(settings.fxVolume);
@@ -124,6 +133,7 @@ public class SettingsAsset extends JsonAsset<Settings> {
         setFirstTTT(settings.firstTTT);
         setFirstConnect4(settings.firstConnect4);
         setFirstReversi(settings.firstReversi);
+        setSwitchReversi(settings.switchReversi);
     }
 
     public static SettingsAsset getPath() {

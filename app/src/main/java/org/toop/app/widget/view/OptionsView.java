@@ -149,13 +149,22 @@ public class OptionsView extends ViewWidget {
 			"small", "medium", "large"
 		);
 
+        var swapReversiColors = new ToggleWidget(
+                "reversinotswapped", "reversiswapped",
+                AppSettings.getSettings().getSwitchReversi(),
+                swap -> {
+                    AppSettings.getSettings().setSwitchReversi(swap);
+                }
+        );
 
 		return Primitive.vbox(
 			Primitive.header("style"),
 			Primitive.separator(),
 
 			themeWidget.getNode(),
-			layoutWidget.getNode()
+			layoutWidget.getNode(),
+            Primitive.text("reversiswap"),
+            swapReversiColors.getNode()
 		);
 	}
 }

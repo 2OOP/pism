@@ -5,8 +5,14 @@ import org.toop.app.App;
 import org.toop.game.games.reversi.BitboardReversi;
 
 public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi> implements BitLegalMoveDrawer {
-    public ReversiBitCanvas() {
+
+    private final boolean switchColors;
+    private final boolean local;
+
+    public ReversiBitCanvas(boolean switchColors, boolean local) {
         super(Color.GRAY, new Color(0f, 0.4f, 0.2f, 1f), (App.getHeight() / 4) * 3, (App.getHeight() / 4) * 3, 8, 8, 5, true);
+        this.switchColors = switchColors;
+        this.local = local;
         canvas.setOnMouseMoved(event -> {
             double mouseX = event.getX();
             double mouseY = event.getY();
@@ -33,8 +39,13 @@ public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi> implements 
     public void redraw(BitboardReversi gameCopy) {
         clearAll();
         long[] board = gameCopy.getBoard();
-        loopOverBoard(board[0], (i) -> drawDot(Color.WHITE, i));
-        loopOverBoard(board[1], (i) -> drawDot(Color.BLACK, i));
+        if (switchColors && local) {
+            loopOverBoard(board[0], (i) -> drawDot(Color.BLACK, i));
+            loopOverBoard(board[1], (i) -> drawDot(Color.WHITE, i));
+        } else {
+            loopOverBoard(board[0], (i) -> drawDot(Color.WHITE, i));
+            loopOverBoard(board[1], (i) -> drawDot(Color.BLACK, i));
+        }
     }
 
     @Override
@@ -45,12 +56,22 @@ public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi> implements 
 
     public void drawLegalMove(int cell, int player) {
         Color innerColor;
+        if (switchColors) {
+            if (player == 0) {
+                innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
+            }
+            else {
+                innerColor = new Color(1.0f, 1.0f, 1.0f, 0.75f);
+            }
+            this.drawInnerDot(innerColor, cell, false);
+        } else {
         if (player == 1) {
             innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
         }
         else {
             innerColor = new Color(1.0f, 1.0f, 1.0f, 0.75f);
         }
-        this.drawInnerDot(innerColor, (int) cell, false);
+        this.drawInnerDot(innerColor, cell, false);
+        }
     }
 }

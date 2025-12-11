@@ -223,7 +223,7 @@ public final class Server {
                     Player<BitboardReversi>[] players = new Player[2];
                     players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
                     players[myTurn] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), user);
-                    gameController = new ReversiBitController(players);}
+                    gameController = new ReversiBitController(players, false);}
                 default -> new ErrorPopup("Unsupported game type.");
 
             }

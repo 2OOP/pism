@@ -16,6 +16,7 @@ import org.toop.app.widget.tutorial.Connect4TutorialWidget;
 import org.toop.app.widget.tutorial.ReversiTutorialWidget;
 import org.toop.app.widget.tutorial.TicTacToeTutorialWidget;
 import org.toop.local.AppContext;
+import org.toop.local.AppSettings;
 
 public final class GameView extends ViewWidget {
 	private final Text playerHeader;
@@ -125,7 +126,8 @@ public final class GameView extends ViewWidget {
             setPlayerInfoTTT();
         }
         else if (GameType.equals("Reversi")) {
-            if (isMe) {
+            boolean swap = AppSettings.getSettings().getSwitchReversi();
+            if (!swap) {
                 player1Header.setText(nextPlayer);
                 player2Header.setText(currentPlayer);
             }

@@ -91,5 +91,6 @@ public class AppSettings {
         settingsAsset.setMusicVolume(15);
         settingsAsset.setTutorialFlag(true);
         settingsAsset.setLayoutSize("medium");
+        settingsAsset.setSwitchReversi(false);
     }
 }

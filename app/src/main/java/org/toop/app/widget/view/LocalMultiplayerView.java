@@ -79,6 +79,7 @@ public class LocalMultiplayerView extends ViewWidget {
                     }
                     break;
                 case REVERSI:
+                    boolean swap = AppSettings.getSettings().getSwitchReversi();
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
@@ -92,17 +93,17 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(
                                 () -> new ReversiTutorialWidget(() -> {
-                                    gameController = new ReversiBitController(players);
+                                    gameController = new ReversiBitController(players, swap);
                                     gameController.start();
                                 }),
                                 () -> Platform.runLater(() -> {
-                                    gameController = new ReversiBitController(players);
+                                    gameController = new ReversiBitController(players, swap);
                                     gameController.start();
                                 }),
                                 () -> AppSettings.getSettings().setFirstReversi(false)
                         );
                     } else {
-                        gameController = new ReversiBitController(players);
+                        gameController = new ReversiBitController(players, swap);
                         gameController.start();
                     }
                     break;

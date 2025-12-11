@@ -12,5 +12,5 @@ public class Settings {
     public Boolean firstReversi;
     public Boolean firstTTT;
     public Boolean firstConnect4;
-
+    public boolean switchReversi = false;
 }
