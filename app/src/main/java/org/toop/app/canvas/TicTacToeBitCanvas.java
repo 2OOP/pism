@@ -30,7 +30,6 @@ public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
     private void drawMoves(long[] gameBoard){
         loopOverBoard(gameBoard[0], (i) -> drawX(Color.RED, i));
         loopOverBoard(gameBoard[1], (i) -> drawO(Color.BLUE, i));
-
     }
 
 

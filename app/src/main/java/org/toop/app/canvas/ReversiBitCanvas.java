@@ -39,4 +39,21 @@ public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi> {
         loopOverBoard(board[0], (i) -> drawDot(Color.WHITE, i));
         loopOverBoard(board[1], (i) -> drawDot(Color.BLACK, i));
     }
+
+    private void showLegalMoves(long[] legalMoves, int currentPlayerIndex) {
+        for (long legalMove : legalMoves) {
+            drawLegalMove(legalMove, currentPlayerIndex);
+        }
+    }
+
+    public void drawLegalMove(long cell, int player) {
+        Color innerColor;
+        if (player == 1) {
+            innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
+        }
+        else {
+            innerColor = new Color(1.0f, 1.0f, 1.0f, 0.75f);
+        }
+        this.drawInnerDot(innerColor, (int) cell, false);
+    }
 }

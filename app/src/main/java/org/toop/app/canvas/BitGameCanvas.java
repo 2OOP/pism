@@ -108,6 +108,7 @@ public abstract class BitGameCanvas<T extends TurnBasedGame<T>> implements GameC
         }
     }
 
+
 	private void render() {
 		graphics.setFill(backgroundColor);
 		graphics.fillRect(0, 0, width, height);
