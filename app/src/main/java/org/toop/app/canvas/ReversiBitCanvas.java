@@ -33,8 +33,8 @@ public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi> implements 
     public void redraw(BitboardReversi gameCopy) {
         clearAll();
         long[] board = gameCopy.getBoard();
-        loopOverBoard(board[0], (i) -> drawDot(Color.WHITE, i));
-        loopOverBoard(board[1], (i) -> drawDot(Color.BLACK, i));
+        loopOverBoard(board[0], (i) -> drawDot(Color.BLACK, i));
+        loopOverBoard(board[1], (i) -> drawDot(Color.WHITE, i));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi> implements 
 
     public void drawLegalMove(int cell, int player) {
         Color innerColor;
-        if (player == 1) {
+        if (player == 0) {
             innerColor = new Color(0.0f, 0.0f, 0.0f, 0.6f);
         }
         else {
