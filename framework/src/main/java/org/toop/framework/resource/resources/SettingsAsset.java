@@ -2,6 +2,9 @@ package org.toop.framework.resource.resources;
 
 import java.io.File;
 import java.util.Locale;
+
+import org.toop.framework.resource.ResourceManager;
+import org.toop.framework.resource.ResourceMeta;
 import org.toop.framework.settings.Settings;
 
 public class SettingsAsset extends JsonAsset<Settings> {
@@ -107,5 +110,46 @@ public class SettingsAsset extends JsonAsset<Settings> {
     public void setFirstReversi(boolean firstReversi) {
         getContent().firstReversi = firstReversi;
         save();
+    }
+
+    public void setContent(Settings settings) {
+        setVolume(settings.volume);
+        setFxVolume(settings.fxVolume);
+        setMusicVolume(settings.musicVolume);
+        setLocale(settings.locale);
+        setFullscreen(settings.fullScreen);
+        setTheme(settings.theme);
+        setLayoutSize(settings.layoutSize);
+        setTutorialFlag(settings.showTutorials);
+        setFirstTTT(settings.firstTTT);
+        setFirstConnect4(settings.firstConnect4);
+        setFirstReversi(settings.firstReversi);
+    }
+
+    public static SettingsAsset getPath() {
+        SettingsAsset settingsAsset;
+        try {
+            settingsAsset = ResourceManager.get("settings.json");
+        } catch (Exception e) {
+        String os = System.getProperty("os.name").toLowerCase();
+        String basePath;
+
+        if (os.contains("win")) {
+            basePath = System.getenv("APPDATA");
+            if (basePath == null) {
+                basePath = System.getProperty("user.home");
+            }
+        } else if (os.contains("mac")) {
+            basePath = System.getProperty("user.home") + "/Library/Application Support";
+        } else {
+            basePath = System.getProperty("user.home") + "/.config";
+        }
+
+        File settingsFile =
+                new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
+        settingsAsset = new SettingsAsset(settingsFile);
+        ResourceManager.addAsset(new ResourceMeta<>("settings.json", settingsAsset));
+        }
+        return settingsAsset;
     }
 }

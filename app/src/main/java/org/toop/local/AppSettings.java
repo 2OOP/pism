@@ -5,18 +5,16 @@ import org.toop.framework.audio.VolumeControl;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.resource.ResourceManager;
-import org.toop.framework.resource.ResourceMeta;
 import org.toop.framework.resource.resources.SettingsAsset;
 import org.toop.framework.settings.Settings;
 
-import java.io.File;
 import java.util.Locale;
 
 public class AppSettings {
 	private static SettingsAsset settingsAsset;
 
 	public static void applySettings() {
-		settingsAsset = getPath();
+		settingsAsset = getSettingsAsset();
 		if (!settingsAsset.isLoaded()) {
 			settingsAsset.load();
 		}
@@ -45,26 +43,9 @@ public class AppSettings {
 				.postEvent();
 	}
 
-	public static SettingsAsset getPath() {
+	public static SettingsAsset getSettingsAsset() {
 		if (settingsAsset == null) {
-			String os = System.getProperty("os.name").toLowerCase();
-			String basePath;
-
-			if (os.contains("win")) {
-				basePath = System.getenv("APPDATA");
-				if (basePath == null) {
-					basePath = System.getProperty("user.home");
-				}
-			} else if (os.contains("mac")) {
-				basePath = System.getProperty("user.home") + "/Library/Application Support";
-			} else {
-				basePath = System.getProperty("user.home") + "/.config";
-			}
-
-			File settingsFile =
-				new File(basePath + File.separator + "ISY1" + File.separator + "settings.json");
-//            this.settingsAsset = new SettingsAsset(settingsFile);
-			ResourceManager.addAsset(new ResourceMeta<>("settings.json", new SettingsAsset(settingsFile)));
+			settingsAsset = SettingsAsset.getPath();
 		}
 		return ResourceManager.get("settings.json");
 	}
