@@ -94,7 +94,7 @@ public final class GameView extends ViewWidget {
 		}
 	}
 
-	public void nextPlayer(boolean isMe, String currentPlayer, String currentMove, String nextPlayer, char GameType) {
+	public void updatePlayerInfo(boolean isMe, String currentPlayer, String currentMove, String nextPlayer, String GameType) {
 		Platform.runLater(() -> {
             if (!(hasSet)) {
                 playerHeader.setText(currentPlayer + " vs. " + nextPlayer);
@@ -112,8 +112,8 @@ public final class GameView extends ViewWidget {
 		new GameOverPopup(iWon, winner).show(Pos.CENTER);
 	}
 
-    private void setPlayerHeaders(boolean isMe, String currentPlayer, String nextPlayer, char GameType) {
-        if (GameType == 'T') {
+    private void setPlayerHeaders(boolean isMe, String currentPlayer, String nextPlayer, String GameType) {
+        if (GameType.equals("TicTacToe")) {
             if (isMe) {
                 player1Header.setText("X: " + currentPlayer);
                 player2Header.setText("O: " + nextPlayer);
@@ -124,7 +124,7 @@ public final class GameView extends ViewWidget {
             }
             setPlayerInfoTTT();
         }
-        else if (GameType == 'R') {
+        else if (GameType.equals("Reversi")) {
             if (isMe) {
                 player1Header.setText(currentPlayer);
                 player2Header.setText(nextPlayer);

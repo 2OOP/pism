@@ -27,6 +27,9 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
     // Reference to gameView view
     protected final GameView gameView;
 
+    // Reference to String gametype
+    protected final String gameType;
+
     // Reference to game canvas
     protected final GameCanvas<T> canvas;
 
@@ -39,6 +42,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
 
         this.canvas = canvas;
         this.game = game;
+        this.gameType = gameType;
         this.gameThreadBehaviour = gameThreadBehaviour;
 
         // Tell thread how to send moves
@@ -136,5 +140,12 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
     @Override
     public void updateUI() {
         canvas.redraw(game.deepCopy());
+        gameView.updatePlayerInfo(
+               true,
+               getCurrentPlayer().getName(),
+               game.getCurrentTurn() == 0 ? "X" : "O",
+               getPlayer((game.getCurrentTurn() + 1 ) % 2).getName(),
+               this.gameType
+       );
     }
 }
