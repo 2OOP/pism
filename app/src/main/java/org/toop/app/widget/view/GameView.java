@@ -22,8 +22,8 @@ public final class GameView extends ViewWidget {
 	private final Text turnHeader;
     private final Text player1Header;
     private final Text player2Header;
-    private Circle player1Icon;
-    private Circle player2Icon;
+    private final Circle player1Icon;
+    private final Circle player2Icon;
 	private final Button forfeitButton;
 	private final Button exitButton;
     private final TextField chatInput;

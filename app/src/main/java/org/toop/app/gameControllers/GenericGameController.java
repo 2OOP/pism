@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.app.canvas.GameCanvas;
+import org.toop.app.canvas.BitLegalMoveDrawer;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
@@ -18,7 +19,7 @@ import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.players.LocalPlayer;
 
-public class GenericGameController<T extends TurnBasedGame<T>> implements GameController {
+public class GenericGameController<T extends TurnBasedGame<T>, C extends GameCanvas<T>> implements GameController {
     protected final EventFlow eventFlow = new EventFlow();
 
     // Logger for logging
@@ -31,13 +32,13 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
     protected final String gameType;
 
     // Reference to game canvas
-    protected final GameCanvas<T> canvas;
+    protected final C canvas;
 
     protected final TurnBasedGame<T> game;       // Reference to game instance
     private final ThreadBehaviour gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
-    public GenericGameController(GameCanvas<T> canvas, T game, ThreadBehaviour gameThreadBehaviour, String gameType) {
+    public GenericGameController(C canvas, T game, ThreadBehaviour gameThreadBehaviour, String gameType) {
         logger.info("Creating: " + this.getClass());
 
         this.canvas = canvas;
@@ -147,5 +148,14 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
                getPlayer((game.getCurrentTurn() + 1 ) % 2).getName(),
                this.gameType
        );
+        // draw legal moves for bit canvasses
+        if (canvas instanceof BitLegalMoveDrawer) {
+            long movesLoop = game.getLegalMoves();
+            while (movesLoop != 0) {
+                long move = 1L << Long.numberOfTrailingZeros(movesLoop);
+                ((BitLegalMoveDrawer) canvas).showLegalMove(move, getCurrentPlayerIndex());
+                movesLoop &= movesLoop - 1;
+            }
+        }
     }
 }
