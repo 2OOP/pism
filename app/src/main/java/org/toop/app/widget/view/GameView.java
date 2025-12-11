@@ -126,12 +126,12 @@ public final class GameView extends ViewWidget {
         }
         else if (GameType.equals("Reversi")) {
             if (isMe) {
-                player1Header.setText(currentPlayer);
-                player2Header.setText(nextPlayer);
-            }
-            else {
                 player1Header.setText(nextPlayer);
                 player2Header.setText(currentPlayer);
+            }
+            else {
+                player1Header.setText(currentPlayer);
+                player2Header.setText(nextPlayer);
             }
             setPlayerInfoReversi();
         }
@@ -166,8 +166,8 @@ public final class GameView extends ViewWidget {
         var playerInfo = Primitive.vbox(
                 playerHeader,
                 Primitive.separator(),
-                player1box,
-                player2box
+                player2box,
+                player1box
         );
 
         player1Icon.setRadius(player1Header.fontProperty().map(Font::getSize).getValue());
