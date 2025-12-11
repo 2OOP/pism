@@ -19,6 +19,6 @@ public class ReversiBitController extends GenericGameController<BitboardReversi,
                 thread = new OnlineThreadBehaviour<>(game);
             }
         }
-        super(new ReversiBitCanvas(switchColors, players[0] instanceof LocalPlayer<BitboardReversi>), game, thread, "Reversi");
+        super(new ReversiBitCanvas(switchColors, players[0] instanceof LocalPlayer<BitboardReversi> || players[1] instanceof LocalPlayer<BitboardReversi>), game, thread, "Reversi");
     }
 }
