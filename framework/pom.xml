@@ -147,7 +147,6 @@
             <version>2.42.0</version>
         </dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

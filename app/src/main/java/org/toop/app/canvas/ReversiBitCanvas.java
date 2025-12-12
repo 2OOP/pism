@@ -2,10 +2,7 @@ package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
 import org.toop.app.App;
-import org.toop.game.games.reversi.BitboardReversi;
-
-import java.util.Arrays;
-import java.util.function.Consumer;
+import org.toop.framework.game.games.reversi.BitboardReversi;
 
 public class ReversiBitCanvas extends BitGameCanvas<BitboardReversi> {
     public ReversiBitCanvas() {

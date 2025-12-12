@@ -2,10 +2,7 @@ package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
 import org.toop.app.App;
-import org.toop.game.games.tictactoe.BitboardTicTacToe;
-
-import java.util.Arrays;
-import java.util.function.Consumer;
+import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
 
 public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
     public TicTacToeBitCanvas() {

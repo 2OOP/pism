@@ -9,7 +9,7 @@
 //import org.mockito.*;
 //import org.toop.framework.SnowflakeGenerator;
 //import org.toop.framework.eventbus.EventFlow;
-//import org.toop.framework.networking.events.NetworkEvents;
+//import org.toop.framework.networking.connection.events.NetworkEvents;
 //
 //class NetworkingClientManagerTest {
 //
