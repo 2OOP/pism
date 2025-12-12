@@ -1,11 +1,12 @@
-package org.toop.game.games.tictactoe;
+package org.toop.framework.game.games.tictactoe;
 
+import org.toop.framework.game.BitboardGame;
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.BitboardGame;
+import org.toop.framework.networking.server.ServableGame;
 
-public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
+public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> implements ServableGame {
 	private final long[] winningLines = {
 		0b111000000L, // top row
 		0b000111000L, // middle row
