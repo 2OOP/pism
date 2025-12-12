@@ -1,10 +1,14 @@
 package org.toop.app;
 
+import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
-
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.LoadingWidget;
@@ -16,8 +20,12 @@ import org.toop.framework.audio.*;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
-import org.toop.framework.networking.NetworkingClientEventListener;
-import org.toop.framework.networking.NetworkingClientManager;
+import org.toop.framework.game.BitboardGame;
+import org.toop.framework.game.games.reversi.BitboardReversi;
+import org.toop.framework.networking.connection.NetworkingClientEventListener;
+import org.toop.framework.networking.connection.NetworkingClientManager;
+import org.toop.framework.networking.server.GameDefinition;
+import org.toop.framework.networking.server.MasterServer;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.events.AssetLoaderEvents;
@@ -27,13 +35,8 @@ import org.toop.framework.resource.resources.SoundEffectAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 
-import javafx.application.Application;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -86,7 +89,7 @@ public final class App extends Application {
 
 		AppSettings.applySettings();
 
-		setKeybinds(root);
+        setKeybinds(root);
 
         LoadingWidget loading = new LoadingWidget(Primitive.text(
                 "Loading...", false), 0, 0, Integer.MAX_VALUE, false, false // Just set a high default
@@ -138,7 +141,17 @@ public final class App extends Application {
 
 		stage.show();
 
-	}
+        var games = new ConcurrentHashMap<String, GameDefinition<BitboardGame<?>>>();
+        games.put("tictactoe", new GameDefinition<>("tictactoe", BitboardReversi.class));
+        games.put("reversi", new GameDefinition<>("reversi", BitboardReversi.class));
+        var s = new MasterServer(6666, games);
+        try {
+            s.start();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 	private void setKeybinds(StackPane root) {
 		root.addEventHandler(KeyEvent.KEY_PRESSED,event -> {
