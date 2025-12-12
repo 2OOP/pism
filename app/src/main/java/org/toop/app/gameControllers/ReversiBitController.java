@@ -10,7 +10,8 @@ import org.toop.framework.game.players.OnlinePlayer;
 
 public class ReversiBitController extends GenericGameController {
     public ReversiBitController(Player[] players) {
-        BitboardReversi game = new BitboardReversi(players);
+        BitboardReversi game = new BitboardReversi();
+        game.init(players);
         ThreadBehaviour thread = new LocalThreadBehaviour(game);
         for (Player player : players) {
             if (player instanceof OnlinePlayer){

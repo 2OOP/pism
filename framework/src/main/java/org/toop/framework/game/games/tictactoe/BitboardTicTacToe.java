@@ -17,9 +17,15 @@ public class BitboardTicTacToe extends BitboardGame {
 		0b001010100L  // anti-diagonal
 	};
 
-	public BitboardTicTacToe(Player[] players) {
-		super(3, 3, 2, players);
+	public BitboardTicTacToe() {
+		super(3, 3, 2);
 	}
+
+	@Override
+	public void init(Player[] players) {
+		super.init(players);
+	}
+
     public BitboardTicTacToe(BitboardTicTacToe other) {
         super(other);
     }

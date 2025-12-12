@@ -141,17 +141,6 @@ public final class App extends Application {
 		}
 
 		stage.show();
-
-        var games = new ConcurrentHashMap<String, Class<? extends TurnBasedGame>>();
-        games.put("tictactoe", BitboardReversi.class);
-        games.put("reversi", BitboardReversi.class);
-        var s = new MasterServer(6666, games);
-        try {
-            s.start();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
 	private void setKeybinds(StackPane root) {

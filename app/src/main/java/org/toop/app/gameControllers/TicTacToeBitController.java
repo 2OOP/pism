@@ -10,7 +10,8 @@ import org.toop.framework.game.players.OnlinePlayer;
 
 public class TicTacToeBitController extends GenericGameController {
     public TicTacToeBitController(Player[] players) {
-        BitboardTicTacToe game = new BitboardTicTacToe(players);
+        BitboardTicTacToe game = new BitboardTicTacToe();
+        game.init(players);
         ThreadBehaviour thread = new LocalThreadBehaviour(game);
         for (Player player : players) {
             if (player instanceof OnlinePlayer){
