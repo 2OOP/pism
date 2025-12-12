@@ -15,7 +15,7 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
  * specific move logic.
  * </p>
  */
-public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Player<T> {
+public abstract class AbstractPlayer implements Player {
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String name;
@@ -24,7 +24,7 @@ public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Play
         this.name = name;
     }
 
-    protected AbstractPlayer(AbstractPlayer<T> other) {
+    protected AbstractPlayer(AbstractPlayer other) {
         this.name = other.name;
     }
     /**
@@ -39,7 +39,7 @@ public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Play
      * @return an integer representing the chosen move
      * @throws UnsupportedOperationException if the method is not overridden
      */
-    public long getMove(T gameCopy) {
+    public long getMove(TurnBasedGame gameCopy) {
         logger.error("Method getMove not implemented.");
         throw new UnsupportedOperationException("Not supported yet.");
     }

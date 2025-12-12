@@ -12,7 +12,7 @@ import org.toop.framework.gameFramework.model.player.Player;
  * Currently, this class is a placeholder and does not implement move logic.
  * </p>
  */
-public class OnlinePlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
+public class OnlinePlayer extends AbstractPlayer {
 
     /**
      * Constructs a new OnlinePlayer.
@@ -25,12 +25,12 @@ public class OnlinePlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> 
         super(name);
     }
 
-    public OnlinePlayer(OnlinePlayer<T> other) {
+    public OnlinePlayer(OnlinePlayer other) {
         super(other);
     }
 
     @Override
-    public Player<T> deepCopy() {
-        return new OnlinePlayer<>(this);
+    public Player deepCopy() {
+        return new OnlinePlayer(this);
     }
 }

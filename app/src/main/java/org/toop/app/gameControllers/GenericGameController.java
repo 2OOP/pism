@@ -18,7 +18,7 @@ import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.networking.events.NetworkEvents;
 import org.toop.game.players.LocalPlayer;
 
-public class GenericGameController<T extends TurnBasedGame<T>> implements GameController {
+public class GenericGameController implements GameController {
     protected final EventFlow eventFlow = new EventFlow();
 
     // Logger for logging
@@ -28,13 +28,13 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
     protected final GameView gameView;
 
     // Reference to game canvas
-    protected final GameCanvas<T> canvas;
+    protected final GameCanvas canvas;
 
-    protected final TurnBasedGame<T> game;       // Reference to game instance
+    protected final TurnBasedGame game;       // Reference to game instance
     private final ThreadBehaviour gameThreadBehaviour;
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
-    public GenericGameController(GameCanvas<T> canvas, T game, ThreadBehaviour gameThreadBehaviour, String gameType) {
+    public GenericGameController(GameCanvas canvas, TurnBasedGame game, ThreadBehaviour gameThreadBehaviour, String gameType) {
         logger.info("Creating: " + this.getClass());
 
         this.canvas = canvas;
@@ -55,7 +55,9 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         // Listen to updates
         eventFlow
                 .listen(GUIEvents.GameEnded.class, this::onGameFinish, false)
-                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer<T> lp){lp.setMove(event.move());}}, false);
+                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {
+                    if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setMove(event.move());}
+                    }, false);
     }
 
     public void start(){
@@ -70,7 +72,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         gameThreadBehaviour.stop();
     }
 
-    public Player<T> getCurrentPlayer(){
+    public Player getCurrentPlayer(){
         return game.getPlayer(getCurrentPlayerIndex());
     }
 
@@ -97,7 +99,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         stop();
     }
 
-    public Player<T> getPlayer(int player){
+    public Player getPlayer(int player){
         if (player < 0 || player >= 2){ // TODO: Make game turn player count
             logger.error("Invalid player index");
             throw new IllegalArgumentException("player out of range");

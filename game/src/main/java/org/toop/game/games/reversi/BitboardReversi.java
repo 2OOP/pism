@@ -5,14 +5,14 @@ import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
-public class BitboardReversi extends BitboardGame<BitboardReversi> {
+public class BitboardReversi extends BitboardGame {
 
     public record Score(int black, int white) {}
 
 	private final long notAFile = 0xfefefefefefefefeL;
 	private final long notHFile = 0x7f7f7f7f7f7f7f7fL;
 
-	public BitboardReversi(Player<BitboardReversi>[] players) {
+	public BitboardReversi(Player[] players) {
 		super(8, 8, 2, players);
 
 		// Black (player 0)

@@ -5,7 +5,7 @@ import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
-public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
+public class BitboardTicTacToe extends BitboardGame {
 	private final long[] winningLines = {
 		0b111000000L, // top row
 		0b000111000L, // middle row
@@ -17,7 +17,7 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
 		0b001010100L  // anti-diagonal
 	};
 
-	public BitboardTicTacToe(Player<BitboardTicTacToe>[] players) {
+	public BitboardTicTacToe(Player[] players) {
 		super(3, 3, 2, players);
 	}
     public BitboardTicTacToe(BitboardTicTacToe other) {

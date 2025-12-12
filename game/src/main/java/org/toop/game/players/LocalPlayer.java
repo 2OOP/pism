@@ -7,7 +7,7 @@ import org.toop.framework.gameFramework.model.player.Player;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
+public class LocalPlayer extends AbstractPlayer {
     // Future can be used with event system, IF unsubscribeAfterSuccess works...
     // private CompletableFuture<Integer> LastMove = new CompletableFuture<>();
 
@@ -17,12 +17,12 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
         super(name);
     }
 
-    public LocalPlayer(LocalPlayer<T> other) {
+    public LocalPlayer(LocalPlayer other) {
         super(other);
     }
 
     @Override
-    public long getMove(T gameCopy) {
+    public long getMove(TurnBasedGame gameCopy) {
         return getValidMove(gameCopy);
     }
 
@@ -36,7 +36,7 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
         return false;
     }
 
-    private long getMove2(T gameCopy) {
+    private long getMove2(TurnBasedGame gameCopy) {
         LastMove = new CompletableFuture<>();
         long move = 0;
         try {
@@ -49,7 +49,7 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
         return move;
     }
 
-    protected long getValidMove(T gameCopy){
+    protected long getValidMove(TurnBasedGame gameCopy){
         // Get this player's valid moves
         long validMoves = gameCopy.getLegalMoves();
         // Make sure provided move is valid
@@ -64,8 +64,8 @@ public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
     }
 
     @Override
-    public LocalPlayer<T> deepCopy() {
-        return new LocalPlayer<T>(this.getName());
+    public LocalPlayer deepCopy() {
+        return new LocalPlayer(this.getName());
     }
 
     /*public void register() {

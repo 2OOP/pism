@@ -8,13 +8,13 @@ import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.games.reversi.BitboardReversi;
 import org.toop.game.players.OnlinePlayer;
 
-public class ReversiBitController extends GenericGameController<BitboardReversi> {
-    public ReversiBitController(Player<BitboardReversi>[] players) {
+public class ReversiBitController extends GenericGameController {
+    public ReversiBitController(Player[] players) {
         BitboardReversi game = new BitboardReversi(players);
-        ThreadBehaviour thread = new LocalThreadBehaviour<>(game);
-        for (Player<BitboardReversi> player : players) {
-            if (player instanceof OnlinePlayer<BitboardReversi>){
-                thread = new OnlineThreadBehaviour<>(game);
+        ThreadBehaviour thread = new LocalThreadBehaviour(game);
+        for (Player player : players) {
+            if (player instanceof OnlinePlayer){
+                thread = new OnlineThreadBehaviour(game);
             }
         }
         super(new ReversiBitCanvas(), game, thread, "Reversi");

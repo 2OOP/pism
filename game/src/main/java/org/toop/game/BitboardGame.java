@@ -7,17 +7,17 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 // There is AI performance to be gained by getting rid of non-primitives and thus speeding up deepCopy
-public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBasedGame<T> {
+public abstract class BitboardGame implements TurnBasedGame {
 	private final int columnSize;
 	private final int rowSize;
 
-    private Player<T>[] players;
+    private Player[] players;
 
 	// long is 64 bits. Every game has a limit of 64 cells maximum.
 	private final long[] playerBitboard;
 	private int currentTurn = 0;
 
-	public BitboardGame(int columnSize, int rowSize, int playerCount, Player<T>[] players) {
+	public BitboardGame(int columnSize, int rowSize, int playerCount, Player[] players) {
 		this.columnSize = columnSize;
 		this.rowSize = rowSize;
         this.players = players;
@@ -26,14 +26,14 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 		Arrays.fill(playerBitboard, 0L);
 	}
 
-	public BitboardGame(BitboardGame<T> other) {
+	public BitboardGame(BitboardGame other) {
 		this.columnSize = other.columnSize;
 		this.rowSize = other.rowSize;
 
 		this.playerBitboard = other.playerBitboard.clone();
 		this.currentTurn = other.currentTurn;
         this.players = Arrays.stream(other.players)
-                .map(Player<T>::deepCopy)
+                .map(Player::deepCopy)
                 .toArray(Player[]::new);
 	}
 
@@ -61,7 +61,7 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 		return getCurrentPlayerIndex();
 	}
 
-    public Player<T> getPlayer(int index) {return players[index];}
+    public Player getPlayer(int index) {return players[index];}
 
 	public int getCurrentPlayerIndex() {
         return currentTurn % playerBitboard.length;
@@ -71,7 +71,7 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 		return (currentTurn + 1) % playerBitboard.length;
 	}
 
-    public Player<T> getCurrentPlayer(){
+    public Player getCurrentPlayer(){
         return players[getCurrentPlayerIndex()];
     }
 

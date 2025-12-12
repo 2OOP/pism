@@ -14,17 +14,17 @@ import org.toop.game.players.OnlinePlayer;
  * Reacts to server events, sending moves and updating the game state
  * for the local player while receiving moves from other players.
  */
-public class OnlineThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements SupportsOnlinePlay {
+public class OnlineThreadBehaviour extends AbstractThreadBehaviour implements SupportsOnlinePlay {
     /**
      * Creates behaviour and sets the first local player
      * (non-online player) from the given array.
      */
-    public OnlineThreadBehaviour(T game) {
+    public OnlineThreadBehaviour(TurnBasedGame game) {
         super(game);
     }
 
     /** Finds the first non-online player in the array. */
-    private int getFirstNotOnlinePlayer(Player<T>[] players) {
+    private int getFirstNotOnlinePlayer(Player[] players) {
         for (int i = 0; i < players.length; i++) {
             if (!(players[i] instanceof OnlinePlayer)) {
                 return i;

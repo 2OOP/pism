@@ -58,14 +58,14 @@ public class LocalMultiplayerView extends ViewWidget {
 			switch (information.type) {
                 case TICTACTOE:
                     if (information.players[0].isHuman) {
-                        players[0] = new LocalPlayer<>(information.players[0].name);
+                        players[0] = new LocalPlayer(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), "Random AI");
+                        players[0] = new ArtificialPlayer(new RandomAI(), "Random AI");
                     }
                     if (information.players[1].isHuman) {
-                        players[1] = new LocalPlayer<>(information.players[1].name);
+                        players[1] = new LocalPlayer(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new MiniMaxAI<BitboardTicTacToe>(9), "MiniMax AI");
+                        players[1] = new ArtificialPlayer(new MiniMaxAI(9), "MiniMax AI");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstTTT()) {
                         new ShowEnableTutorialWidget(
@@ -86,14 +86,14 @@ public class LocalMultiplayerView extends ViewWidget {
                     break;
                 case REVERSI:
                     if (information.players[0].isHuman) {
-                        players[0] = new LocalPlayer<>(information.players[0].name);
+                        players[0] = new LocalPlayer(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), "Random AI");
+                        players[0] = new ArtificialPlayer(new RandomAI(), "Random AI");
                     }
                     if (information.players[1].isHuman) {
-                        players[1] = new LocalPlayer<>(information.players[1].name);
+                        players[1] = new LocalPlayer(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new MiniMaxAI<BitboardReversi>(6), "MiniMax");
+                        players[1] = new ArtificialPlayer(new MiniMaxAI(6), "MiniMax");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(

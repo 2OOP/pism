@@ -16,14 +16,14 @@ import java.util.function.Consumer;
  * Repeatedly gets the current player's move, applies it to the game,
  * updates the UI, and stops when the game ends or {@link #stop()} is called.
  */
-public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements Runnable {
+public class LocalThreadBehaviour extends AbstractThreadBehaviour implements Runnable {
 
     /**
      * Creates a new behaviour for a local turn-based game.
      *
      * @param game    the game instance
      */
-    public LocalThreadBehaviour(T game) {
+    public LocalThreadBehaviour(TurnBasedGame game) {
         super(game);
     }
 
@@ -48,7 +48,7 @@ public class LocalThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractTh
     @Override
     public void run() {
         while (isRunning.get()) {
-            Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
+            Player currentPlayer = game.getPlayer(game.getCurrentTurn());
             long move = currentPlayer.getMove(game.deepCopy());
             PlayResult result = game.play(move);
 

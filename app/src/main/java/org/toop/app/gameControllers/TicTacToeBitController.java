@@ -9,13 +9,13 @@ import org.toop.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.game.players.OnlinePlayer;
 
-public class TicTacToeBitController extends GenericGameController<BitboardTicTacToe> {
-    public TicTacToeBitController(Player<BitboardTicTacToe>[] players) {
+public class TicTacToeBitController extends GenericGameController {
+    public TicTacToeBitController(Player[] players) {
         BitboardTicTacToe game = new BitboardTicTacToe(players);
-        ThreadBehaviour thread = new LocalThreadBehaviour<>(game);
-        for (Player<BitboardTicTacToe> player : players) {
-            if (player instanceof OnlinePlayer<BitboardTicTacToe>){
-                thread = new OnlineThreadBehaviour<>(game);
+        ThreadBehaviour thread = new LocalThreadBehaviour(game);
+        for (Player player : players) {
+            if (player instanceof OnlinePlayer){
+                thread = new OnlineThreadBehaviour(game);
             }
         }
         super(new TicTacToeBitCanvas(), game, thread , "TicTacToe");

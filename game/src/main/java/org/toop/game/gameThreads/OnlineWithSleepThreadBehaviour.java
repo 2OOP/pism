@@ -10,14 +10,14 @@ import org.toop.framework.networking.events.NetworkEvents;
  * This is identical to {@link OnlineThreadBehaviour}, but inserts a
  * short sleep before delegating to the base implementation.
  */
-public class OnlineWithSleepThreadBehaviour<T extends TurnBasedGame<T>> extends OnlineThreadBehaviour<T> {
+public class OnlineWithSleepThreadBehaviour extends OnlineThreadBehaviour {
 
     /**
      * Creates the behaviour and forwards the players to the base class.
      *
      * @param game the online-capable turn-based game
      */
-    public OnlineWithSleepThreadBehaviour(T game) {
+    public OnlineWithSleepThreadBehaviour(TurnBasedGame game) {
         super(game);
     }
 

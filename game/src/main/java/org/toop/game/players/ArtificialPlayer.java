@@ -12,22 +12,22 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
  *
  * @param <T> the specific type of game this AI player can play
  */
-public class ArtificialPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
+public class ArtificialPlayer extends AbstractPlayer {
 
     /** The AI instance used to calculate moves. */
-    private final AI<T> ai;
+    private final AI ai;
 
     /**
      * Constructs a new ArtificialPlayer using the specified AI.
      *
      * @param ai the AI instance that determines moves for this player
      */
-    public ArtificialPlayer(AI<T> ai, String name) {
+    public ArtificialPlayer(AI ai, String name) {
         super(name);
         this.ai = ai;
     }
 
-    public ArtificialPlayer(ArtificialPlayer<T> other) {
+    public ArtificialPlayer(ArtificialPlayer other) {
         super(other);
         this.ai = other.ai.deepCopy();
     }
@@ -44,12 +44,12 @@ public class ArtificialPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer
      * @return the integer representing the chosen move
      * @throws ClassCastException if {@code gameCopy} is not of type {@code T}
      */
-    public long getMove(T gameCopy) {
+    public long getMove(TurnBasedGame gameCopy) {
         return ai.getMove(gameCopy);
     }
 
     @Override
-    public ArtificialPlayer<T> deepCopy() {
-        return new ArtificialPlayer<T>(this);
+    public ArtificialPlayer deepCopy() {
+        return new ArtificialPlayer(this);
     }
 }

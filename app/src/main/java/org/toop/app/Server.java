@@ -214,15 +214,15 @@ public final class Server {
 
             switch (type) {
                 case TICTACTOE ->{
-                        Player<BitboardTicTacToe>[] players = new Player[2];
-                        players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
-                        players[myTurn] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), user);
+                        Player[] players = new Player[2];
+                        players[(myTurn + 1) % 2] = new OnlinePlayer(response.opponent());
+                        players[myTurn] = new ArtificialPlayer(new RandomAI(), user);
                         gameController = new TicTacToeBitController(players);
                 }
                 case REVERSI -> {
-                    Player<BitboardReversi>[] players = new Player[2];
-                    players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
-                    players[myTurn] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), user);
+                    Player[] players = new Player[2];
+                    players[(myTurn + 1) % 2] = new OnlinePlayer(response.opponent());
+                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user);
                     gameController = new ReversiBitController(players);}
                 default -> new ErrorPopup("Unsupported game type.");
 

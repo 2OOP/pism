@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MiniMaxAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
+public class MiniMaxAI extends AbstractAI {
 
     private final int maxDepth;
     private final Random random = new Random();
@@ -18,17 +18,17 @@ public class MiniMaxAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
         this.maxDepth = depth;
     }
 
-    public MiniMaxAI(MiniMaxAI<T> other) {
+    public MiniMaxAI(MiniMaxAI other) {
         this.maxDepth = other.maxDepth;
     }
 
     @Override
-    public MiniMaxAI<T> deepCopy() {
-        return new MiniMaxAI<>(this);
+    public MiniMaxAI deepCopy() {
+        return new MiniMaxAI(this);
     }
 
     @Override
-    public long getMove(T game) {
+    public long getMove(TurnBasedGame game) {
         long legalMoves = game.getLegalMoves();
         if (legalMoves == 0) return 0;
 
@@ -39,7 +39,7 @@ public class MiniMaxAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
         long movesLoop = legalMoves;
         while (movesLoop != 0) {
             long move = 1L << Long.numberOfTrailingZeros(movesLoop);
-            T copy = game.deepCopy();
+            TurnBasedGame copy = game.deepCopy();
             PlayResult result = copy.play(move);
 
             int score;
@@ -75,7 +75,7 @@ public class MiniMaxAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
      * @param beta       Beta value
      * @return score of the position
      */
-    private int getMoveScore(T game, int depth, boolean maximizing, int aiPlayer, int alpha, int beta) {
+    private int getMoveScore(TurnBasedGame game, int depth, boolean maximizing, int aiPlayer, int alpha, int beta) {
         long legalMoves = game.getLegalMoves();
 
         // Terminal state
@@ -95,7 +95,7 @@ public class MiniMaxAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 
         while (movesLoop != 0) {
             long move = 1L << Long.numberOfTrailingZeros(movesLoop);
-            T copy = game.deepCopy();
+            TurnBasedGame copy = game.deepCopy();
             PlayResult result = copy.play(move);
 
             int score;
@@ -130,7 +130,7 @@ public class MiniMaxAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
      * @param aiPlayer AI's player index
      * @return heuristic score
      */
-    private int evaluateBoard(T game, int aiPlayer) {
+    private int evaluateBoard(TurnBasedGame game, int aiPlayer) {
         long[] board = game.getBoard();
         int aiCount = 0;
         int opponentCount = 0;

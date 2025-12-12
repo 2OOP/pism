@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * Runs a separate thread that executes game turns at a fixed frequency (default 60 updates/sec),
  * applying player moves, updating the game state, and dispatching UI events.
  */
-public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements Runnable {
+public class LocalFixedRateThreadBehaviour extends AbstractThreadBehaviour implements Runnable {
 
 
     /**
@@ -24,7 +24,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
      *
      * @param game    the game instance
      */
-    public LocalFixedRateThreadBehaviour(T game) {
+    public LocalFixedRateThreadBehaviour(TurnBasedGame game) {
         super(game);
     }
 
@@ -59,7 +59,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
             if (now >= nextUpdate) {
                 nextUpdate += UPDATE_INTERVAL;
 
-                Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
+                Player currentPlayer = game.getPlayer(game.getCurrentTurn());
                 long move = currentPlayer.getMove(game.deepCopy());
                 PlayResult result = game.play(move);
 
