@@ -13,6 +13,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.game.BitboardGame;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class MasterServer {
     private final int port;
     public final Server gs;
 
-    public MasterServer(int port, Map<String, GameDefinition<BitboardGame<?>>> gameTypes) {
+    public MasterServer(int port, Map<String, Class<? extends TurnBasedGame>> gameTypes) {
         this.port = port;
         this.gs = new Server(gameTypes);
     }

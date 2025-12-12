@@ -1,9 +1,10 @@
-package org.toop.game.games.reversi;
+package org.toop.framework.game.games.reversi;
 
+import org.toop.framework.game.BitboardGame;
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.BitboardGame;
+import org.toop.framework.game.BitboardGame;
 
 public class BitboardReversi extends BitboardGame {
 

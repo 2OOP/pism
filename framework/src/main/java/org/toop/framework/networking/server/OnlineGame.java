@@ -1,7 +1,7 @@
 package org.toop.framework.networking.server;
 
-public interface OnlineGame {
+public interface OnlineGame<T> {
     long id();
-    GameDefinition game();
+    T game();
     User[] users();
 }

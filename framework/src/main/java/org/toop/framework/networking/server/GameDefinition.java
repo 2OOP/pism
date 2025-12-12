@@ -1,5 +1,7 @@
 package org.toop.framework.networking.server;
 
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+
 import java.lang.reflect.InvocationTargetException;
 
 public class GameDefinition<T> {

@@ -14,7 +14,7 @@ import org.toop.framework.gameFramework.view.GUIEvents;
 
 import java.util.function.Consumer;
 
-public abstract class BitGameCanvas<T extends TurnBasedGame> implements GameCanvas {
+public abstract class BitGameCanvas implements GameCanvas {
 	protected record Cell(float x, float y, float width, float height) {
 		public boolean isInside(double x, double y) {
 			return x >= this.x && x <= this.x + width &&

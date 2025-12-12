@@ -1,6 +1,7 @@
 package org.toop.framework.networking.server;
 
 import org.toop.framework.game.BitboardGame;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Server implements GameServer {
 
-    final private Map<String, GameDefinition<BitboardGame<?>>> gameTypes;
-    public List<OnlineGame> games = new ArrayList<>();
+    final private Map<String, Class<? extends TurnBasedGame>> gameTypes;
+    public List<OnlineGame<TurnBasedGame>> games = new ArrayList<>();
     final private Map<Long, ServerUser> users = new ConcurrentHashMap<>();
 
-    public Server(Map<String, GameDefinition<BitboardGame<?>>> gameTypes) {
+    public Server(Map<String, Class<? extends TurnBasedGame>> gameTypes) {
         this.gameTypes = gameTypes;
     }
 
@@ -37,8 +38,8 @@ public class Server implements GameServer {
         if (!gameTypes.containsKey(gameType)) return;
 
         try {
-            var game = new Game(gameTypes.get(gameType).create(), users);
-            games.addLast(new Game(game, users));
+            var game = new Game(gameTypes.get(gameType).getDeclaredConstructor().newInstance(), users);
+            games.addLast(game);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -3,10 +3,6 @@ package org.toop.app.canvas;
 import javafx.scene.paint.Color;
 import org.toop.app.App;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.game.games.reversi.BitboardReversi;
-
-import java.util.Arrays;
-import java.util.function.Consumer;
 
 public class ReversiBitCanvas extends BitGameCanvas {
     public ReversiBitCanvas() {
@@ -37,7 +33,7 @@ public class ReversiBitCanvas extends BitGameCanvas {
     public void redraw(TurnBasedGame gameCopy) {
         clearAll();
         long[] board = gameCopy.getBoard();
-        loopOverBoard(board[0], (i) -> drawDot(Color.WHITE, (int)i));
-        loopOverBoard(board[1], (i) -> drawDot(Color.BLACK, (int)i));
+        loopOverBoard(board[0], (i) -> drawDot(Color.WHITE, i));
+        loopOverBoard(board[1], (i) -> drawDot(Color.BLACK, i));
     }
 }

@@ -1,9 +1,9 @@
-package org.toop.game.games.tictactoe;
+package org.toop.framework.game.games.tictactoe;
 
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.BitboardGame;
+import org.toop.framework.game.BitboardGame;
 
 public class BitboardTicTacToe extends BitboardGame {
 	private final long[] winningLines = {

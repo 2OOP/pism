@@ -22,6 +22,7 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.game.BitboardGame;
 import org.toop.framework.game.games.reversi.BitboardReversi;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.connection.NetworkingClientEventListener;
 import org.toop.framework.networking.connection.NetworkingClientManager;
 import org.toop.framework.networking.server.GameDefinition;
@@ -141,9 +142,9 @@ public final class App extends Application {
 
 		stage.show();
 
-        var games = new ConcurrentHashMap<String, GameDefinition<BitboardGame<?>>>();
-        games.put("tictactoe", new GameDefinition<>("tictactoe", BitboardReversi.class));
-        games.put("reversi", new GameDefinition<>("reversi", BitboardReversi.class));
+        var games = new ConcurrentHashMap<String, Class<? extends TurnBasedGame>>();
+        games.put("tictactoe", BitboardReversi.class);
+        games.put("reversi", BitboardReversi.class);
         var s = new MasterServer(6666, games);
         try {
             s.start();
@@ -156,7 +157,7 @@ public final class App extends Application {
 	private void setKeybinds(StackPane root) {
 		root.addEventHandler(KeyEvent.KEY_PRESSED,event -> {
 			if (event.getCode() == KeyCode.ESCAPE) {
-				escapePopup();
+				escapePopup();	
 			}
 		});
         stage.setFullScreenExitKeyCombination(
