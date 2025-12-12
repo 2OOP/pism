@@ -1,8 +1,7 @@
 package org.toop.framework.gameFramework.controller;
 
-import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.game.threadBehaviour.Controllable;
-import org.toop.framework.networking.events.NetworkEvents;
+import org.toop.framework.networking.connection.events.NetworkEvents;
 
 public interface GameController extends Controllable, UpdatesGameUI {
     /** Called when it is this player's turn to make a move. */

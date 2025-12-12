@@ -2,33 +2,27 @@ package org.toop.app.widget.view;
 
 import javafx.application.Platform;
 import org.toop.app.GameInformation;
-import org.toop.app.canvas.ReversiBitCanvas;
-import org.toop.app.canvas.TicTacToeBitCanvas;
-import org.toop.app.gameControllers.GenericGameController;
 import org.toop.app.gameControllers.ReversiBitController;
 import org.toop.app.gameControllers.TicTacToeBitController;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.games.reversi.BitboardReversi;
-import org.toop.game.games.tictactoe.BitboardTicTacToe;
-import org.toop.game.players.ArtificialPlayer;
-import org.toop.game.players.LocalPlayer;
+import org.toop.framework.game.games.reversi.BitboardReversi;
+import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
+import org.toop.framework.game.players.ArtificialPlayer;
+import org.toop.framework.game.players.LocalPlayer;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.*;
-import org.toop.game.players.MiniMaxAI;
-import org.toop.game.players.RandomAI;
+import org.toop.framework.game.players.MiniMaxAI;
+import org.toop.framework.game.players.RandomAI;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import org.toop.local.AppSettings;
-
-import java.util.Arrays;
-import java.util.Random;
 
 public class LocalMultiplayerView extends ViewWidget {
 	private final GameInformation information;

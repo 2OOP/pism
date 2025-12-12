@@ -1,7 +1,5 @@
 package org.toop.framework.gameFramework.model.game;
 
-import org.toop.framework.networking.events.NetworkEvents;
-
 /**
  * Interface for games that support online multiplayer play.
  * <p>
