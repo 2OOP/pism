@@ -4,6 +4,7 @@ import org.toop.framework.game.players.LocalPlayer;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -48,29 +49,88 @@ public class Server implements GameServer {
     }
 
     public ServerUser getUser(String username) {
-        return users.values().stream().filter(e -> e.name().equalsIgnoreCase(username)).findFirst().get();
+        return users.values().stream().filter(e -> e.name().equalsIgnoreCase(username)).findFirst().orElse(null);
     }
 
     public ServerUser getUser(long id) {
         return users.get(id);
     }
 
-    public void challengeUser(String fromUser, String toUser) {
+    public void challengeUser(String fromUser, String toUser, String gameType) {
+
         ServerUser from = getUser(fromUser);
         if (from == null) {
             return;
         }
-        ServerUser to = getUser(toUser);
-        if (to == null) {
+
+        if (!gameTypes.containsKey(gameType)) {
+            from.sendMessage("ERR gametype not found");
             return;
         }
 
-        gameChallenges.addLast(new GameChallenge(from, to, new GameChallengeTimer(challengeDuration)));
+        ServerUser to = getUser(toUser);
+        if (to == null) {
+            from.sendMessage("ERR user not found");
+            return;
+        }
+
+        var ch = new GameChallenge(from, to, gameType, new GameChallengeTimer(challengeDuration));
+
+        to.sendMessage(
+                "\"SVR GAME CHALLENGE {CHALLENGER: \"%s\", GAMETYPE: \"%s\", CHALLENGENUMBER: \"%s\"}"
+                        .formatted(from.name(), gameType, ch.id())
+        );
+
+        if (!isValidChallenge(ch)) {
+            warnUserExpiredChallenge(from, ch.id());
+            ch.forceExpire();
+            return;
+        }
+
+        gameChallenges.addLast(ch);
+    }
+
+    private void warnUserExpiredChallenge(ServerUser user, long challengeId) {
+        user.sendMessage("SVR GAME CHALLENGE CANCELLED {CHALLENGENUMBER: \"" + challengeId + "\"}");
+    }
+
+    private boolean isValidChallenge(GameChallenge gameChallenge) {
+        for (var user : gameChallenge.getUsers()) {
+            if (users.get(user.id()) == null) {
+                return false;
+            }
+
+            if (user.games().length > 0) {
+                return false;
+            }
+
+            if (gameChallenge.isExpired()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void checkChallenges() {
         for (int i = gameChallenges.size() - 1; i >= 0; i--) {
-            if (gameChallenges.get(i).isExpired()) gameChallenges.remove(i);
+            var challenge = gameChallenges.get(i);
+
+            if (isValidChallenge(challenge)) continue;
+
+            if (challenge.isExpired()) {
+                Arrays.stream(challenge.getUsers()).forEach(user -> warnUserExpiredChallenge(user, challenge.id()));
+                gameChallenges.remove(i);
+            }
+        }
+    }
+
+    public void acceptChallenge(long challengeId) {
+        for (var challenge : gameChallenges) {
+            if (challenge.id() == challengeId) {
+                startGame(challenge.acceptChallenge(), (User[]) challenge.getUsers());
+                break;
+            }
         }
     }
 
@@ -104,5 +164,13 @@ public class Server implements GameServer {
 
     public String[] onlineUsers() {
         return users.values().stream().map(ServerUser::name).toArray(String[]::new);
+    }
+
+    public void closeServer() {
+        scheduler.shutdown();
+        gameChallenges.clear();
+        games.clear();
+        users.clear();
+        gameTypes.clear();
     }
 }

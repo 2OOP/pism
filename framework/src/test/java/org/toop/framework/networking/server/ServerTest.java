@@ -11,8 +11,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class ServerTest {
 
     static class TurnBasedGameMock implements TurnBasedGame {
@@ -89,8 +87,28 @@ public class ServerTest {
         }
 
         @Override
+        public Game[] games() {
+            return new Game[0];
+        }
+
+        @Override
+        public void addGame(Game game) {
+
+        }
+
+        @Override
+        public void removeGame(Game game) {
+
+        }
+
+        @Override
         public void setName(String name) {
             this.name = name;
+        }
+
+        @Override
+        public void sendMessage(String message) {
+
         }
     }
 
@@ -122,14 +140,14 @@ public class ServerTest {
     void testChallenge() {
         server.addUser(new TestUser(1, "test1"));
         server.addUser(new TestUser(2, "test2"));
-        server.challengeUser("test1", "test2");
+        server.challengeUser("test1", "test2", "tictactoe");
 
         IO.println(server.gameChallenges());
 
         Assertions.assertEquals(1, server.gameChallenges().size());
 
         try {
-            Thread.sleep(waitTime);
+            Thread.sleep(waitTime.plusMillis(100));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

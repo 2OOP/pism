@@ -79,7 +79,28 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private void handleChallenge(ParsedMessage p) {
-        // TODO
+        if(!allowedArgs(p.args())) return;
+        if (p.args().length < 2) return;
+
+        if (p.args()[0].equalsIgnoreCase("accept")) {
+            try {
+                long id = Long.parseLong(p.args()[1]);
+
+                if (id <= 0) {
+                    user.sendMessage("ERR id must be a positive number");
+                    return;
+                }
+
+                server.acceptChallenge(id);
+
+            } catch (NumberFormatException e) {
+                user.sendMessage("ERR id is not a valid number or too big");
+                return;
+            }
+            return;
+        }
+
+        server.challengeUser(user.name(), p.args()[0], p.args()[1]);
     }
 
     private void handleMove(ParsedMessage p) {
