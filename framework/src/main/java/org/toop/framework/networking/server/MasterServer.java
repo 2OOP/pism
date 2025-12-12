@@ -15,15 +15,16 @@ import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.game.BitboardGame;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
+import java.time.Duration;
 import java.util.Map;
 
 public class MasterServer {
     private final int port;
     public final Server gs;
 
-    public MasterServer(int port, Map<String, Class<? extends TurnBasedGame>> gameTypes) {
+    public MasterServer(int port, Map<String, Class<? extends TurnBasedGame>> gameTypes, Duration challengeDuration) {
         this.port = port;
-        this.gs = new Server(gameTypes);
+        this.gs = new Server(gameTypes, challengeDuration);
     }
 
     public void start() throws InterruptedException {

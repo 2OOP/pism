@@ -7,6 +7,7 @@ import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,7 +67,35 @@ public class ServerTest {
 
     }
 
+    static class TestUser implements ServerUser {
+
+        final private long id;
+
+        private String name;
+
+        public TestUser(long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public long id() {
+            return id;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+
+        @Override
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
     private Server server;
+    private Duration waitTime = Duration.ofSeconds(2);
 
     @BeforeEach
     void setup() {
@@ -75,7 +104,7 @@ public class ServerTest {
         games.put("tictactoe", TurnBasedGameMock.class);
         games.put("reversi", TurnBasedGameMock.class);
 
-        server = new Server(games);
+        server = new Server(games, waitTime);
     }
 
     @Test
@@ -90,8 +119,31 @@ public class ServerTest {
     }
 
     @Test
+    void testChallenge() {
+        server.addUser(new TestUser(1, "test1"));
+        server.addUser(new TestUser(2, "test2"));
+        server.challengeUser("test1", "test2");
+
+        IO.println(server.gameChallenges());
+
+        Assertions.assertEquals(1, server.gameChallenges().size());
+
+        try {
+            Thread.sleep(waitTime);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        Assertions.assertEquals(0, server.gameChallenges().size());
+    }
+
+    @Test
     void testStartGame() {
         server.startGame("tictactoe", new User(0, "A"), new User(1, "B"));
         Assertions.assertEquals(1, server.ongoingGames().size());
+        server.startGame("reversi", new User(0, "A"), new User(1, "B"));
+        Assertions.assertEquals(2, server.ongoingGames().size());
     }
+
+
 }
