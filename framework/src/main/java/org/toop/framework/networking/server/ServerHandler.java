@@ -119,7 +119,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private void handleMove(ParsedMessage p) {
-        // TODO
+        if(!allowedArgs(p.args())) return;
+
     }
 
     private ParsedMessage parse(String msg) {

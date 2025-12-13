@@ -100,7 +100,7 @@ public class Server implements GameServer {
                 return false;
             }
 
-            if (user.games().length > 0) {
+            if (user.game() != null) {
                 return false;
             }
 

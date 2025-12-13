@@ -2,13 +2,10 @@ package org.toop.framework.networking.server;
 
 import io.netty.channel.ChannelHandlerContext;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class User implements ServerUser {
     final private long id;
     private String name;
-    private final List<Game> games = new ArrayList<>();
+    private Game game;
     private ChannelHandlerContext connectionContext;
 
     public User(long userId, String name) {
@@ -30,17 +27,19 @@ public class User implements ServerUser {
 
     @Override
     public void addGame(Game game) {
-        games.add(game);
+        if (this.game == null) {
+            this.game = game;
+        }
     }
 
     @Override
-    public void removeGame(Game game) {
-        games.remove(game);
+    public void removeGame() {
+        this.game = null;
     }
 
     @Override
-    public Game[] games() {
-        return games.toArray(new Game[0]);
+    public Game game() {
+        return this.game;
     }
 
     @Override
