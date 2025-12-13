@@ -121,7 +121,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         if(hasArgs(p.args())) return;
 
         // TODO check if not number
-        user.serverPlayer().setMove(Integer.parseInt(p.args()[0]));
+        user.serverPlayer().setMove(1L << Integer.parseInt(p.args()[0]));
     }
 
     private ParsedMessage parse(String msg) {

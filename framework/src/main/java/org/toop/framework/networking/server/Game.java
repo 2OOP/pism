@@ -12,8 +12,13 @@ public class Game implements OnlineGame<TurnBasedGame> {
 
     public Game(TurnBasedGame game, User... users) {
         this.game = game;
-        this.gameThread = new ServerThreadBehaviour(game, null);
+        this.gameThread = new ServerThreadBehaviour(game, (pair) -> notifyMoveMade(pair.getLeft(), pair.getRight()));
         this.users = users;
+    }
+
+    private void notifyMoveMade(String speler, int move){
+        users[0].sendMessage(String.format("SVR GAME MOVE {PLAYER: \"%s\", DETAILS: \"<reactie spel op zet>\", MOVE: \"%s\"}", speler, move));
+        users[1].sendMessage(String.format("SVR GAME MOVE {PLAYER: \"%s\", DETAILS: \"<reactie spel op zet>\", MOVE: \"%s\"}", speler, move));
     }
 
     @Override

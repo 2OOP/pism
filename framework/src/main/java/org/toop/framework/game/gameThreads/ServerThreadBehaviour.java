@@ -7,22 +7,26 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.game.threadBehaviour.AbstractThreadBehaviour;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.gameFramework.view.GUIEvents;
+import org.toop.framework.utils.ImmutablePair;
 
 import java.util.function.Consumer;
 
+import static org.toop.framework.gameFramework.GameState.TURN_SKIPPED;
+import static org.toop.framework.gameFramework.GameState.WIN;
+
 public class ServerThreadBehaviour extends AbstractThreadBehaviour implements Runnable {
-    private Consumer<Integer> onPlayerMove;
+    private Consumer<ImmutablePair<String, Integer>> onPlayerMove;
     /**
      * Creates a new base behaviour for the specified game.
      *
      * @param game the turn-based game to control
      */
-    public ServerThreadBehaviour(TurnBasedGame game, Consumer<Integer> onPlayerMove) {
+    public ServerThreadBehaviour(TurnBasedGame game, Consumer<ImmutablePair<String, Integer>> onPlayerMove) {
         super(game);
     }
 
-    private void notifyPlayerMove(int player) {
-        onPlayerMove.accept(player);
+    private void notifyPlayerMove(ImmutablePair<String, Integer> pair) {
+        onPlayerMove.accept(pair);
     }
 
     /** Starts the game loop in a new thread. */
@@ -47,14 +51,14 @@ public class ServerThreadBehaviour extends AbstractThreadBehaviour implements Ru
             PlayResult result = game.play(move);
 
             GameState state = result.state();
+
+            if (state != TURN_SKIPPED){
+                notifyPlayerMove(new ImmutablePair<>(currentPlayer.getName(), Long.numberOfTrailingZeros(move)));
+            }
+
             switch (state) {
                 case WIN, DRAW -> {
                     isRunning.set(false);
-                    new EventFlow().addPostEvent(
-                            GUIEvents.GameEnded.class,
-                            state == GameState.WIN,
-                            result.player()
-                    ).postEvent();
                 }
                 case NORMAL, TURN_SKIPPED -> { /* continue normally */ }
                 default -> {
