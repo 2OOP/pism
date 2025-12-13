@@ -34,7 +34,11 @@ public class MessageHandler implements Handler<ParsedMessage> {
 
     // DO NOT INVERT
     private boolean hasArgs(String... args) {
-        return (args.length >= 1);
+        if (args.length < 1) {
+            client.send("ERR not enough arguments");
+            return false;
+        }
+        return true;
     }
 
     private void handleLogin(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
@@ -46,7 +50,7 @@ public class MessageHandler implements Handler<ParsedMessage> {
     private void handleSubscribe(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         if (!hasArgs(p.args())) return;
 
-        server.subscribeClient(p.args()[0], client.name());
+        server.subscribeClient(client.name(), p.args()[0]);
     }
 
     private void handleHelp(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {

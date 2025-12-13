@@ -118,7 +118,7 @@ public final class Server {
 				return;
 			}
 
-			primary = new ServerView(user, this::sendChallenge);
+			primary = new ServerView(user, this::sendChallenge, clientId);
 			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
 
 			a.unsubscribe("connecting");

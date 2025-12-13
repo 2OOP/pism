@@ -110,7 +110,9 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     @Override
     public void subscribeClient(String clientName, String gameTypeKey) {
 
-        if (!gameTypesStore.all().containsKey(gameTypeKey)) return;
+        if (!gameTypesStore.all().containsKey(gameTypeKey)) {
+            return;
+        }
 
         subscriptions.forEach((_, clientNames) -> clientNames.remove(clientName));
         subscriptions.computeIfAbsent(
@@ -126,7 +128,13 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
     @Override
     public void startGame(String gameType, NettyClient... clients) {
+        IO.println("------------------------------------------");
+
+        IO.println("USERS: " + clients.length + " " + Arrays.stream(clients).toList().toString());
+
         if (!gameTypesStore.all().containsKey(gameType)) return;
+
+        IO.println("------------------------------------------");
 
         try {
             ServerPlayer[] players = new ServerPlayer[clients.length];
@@ -150,7 +158,10 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                     gameType,
                     clients[0].name()));
             game.start();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            IO.println("ERROR: Failed to start OnlineTurnBasedGame");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -188,25 +199,29 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     private void checkSubscriptions() {
         if (subscriptions.isEmpty()) return;
 
-        List<String> keys = subscriptions.keySet().stream().toList();
+        List<String> keys = List.copyOf(subscriptions.keySet());
+        Random ran = new Random();
 
         for (String key : keys) {
-            var userNames = subscriptions.get(key);
+            List<String> userNames = subscriptions.get(key);
             if (userNames.size() < 2) continue;
 
-            Random ran = new Random();
-
             while (userNames.size() > 1) {
+                int left = ran.nextInt(userNames.size());
+                int right;
+                do {
+                    right = ran.nextInt(userNames.size());
+                } while (left == right);
 
-                var left = ran.nextInt(userNames.size());
-                var right = ran.nextInt(userNames.size());
+                String userLeft = userNames.get(left);
+                String userRight = userNames.get(right);
 
-                while (left == right) left = ran.nextInt(userNames.size());
+                int first = Math.max(left, right);
+                int second = Math.min(left, right);
+                userNames.remove(first);
+                userNames.remove(second);
 
-                subscriptions.get(key).remove(userNames.get(left));
-                subscriptions.get(key).remove(userNames.get(right));
-
-                startGame(key, getUser(left), getUser(right));
+                startGame(key, getUser(userLeft), getUser(userRight));
             }
         }
     }
