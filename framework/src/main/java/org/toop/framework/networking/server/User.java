@@ -1,11 +1,15 @@
 package org.toop.framework.networking.server;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.toop.framework.game.players.ServerPlayer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class User implements ServerUser {
     final private long id;
     private String name;
-    private Game game;
+    private final Map<Game, ServerPlayer> game = new HashMap<>();
     private ChannelHandlerContext connectionContext;
 
     public User(long userId, String name) {
@@ -23,23 +27,25 @@ public class User implements ServerUser {
         return name;
     }
 
-
-
     @Override
-    public void addGame(Game game) {
-        if (this.game == null) {
-            this.game = game;
+    public void addGame(Game game, ServerPlayer player) {
+        if (this.game.isEmpty()) {
+            this.game.put(game, player);
         }
     }
 
     @Override
     public void removeGame() {
-        this.game = null;
+        this.game.clear();
     }
 
     @Override
     public Game game() {
-        return this.game;
+        return this.game.keySet().iterator().next();
+    }
+
+    public ServerPlayer serverPlayer() {
+        return this.game.values().iterator().next();
     }
 
     @Override

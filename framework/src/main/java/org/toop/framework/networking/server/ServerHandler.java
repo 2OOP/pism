@@ -54,20 +54,19 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         }
     }
 
-    private boolean allowedArgs(String... args) {
-        if (args.length < 1) return false;
-        return true;
+    private boolean hasArgs(String... args) {
+        return (args.length >= 1);
     }
 
     private void handleLogin(ParsedMessage p) {
 
-        if (!allowedArgs(p.args())) return;
+        if (hasArgs(p.args())) return;
 
         user.setName(p.args()[0]);
     }
 
     private void handleGet(ParsedMessage p) {
-        if (!allowedArgs(p.args())) return;
+        if (hasArgs(p.args())) return;
 
         switch (p.args()[0]) {
             case "playerlist" -> {
@@ -94,7 +93,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private void handleChallenge(ParsedMessage p) {
-        if(!allowedArgs(p.args())) return;
+        if(hasArgs(p.args())) return;
         if (p.args().length < 2) return;
 
         if (p.args()[0].equalsIgnoreCase("accept")) {
@@ -119,8 +118,10 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private void handleMove(ParsedMessage p) {
-        if(!allowedArgs(p.args())) return;
+        if(hasArgs(p.args())) return;
 
+        // TODO check if not number
+        user.serverPlayer().setMove(Integer.parseInt(p.args()[0]));
     }
 
     private ParsedMessage parse(String msg) {

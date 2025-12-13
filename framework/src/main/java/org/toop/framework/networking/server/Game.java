@@ -1,7 +1,5 @@
 package org.toop.framework.networking.server;
 
-import org.toop.framework.game.gameThreads.LocalThreadBehaviour;
-import org.toop.framework.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.framework.game.gameThreads.ServerThreadBehaviour;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
