@@ -48,7 +48,8 @@ public class OnlineView extends ViewWidget {
 			new Server(
 					"127.0.0.1",
 					"6666",
-					"host"
+					"host",
+					a
 			);
 		}, false);
 

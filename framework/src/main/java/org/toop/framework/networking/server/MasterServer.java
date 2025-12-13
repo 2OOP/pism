@@ -19,7 +19,11 @@ import java.util.Map;
 
 public class MasterServer {
     private final int port;
-    public final Server gs;
+    private final Server gs;
+
+    ChannelFuture future;
+    EventLoopGroup bossGroup;
+    EventLoopGroup workerGroup;
 
     public MasterServer(int port, Map<String, Class<? extends TurnBasedGame>> gameTypes, Duration challengeDuration) {
         this.port = port;
@@ -28,11 +32,10 @@ public class MasterServer {
 
     public void start() throws InterruptedException {
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
+        bossGroup = new NioEventLoopGroup(1);
+        workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
 
         try {
-
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(workerGroup);
             bootstrap.channel(NioServerSocketChannel.class);
@@ -57,13 +60,26 @@ public class MasterServer {
                     }
             );
 
-            ChannelFuture future = bootstrap.bind(port).sync();
-            System.out.println("MasterServer listening on port " + port);
+            future = bootstrap.bind(port).sync();
 
             future.channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
+    }
+
+    public void stop() {
+        if (future == null) {
+            return;
+        }
+
+        future.channel().close();
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+
+        future = null;
+        bossGroup = null;
+        workerGroup = null;
     }
 }

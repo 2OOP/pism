@@ -22,6 +22,7 @@ import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.framework.game.players.OnlinePlayer;
 import org.toop.framework.game.players.RandomAI;
+import org.toop.framework.networking.server.MasterServer;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -32,7 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
-    // TODO: Keep track of listeners. Remove them on Server connection close so reference is deleted.
+	private MasterServer masterServer;
+
 	private String user = "";
 	private long clientId = -1;
 
@@ -60,10 +62,13 @@ public final class Server {
 		return null;
 	}
 
+	public Server(String ip, String port, String user) {
+		this(ip, port, user, null);
+	}
 
     // Server has to deal with ALL network related listen events. This "server" can then interact with the manager to make stuff happen.
     // This prevents data races where events get sent to the game manager but the manager isn't ready yet.
-	public Server(String ip, String port, String user) {
+	public Server(String ip, String port, String user, MasterServer masterServer) {
 		if (ip.split("\\.").length < 4) {
 			new ErrorPopup("\"" + ip + "\" " + AppContext.getString("is-not-a-valid-ip-address"));
 			return;
@@ -82,6 +87,8 @@ public final class Server {
 			new ErrorPopup(AppContext.getString("invalid-username"));
 			return;
 		}
+
+		this.masterServer = masterServer;
 
 		final int reconnectAttempts = 10;
 
@@ -280,6 +287,10 @@ public final class Server {
 		isPolling = false;
 		stopScheduler();
 		connectFlow.unsubscribeAll();
+
+		if (masterServer != null) {
+			masterServer.stop();
+		}
 
 		WidgetContainer.getCurrentView().transitionPrevious();
 	}
