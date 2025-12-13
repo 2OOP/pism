@@ -15,17 +15,16 @@ public class BitboardReversi extends BitboardGame {
 
 	public BitboardReversi() {
 		super(8, 8, 2);
-
-		// Black (player 0)
-		setPlayerBitboard(0, (1L << (3 + 4 * 8)) | (1L << (4 + 3 * 8)));
-
-		// White (player 1)
-		setPlayerBitboard(1, (1L << (3 + 3 * 8)) | (1L << (4 + 4 * 8)));
 	}
 
 	@Override
 	public void init(Player[] players) {
 		super.init(players);
+        // Black (player 0)
+        setPlayerBitboard(0, (1L << (3 + 4 * 8)) | (1L << (4 + 3 * 8)));
+
+        // White (player 1)
+        setPlayerBitboard(1, (1L << (3 + 3 * 8)) | (1L << (4 + 4 * 8)));
 	}
 
     public BitboardReversi(BitboardReversi other) {

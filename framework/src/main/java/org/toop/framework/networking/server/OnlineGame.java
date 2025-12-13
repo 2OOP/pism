@@ -4,4 +4,5 @@ public interface OnlineGame<T> {
     long id();
     T game();
     User[] users();
+    void start();
 }

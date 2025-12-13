@@ -1,6 +1,9 @@
 package org.toop.framework.networking.server;
 
+import org.toop.framework.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.framework.game.players.LocalPlayer;
+import org.toop.framework.game.players.OnlinePlayer;
+import org.toop.framework.game.players.ServerPlayer;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
@@ -144,16 +147,23 @@ public class Server implements GameServer {
         if (!gameTypes.containsKey(gameType)) return;
 
         try {
-
             Player[] players = new Player[users.length];
             for (int i = 0; i < users.length; i++) {
-                players[i] = new LocalPlayer(users[i].name());
+                players[i] = new ServerPlayer(users[i]);
             }
-
+            System.out.println("Starting Game");
             var game = new Game(gameTypes.get(gameType).getDeclaredConstructor().newInstance(), users);
             game.game().init(players);
             games.addLast(game);
-
+            users[0].sendMessage(String.format("SVR GAME MATCH {PLAYERTOMOVE: \"%s\", GAMETYPE: \"%s\", OPPONENT: \"%s\"}\n",
+                    users[0].name(),
+                    gameType,
+                    users[1].name()));
+            users[1].sendMessage(String.format("SVR GAME MATCH {PLAYERTOMOVE: \"%s\", GAMETYPE: \"%s\", OPPONENT: \"%s\"}\n",
+                    users[0].name(),
+                    gameType,
+                    users[0].name()));
+            game.start();
         } catch (Exception ignored) {}
     }
 
