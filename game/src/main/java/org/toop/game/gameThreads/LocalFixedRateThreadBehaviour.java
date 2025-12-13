@@ -8,6 +8,8 @@ import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
+import java.util.function.Consumer;
+
 /**
  * Handles local turn-based game logic at a fixed update rate.
  * <p>
@@ -16,18 +18,14 @@ import org.toop.framework.gameFramework.model.player.Player;
  */
 public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends AbstractThreadBehaviour<T> implements Runnable {
 
-    /** All players participating in the game. */
-    private final Player<T>[] players;
 
     /**
      * Creates a fixed-rate behaviour for a local turn-based game.
      *
      * @param game    the game instance
-     * @param players the list of players in turn order
      */
-    public LocalFixedRateThreadBehaviour(T game, Player<T>[] players) {
+    public LocalFixedRateThreadBehaviour(T game) {
         super(game);
-        this.players = players;
     }
 
     /** Starts the game loop thread if not already running. */
@@ -52,7 +50,7 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
      */
     @Override
     public void run() {
-        final int UPS = 60;
+        final int UPS = 1;
         final long UPDATE_INTERVAL = 1_000_000_000L / UPS;
         long nextUpdate = System.nanoTime();
 
@@ -62,9 +60,10 @@ public class LocalFixedRateThreadBehaviour<T extends TurnBasedGame<T>> extends A
                 nextUpdate += UPDATE_INTERVAL;
 
                 Player<T> currentPlayer = game.getPlayer(game.getCurrentTurn());
-                int move = currentPlayer.getMove(game.deepCopy());
+                long move = currentPlayer.getMove(game.deepCopy());
                 PlayResult result = game.play(move);
-                new EventFlow().addPostEvent(GUIEvents.RefreshGameCanvas.class).postEvent();
+
+                updateUI();
 
                 GameState state = result.state();
                 switch (state) {

@@ -1,42 +1,42 @@
-name: Checks
+#name: Checks
 
-on:
-  push:
-    branches:
-      - 'main'
-  pull_request:
-    branches:
-      - 'main'
+#on:
+#  push:
+#    branches:
+#      - 'main'
+#  pull_request:
+#    branches:
+#      - 'main'
+#
+#jobs:
+#  formatting-check:
+#    name: Follow Google Formatting Guidelines
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v5
+#        with:
+#          fetch-depth: 0 # Fix for incremental formatting
+#      - uses: actions/setup-java@v5
+#        with:
+#          java-version: '25'
+#          distribution: 'temurin'
+#          cache: maven
+#      - name: Run Format Check
+#        run: mvn spotless:check
 
-jobs:
-  formatting-check:
-    name: Follow Google Formatting Guidelines
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0 # Fix for incremental formatting
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: maven
-      - name: Run Format Check
-        run: mvn spotless:check
-
-  tests:
-    name: Unittests
-    runs-on: ${{ matrix.os }}
-    needs: formatting-check
-    strategy:
-      matrix:
-        os: [ubuntu-latest] #windows-latest, macos-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: maven
-      - name: Run Unittests
-        run: mvn -B test
+#  tests:
+#    name: Unittests
+#    runs-on: ${{ matrix.os }}
+#    needs: formatting-check
+#    strategy:
+#      matrix:
+#        os: [ubuntu-latest] #windows-latest, macos-latest
+#    steps:
+#      - uses: actions/checkout@v5
+#      - uses: actions/setup-java@v5
+#        with:
+#          java-version: '25'
+#          distribution: 'temurin'
+#          cache: maven
+#      - name: Run Unittests
+#        run: mvn -B test

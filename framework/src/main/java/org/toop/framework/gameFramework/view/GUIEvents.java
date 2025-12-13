@@ -10,10 +10,6 @@ import org.toop.framework.eventbus.events.GenericEvent;
  * player actions, and game completion.
  */
 public class GUIEvents extends EventsBase {
-
-    /** Event to refresh or redraw the game canvas. */
-    public record RefreshGameCanvas() implements GenericEvent {}
-
     /**
      * Event indicating the game has ended.
      *
@@ -23,8 +19,8 @@ public class GUIEvents extends EventsBase {
     public record GameEnded(boolean winOrTie, int winner) implements GenericEvent {}
 
     /** Event indicating a player has attempted a move. */
-    public record PlayerAttemptedMove(int move) implements GenericEvent {}
+    public record PlayerAttemptedMove(long move) implements GenericEvent {}
 
     /** Event indicating a player is hovering over a move (for UI feedback). */
-    public record PlayerMoveHovered(int move) implements GenericEvent {}
+    public record PlayerMoveHovered(long move) implements GenericEvent {}
 }

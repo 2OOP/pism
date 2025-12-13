@@ -1,47 +1,55 @@
 package org.toop.game.players;
 
-import org.toop.framework.gameFramework.model.player.AbstractAI;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
-import org.toop.framework.gameFramework.model.player.MoveProvider;
+import org.toop.framework.gameFramework.model.player.*;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 /**
- * Represents a player controlled by an AI in a game.
- * <p>
- * This player uses an {@link AbstractAI} instance to determine its moves. The generic
- * parameter {@code T} specifies the type of {@link GameR} the AI can handle.
- * </p>
+ * Represents a player controlled by an AI.
  *
- * @param <T> the specific type of game this AI player can play
+ * @param <T> the type of turn-based game
  */
 public class ArtificialPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
 
-    /** The AI instance used to calculate moves. */
-    private final MoveProvider<T> ai;
+    private final AI<T> ai;
 
     /**
-     * Constructs a new ArtificialPlayer using the specified AI.
+     * Creates a new AI-controlled player.
      *
-     * @param ai the AI instance that determines moves for this player
+     * @param ai the AI controlling this player
+     * @param name the player's name
      */
-    public ArtificialPlayer(MoveProvider<T> ai, String name) {
+    public ArtificialPlayer(AI<T> ai, String name) {
         super(name);
         this.ai = ai;
     }
 
     /**
-     * Determines the next move for this player using its AI.
-     * <p>
-     * This method overrides {@link AbstractPlayer#getMove(GameR)}. Because the AI is
-     * typed to {@code T}, a runtime cast is required. It is the caller's
-     * responsibility to ensure that {@code gameCopy} is of type {@code T}.
-     * </p>
+     * Creates a copy of another AI-controlled player.
      *
-     * @param gameCopy a copy of the current game state
-     * @return the integer representing the chosen move
-     * @throws ClassCastException if {@code gameCopy} is not of type {@code T}
+     * @param other the player to copy
      */
-    public int getMove(T gameCopy) {
+    public ArtificialPlayer(ArtificialPlayer<T> other) {
+        super(other);
+        this.ai = other.ai.deepCopy();
+    }
+
+    /**
+     * Determines the player's move using the AI.
+     *
+     * @param gameCopy a copy of the current game
+     * @return the move chosen by the AI
+     */
+    protected long determineMove(T gameCopy) {
         return ai.getMove(gameCopy);
+    }
+
+    /**
+     * Creates a deep copy of this AI player.
+     *
+     * @return a copy of this player
+     */
+    @Override
+    public ArtificialPlayer<T> deepCopy() {
+        return new ArtificialPlayer<>(this);
     }
 }

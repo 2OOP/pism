@@ -6,70 +6,82 @@ import org.toop.framework.gameFramework.model.player.AbstractPlayer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Represents a local player who provides moves manually.
+ *
+ * @param <T> the type of turn-based game
+ */
 public class LocalPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer<T> {
-    // Future can be used with event system, IF unsubscribeAfterSuccess works...
-    // private CompletableFuture<Integer> LastMove = new CompletableFuture<>();
 
-    private CompletableFuture<Integer> LastMove;
+    private CompletableFuture<Long> LastMove = new CompletableFuture<>();
 
+    /**
+     * Creates a new local player with the given name.
+     *
+     * @param name the player's name
+     */
     public LocalPlayer(String name) {
         super(name);
     }
 
-    @Override
-    public int getMove(T gameCopy) {
-        return getValidMove(gameCopy);
+    /**
+     * Creates a copy of another local player.
+     *
+     * @param other the player to copy
+     */
+    public LocalPlayer(LocalPlayer<T> other) {
+        super(other);
+        this.LastMove = other.LastMove;
     }
 
-    public void setMove(int move) {
+    /**
+     * Waits for and returns the player's next legal move.
+     *
+     * @param gameCopy a copy of the current game
+     * @return the chosen move
+     */
+    @Override
+    protected long determineMove(T gameCopy) {
+        long legalMoves = gameCopy.getLegalMoves();
+        long move;
+
+        do {
+            move = getLastMove();
+        } while ((legalMoves & move) == 0);
+
+        return move;
+    }
+
+    /**
+     * Sets the player's last move.
+     *
+     * @param move the move to set
+     */
+    public void setLastMove(long move) {
         LastMove.complete(move);
     }
 
-    // TODO: helper function, would like to replace to get rid of this method
-    public static boolean contains(int[] array, int value){
-        for (int i : array) if (i == value) return true;
-        return false;
-    }
-
-    private int getMove2(T gameCopy) {
-        LastMove = new CompletableFuture<>();
-        int move = -1;
+    /**
+     * Waits for the next move from the player.
+     *
+     * @return the chosen move or 0 if interrupted
+     */
+    private long getLastMove() {
+        LastMove = new CompletableFuture<>(); // Reset the future
         try {
-            move = LastMove.get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO: Add proper logging.
-            e.printStackTrace();
+            return LastMove.get();
+        } catch (ExecutionException | InterruptedException e) {
+            return 0;
         }
-        return move;
     }
 
-    protected int getValidMove(T gameCopy){
-        // Get this player's valid moves
-        int[] validMoves = gameCopy.getLegalMoves();
-        // Make sure provided move is valid
-        // TODO: Limit amount of retries?
-        // TODO: Stop copying game so many times
-        int move = getMove2(gameCopy.deepCopy());
-        while (!contains(validMoves, move)) {
-            System.out.println("Not a valid move, try again");
-            move = getMove2(gameCopy.deepCopy());
-        }
-        return move;
+    /**
+     * Creates a deep copy of this local player.
+     *
+     * @return a copy of this player
+     */
+    @Override
+    public LocalPlayer<T> deepCopy() {
+        return new LocalPlayer<>(this);
     }
-
-    /*public void register() {
-        // Listening to PlayerAttemptedMove
-        new EventFlow().listen(GUIEvents.PlayerAttemptedMove.class, event -> {
-            if (!LastMove.isDone()) {
-                LastMove.complete(event.move()); // complete the future
-            }
-        }, true); // auto-unsubscribe
-    }
-
-    // This blocks until the next move arrives
-    public int take() throws ExecutionException, InterruptedException {
-        int move = LastMove.get(); // blocking
-        LastMove = new CompletableFuture<>(); // reset for next move
-        return move;
-    }*/
 }

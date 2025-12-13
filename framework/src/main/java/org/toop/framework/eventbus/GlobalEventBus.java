@@ -3,6 +3,7 @@ package org.toop.framework.eventbus;
 import org.apache.logging.log4j.LogManager;
 import org.toop.framework.eventbus.bus.DisruptorEventBus;
 import org.toop.framework.eventbus.bus.EventBus;
+import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.store.DefaultSubscriberStore;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
@@ -19,17 +20,17 @@ public class GlobalEventBus implements EventBus {
     }
 
     @Override
-    public void subscribe(Subscriber<?, ?> listener) {
+    public void subscribe(Subscriber<? extends EventType> listener) {
         INSTANCE.subscribe(listener);
     }
 
     @Override
-    public void unsubscribe(Subscriber<?, ?> listener) {
+    public void unsubscribe(Subscriber<? extends EventType> listener) {
         INSTANCE.unsubscribe(listener);
     }
 
     @Override
-    public <T> void post(T event) {
+    public <T extends EventType> void post(T event) {
         INSTANCE.post(event);
     }
 

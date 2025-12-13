@@ -2,9 +2,12 @@ package org.toop.framework.gameFramework.model.game.threadBehaviour;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.toop.framework.gameFramework.LongPairConsumer;
+import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * Base class for thread-based game behaviours.
@@ -13,8 +16,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * a running flag, a game reference, and a logger.
  * Subclasses implement the actual game-loop logic.
  */
-public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implements ThreadBehaviour<T> {
-
+public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implements ThreadBehaviour {
+    private LongPairConsumer onSendMove;
+    private Runnable onUpdateUI;
     /** Indicates whether the game loop or event processing is active. */
     protected final AtomicBoolean isRunning = new AtomicBoolean();
 
@@ -31,5 +35,27 @@ public abstract class AbstractThreadBehaviour<T extends TurnBasedGame<T>> implem
      */
     public AbstractThreadBehaviour(T game) {
         this.game = game;
+    }
+
+    protected void updateUI(){
+        if (onUpdateUI != null) {
+            onUpdateUI.run();
+        }
+    }
+
+    protected void sendMove(long clientId, long move){
+        if (onSendMove != null) {
+            onSendMove.accept(clientId, move);
+        }
+    }
+
+    @Override
+    public void setOnUpdateUI(Runnable onUpdateUI) {
+        this.onUpdateUI = onUpdateUI;
+    }
+
+    @Override
+    public void setOnSendMove(LongPairConsumer onSendMove) {
+        this.onSendMove = onSendMove;
     }
 }

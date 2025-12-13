@@ -23,7 +23,7 @@ public class PlayerInfoWidget {
 	}
 
 	private ToggleWidget buildToggle() {
-		return new ToggleWidget(
+        return new ToggleWidget(
 			"computer", "player",
 			information.isHuman,
 			isHuman -> {
@@ -37,7 +37,14 @@ public class PlayerInfoWidget {
 	}
 
 	private Node buildContent() {
+
         if (information.isHuman) {
+            var spacer = Primitive.vbox(
+                    makeAIButton(0, 0, "zwartepiet"),
+                    makeAIButton(0, 0, "sinterklaas"),
+                    makeAIButton(0, 0, "santa")
+            );                                                                  //todo make a better solution
+            spacer.setVisible(false);
             var nameInput = new LabeledInputWidget(
                     "name",
                     "enter-your-name",
@@ -45,7 +52,7 @@ public class PlayerInfoWidget {
                     newName -> information.name = newName
             );
 
-            return nameInput.getNode();
+            return Primitive.vbox(spacer,nameInput.getNode());
         } else {
             var AIBox = Primitive.vbox(
                     makeAIButton(0, 1, "zwartepiet"),
