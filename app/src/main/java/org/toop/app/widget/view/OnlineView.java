@@ -32,7 +32,7 @@ public class OnlineView extends ViewWidget {
 
 		var localHostButton = Primitive.button("host!", () -> {
 			var games = new ConcurrentHashMap<String, Class<? extends TurnBasedGame>>();
-			games.put("tictactoe", BitboardTicTacToe.class);
+			games.put("tic-tac-toe", BitboardTicTacToe.class);
 			games.put("reversi", BitboardReversi.class);
 
 			var a = new MasterServer(6666, games, Duration.ofSeconds(10));
