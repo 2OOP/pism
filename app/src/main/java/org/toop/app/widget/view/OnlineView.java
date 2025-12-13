@@ -9,7 +9,8 @@ import javafx.geometry.Pos;
 import org.toop.framework.game.games.reversi.BitboardReversi;
 import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.framework.networking.server.MasterServer;
+import org.toop.framework.networking.server.gateway.NettyGatewayServer;
+import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,11 +32,12 @@ public class OnlineView extends ViewWidget {
 		});
 
 		var localHostButton = Primitive.button("host!", () -> {
-			var games = new ConcurrentHashMap<String, Class<? extends TurnBasedGame>>();
-			games.put("tic-tac-toe", BitboardTicTacToe.class);
-			games.put("reversi", BitboardReversi.class);
 
-			var a = new MasterServer(6666, games, Duration.ofSeconds(10));
+			var tps = new TurnBasedGameTypeStore();
+			tps.register("tic-tac-toe", BitboardTicTacToe::new);
+			tps.register("reversi", BitboardReversi::new);
+
+			var a = new NettyGatewayServer(6666, tps, Duration.ofSeconds(10));
 
 			new Thread(() -> {
 				try {

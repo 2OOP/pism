@@ -2,27 +2,41 @@ package org.toop.framework.networking.server;
 
 import org.toop.framework.game.players.ServerPlayer;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.networking.server.challenges.gamechallenge.GameChallenge;
+import org.toop.framework.networking.server.challenges.gamechallenge.GameChallengeTimer;
+import org.toop.framework.networking.server.client.NettyClient;
+import org.toop.framework.networking.server.stores.ClientStore;
+import org.toop.framework.networking.server.stores.TurnBasedGameStore;
+import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 import org.toop.framework.utils.ImmutablePair;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.time.Duration;
 
 public class Server implements GameServer {
 
-    final private Map<String, Class<? extends TurnBasedGame>> gameTypes;
-    final private Map<Long, User> users = new ConcurrentHashMap<>();
+    final private TurnBasedGameTypeStore gameTypesStore;
+    final private ClientStore<Long, NettyClient> clientStore;
     final private List<GameChallenge> gameChallenges = new CopyOnWriteArrayList<>();
-    final private List<OnlineGame<TurnBasedGame>> games = new CopyOnWriteArrayList<>();
+    final private TurnBasedGameStore gameStore;
 
     final private Duration challengeDuration;
     final private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    public Server(Map<String, Class<? extends TurnBasedGame>> gameTypes, Duration challengeDuration) {
-        this.gameTypes = gameTypes;
+    public Server(
+            Duration challengeDuration,
+            TurnBasedGameTypeStore turnBasedGameTypeStore,
+            ClientStore<Long, NettyClient> clientStore,
+            TurnBasedGameStore gameStore
+
+    ) {
+        this.gameTypesStore = turnBasedGameTypeStore;
         this.challengeDuration = challengeDuration;
+        this.clientStore = clientStore;
+        this.gameStore = gameStore;
 
         scheduler.schedule(this::serverTask, 0, TimeUnit.MILLISECONDS);
     }
@@ -32,51 +46,51 @@ public class Server implements GameServer {
         scheduler.schedule(this::serverTask, 500, TimeUnit.MILLISECONDS);
     }
 
-    public void addUser(User user) {
-        users.putIfAbsent(user.id(), user);
+    public void addUser(NettyClient client) {
+        clientStore.add(client);
     }
 
-    public void removeUser(User user) {
-        users.remove(user.id());
+    public void removeUser(NettyClient client) {
+        clientStore.remove(client.id());
     }
 
     public List<String> gameTypes() {
-        return gameTypes.keySet().stream().toList();
+        return new ArrayList<>(gameTypesStore.all().keySet());
     }
 
     public List<OnlineGame<TurnBasedGame>> ongoingGames() {
-        return games;
+        return gameStore.all().stream().toList();
     }
 
-    public User getUser(String username) {
-        return users.values().stream().filter(e -> e.name().equalsIgnoreCase(username)).findFirst().orElse(null);
+    public NettyClient getUser(String username) {
+        return clientStore.all().stream().filter(e -> e.name().equalsIgnoreCase(username)).findFirst().orElse(null);
     }
 
-    public User getUser(long id) {
-        return users.get(id);
+    public NettyClient getUser(long id) {
+        return clientStore.get(id);
     }
 
     public void challengeUser(String fromUser, String toUser, String gameType) {
 
-        User from = getUser(fromUser);
+        NettyClient from = getUser(fromUser);
         if (from == null) {
             return;
         }
 
-        if (!gameTypes.containsKey(gameType)) {
-            from.sendMessage("ERR gametype not found \n");
+        if (!gameTypesStore.all().containsKey(gameType)) {
+            from.send("ERR gametype not found \n");
             return;
         }
 
-        User to = getUser(toUser);
+        NettyClient to = getUser(toUser);
         if (to == null) {
-            from.sendMessage("ERR user not found \n");
+            from.send("ERR user not found \n");
             return;
         }
 
         var ch = new GameChallenge(from, to, gameType, new GameChallengeTimer(challengeDuration));
 
-        to.sendMessage(
+        to.send(
                 "SVR GAME CHALLENGE {CHALLENGER: \"%s\", CHALLENGENUMBER: \"%s\", GAMETYPE: \"%s\"} \n"
                         .formatted(from.name(), ch.id(), gameType)
         );
@@ -90,13 +104,13 @@ public class Server implements GameServer {
         gameChallenges.addLast(ch);
     }
 
-    private void warnUserExpiredChallenge(User user, long challengeId) {
-        user.sendMessage("SVR GAME CHALLENGE CANCELLED {CHALLENGENUMBER: \"" + challengeId + "\"}" + "\n");
+    private void warnUserExpiredChallenge(NettyClient client, long challengeId) {
+        client.send("SVR GAME CHALLENGE CANCELLED {CHALLENGENUMBER: \"" + challengeId + "\"}" + "\n");
     }
 
     private boolean isValidChallenge(GameChallenge gameChallenge) {
         for (var user : gameChallenge.getUsers()) {
-            if (users.get(user.id()) == null) {
+            if (clientStore.get(user.id()) == null) {
                 return false;
             }
 
@@ -140,43 +154,40 @@ public class Server implements GameServer {
         return gameChallenges;
     }
 
-    public void startGame(String gameType, User... users) {
-        if (!gameTypes.containsKey(gameType)) return;
+    public void startGame(String gameType, NettyClient... clients) {
+        if (!gameTypesStore.all().containsKey(gameType)) return;
 
         try {
-            ServerPlayer[] players = new ServerPlayer[users.length];
-            var game = new Game(gameTypes.get(gameType).getDeclaredConstructor().newInstance(), users);
+            ServerPlayer[] players = new ServerPlayer[clients.length];
+            var game = new Game(gameTypesStore.create(gameType), clients);
 
-            for (int i = 0; i < users.length; i++) {
-                players[i] = new ServerPlayer(users[i]);
-                users[i].addGame(new ImmutablePair<>(game, players[i]));
+            for (int i = 0; i < clients.length; i++) {
+                players[i] = new ServerPlayer(clients[i]);
+                clients[i].addGame(new ImmutablePair<>(game, players[i]));
             }
             System.out.println("Starting Game");
 
             game.game().init(players);
-            games.addLast(game);
+            gameStore.add(game);
 
-            users[0].sendMessage(String.format("SVR GAME MATCH {PLAYERTOMOVE: \"%s\", GAMETYPE: \"%s\", OPPONENT: \"%s\"}\n",
-                    users[0].name(),
+            clients[0].send(String.format("SVR GAME MATCH {PLAYERTOMOVE: \"%s\", GAMETYPE: \"%s\", OPPONENT: \"%s\"}\n",
+                    clients[0].name(),
                     gameType,
-                    users[1].name()));
-            users[1].sendMessage(String.format("SVR GAME MATCH {PLAYERTOMOVE: \"%s\", GAMETYPE: \"%s\", OPPONENT: \"%s\"}\n",
-                    users[0].name(),
+                    clients[1].name()));
+            clients[1].send(String.format("SVR GAME MATCH {PLAYERTOMOVE: \"%s\", GAMETYPE: \"%s\", OPPONENT: \"%s\"}\n",
+                    clients[0].name(),
                     gameType,
-                    users[0].name()));
+                    clients[0].name()));
             game.start();
         } catch (Exception ignored) {}
     }
 
-    public List<User> onlineUsers() {
-        return users.values().stream().toList();
+    public List<NettyClient> onlineUsers() {
+        return clientStore.all().stream().toList();
     }
 
     public void closeServer() {
         scheduler.shutdown();
         gameChallenges.clear();
-        games.clear();
-        users.clear();
-        gameTypes.clear();
     }
 }

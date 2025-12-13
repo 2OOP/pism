@@ -1,4 +1,6 @@
-package org.toop.framework.networking.server;
+package org.toop.framework.networking.server.challenges.gamechallenge;
+
+import org.toop.framework.utils.SimpleTimer;
 
 import java.time.Instant;
 import java.time.Duration;

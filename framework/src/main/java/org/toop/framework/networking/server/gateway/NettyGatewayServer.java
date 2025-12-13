@@ -1,4 +1,4 @@
-package org.toop.framework.networking.server;
+package org.toop.framework.networking.server.gateway;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -13,11 +13,20 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.toop.framework.SnowflakeGenerator;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.networking.server.client.NettyClient;
+import org.toop.framework.networking.server.connectionHandler.NettyClientSession;
+import org.toop.framework.networking.server.Server;
+import org.toop.framework.networking.server.handlers.MessageHandler;
+import org.toop.framework.networking.server.stores.NettyClientStore;
+import org.toop.framework.networking.server.stores.TurnBasedGameStore;
+import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class MasterServer {
+public class NettyGatewayServer implements GatewayServer {
     private final int port;
     private final Server gs;
 
@@ -25,11 +34,21 @@ public class MasterServer {
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;
 
-    public MasterServer(int port, Map<String, Class<? extends TurnBasedGame>> gameTypes, Duration challengeDuration) {
+    public NettyGatewayServer(
+            int port,
+            TurnBasedGameTypeStore turnBasedGameTypeStore,
+            Duration challengeDuration
+    ) {
         this.port = port;
-        this.gs = new Server(gameTypes, challengeDuration);
+        this.gs = new Server(
+                challengeDuration,
+                turnBasedGameTypeStore,
+                new NettyClientStore(new ConcurrentHashMap<>()),
+                new TurnBasedGameStore(new CopyOnWriteArrayList<>())
+        );
     }
 
+    @Override
     public void start() throws InterruptedException {
 
         bossGroup = new NioEventLoopGroup(1);
@@ -54,8 +73,8 @@ public class MasterServer {
                             pipeline.addLast(new StringEncoder());
 
                             long userid = SnowflakeGenerator.nextId();
-                            User user = new User(userid, ""+userid);
-                            pipeline.addLast(new ConnectionHandler(user, gs));
+                            NettyClient client = new NettyClient(userid, ""+userid);
+                            pipeline.addLast(new NettyClientSession(client, gs, new MessageHandler(gs, client)));
                         }
                     }
             );
@@ -69,6 +88,7 @@ public class MasterServer {
         }
     }
 
+    @Override
     public void stop() {
         if (future == null) {
             return;
@@ -81,5 +101,10 @@ public class MasterServer {
         future = null;
         bossGroup = null;
         workerGroup = null;
+    }
+
+    @Override
+    public int port() {
+        return port;
     }
 }

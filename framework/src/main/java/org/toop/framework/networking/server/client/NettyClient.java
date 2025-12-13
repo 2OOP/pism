@@ -1,16 +1,17 @@
-package org.toop.framework.networking.server;
+package org.toop.framework.networking.server.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.toop.framework.game.players.ServerPlayer;
+import org.toop.framework.networking.server.Game;
 import org.toop.framework.utils.Pair;
 
-public class User implements ServerUser {
+public class NettyClient implements Client<Game, ServerPlayer> {
     final private long id;
+    private ChannelHandlerContext ctx;
     private String name;
     private Pair<Game, ServerPlayer> gamePair;
-    private ChannelHandlerContext connectionContext;
 
-    public User(long userId, String name) {
+    public NettyClient(long userId, String name) {
         this.id = userId;
         this.name = name;
     }
@@ -33,7 +34,7 @@ public class User implements ServerUser {
     }
 
     @Override
-    public void removeGame() {
+    public void clearGame() {
         this.gamePair = null;
     }
 
@@ -45,7 +46,8 @@ public class User implements ServerUser {
         return this.gamePair.getLeft();
     }
 
-    public ServerPlayer serverPlayer() {
+    @Override
+    public ServerPlayer player() {
         return this.gamePair.getRight();
     }
 
@@ -55,18 +57,12 @@ public class User implements ServerUser {
     }
 
     @Override
-    public void sendMessage(String message) {
+    public void send(String message) {
         IO.println(message);
-        ctx().channel().writeAndFlush(message);
-    }
-
-    public ChannelHandlerContext ctx() {
-        return connectionContext;
+        ctx.channel().writeAndFlush(message + "\r\n");
     }
 
     public void setCtx(ChannelHandlerContext ctx) {
-        this.connectionContext = ctx;
+        this.ctx = ctx;
     }
-
-
 }

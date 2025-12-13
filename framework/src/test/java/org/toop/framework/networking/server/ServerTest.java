@@ -65,7 +65,7 @@
 //
 //    }
 //
-//    static class TestUser implements ServerUser {
+//    static class TestUser implements Client {
 //
 //        final private long id;
 //
@@ -157,9 +157,9 @@
 //
 //    @Test
 //    void testStartGame() {
-//        server.startGame("tictactoe", new User(0, "A"), new User(1, "B"));
+//        server.startGame("tictactoe", new NettyClient(0, "A"), new NettyClient(1, "B"));
 //        Assertions.assertEquals(1, server.ongoingGames().size());
-//        server.startGame("reversi", new User(0, "A"), new User(1, "B"));
+//        server.startGame("reversi", new NettyClient(0, "A"), new NettyClient(1, "B"));
 //        Assertions.assertEquals(2, server.ongoingGames().size());
 //    }
 //

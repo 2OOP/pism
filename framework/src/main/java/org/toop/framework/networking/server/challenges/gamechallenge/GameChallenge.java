@@ -1,18 +1,20 @@
-package org.toop.framework.networking.server;
+package org.toop.framework.networking.server.challenges.gamechallenge;
 
 import org.toop.framework.SnowflakeGenerator;
+import org.toop.framework.networking.server.client.NettyClient;
+import org.toop.framework.utils.SimpleTimer;
 
 public class GameChallenge {
     private final long id = SnowflakeGenerator.nextId(); // I don't need this, but the tournament server uses it...
 
-    private final User from;
-    private final User to;
+    private final NettyClient from;
+    private final NettyClient to;
     private final String gameType;
     private final SimpleTimer timer;
 
     private boolean isChallengeAccepted = false;
 
-    public GameChallenge(User from, User to, String gameType, SimpleTimer timer) {
+    public GameChallenge(NettyClient from, NettyClient to, String gameType, SimpleTimer timer) {
         this.from = from;
         this.to = to;
         this.gameType = gameType;
@@ -23,8 +25,8 @@ public class GameChallenge {
         return id;
     }
 
-    public User[] getUsers() {
-        return new User[]{from, to};
+    public NettyClient[] getUsers() {
+        return new NettyClient[]{from, to};
     }
 
     public void forceExpire() {

@@ -17,12 +17,10 @@ import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.networking.connection.clients.TournamentNetworkingClient;
 import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.types.NetworkingConnector;
-import org.toop.framework.game.games.reversi.BitboardReversi;
-import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.framework.game.players.OnlinePlayer;
 import org.toop.framework.game.players.RandomAI;
-import org.toop.framework.networking.server.MasterServer;
+import org.toop.framework.networking.server.gateway.NettyGatewayServer;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -33,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
-	private MasterServer masterServer;
+	private NettyGatewayServer nettyGatewayServer;
 
 	private String user = "";
 	private long clientId = -1;
@@ -68,7 +66,7 @@ public final class Server {
 
     // Server has to deal with ALL network related listen events. This "server" can then interact with the manager to make stuff happen.
     // This prevents data races where events get sent to the game manager but the manager isn't ready yet.
-	public Server(String ip, String port, String user, MasterServer masterServer) {
+	public Server(String ip, String port, String user, NettyGatewayServer nettyGatewayServer) {
 		if (ip.split("\\.").length < 4) {
 			new ErrorPopup("\"" + ip + "\" " + AppContext.getString("is-not-a-valid-ip-address"));
 			return;
@@ -88,7 +86,7 @@ public final class Server {
 			return;
 		}
 
-		this.masterServer = masterServer;
+		this.nettyGatewayServer = nettyGatewayServer;
 
 		final int reconnectAttempts = 10;
 
@@ -288,8 +286,8 @@ public final class Server {
 		stopScheduler();
 		connectFlow.unsubscribeAll();
 
-		if (masterServer != null) {
-			masterServer.stop();
+		if (nettyGatewayServer != null) {
+			nettyGatewayServer.stop();
 		}
 
 		WidgetContainer.getCurrentView().transitionPrevious();
