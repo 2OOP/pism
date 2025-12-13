@@ -168,13 +168,6 @@ public class Server implements GameServer {
         } catch (Exception ignored) {}
     }
 
-//    public void checkGames() {
-//        for (int i = games.size() - 1; i >= 0; i--) {
-//            var game = games.get(i);
-//            if (game.game().getWinner() >= 0) games.remove(i);
-//        }
-//    }
-
     public List<User> onlineUsers() {
         return users.values().stream().toList();
     }

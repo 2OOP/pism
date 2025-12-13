@@ -12,7 +12,6 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import org.toop.framework.SnowflakeGenerator;
-import org.toop.framework.game.BitboardGame;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 import java.time.Duration;
@@ -53,7 +52,7 @@ public class MasterServer {
 
                             long userid = SnowflakeGenerator.nextId();
                             User user = new User(userid, ""+userid);
-                            pipeline.addLast(new ServerHandler(user, gs));
+                            pipeline.addLast(new ConnectionHandler(user, gs));
                         }
                     }
             );

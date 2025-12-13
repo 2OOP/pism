@@ -9,12 +9,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ServerHandler extends SimpleChannelInboundHandler<String> {
+public class ConnectionHandler extends SimpleChannelInboundHandler<String> {
 
     private final User user;
     private final Server server;
 
-    public ServerHandler(User user, Server server) {
+    public ConnectionHandler(User user, Server server) {
         this.user = user;
         this.server = server;
     }
@@ -54,19 +54,19 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         }
     }
 
+    // DO NOT INVERT
     private boolean hasArgs(String... args) {
         return (args.length >= 1);
     }
 
     private void handleLogin(ParsedMessage p) {
-
-        if (hasArgs(p.args())) return;
+        if (!hasArgs(p.args())) return;
 
         user.setName(p.args()[0]);
     }
 
     private void handleGet(ParsedMessage p) {
-        if (hasArgs(p.args())) return;
+        if (!hasArgs(p.args())) return;
 
         switch (p.args()[0]) {
             case "playerlist" -> {
@@ -93,7 +93,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private void handleChallenge(ParsedMessage p) {
-        if(hasArgs(p.args())) return;
+        if (!hasArgs(p.args())) return;
         if (p.args().length < 2) return;
 
         if (p.args()[0].equalsIgnoreCase("accept")) {
@@ -118,7 +118,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private void handleMove(ParsedMessage p) {
-        if(hasArgs(p.args())) return;
+        if(!hasArgs(p.args())) return;
 
         // TODO check if not number
         user.serverPlayer().setMove(1L << Integer.parseInt(p.args()[0]));
