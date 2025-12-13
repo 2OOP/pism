@@ -2,14 +2,14 @@ package org.toop.framework.networking.server.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.toop.framework.game.players.ServerPlayer;
-import org.toop.framework.networking.server.Game;
+import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.utils.Pair;
 
-public class NettyClient implements Client<Game, ServerPlayer> {
+public class NettyClient implements Client<OnlineTurnBasedGame, ServerPlayer> {
     final private long id;
     private ChannelHandlerContext ctx;
     private String name;
-    private Pair<Game, ServerPlayer> gamePair;
+    private Pair<OnlineTurnBasedGame, ServerPlayer> gamePair;
 
     public NettyClient(long userId, String name) {
         this.id = userId;
@@ -27,7 +27,7 @@ public class NettyClient implements Client<Game, ServerPlayer> {
     }
 
     @Override
-    public void addGame(Pair<Game, ServerPlayer> gamePair) {
+    public void addGame(Pair<OnlineTurnBasedGame, ServerPlayer> gamePair) {
         if (this.gamePair == null) {
             this.gamePair = gamePair;
         }
@@ -39,7 +39,7 @@ public class NettyClient implements Client<Game, ServerPlayer> {
     }
 
     @Override
-    public Game game() {
+    public OnlineTurnBasedGame game() {
         if (this.gamePair == null) {
             return null;
         }

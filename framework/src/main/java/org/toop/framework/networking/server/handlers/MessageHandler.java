@@ -1,7 +1,7 @@
 package org.toop.framework.networking.server.handlers;
 
 import org.toop.framework.game.players.ServerPlayer;
-import org.toop.framework.networking.server.Game;
+import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.client.Client;
 import org.toop.framework.networking.server.parsing.ParsedMessage;
@@ -10,9 +10,9 @@ import org.toop.framework.utils.Utils;
 public class MessageHandler implements Handler<ParsedMessage> {
 
     private final Server server;
-    private final Client<Game, ServerPlayer> client;
+    private final Client<OnlineTurnBasedGame, ServerPlayer> client;
 
-    public MessageHandler(Server server, Client<Game, ServerPlayer> client) {
+    public MessageHandler(Server server, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         this.server = server;
         this.client = client;
     }
@@ -37,25 +37,27 @@ public class MessageHandler implements Handler<ParsedMessage> {
         return (args.length >= 1);
     }
 
-    private void handleLogin(ParsedMessage p, Client<Game, ServerPlayer> client) {
+    private void handleLogin(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         if (!hasArgs(p.args())) return;
 
         client.setName(p.args()[0]);
     }
 
-    private void handleSubscribe(ParsedMessage p, Client<Game, ServerPlayer> client) {
+    private void handleSubscribe(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+        if (!hasArgs(p.args())) return;
+
+        server.subscribeClient(p.args()[0], client.name());
+    }
+
+    private void handleHelp(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         // TODO
     }
 
-    private void handleHelp(ParsedMessage p, Client<Game, ServerPlayer> client) {
+    private void handleMessage(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         // TODO
     }
 
-    private void handleMessage(ParsedMessage p, Client<Game, ServerPlayer> client) {
-        // TODO
-    }
-
-    private void handleGet(ParsedMessage p, Client<Game, ServerPlayer> client) {
+    private void handleGet(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         if (!hasArgs(p.args())) return;
 
         switch (p.args()[0]) {
@@ -70,7 +72,7 @@ public class MessageHandler implements Handler<ParsedMessage> {
         }
     }
 
-    private void handleChallenge(ParsedMessage p, Client<Game, ServerPlayer> client) {
+    private void handleChallenge(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         if (!hasArgs(p.args())) return;
         if (p.args().length < 2) return;
 
@@ -92,10 +94,10 @@ public class MessageHandler implements Handler<ParsedMessage> {
             return;
         }
 
-        server.challengeUser(client.name(), p.args()[0], p.args()[1]);
+        server.challengeClient(client.name(), p.args()[0], p.args()[1]);
     }
 
-    private void handleMove(ParsedMessage p, Client<Game, ServerPlayer> client) {
+    private void handleMove(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
         if(!hasArgs(p.args())) return;
 
         // TODO check if not number

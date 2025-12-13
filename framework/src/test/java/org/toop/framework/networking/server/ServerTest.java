@@ -4,7 +4,7 @@
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.toop.framework.gameFramework.model.game.PlayResult;
-//import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+//import org.toop.framework.gameFramework.model.game.OnlineTurnBasedGame;
 //import org.toop.framework.gameFramework.model.player.Player;
 //
 //import java.time.Duration;
@@ -13,7 +13,7 @@
 //
 //public class ServerTest {
 //
-//    static class TurnBasedGameMock implements TurnBasedGame {
+//    static class TurnBasedGameMock implements OnlineTurnBasedGame {
 //        private Player[] players;
 //
 //        public TurnBasedGameMock() {}
@@ -44,7 +44,7 @@
 //        }
 //
 //        @Override
-//        public TurnBasedGame deepCopy() {
+//        public OnlineTurnBasedGame deepCopy() {
 //            return null;
 //        }
 //
@@ -87,17 +87,17 @@
 //        }
 //
 //        @Override
-//        public Game[] games() {
-//            return new Game[0];
+//        public OnlineTurnBasedGame[] games() {
+//            return new OnlineTurnBasedGame[0];
 //        }
 //
 //        @Override
-//        public void addGame(Game game) {
+//        public void addGame(OnlineTurnBasedGame game) {
 //
 //        }
 //
 //        @Override
-//        public void removeGame(Game game) {
+//        public void removeGame(OnlineTurnBasedGame game) {
 //
 //        }
 //
@@ -118,7 +118,7 @@
 //    @BeforeEach
 //    void setup() {
 //
-//        var games = new ConcurrentHashMap<String, Class<? extends TurnBasedGame>>();
+//        var games = new ConcurrentHashMap<String, Class<? extends OnlineTurnBasedGame>>();
 //        games.put("tictactoe", TurnBasedGameMock.class);
 //        games.put("reversi", TurnBasedGameMock.class);
 //

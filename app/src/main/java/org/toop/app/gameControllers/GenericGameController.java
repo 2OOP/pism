@@ -93,7 +93,7 @@ public class GenericGameController implements GameController {
     }
 
     private void onGameFinish(GUIEvents.GameEnded event){
-        logger.info("Game Finished");
+        logger.info("OnlineTurnBasedGame Finished");
         String name = event.winner() == -1 ? null : getPlayer(event.winner()).getName();
         gameView.gameOver(event.winOrTie(), name);
         stop();

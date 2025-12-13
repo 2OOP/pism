@@ -5,14 +5,14 @@ import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.server.client.NettyClient;
 
-public class Game implements OnlineGame<TurnBasedGame> {
+public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
 
     private long id;
     private NettyClient[] clients;
     private TurnBasedGame game;
     private ServerThreadBehaviour gameThread;
 
-    public Game(TurnBasedGame game, NettyClient... clients) {
+    public OnlineTurnBasedGame(TurnBasedGame game, NettyClient... clients) {
         this.game = game;
         this.gameThread = new ServerThreadBehaviour(
                 game,
@@ -47,7 +47,7 @@ public class Game implements OnlineGame<TurnBasedGame> {
     }
 
     @Override
-    public TurnBasedGame game() {
+    public org.toop.framework.gameFramework.model.game.TurnBasedGame game() {
         return game;
     }
 

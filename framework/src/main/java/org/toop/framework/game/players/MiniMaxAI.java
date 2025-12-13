@@ -126,7 +126,7 @@ public class MiniMaxAI extends AbstractAI {
      * Simple heuristic evaluation for Reversi-like games.
      * Positive = good for AI, Negative = good for opponent.
      *
-     * @param game     Game state
+     * @param game     OnlineTurnBasedGame state
      * @param aiPlayer AI's player index
      * @return heuristic score
      */

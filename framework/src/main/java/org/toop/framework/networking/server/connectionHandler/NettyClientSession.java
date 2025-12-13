@@ -3,7 +3,7 @@ package org.toop.framework.networking.server.connectionHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.toop.framework.game.players.ServerPlayer;
-import org.toop.framework.networking.server.Game;
+import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.handlers.Handler;
 import org.toop.framework.networking.server.parsing.ParsedMessage;
@@ -13,7 +13,7 @@ import org.toop.framework.networking.server.parsing.Parser;
 
 import java.util.Arrays;
 
-public class NettyClientSession extends SimpleChannelInboundHandler<String> implements ClientSession<Game, ServerPlayer> {
+public class NettyClientSession extends SimpleChannelInboundHandler<String> implements ClientSession<OnlineTurnBasedGame, ServerPlayer> {
 
     private final NettyClient client;
     private final Server server;
@@ -26,7 +26,7 @@ public class NettyClientSession extends SimpleChannelInboundHandler<String> impl
     }
 
     @Override
-    public Client<Game, ServerPlayer> client() {
+    public Client<OnlineTurnBasedGame, ServerPlayer> client() {
         return client;
     }
 
@@ -35,7 +35,7 @@ public class NettyClientSession extends SimpleChannelInboundHandler<String> impl
         ctx.writeAndFlush("Welcome " + client.id() + " please login" + "\n");
 
         client.setCtx(ctx);
-        server.addUser(client); // TODO set correct name on login
+        server.addClient(client); // TODO set correct name on login
     }
 
     @Override
@@ -59,6 +59,6 @@ public class NettyClientSession extends SimpleChannelInboundHandler<String> impl
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        server.removeUser(client);
+        server.removeClient(client);
     }
 }

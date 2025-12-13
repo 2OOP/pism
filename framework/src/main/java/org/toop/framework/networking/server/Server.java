@@ -10,18 +10,18 @@ import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 import org.toop.framework.utils.ImmutablePair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 import java.time.Duration;
 
-public class Server implements GameServer {
+public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
     final private TurnBasedGameTypeStore gameTypesStore;
     final private ClientStore<Long, NettyClient> clientStore;
     final private List<GameChallenge> gameChallenges = new CopyOnWriteArrayList<>();
     final private TurnBasedGameStore gameStore;
+
+    final private ConcurrentHashMap<String, List<String>> subscriptions; // TODO move to own store / manager
 
     final private Duration challengeDuration;
     final private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -37,40 +37,33 @@ public class Server implements GameServer {
         this.challengeDuration = challengeDuration;
         this.clientStore = clientStore;
         this.gameStore = gameStore;
+        this.subscriptions = new ConcurrentHashMap<>();
 
         scheduler.schedule(this::serverTask, 0, TimeUnit.MILLISECONDS);
     }
 
-    private void serverTask() {
-        checkChallenges();
-        scheduler.schedule(this::serverTask, 500, TimeUnit.MILLISECONDS);
-    }
-
-    public void addUser(NettyClient client) {
+    @Override
+    public void addClient(NettyClient client) {
         clientStore.add(client);
     }
 
-    public void removeUser(NettyClient client) {
+    @Override
+    public void removeClient(NettyClient client) {
         clientStore.remove(client.id());
     }
 
+    @Override
     public List<String> gameTypes() {
         return new ArrayList<>(gameTypesStore.all().keySet());
     }
 
+    @Override
     public List<OnlineGame<TurnBasedGame>> ongoingGames() {
         return gameStore.all().stream().toList();
     }
 
-    public NettyClient getUser(String username) {
-        return clientStore.all().stream().filter(e -> e.name().equalsIgnoreCase(username)).findFirst().orElse(null);
-    }
-
-    public NettyClient getUser(long id) {
-        return clientStore.get(id);
-    }
-
-    public void challengeUser(String fromUser, String toUser, String gameType) {
+    @Override
+    public void challengeClient(String fromUser, String toUser, String gameType) {
 
         NettyClient from = getUser(fromUser);
         if (from == null) {
@@ -104,44 +97,8 @@ public class Server implements GameServer {
         gameChallenges.addLast(ch);
     }
 
-    private void warnUserExpiredChallenge(NettyClient client, long challengeId) {
-        client.send("SVR GAME CHALLENGE CANCELLED {CHALLENGENUMBER: \"" + challengeId + "\"}" + "\n");
-    }
-
-    private boolean isValidChallenge(GameChallenge gameChallenge) {
-        for (var user : gameChallenge.getUsers()) {
-            if (clientStore.get(user.id()) == null) {
-                return false;
-            }
-
-            if (user.game() != null) {
-                return false;
-            }
-
-            if (gameChallenge.isExpired()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public void checkChallenges() {
-        for (int i = gameChallenges.size() - 1; i >= 0; i--) {
-            var challenge = gameChallenges.get(i);
-
-            if (isValidChallenge(challenge)) continue;
-
-            if (challenge.isExpired()) {
-                if (!challenge.isChallengeAccepted()) Arrays.stream(challenge.getUsers())
-                        .forEach(user -> warnUserExpiredChallenge(user, challenge.id()));
-
-                gameChallenges.remove(i);
-            }
-        }
-    }
-
-    public void acceptChallenge(long challengeId) {
+    @Override
+    public void acceptChallenge(Long challengeId) {
         for (var challenge : gameChallenges) {
             if (challenge.id() == challengeId) {
                 startGame(challenge.acceptChallenge(), challenge.getUsers());
@@ -150,22 +107,36 @@ public class Server implements GameServer {
         }
     }
 
-    public List<GameChallenge> gameChallenges() {
-        return gameChallenges;
+    @Override
+    public void subscribeClient(String clientName, String gameTypeKey) {
+
+        if (!gameTypesStore.all().containsKey(gameTypeKey)) return;
+
+        subscriptions.forEach((_, clientNames) -> clientNames.remove(clientName));
+        subscriptions.computeIfAbsent(
+                            gameTypeKey,
+                        _ -> new ArrayList<>())
+                .add(clientName);
     }
 
+    @Override
+    public void unsubscribeClient(String clientName) {
+        subscriptions.forEach((_, clientNames) -> clientNames.remove(clientName));
+    }
+
+    @Override
     public void startGame(String gameType, NettyClient... clients) {
         if (!gameTypesStore.all().containsKey(gameType)) return;
 
         try {
             ServerPlayer[] players = new ServerPlayer[clients.length];
-            var game = new Game(gameTypesStore.create(gameType), clients);
+            var game = new OnlineTurnBasedGame(gameTypesStore.create(gameType), clients);
 
             for (int i = 0; i < clients.length; i++) {
                 players[i] = new ServerPlayer(clients[i]);
                 clients[i].addGame(new ImmutablePair<>(game, players[i]));
             }
-            System.out.println("Starting Game");
+            System.out.println("Starting OnlineTurnBasedGame");
 
             game.game().init(players);
             gameStore.add(game);
@@ -182,12 +153,91 @@ public class Server implements GameServer {
         } catch (Exception ignored) {}
     }
 
+    @Override
     public List<NettyClient> onlineUsers() {
         return clientStore.all().stream().toList();
     }
 
-    public void closeServer() {
+    @Override
+    public void shutdown() {
         scheduler.shutdown();
         gameChallenges.clear();
+    }
+
+    private void serverTask() {
+        checkChallenges();
+        checkSubscriptions();
+        scheduler.schedule(this::serverTask, 500, TimeUnit.MILLISECONDS);
+    }
+
+    private void checkChallenges() {
+        for (int i = gameChallenges.size() - 1; i >= 0; i--) {
+            var challenge = gameChallenges.get(i);
+
+            if (isValidChallenge(challenge)) continue;
+
+            if (challenge.isExpired()) {
+                if (!challenge.isChallengeAccepted()) Arrays.stream(challenge.getUsers())
+                        .forEach(user -> warnUserExpiredChallenge(user, challenge.id()));
+
+                gameChallenges.remove(i);
+            }
+        }
+    }
+
+    private void checkSubscriptions() {
+        if (subscriptions.isEmpty()) return;
+
+        List<String> keys = subscriptions.keySet().stream().toList();
+
+        for (String key : keys) {
+            var userNames = subscriptions.get(key);
+            if (userNames.size() < 2) continue;
+
+            Random ran = new Random();
+
+            while (userNames.size() > 1) {
+
+                var left = ran.nextInt(userNames.size());
+                var right = ran.nextInt(userNames.size());
+
+                while (left == right) left = ran.nextInt(userNames.size());
+
+                subscriptions.get(key).remove(userNames.get(left));
+                subscriptions.get(key).remove(userNames.get(right));
+
+                startGame(key, getUser(left), getUser(right));
+            }
+        }
+    }
+
+    private NettyClient getUser(String username) {
+        return clientStore.all().stream().filter(e -> e.name().equalsIgnoreCase(username)).findFirst().orElse(null);
+    }
+
+    private NettyClient getUser(long id) {
+        return clientStore.get(id);
+    }
+
+    private void warnUserExpiredChallenge(NettyClient client, long challengeId) {
+        client.send("SVR GAME CHALLENGE CANCELLED {CHALLENGENUMBER: \"" + challengeId + "\"}" + "\n");
+    }
+
+    private boolean isValidChallenge(GameChallenge gameChallenge) { // TODO move to challenge class
+        for (var user : gameChallenge.getUsers()) {
+            if (clientStore.get(user.id()) == null) {
+                return false;
+            }
+
+            if (user.game() != null) {
+                return false;
+            }
+
+            if (gameChallenge.isExpired()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

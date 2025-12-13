@@ -1,6 +1,6 @@
 package org.toop.framework.networking.server.client;
 
-import org.toop.framework.networking.server.Game;
+import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.utils.Pair;
 
 public interface Client<G, P> {
@@ -9,7 +9,7 @@ public interface Client<G, P> {
     String name();
     void setName(String name);
 
-    Game game();
+    OnlineTurnBasedGame game();
     P player();
 
     void addGame(Pair<G, P> gamePair);
