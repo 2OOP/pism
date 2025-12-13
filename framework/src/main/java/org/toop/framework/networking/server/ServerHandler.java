@@ -2,8 +2,10 @@ package org.toop.framework.networking.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.apache.maven.surefire.shared.utils.StringUtils;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,6 +19,10 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         this.server = server;
     }
 
+    private String returnQuotedString(Iterator<String> strings) { // TODO more places this could be useful
+        return "\"" + StringUtils.join(strings, "\",\"") + "\"";
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         ctx.writeAndFlush("WELCOME " + user.id() + "\n");
@@ -27,6 +33,9 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
+
+        IO.println(msg);
+
         ParsedMessage p = parse(msg);
         if (p == null) return;
 
@@ -61,8 +70,14 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         if (!allowedArgs(p.args())) return;
 
         switch (p.args()[0]) {
-            case "playerlist" -> user.ctx().writeAndFlush(Arrays.toString(server.onlineUsers()));
-            case "gamelist" -> user.ctx().writeAndFlush(Arrays.toString(server.gameTypes()));
+            case "playerlist" -> {
+                var names = server.onlineUsers().stream().map(ServerUser::name).iterator();
+                user.ctx().writeAndFlush("SVR PLAYERLIST " + returnQuotedString(names) + "\n");
+            }
+            case "gamelist" -> {
+                var names = server.gameTypes().stream().iterator();
+                user.ctx().writeAndFlush("SVR GAMELIST " + returnQuotedString(names) + "\n");
+            }
         }
     }
 
@@ -87,14 +102,14 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
                 long id = Long.parseLong(p.args()[1]);
 
                 if (id <= 0) {
-                    user.sendMessage("ERR id must be a positive number");
+                    user.sendMessage("ERR id must be a positive number \n");
                     return;
                 }
 
                 server.acceptChallenge(id);
 
             } catch (NumberFormatException e) {
-                user.sendMessage("ERR id is not a valid number or too big");
+                user.sendMessage("ERR id is not a valid number or too big \n");
                 return;
             }
             return;

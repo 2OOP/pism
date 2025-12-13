@@ -102,7 +102,7 @@ public class NetworkEvents extends EventsBase {
             implements GenericEvent {}
 
     /** Requests to accept an existing challenge. */
-    public record SendAcceptChallenge(long clientId, int challengeId)
+    public record SendAcceptChallenge(long clientId, long challengeId)
             implements GenericEvent {}
 
     /** Requests to forfeit the current game. */

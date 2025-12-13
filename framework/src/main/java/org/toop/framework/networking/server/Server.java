@@ -13,7 +13,7 @@ import java.time.Duration;
 public class Server implements GameServer {
 
     final private Map<String, Class<? extends TurnBasedGame>> gameTypes;
-    final private Map<Long, ServerUser> users = new ConcurrentHashMap<>();
+    final private Map<Long, User> users = new ConcurrentHashMap<>();
     final private List<GameChallenge> gameChallenges = new CopyOnWriteArrayList<>();
     final private List<OnlineGame<TurnBasedGame>> games = new CopyOnWriteArrayList<>();
 
@@ -32,53 +32,53 @@ public class Server implements GameServer {
         scheduler.schedule(this::serverTask, 500, TimeUnit.MILLISECONDS);
     }
 
-    public void addUser(ServerUser user) {
+    public void addUser(User user) {
         users.putIfAbsent(user.id(), user);
     }
 
-    public void removeUser(ServerUser user) {
+    public void removeUser(User user) {
         users.remove(user.id());
     }
 
-    public String[] gameTypes() {
-        return gameTypes.keySet().toArray(new String[0]);
+    public List<String> gameTypes() {
+        return gameTypes.keySet().stream().toList();
     }
 
     public List<OnlineGame<TurnBasedGame>> ongoingGames() {
         return games;
     }
 
-    public ServerUser getUser(String username) {
+    public User getUser(String username) {
         return users.values().stream().filter(e -> e.name().equalsIgnoreCase(username)).findFirst().orElse(null);
     }
 
-    public ServerUser getUser(long id) {
+    public User getUser(long id) {
         return users.get(id);
     }
 
     public void challengeUser(String fromUser, String toUser, String gameType) {
 
-        ServerUser from = getUser(fromUser);
+        User from = getUser(fromUser);
         if (from == null) {
             return;
         }
 
         if (!gameTypes.containsKey(gameType)) {
-            from.sendMessage("ERR gametype not found");
+            from.sendMessage("ERR gametype not found \n");
             return;
         }
 
-        ServerUser to = getUser(toUser);
+        User to = getUser(toUser);
         if (to == null) {
-            from.sendMessage("ERR user not found");
+            from.sendMessage("ERR user not found \n");
             return;
         }
 
         var ch = new GameChallenge(from, to, gameType, new GameChallengeTimer(challengeDuration));
 
         to.sendMessage(
-                "\"SVR GAME CHALLENGE {CHALLENGER: \"%s\", GAMETYPE: \"%s\", CHALLENGENUMBER: \"%s\"}"
-                        .formatted(from.name(), gameType, ch.id())
+                "SVR GAME CHALLENGE {CHALLENGER: \"%s\", CHALLENGENUMBER: \"%s\", GAMETYPE: \"%s\"} \n"
+                        .formatted(from.name(), ch.id(), gameType)
         );
 
         if (!isValidChallenge(ch)) {
@@ -90,8 +90,8 @@ public class Server implements GameServer {
         gameChallenges.addLast(ch);
     }
 
-    private void warnUserExpiredChallenge(ServerUser user, long challengeId) {
-        user.sendMessage("SVR GAME CHALLENGE CANCELLED {CHALLENGENUMBER: \"" + challengeId + "\"}");
+    private void warnUserExpiredChallenge(User user, long challengeId) {
+        user.sendMessage("SVR GAME CHALLENGE CANCELLED {CHALLENGENUMBER: \"" + challengeId + "\"}" + "\n");
     }
 
     private boolean isValidChallenge(GameChallenge gameChallenge) {
@@ -119,7 +119,9 @@ public class Server implements GameServer {
             if (isValidChallenge(challenge)) continue;
 
             if (challenge.isExpired()) {
-                Arrays.stream(challenge.getUsers()).forEach(user -> warnUserExpiredChallenge(user, challenge.id()));
+                if (!challenge.isChallengeAccepted()) Arrays.stream(challenge.getUsers())
+                        .forEach(user -> warnUserExpiredChallenge(user, challenge.id()));
+
                 gameChallenges.remove(i);
             }
         }
@@ -128,7 +130,7 @@ public class Server implements GameServer {
     public void acceptChallenge(long challengeId) {
         for (var challenge : gameChallenges) {
             if (challenge.id() == challengeId) {
-                startGame(challenge.acceptChallenge(), (User[]) challenge.getUsers());
+                startGame(challenge.acceptChallenge(), challenge.getUsers());
                 break;
             }
         }
@@ -162,8 +164,8 @@ public class Server implements GameServer {
 //        }
 //    }
 
-    public String[] onlineUsers() {
-        return users.values().stream().map(ServerUser::name).toArray(String[]::new);
+    public List<User> onlineUsers() {
+        return users.values().stream().toList();
     }
 
     public void closeServer() {

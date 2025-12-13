@@ -20,15 +20,8 @@ import org.toop.framework.audio.*;
 import org.toop.framework.audio.events.AudioEvents;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
-import org.toop.framework.game.BitboardGame;
-import org.toop.framework.game.games.reversi.BitboardReversi;
-import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
-import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.connection.NetworkingClientEventListener;
 import org.toop.framework.networking.connection.NetworkingClientManager;
-import org.toop.framework.networking.server.GameDefinition;
-import org.toop.framework.networking.server.MasterServer;
-import org.toop.framework.networking.server.Server;
 import org.toop.framework.resource.ResourceLoader;
 import org.toop.framework.resource.ResourceManager;
 import org.toop.framework.resource.events.AssetLoaderEvents;
@@ -38,9 +31,7 @@ import org.toop.framework.resource.resources.SoundEffectAsset;
 import org.toop.local.AppContext;
 import org.toop.local.AppSettings;
 
-import java.time.Duration;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,17 +91,6 @@ public final class App extends Application {
         );
 
 		WidgetContainer.setCurrentView(loading);
-
-		var games = new ConcurrentHashMap<String, Class<? extends TurnBasedGame>>();
-		games.put("tictactoe", BitboardTicTacToe.class);
-		games.put("reversi", BitboardReversi.class);
-
-		var a = new MasterServer(6666, games, Duration.ofSeconds(5));
-        try {
-            a.start();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
         setOnLoadingSuccess(loading);
 

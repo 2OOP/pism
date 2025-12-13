@@ -263,7 +263,7 @@ public final class Server {
 		String gameType = extractQuotedValue(response.gameType());
 		final String finalGameType = gameType;
 		var a = new ChallengePopup(challengerName, gameType, (playerInformation) -> {
-			final int challengeId = Integer.parseInt(response.challengeId().replaceAll("\\D", ""));
+			final long challengeId = Long.parseLong(response.challengeId().replaceAll("\\D", ""));
 			new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientId, challengeId)).postEvent();
             isSingleGame.set(true);
 		});
