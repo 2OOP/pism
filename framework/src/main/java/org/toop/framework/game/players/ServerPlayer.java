@@ -38,9 +38,4 @@ public class ServerPlayer extends AbstractPlayer {
             return 0;
         }
     }
-
-    @Override
-    public String getName() {
-        return "";
-    }
 }

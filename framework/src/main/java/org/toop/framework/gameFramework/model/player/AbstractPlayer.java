@@ -21,6 +21,7 @@ public abstract class AbstractPlayer implements Player {
     private final String name;
 
     protected AbstractPlayer(String name) {
+        System.out.println("Player " + name + " has been created");
         this.name = name;
     }
 
@@ -44,7 +45,7 @@ public abstract class AbstractPlayer implements Player {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public String getName(){
+    public final String getName(){
         return this.name;
     }
 }

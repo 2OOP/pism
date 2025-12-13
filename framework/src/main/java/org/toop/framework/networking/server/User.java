@@ -39,6 +39,9 @@ public class User implements ServerUser {
 
     @Override
     public Game game() {
+        if (this.gamePair == null) {
+            return null;
+        }
         return this.gamePair.getLeft();
     }
 
