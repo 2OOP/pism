@@ -1,6 +1,6 @@
 package org.toop.framework.utils;
 
-public class ImmutablePair <T, K> implements Pair<T,K> {
+public class ImmutablePair<T, K> implements Pair<T,K> {
     final T left;
     final K right;
 
