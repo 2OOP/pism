@@ -29,7 +29,7 @@ public class OnlineView extends ViewWidget {
 				serverPortInput.getValue(),
 				playerNameInput.getValue()
 			);
-		});
+		}, false);
 
 		var localHostButton = Primitive.button("host!", () -> {
 
@@ -53,7 +53,7 @@ public class OnlineView extends ViewWidget {
 					"host",
 					a
 			);
-		}, false);
+		}, false, false);
 
 		add(Pos.CENTER, Primitive.vbox(
 			serverInformationHeader,

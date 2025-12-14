@@ -12,6 +12,7 @@ import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.bus.EventBus;
+import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.exceptions.CouldNotConnectException;
 import org.toop.framework.networking.connection.handlers.NetworkingGameClientHandler;
 import org.toop.framework.networking.connection.interfaces.NetworkingClient;
@@ -23,6 +24,7 @@ public class TournamentNetworkingClient implements NetworkingClient {
 
     private final EventBus eventBus;
     private Channel channel;
+    private long clientId;
 
     public TournamentNetworkingClient(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -35,6 +37,7 @@ public class TournamentNetworkingClient implements NetworkingClient {
 
     @Override
     public void connect(long clientId, String host, int port) throws CouldNotConnectException {
+        this.clientId = clientId;
         try {
             Bootstrap bootstrap = new Bootstrap();
             EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
@@ -75,6 +78,7 @@ public class TournamentNetworkingClient implements NetworkingClient {
             logger.info("Connection {} sent message: '{}' ", this.channel.remoteAddress(), literalMsg);
         } else {
             logger.warn("Cannot send message: '{}', connection inactive. ", literalMsg);
+            eventBus.post(new NetworkEvents.ClosedConnection(clientId));
         }
     }
 

@@ -159,7 +159,8 @@ public final class Server {
                 .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false, "match-response")
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false, "game-result")
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false, "game-move")
-                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn");
+                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn")
+				.listen(NetworkEvents.ClosedConnection.class, this::closedConnection, false, "closed-connection");
 
 		connectFlow = a;
 	}
@@ -233,7 +234,8 @@ public final class Server {
 
             }
 
-            if (gameController != null){
+            if (gameController != null) {
+				primary.reEnableButton();
                 gameController.start();
             }
         }
@@ -293,6 +295,20 @@ public final class Server {
 		WidgetContainer.getCurrentView().transitionPrevious();
 	}
 
+	private void closedConnection(NetworkEvents.ClosedConnection e) {
+		new EventFlow().addPostEvent(new NetworkEvents.CloseClient(clientId)).postEvent();
+		isPolling = false;
+		stopScheduler();
+		connectFlow.unsubscribeAll();
+
+		if (nettyGatewayServer != null) {
+			nettyGatewayServer.stop();
+		}
+
+		WidgetContainer.getCurrentView().transitionPrevious();
+		WidgetContainer.add(Pos.CENTER, new ErrorPopup("Server closed connection."));
+	}
+
 	private void forfeitGame() {
 		new EventFlow().addPostEvent(new NetworkEvents.SendForfeit(clientId)).postEvent();
 	}
@@ -339,7 +355,9 @@ public final class Server {
 
 	private void gamesListFromServerHandler(NetworkEvents.GamelistResponse event) {
 		gameList.clear();
-		gameList.addAll(List.of(event.gamelist()));
+		var gl = List.of(event.gamelist());
+		gameList.addAll(gl);
+		primary.updateGameList(gl);
 	}
 
 	public void populateGameList() {

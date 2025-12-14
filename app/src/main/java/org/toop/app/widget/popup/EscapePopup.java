@@ -24,7 +24,7 @@ public class EscapePopup extends PopupWidget {
             var opt = Primitive.button("options", () -> {
                 hide();
                 WidgetContainer.getCurrentView().transitionNext(new OptionsView());
-            });
+            }, false);
             nodes.add(opt);
         }
 
@@ -33,14 +33,14 @@ public class EscapePopup extends PopupWidget {
             if (tut != null) {
                 nodes.add(Primitive.button("tutorialstring", () -> {
                     WidgetContainer.getCurrentView().add(Pos.CENTER, tut);
-                }));
+                }, false));
             }
         }
 
         nodes.add(Primitive.button("quit", () -> {
             hide();
             WidgetContainer.add(Pos.CENTER, new QuitPopup());
-        }));
+        }, false));
 
         add(Pos.CENTER, Primitive.vbox(nodes.toArray(new Node[0])));
 

@@ -107,7 +107,7 @@ public class LocalMultiplayerView extends ViewWidget {
                     }
                     break;
             }
-        });
+        }, false);
 
 		var playerSection = setupPlayerSections();
 

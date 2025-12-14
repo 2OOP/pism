@@ -26,7 +26,7 @@ public class ConfirmWidget implements Widget {
 
 	public void addButton(String key, Runnable onClick) {
 		Platform.runLater(() -> {
-			var button = Primitive.button(key, onClick);
+			var button = Primitive.button(key, onClick, false);
 			buttonsContainer.getChildren().add(button);
 		});
 	}
