@@ -18,7 +18,7 @@ public class EscapePopup extends PopupWidget {
         ViewWidget currentView = WidgetContainer.getCurrentView();
         ArrayList<Node> nodes = new ArrayList<>();
 
-        nodes.add(Primitive.button("Continue", this::hide, false)); // TODO, localize
+        nodes.add(Primitive.button("Continue", this::hide, false, false)); // TODO, localize
 
         if (!(currentView.getClass().isAssignableFrom(OptionsView.class))) {
             var opt = Primitive.button("options", () -> {
