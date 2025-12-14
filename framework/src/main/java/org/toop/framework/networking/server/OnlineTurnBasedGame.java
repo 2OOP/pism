@@ -31,14 +31,18 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
     private void notifyGameEnd(GameState state, int winner){
         if (state == GameState.DRAW){
             for (NettyClient client : clients) {
-                client.send(String.format("SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"NettyClient disconnected\"}\n"));
+                client.send(String.format("SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}\n"));
             }
         }
         else{
-            clients[winner].send(String.format("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"NettyClient disconnected\"}\n"));
-            clients[(winner + 1)%2].send(String.format("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"NettyClient disconnected\"}\n"));
+            clients[winner].send(String.format("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}\n"));
+            clients[(winner + 1)%2].send(String.format("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}\n"));
         }
 
+        // Remove game fromt clients
+        for(NettyClient client : clients) {
+            client.clearGame();
+        }
     }
 
     @Override

@@ -27,10 +27,8 @@ public class NettyClient implements Client<OnlineTurnBasedGame, ServerPlayer> {
     }
 
     @Override
-    public void addGame(Pair<OnlineTurnBasedGame, ServerPlayer> gamePair) {
-        if (this.gamePair == null) {
-            this.gamePair = gamePair;
-        }
+    public void setGame(Pair<OnlineTurnBasedGame, ServerPlayer> gamePair) {
+        this.gamePair = gamePair;
     }
 
     @Override

@@ -12,7 +12,7 @@ public interface Client<G, P> {
     OnlineTurnBasedGame game();
     P player();
 
-    void addGame(Pair<G, P> gamePair);
+    void setGame(Pair<G, P> gamePair);
     void clearGame();
 
     void send(String message);

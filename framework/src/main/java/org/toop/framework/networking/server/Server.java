@@ -142,7 +142,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
             for (int i = 0; i < clients.length; i++) {
                 players[i] = new ServerPlayer(clients[i]);
-                clients[i].addGame(new ImmutablePair<>(game, players[i]));
+                clients[i].setGame(new ImmutablePair<>(game, players[i]));
             }
             System.out.println("Starting OnlineTurnBasedGame");
 
@@ -207,6 +207,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
             if (userNames.size() < 2) continue;
 
             while (userNames.size() > 1) {
+                // TODO: Make sure users aren't currently in a game.
                 int left = ran.nextInt(userNames.size());
                 int right;
                 do {
