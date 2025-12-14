@@ -184,7 +184,7 @@ public final class Server {
 
         gameController = null;
 
-        //if (!isPolling) return;
+//        if (!isPolling) return;
 
         String gameType = extractQuotedValue(response.gameType());
         if (response.clientId() == clientId) {
@@ -235,8 +235,9 @@ public final class Server {
             }
 
             if (gameController != null) {
-				primary.reEnableButton();
+				primary.reEnableButton(); // Re enable subscribe button
                 gameController.start();
+				isPolling = true; // Fixes server getting stuck
             }
         }
     }
