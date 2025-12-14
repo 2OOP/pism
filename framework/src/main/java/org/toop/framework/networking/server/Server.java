@@ -128,13 +128,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
     @Override
     public void startGame(String gameType, NettyClient... clients) {
-        IO.println("------------------------------------------");
-
-        IO.println("USERS: " + clients.length + " " + Arrays.stream(clients).toList().toString());
-
         if (!gameTypesStore.all().containsKey(gameType)) return;
-
-        IO.println("------------------------------------------");
 
         try {
             ServerPlayer[] players = new ServerPlayer[clients.length];
@@ -207,7 +201,6 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
             if (userNames.size() < 2) continue;
 
             while (userNames.size() > 1) {
-                // TODO: Make sure users aren't currently in a game.
                 int left = ran.nextInt(userNames.size());
                 int right;
                 do {
@@ -217,8 +210,23 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 String userLeft = userNames.get(left);
                 String userRight = userNames.get(right);
 
+                // Remove user if he is in a game
+                boolean userInGame = false;
+
+                if (getUser(userLeft).game() != null) {
+                    userNames.remove(userLeft);
+                    userInGame = true;
+                } else if (getUser(userRight).game() != null) {
+                    userNames.remove(userRight);
+                    userInGame = true;
+                }
+
+                if  (userInGame) { continue; }
+                //
+
                 int first = Math.max(left, right);
                 int second = Math.min(left, right);
+
                 userNames.remove(first);
                 userNames.remove(second);
 
