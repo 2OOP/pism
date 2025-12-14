@@ -55,7 +55,7 @@ public class GenericGameController<T extends TurnBasedGame<T>> implements GameCo
         // Listen to updates
         eventFlow
                 .listen(GUIEvents.GameEnded.class, this::onGameFinish, false)
-                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer<T> lp){lp.setMove(event.move());}}, false);
+                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer<T> lp){lp.setLastMove(event.move());}}, false);
     }
 
     public void start(){

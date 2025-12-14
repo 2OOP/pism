@@ -14,7 +14,8 @@ import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.events.ResponseToUniqueEvent;
 import org.toop.framework.eventbus.events.UniqueEvent;
 import org.toop.framework.eventbus.bus.EventBus;
-import org.toop.framework.eventbus.subscriber.DefaultSubscriber;
+import org.toop.framework.eventbus.subscriber.DefaultNamedSubscriber;
+import org.toop.framework.eventbus.subscriber.NamedSubscriber;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
 /**
@@ -43,7 +44,7 @@ public class EventFlow {
     private EventType event = null;
 
     /** The listener returned by GlobalEventBus subscription. Used for unsubscription. */
-    private final List<Subscriber<?, ?>> listeners = new ArrayList<>();
+    private final List<NamedSubscriber<?>> listeners = new ArrayList<>();
 
     /** Holds the results returned from the subscribed event, if any. */
     private Map<String, ?> result = null;
@@ -161,7 +162,7 @@ public class EventFlow {
             this.result = eventClass.result();
         };
 
-        var subscriber = new DefaultSubscriber<>(
+        var subscriber = new DefaultNamedSubscriber<>(
                 name,
                 event,
                 newAction
@@ -248,7 +249,7 @@ public class EventFlow {
             }
         };
 
-        var listener = new DefaultSubscriber<>(
+        var listener = new DefaultNamedSubscriber<>(
                 name,
                 (Class<TT>) action.getClass().getDeclaredMethods()[0].getParameterTypes()[0],
                 newAction
@@ -295,7 +296,7 @@ public class EventFlow {
             if (unsubscribeAfterSuccess) unsubscribe(String.valueOf(id));
         };
 
-        var listener = new DefaultSubscriber<>(
+        var listener = new DefaultNamedSubscriber<>(
                         name,
                         event,
                         newAction
@@ -378,7 +379,7 @@ public class EventFlow {
             }
         };
 
-        var listener = new DefaultSubscriber<>(
+        var listener = new DefaultNamedSubscriber<>(
                 name,
                 eventClass,
                 newAction
@@ -496,7 +497,7 @@ public class EventFlow {
      *
      * @return Copy of the list of listeners.
      */
-    public Subscriber<?, ?>[] getListeners() {
+    public Subscriber<?>[] getListeners() {
         return listeners.toArray(new Subscriber[0]);
     }
 

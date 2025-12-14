@@ -21,8 +21,8 @@ public class DisruptorEventBus implements EventBus {
     private final Logger logger;
     private final SubscriberStore eventsHolder;
 
-    private final Disruptor<EventHolder<?>> disruptor;
-    private final RingBuffer<EventHolder<?>> ringBuffer;
+    private final Disruptor<EventHolder<? extends EventType>> disruptor;
+    private final RingBuffer<EventHolder<? extends EventType>> ringBuffer;
 
     public DisruptorEventBus(Logger logger, SubscriberStore eventsHolder) {
         this.logger = logger;
@@ -41,9 +41,9 @@ public class DisruptorEventBus implements EventBus {
         this.ringBuffer = disruptor.getRingBuffer();
     }
 
-    private Disruptor<EventHolder<?>> getEventHolderDisruptor(ThreadFactory threadFactory) {
+    private Disruptor<EventHolder<? extends EventType>> getEventHolderDisruptor(ThreadFactory threadFactory) {
         int RING_BUFFER_SIZE = 1024 * 64;
-        Disruptor<EventHolder<?>> disruptor = new Disruptor<>(
+        Disruptor<EventHolder<? extends EventType>> disruptor = new Disruptor<>(
                 EventHolder::new,
                 RING_BUFFER_SIZE,
                 threadFactory,
@@ -61,17 +61,17 @@ public class DisruptorEventBus implements EventBus {
     }
 
     @Override
-    public void subscribe(Subscriber<?, ?> listener) {
+    public void subscribe(Subscriber<? extends EventType> listener) {
         eventsHolder.add(listener);
     }
 
     @Override
-    public void unsubscribe(Subscriber<?, ?> listener) {
+    public void unsubscribe(Subscriber<? extends EventType> listener) {
         eventsHolder.remove(listener);
     }
 
     @Override
-    public <T> void post(T event) {
+    public <T extends EventType> void post(T event) {
         long seq = ringBuffer.next();
         try {
             @SuppressWarnings("unchecked")
@@ -93,10 +93,10 @@ public class DisruptorEventBus implements EventBus {
         eventsHolder.reset();
     }
 
-    private <T> void dispatchEvent(T event) {
+    private <T extends EventType> void dispatchEvent(T event) {
         var classListeners = eventsHolder.get(event.getClass());
         if (classListeners != null) {
-            for (Subscriber<?, ?> listener : classListeners) {
+            for (Subscriber<?> listener : classListeners) {
                 try {
                     callListener(listener, event);
                 } catch (Throwable e) {
@@ -108,7 +108,7 @@ public class DisruptorEventBus implements EventBus {
 
 
     @SuppressWarnings("unchecked")
-    private <T> void callListener(Subscriber<?, ?> subscriber, T event) {
+    private <T> void callListener(Subscriber<?> subscriber, T event) {
         Class<T> eventClass = (Class<T>) subscriber.event();
         Consumer<EventType> action = (Consumer<EventType>) subscriber.handler();
 

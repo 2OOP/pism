@@ -17,22 +17,22 @@ public class DefaultEventBus implements EventBus {
     }
 
     @Override
-    public void subscribe(Subscriber<?, ?> subscriber) {
+    public void subscribe(Subscriber<? extends EventType> subscriber) {
         eventsHolder.add(subscriber);
     }
 
     @Override
-    public void unsubscribe(Subscriber<?, ?> subscriber) {
+    public void unsubscribe(Subscriber<? extends EventType> subscriber) {
         eventsHolder.remove(subscriber);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> void post(T event) {
+    public <T extends EventType> void post(T event) {
         Class<T> eventType = (Class<T>) event.getClass();
         var subs = eventsHolder.get(eventType);
         if (subs != null) {
-            for (Subscriber<?, ?> subscriber : subs) {
+            for (Subscriber<?> subscriber : subs) {
                 Class<T> eventClass = (Class<T>) subscriber.event();
                 Consumer<EventType> action = (Consumer<EventType>) subscriber.handler();
 
