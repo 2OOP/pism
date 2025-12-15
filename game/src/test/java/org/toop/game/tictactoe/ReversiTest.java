@@ -17,7 +17,7 @@ import org.toop.game.games.reversi.ReversiR;
 import org.toop.game.records.Move;
 import org.toop.game.reversi.Reversi;
 import org.toop.game.reversi.ReversiAI;
-import org.toop.game.games.reversi.ReversiAIML;
+import org.toop.game.players.ai.ReversiAIML;
 import org.toop.game.games.reversi.ReversiAISimple;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -167,4 +167,13 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 	private long shift(long bit, int shift, long mask) {
 		return shift > 0 ? (bit << shift) & mask : (bit >>> -shift) & mask;
 	}
+
+    public boolean isGameOver(){
+        BitboardReversi copy = this.deepCopy();
+        if (copy.getLegalMoves() == 0){
+            nextTurn();
+            return copy.getLegalMoves() == 0;
+        }
+        return false;
+    }
 }
