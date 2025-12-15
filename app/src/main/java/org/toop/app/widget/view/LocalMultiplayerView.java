@@ -15,6 +15,7 @@ import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.*;
+import org.toop.game.players.ai.MCTSAI;
 import org.toop.game.players.ai.MiniMaxAI;
 import org.toop.game.players.ai.RandomAI;
 import org.toop.local.AppContext;
@@ -87,7 +88,7 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new MiniMaxAI<BitboardReversi>(6), "MiniMax");
+                        players[1] = new ArtificialPlayer<>(new MCTSAI<BitboardReversi>(1000), "MCTS AI");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(
