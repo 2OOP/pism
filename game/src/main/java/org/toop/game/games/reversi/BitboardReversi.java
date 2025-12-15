@@ -27,47 +27,227 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
     }
 
 	public long getLegalMoves() {
+		long legalMoves = 0L;
+
 		final long player = getPlayerBitboard(getCurrentPlayerIndex());
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
-		long legalMoves = 0L;
+		final long empty = ~(player | opponent);
 
-		// north & south
-		legalMoves |= computeMoves(player, opponent, 8, -1L);
-		legalMoves |= computeMoves(player, opponent, -8, -1L);
+		long mask;
+		long direction;
 
-		// east & west
-		legalMoves |= computeMoves(player, opponent, 1, notAFile);
-		legalMoves |= computeMoves(player, opponent, -1, notHFile);
+		// north
+		mask = opponent;
+		direction = (player << 8) & mask;
 
-		// north-east & north-west & south-east & south-west
-		legalMoves |= computeMoves(player, opponent, 9, notAFile);
-		legalMoves |= computeMoves(player, opponent, 7, notHFile);
-		legalMoves |= computeMoves(player, opponent, -7, notAFile);
-		legalMoves |= computeMoves(player, opponent, -9, notHFile);
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
+		legalMoves |= (direction << 8) & empty;
+
+		// south
+		mask = opponent;
+		direction = (player >>> 8) & mask;
+
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+		legalMoves |= (direction >>> 8) & empty;
+
+		// east
+		mask = opponent & notAFile;
+		direction = (player << 1) & mask;
+
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+		legalMoves |= (direction << 1) & empty & notAFile;
+
+		// west
+		mask = opponent & notHFile;
+		direction = (player >>> 1) & mask;
+
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+		legalMoves |= (direction >>> 1) & empty & notHFile;
+
+		// north-east
+		mask = opponent & notAFile;
+		direction = (player << 9) & mask;
+
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+		legalMoves |= (direction << 9) & empty & notAFile;
+
+		// north-west
+		mask = opponent & notHFile;
+		direction = (player << 7) & mask;
+
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+		legalMoves |= (direction << 7) & empty & notHFile;
+
+		// south-east
+		mask = opponent & notAFile;
+		direction = (player >>> 7) & mask;
+
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+		legalMoves |= (direction >>> 7) & empty & notAFile;
+
+		// south-west
+		mask = opponent & notHFile;
+		direction = (player >>> 9) & mask;
+
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+		legalMoves |= (direction >>> 9) & empty & notHFile;
 
 		return legalMoves;
 	}
 
 	public long getFlips(long move) {
+		long flips = 0L;
+
 		final long player = getPlayerBitboard(getCurrentPlayerIndex());
 		final long opponent = getPlayerBitboard(getNextPlayer());
 
-		long flips = 0L;
+		long mask;
+		long direction;
 
-		// north & south
-		flips |= computeFlips(move, player, opponent, 8, -1L);
-		flips |= computeFlips(move, player, opponent, -8, -1L);
+		// north
+		mask = opponent;
+		direction = (move << 8) & mask;
 
-		// east & west
-		flips |= computeFlips(move, player, opponent, 1, notAFile);
-		flips |= computeFlips(move, player, opponent, -1, notHFile);
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
+		direction |= (direction << 8) & mask;
 
-		// north-east & north-west & south-east & south-west
-		flips |= computeFlips(move, player, opponent, 9, notAFile);
-		flips |= computeFlips(move, player, opponent, 7, notHFile);
-		flips |= computeFlips(move, player, opponent, -7, notAFile);
-		flips |= computeFlips(move, player, opponent, -9, notHFile);
+		if (((direction << 8) & player) != 0) {
+			flips |= direction;
+		}
+
+		// south
+		mask = opponent;
+		direction = (move >>> 8) & mask;
+
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+		direction |= (direction >>> 8) & mask;
+
+		if (((direction >>> 8) & player) != 0) {
+			flips |= direction;
+		}
+
+		// east
+		mask = opponent & notAFile;
+		direction = (move << 1) & mask;
+
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+		direction |= (direction << 1) & mask;
+
+		if (((direction << 1) & player) != 0) {
+			flips |= direction;
+		}
+
+		// west
+		mask = opponent & notHFile;
+		direction = (move >>> 1) & mask;
+
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+		direction |= (direction >>> 1) & mask;
+
+		if (((direction >>> 1) & player) != 0) {
+			flips |= direction;
+		}
+
+		// north-east
+		mask = opponent & notAFile;
+		direction = (move << 9) & mask;
+
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+		direction |= (direction << 9) & mask;
+
+		if (((direction << 9) & player) != 0) {
+			flips |= direction;
+		}
+
+		// north-west
+		mask = opponent & notHFile;
+		direction = (move << 7) & mask;
+
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+		direction |= (direction << 7) & mask;
+
+		if (((direction << 7) & player) != 0) {
+			flips |= direction;
+		}
+
+		// south-east
+		mask = opponent & notAFile;
+		direction = (move >>> 7) & mask;
+
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+		direction |= (direction >>> 7) & mask;
+
+		if (((direction >>> 7) & player) != 0) {
+			flips |= direction;
+		}
+
+		// south-west
+		mask = opponent & notHFile;
+		direction = (move >>> 9) & mask;
+
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+		direction |= (direction >>> 9) & mask;
+
+		if (((direction >>> 9) & player) != 0) {
+			flips |= direction;
+		}
 
 		return flips;
 	}
@@ -136,35 +316,4 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
             return 1;
         }
     }
-
-	private long computeMoves(long player, long opponent, int shift, long mask) {
-		long moves = shift(player, shift, mask) & opponent;
-		long captured = moves;
-
-		while (moves != 0) {
-			moves = shift(moves, shift, mask) & opponent;
-			captured |= moves;
-		}
-
-		long landing = shift(captured, shift, mask);
-		return landing & ~(player | opponent);
-	}
-
-	private long computeFlips(long move, long player, long opponent, int shift, long mask) {
-		long flips = 0L;
-		long pos = move;
-
-		while (true) {
-			pos = shift(pos, shift, mask);
-			if (pos == 0) return 0L;
-
-			if ((pos & opponent) != 0) flips |= pos;
-			else if ((pos & player) != 0) return flips;
-			else return 0L;
-		}
-	}
-
-	private long shift(long bit, int shift, long mask) {
-		return shift > 0 ? (bit << shift) & mask : (bit >>> -shift) & mask;
-	}
 }
