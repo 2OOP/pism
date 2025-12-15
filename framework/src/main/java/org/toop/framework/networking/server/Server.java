@@ -6,6 +6,7 @@ import org.toop.framework.networking.server.challenges.gamechallenge.GameChallen
 import org.toop.framework.networking.server.challenges.gamechallenge.GameChallengeTimer;
 import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.stores.ClientStore;
+import org.toop.framework.networking.server.stores.SubscriptionStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 import org.toop.framework.utils.ImmutablePair;
@@ -21,7 +22,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     final private List<GameChallenge> gameChallenges = new CopyOnWriteArrayList<>();
     final private TurnBasedGameStore gameStore;
 
-    final private ConcurrentHashMap<String, List<String>> subscriptions; // TODO move to own store / manager
+    final private SubscriptionStore subscriptionStore;
 
     final private Duration challengeDuration;
     final private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -30,14 +31,15 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
             Duration challengeDuration,
             TurnBasedGameTypeStore turnBasedGameTypeStore,
             ClientStore<Long, NettyClient> clientStore,
-            TurnBasedGameStore gameStore
+            TurnBasedGameStore gameStore,
+            SubscriptionStore subStore
 
     ) {
         this.gameTypesStore = turnBasedGameTypeStore;
         this.challengeDuration = challengeDuration;
         this.clientStore = clientStore;
         this.gameStore = gameStore;
-        this.subscriptions = new ConcurrentHashMap<>();
+        this.subscriptionStore = subStore;
 
         scheduler.schedule(this::serverTask, 0, TimeUnit.MILLISECONDS);
     }
@@ -114,16 +116,12 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
             return;
         }
 
-        subscriptions.forEach((_, clientNames) -> clientNames.remove(clientName));
-        subscriptions.computeIfAbsent(
-                            gameTypeKey,
-                        _ -> new ArrayList<>())
-                .add(clientName);
+        subscriptionStore.add(new ImmutablePair<>(gameTypeKey, clientName));
     }
 
     @Override
     public void unsubscribeClient(String clientName) {
-        subscriptions.forEach((_, clientNames) -> clientNames.remove(clientName));
+        subscriptionStore.remove(clientName);
     }
 
     @Override
@@ -191,13 +189,12 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     }
 
     private void checkSubscriptions() {
-        if (subscriptions.isEmpty()) return;
+        if (subscriptionStore.allKeys().isEmpty()) return;
 
-        List<String> keys = List.copyOf(subscriptions.keySet());
         Random ran = new Random();
 
-        for (String key : keys) {
-            List<String> userNames = subscriptions.get(key);
+        for (String key : subscriptionStore.allKeys()) {
+            List<String> userNames = (List<String>) subscriptionStore.allValues(key);
             if (userNames.size() < 2) continue;
 
             while (userNames.size() > 1) {

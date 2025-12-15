@@ -17,6 +17,7 @@ import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.connectionHandler.NettyClientSession;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.handlers.MessageHandler;
+import org.toop.framework.networking.server.stores.MapSubscriptionStore;
 import org.toop.framework.networking.server.stores.NettyClientStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
@@ -43,7 +44,8 @@ public class NettyGatewayServer implements GatewayServer {
                 challengeDuration,
                 turnBasedGameTypeStore,
                 new NettyClientStore(new ConcurrentHashMap<>()),
-                new TurnBasedGameStore(new CopyOnWriteArrayList<>())
+                new TurnBasedGameStore(new CopyOnWriteArrayList<>()),
+                new MapSubscriptionStore(new ConcurrentHashMap<>())
         );
     }
 
