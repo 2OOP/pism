@@ -51,7 +51,7 @@ class MockAudioResource extends BaseResource implements AudioResource {
         stopped = true;
     }
 
-    public void pause() { paused = false; }
+    public void pause() { paused = true; }
 
     @Override
     public long duration() {
