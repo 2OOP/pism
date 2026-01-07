@@ -4,4 +4,7 @@ public interface TurnBasedGame<T extends TurnBasedGame<T>> extends Playable, Dee
     int getCurrentTurn();
     int getPlayerCount();
     int getWinner();
+
+	PlayResult getState();
+	boolean isTerminal();
 }

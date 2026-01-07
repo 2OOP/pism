@@ -16,6 +16,8 @@ import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.*;
 import org.toop.game.players.ai.MCTSAI;
+import org.toop.game.players.ai.MCTSAI2;
+import org.toop.game.players.ai.MCTSAI3;
 import org.toop.game.players.ai.MiniMaxAI;
 import org.toop.game.players.ai.RandomAI;
 import org.toop.local.AppContext;
@@ -55,7 +57,7 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), "Random AI");
+                        players[0] = new ArtificialPlayer<>(new MCTSAI<BitboardTicTacToe>(100), "MCTS AI");
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
@@ -83,12 +85,13 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), "Random AI");
+						// players[0] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), "Random AI");
+						players[0] = new ArtificialPlayer<>(new MCTSAI3<BitboardReversi>(50), "MCTS V3 AI");
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
                     } else {
-                        players[1] = new ArtificialPlayer<>(new MCTSAI<BitboardReversi>(1000), "MCTS AI");
+						players[1] = new ArtificialPlayer<>(new MCTSAI2<BitboardReversi>(50), "MCTS V2 AI");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(

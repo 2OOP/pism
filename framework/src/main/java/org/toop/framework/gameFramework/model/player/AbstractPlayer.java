@@ -11,7 +11,6 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
  */
 public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Player<T> {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
     private final String name;
 
     /**

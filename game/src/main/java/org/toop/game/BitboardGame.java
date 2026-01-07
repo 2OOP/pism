@@ -1,5 +1,7 @@
 package org.toop.game;
 
+import org.toop.framework.gameFramework.GameState;
+import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
@@ -11,6 +13,8 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 	private final int columnSize;
 	private final int rowSize;
 
+	protected PlayResult state;
+
     private Player<T>[] players;
 
 	// long is 64 bits. Every game has a limit of 64 cells maximum.
@@ -20,6 +24,9 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 	public BitboardGame(int columnSize, int rowSize, int playerCount, Player<T>[] players) {
 		this.columnSize = columnSize;
 		this.rowSize = rowSize;
+
+		this.state = new PlayResult(GameState.NORMAL, -1);
+
         this.players = players;
 		this.playerBitboard = new long[playerCount];
 
@@ -29,6 +36,8 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 	public BitboardGame(BitboardGame<T> other) {
 		this.columnSize = other.columnSize;
 		this.rowSize = other.rowSize;
+
+		this.state = other.state;
 
 		this.playerBitboard = other.playerBitboard.clone();
 		this.currentTurn = other.currentTurn;
@@ -61,7 +70,9 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
 		return getCurrentPlayerIndex();
 	}
 
-    public Player<T> getPlayer(int index) {return players[index];}
+	public Player<T> getPlayer(int index) {
+		return players[index];
+	}
 
 	public int getCurrentPlayerIndex() {
         return currentTurn % playerBitboard.length;
@@ -75,9 +86,17 @@ public abstract class BitboardGame<T extends BitboardGame<T>> implements TurnBas
         return players[getCurrentPlayerIndex()];
     }
 
+	@Override
+	public PlayResult getState() {
+		return state;
+	}
 
+	@Override
+	public boolean isTerminal() {
+		return state.state() == GameState.WIN || state.state() == GameState.DRAW;
+	}
 
-    @Override
+	@Override
     public long[] getBoard() {return this.playerBitboard;}
 
 	public void nextTurn() {

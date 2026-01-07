@@ -41,15 +41,19 @@ public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 			return expanded >= children.length;
 		}
 
-		public Node bestUCTChild(float explorationFactor) {
+		float calculateUCT() {
+			float exploitation = visits <= 0? 0 : value / visits;
+			float exploration = 1.41f * (float)(Math.sqrt(Math.log(visits) / visits));
+
+			return exploitation + exploration;
+		}
+
+		public Node bestUCTChild() {
 			int bestChildIndex = -1;
 			float bestScore = Float.NEGATIVE_INFINITY;
 
 			for (int i = 0; i < expanded; i++) {
-				float exploitation = children[i].visits <= 0? 0 : children[i].value / children[i].visits;
-				float exploration = explorationFactor * (float)(Math.sqrt(Math.log(visits) / (children[i].visits + 0.001f)));
-
-				float score = exploitation + exploration;
+				final float score = calculateUCT();
 
 				if (score > bestScore) {
 					bestChildIndex = i;
@@ -109,14 +113,12 @@ public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 			}
 		}
 
-		System.out.println("Visit count: " + root.visits);
-
 		return mostVisitedIndex != -1? root.children[mostVisitedIndex].move : randomSetBit(game.getLegalMoves());
 	}
 
 	private Node selection(Node node) {
 		while (node.state.getLegalMoves() != 0L && node.isFullyExpanded()) {
-			node = node.bestUCTChild(1.41f);
+			node = node.bestUCTChild();
 		}
 
 		return node;

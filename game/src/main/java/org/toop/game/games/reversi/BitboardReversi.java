@@ -175,7 +175,7 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		direction |= (direction << 1) & mask;
 		direction |= (direction << 1) & mask;
 
-		if (((direction << 1) & player) != 0) {
+		if (((direction << 1) & player & notAFile) != 0) {
 			flips |= direction;
 		}
 
@@ -189,7 +189,7 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		direction |= (direction >>> 1) & mask;
 		direction |= (direction >>> 1) & mask;
 
-		if (((direction >>> 1) & player) != 0) {
+		if (((direction >>> 1) & player & notHFile) != 0) {
 			flips |= direction;
 		}
 
@@ -203,7 +203,7 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		direction |= (direction << 9) & mask;
 		direction |= (direction << 9) & mask;
 
-		if (((direction << 9) & player) != 0) {
+		if (((direction << 9) & player & notAFile) != 0) {
 			flips |= direction;
 		}
 
@@ -217,7 +217,7 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		direction |= (direction << 7) & mask;
 		direction |= (direction << 7) & mask;
 
-		if (((direction << 7) & player) != 0) {
+		if (((direction << 7) & player & notHFile) != 0) {
 			flips |= direction;
 		}
 
@@ -231,7 +231,7 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		direction |= (direction >>> 7) & mask;
 		direction |= (direction >>> 7) & mask;
 
-		if (((direction >>> 7) & player) != 0) {
+		if (((direction >>> 7) & player & notAFile) != 0) {
 			flips |= direction;
 		}
 
@@ -245,7 +245,7 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 		direction |= (direction >>> 9) & mask;
 		direction |= (direction >>> 9) & mask;
 
-		if (((direction >>> 9) & player) != 0) {
+		if (((direction >>> 9) & player & notHFile) != 0) {
 			flips |= direction;
 		}
 
@@ -280,16 +280,20 @@ public class BitboardReversi extends BitboardGame<BitboardReversi> {
 				int winner = getWinner();
 
 				if (winner == -1) {
-					return new PlayResult(GameState.DRAW, -1);
+					state = new PlayResult(GameState.DRAW, -1);
+					return state;
 				}
 
-				return new PlayResult(GameState.WIN, winner);
+				state = new PlayResult(GameState.WIN, winner);
+				return state;
 			}
 
-			return new PlayResult(GameState.TURN_SKIPPED, getCurrentPlayerIndex());
+			state = new PlayResult(GameState.TURN_SKIPPED, getCurrentPlayerIndex());
+			return state;
 		}
 
-		return new PlayResult(GameState.NORMAL, getCurrentPlayerIndex());
+		state = new PlayResult(GameState.NORMAL, getCurrentPlayerIndex());
+		return state;
 	}
 
 	public Score getScore() {
