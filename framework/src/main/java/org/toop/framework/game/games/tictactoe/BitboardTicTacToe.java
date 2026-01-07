@@ -45,7 +45,8 @@ public class BitboardTicTacToe extends BitboardGame {
 	public PlayResult play(long move) {
         // Player loses if move is invalid
         if ((move & getLegalMoves()) == 0 || Long.bitCount(move) != 1){
-            return new PlayResult(GameState.WIN, getNextPlayer());
+            state = new PlayResult(GameState.WIN, getNextPlayer());
+			return state;
         }
 
         // Move is legal, make move
@@ -56,7 +57,8 @@ public class BitboardTicTacToe extends BitboardGame {
 
         // Check if current player won
         if (checkWin(playerBitboard)) {
-            return new PlayResult(GameState.WIN, getCurrentPlayerIndex());
+			state = new PlayResult(GameState.WIN, getCurrentPlayerIndex());
+            return state;
         }
 
         // Proceed to next turn
@@ -65,11 +67,13 @@ public class BitboardTicTacToe extends BitboardGame {
 
         // Check for early draw
 		if (getLegalMoves() == 0L || checkEarlyDraw()) {
-			return new PlayResult(GameState.DRAW, -1);
+			state = new PlayResult(GameState.DRAW, -1);
+			return state;
 		}
 
         // Nothing weird happened, continue on as normal
-		return new PlayResult(GameState.NORMAL, -1);
+		state = new PlayResult(GameState.NORMAL, -1);
+		return state;
 	}
 
 	private boolean checkWin(long board) {

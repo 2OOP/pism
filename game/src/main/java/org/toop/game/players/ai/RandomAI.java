@@ -1,4 +1,4 @@
-package org.toop.framework.game.players.ai;
+package org.toop.game.players.ai;
 
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractAI;

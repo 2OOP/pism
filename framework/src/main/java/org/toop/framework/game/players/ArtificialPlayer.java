@@ -44,10 +44,15 @@ public class ArtificialPlayer extends AbstractPlayer {
      * @return the integer representing the chosen move
      * @throws ClassCastException if {@code gameCopy} is not of type {@code T}
      */
-    public long getMove(TurnBasedGame gameCopy) {
+    protected long determineMove(TurnBasedGame gameCopy) {
         return ai.getMove(gameCopy);
     }
 
+    /**
+     * Creates a deep copy of this AI player.
+     *
+     * @return a copy of this player
+     */
     @Override
     public ArtificialPlayer deepCopy() {
         return new ArtificialPlayer(this);

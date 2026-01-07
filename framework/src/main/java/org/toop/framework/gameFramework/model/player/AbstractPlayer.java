@@ -40,12 +40,29 @@ public abstract class AbstractPlayer implements Player {
      * @return an integer representing the chosen move
      * @throws UnsupportedOperationException if the method is not overridden
      */
-    public long getMove(TurnBasedGame gameCopy) {
-        logger.error("Method getMove not implemented.");
-        throw new UnsupportedOperationException("Not supported yet.");
+    public final long getMove(TurnBasedGame game) {
+        return determineMove(game.deepCopy());
     }
 
-    public final String getName(){
+
+    /**
+     * Determines the player's move using a safe copy of the game.
+     * <p>
+     * This method is called by {@link #getMove(T)} and should contain
+     * the player's strategy for choosing a move.
+     *
+     * @param gameCopy a deep copy of the game
+     * @return the chosen move
+     */
+    protected abstract long determineMove(TurnBasedGame gameCopy);
+
+
+    /**
+     * Returns the player's name.
+     *
+     * @return the name
+     */
+    public String getName() {
         return this.name;
     }
 }

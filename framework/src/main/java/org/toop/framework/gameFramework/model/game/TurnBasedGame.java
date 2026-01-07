@@ -11,4 +11,6 @@ public interface TurnBasedGame extends DeepCopyable<TurnBasedGame> {
     int getWinner();
     long getLegalMoves();
     PlayResult play(long move);
+	PlayResult getState();
+	boolean isTerminal();
 }

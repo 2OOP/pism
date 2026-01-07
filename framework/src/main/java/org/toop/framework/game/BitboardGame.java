@@ -1,5 +1,7 @@
 package org.toop.framework.game;
 
+import org.toop.framework.gameFramework.GameState;
+import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
@@ -9,6 +11,8 @@ import java.util.Arrays;
 public abstract class BitboardGame implements TurnBasedGame {
 	private final int columnSize;
 	private final int rowSize;
+
+	protected PlayResult state;
 
     private Player[] players;
 
@@ -20,21 +24,27 @@ public abstract class BitboardGame implements TurnBasedGame {
 	public BitboardGame(int columnSize, int rowSize, int playerCount) {
 		this.columnSize = columnSize;
 		this.rowSize = rowSize;
-		this.playerCount = playerCount;
-        this.playerBitboard = new long[playerCount];
-	}
+        this.playerCount = playerCount;
+		this.state = new PlayResult(GameState.NORMAL, -1);
 
-	@Override
-	public void init(Player[] players) {
-		this.players = players;
+		this.playerBitboard = new long[playerCount];
 
 		Arrays.fill(playerBitboard, 0L);
 	}
+
+    @Override
+    public void init(Player[] players) {
+        this.players = players;
+
+        Arrays.fill(playerBitboard, 0L);
+    }
 
 	public BitboardGame(BitboardGame other) {
 		this.columnSize = other.columnSize;
 		this.rowSize = other.rowSize;
         this.playerCount = other.playerCount;
+		this.state = other.state;
+
 		this.playerBitboard = other.playerBitboard.clone();
 		this.currentTurn = other.currentTurn;
         this.players = Arrays.stream(other.players)
@@ -80,9 +90,17 @@ public abstract class BitboardGame implements TurnBasedGame {
         return players[getCurrentPlayerIndex()];
     }
 
+	@Override
+	public PlayResult getState() {
+		return state;
+	}
 
+	@Override
+	public boolean isTerminal() {
+		return state.state() == GameState.WIN || state.state() == GameState.DRAW;
+	}
 
-    @Override
+	@Override
     public long[] getBoard() {return this.playerBitboard;}
 
 	public void nextTurn() {
