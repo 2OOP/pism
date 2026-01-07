@@ -11,6 +11,7 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.framework.game.players.OnlinePlayer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.eventbus.GlobalEventBus;
@@ -20,6 +21,7 @@ import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.types.NetworkingConnector;
 import org.toop.framework.networking.server.gateway.NettyGatewayServer;
 import org.toop.game.players.LocalPlayer;
+import org.toop.game.players.ai.RandomAI;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -210,15 +212,15 @@ public final class Server {
                 case TICTACTOE -> {
                     Player[] players = new Player[2];
                     players[Math.abs(myTurn-1)] = new OnlinePlayer(response.opponent());
-                    players[myTurn] = new LocalPlayer(user); // HERE
-//                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
+                    //players[myTurn] = new LocalPlayer(user); // HERE
+                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
                     gameController = new TicTacToeBitController(players);
                 }
                 case REVERSI -> {
                     Player[] players = new Player[2];
                     players[Math.abs(myTurn-1)] = new OnlinePlayer(response.opponent());
-                    players[myTurn] = new LocalPlayer(user); // HERE
-//                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
+                    //players[myTurn] = new LocalPlayer(user); // HERE
+                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
                     gameController = new ReversiBitController(players);}
                 default -> new ErrorPopup("Unsupported game type.");
 
