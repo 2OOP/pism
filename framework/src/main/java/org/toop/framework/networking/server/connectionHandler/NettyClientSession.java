@@ -11,8 +11,6 @@ import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.client.Client;
 import org.toop.framework.networking.server.parsing.Parser;
 
-import java.util.Arrays;
-
 public class NettyClientSession extends SimpleChannelInboundHandler<String> implements ClientSession<OnlineTurnBasedGame, ServerPlayer> {
 
     private final NettyClient client;
@@ -41,12 +39,8 @@ public class NettyClientSession extends SimpleChannelInboundHandler<String> impl
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
 
-        IO.println(msg);
-
         ParsedMessage p = Parser.parse(msg);
         if (p == null) return;
-
-        IO.println(p.command() + " " + Arrays.toString(p.args()));
 
         handler.handle(p);
     }

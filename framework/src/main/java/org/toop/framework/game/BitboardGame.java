@@ -47,9 +47,11 @@ public abstract class BitboardGame implements TurnBasedGame {
 
 		this.playerBitboard = other.playerBitboard.clone();
 		this.currentTurn = other.currentTurn;
-        this.players = Arrays.stream(other.players)
-                .map(Player::deepCopy)
-                .toArray(Player[]::new);
+        this.players = other.players;
+        // TODO: Players are not deep copied, which is bad. I don't know why but deepcopying breaks it. Fix it
+        //this.players = Arrays.stream(other.players)
+        //        .map(Player::deepCopy)
+        //        .toArray(Player[]::new);
 	}
 
 	public int getColumnSize() {

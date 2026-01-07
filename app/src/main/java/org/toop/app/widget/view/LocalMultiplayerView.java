@@ -12,7 +12,7 @@ import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.*;
-import org.toop.game.players.LocalPlayer;
+import org.toop.framework.game.players.LocalPlayer;
 import org.toop.game.players.ai.MCTSAI;
 import org.toop.game.players.ai.MCTSAI2;
 import org.toop.game.players.ai.MCTSAI3;
