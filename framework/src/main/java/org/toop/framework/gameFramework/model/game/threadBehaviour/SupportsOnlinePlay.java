@@ -1,4 +1,4 @@
-package org.toop.framework.gameFramework.model.game;
+package org.toop.framework.gameFramework.model.game.threadBehaviour;
 
 /**
  * Interface for games that support online multiplayer play.

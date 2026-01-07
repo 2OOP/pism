@@ -19,7 +19,7 @@ import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.types.NetworkingConnector;
 import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.framework.game.players.OnlinePlayer;
-import org.toop.framework.game.players.RandomAI;
+import org.toop.framework.game.players.ai.RandomAI;
 import org.toop.framework.networking.server.gateway.NettyGatewayServer;
 import org.toop.local.AppContext;
 

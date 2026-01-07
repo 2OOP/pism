@@ -1,4 +1,4 @@
-package org.toop.framework.game.players;
+package org.toop.framework.game.players.ai;
 
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;

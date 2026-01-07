@@ -4,7 +4,7 @@ import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.gameFramework.model.game.threadBehaviour.AbstractThreadBehaviour;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.framework.gameFramework.model.game.SupportsOnlinePlay;
+import org.toop.framework.gameFramework.model.game.threadBehaviour.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.game.players.OnlinePlayer;
 

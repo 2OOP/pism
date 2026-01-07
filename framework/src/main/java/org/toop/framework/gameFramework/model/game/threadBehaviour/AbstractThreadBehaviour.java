@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.gameFramework.LongPairConsumer;
 import org.toop.framework.gameFramework.controller.GameController;
+import org.toop.framework.gameFramework.controller.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 import java.util.concurrent.atomic.AtomicBoolean;
