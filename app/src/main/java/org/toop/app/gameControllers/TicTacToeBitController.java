@@ -7,17 +7,18 @@ import org.toop.framework.game.gameThreads.LocalThreadBehaviour;
 import org.toop.framework.game.gameThreads.OnlineThreadBehaviour;
 import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.framework.game.players.OnlinePlayer;
+import org.toop.framework.networking.server.OnlineGame;
+
+import java.util.Arrays;
 
 public class TicTacToeBitController extends GenericGameController {
     public TicTacToeBitController(Player[] players) {
         BitboardTicTacToe game = new BitboardTicTacToe();
         game.init(players);
-        ThreadBehaviour thread = new LocalThreadBehaviour(game);
-        for (Player player : players) {
-            if (player instanceof OnlinePlayer){
-                thread = new OnlineThreadBehaviour(game);
-            }
-        }
+
+        ThreadBehaviour thread = Arrays.stream(players).anyMatch(e -> e instanceof OnlinePlayer) ?
+                new OnlineThreadBehaviour(game) : new LocalThreadBehaviour(game);
+
         super(new TicTacToeBitCanvas(), game, thread , "TicTacToe");
     }
 }
