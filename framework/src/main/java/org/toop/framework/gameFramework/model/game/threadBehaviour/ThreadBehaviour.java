@@ -11,8 +11,11 @@ import java.util.function.Consumer;
  * <p>
  * Defines how a game's execution is started, stopped, and which player is active.
  */
-public interface ThreadBehaviour extends Controllable {
+public interface ThreadBehaviour {
     void setOnUpdateUI(Runnable onUpdateUI);
     void setOnSendMove(LongPairConsumer onSendMove);
+    void start();
+    void stop();
+
 }
 
