@@ -1,4 +1,4 @@
-package org.toop.framework.game.players;
+package org.toop.game.players;
 
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;

@@ -16,7 +16,7 @@ import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehavio
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.networking.connection.events.NetworkEvents;
-import org.toop.framework.game.players.LocalPlayer;
+import org.toop.game.players.LocalPlayer;
 
 public class GenericGameController implements GameController {
     protected final EventFlow eventFlow = new EventFlow();
