@@ -1,15 +1,6 @@
 package org.toop;
 
 import org.toop.app.App;
-import org.toop.framework.gameFramework.model.player.AbstractPlayer;
-import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.games.reversi.BitboardReversi;
-import org.toop.game.games.tictactoe.BitboardTicTacToe;
-import org.toop.game.players.ArtificialPlayer;
-import org.toop.game.players.ai.MCTSAI;
-import org.toop.game.players.ai.MCTSAI2;
-import org.toop.game.players.ai.MCTSAI3;
-import org.toop.game.players.ai.RandomAI;
 
 public final class Main {
     static void main(String[] args) {

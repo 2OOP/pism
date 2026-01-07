@@ -6,6 +6,14 @@ import org.toop.app.widget.complex.LabeledInputWidget;
 import org.toop.app.widget.complex.ViewWidget;
 
 import javafx.geometry.Pos;
+import org.toop.framework.game.games.reversi.BitboardReversi;
+import org.toop.framework.game.games.tictactoe.BitboardTicTacToe;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+import org.toop.framework.networking.server.gateway.NettyGatewayServer;
+import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
+
+import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OnlineView extends ViewWidget {
 	public OnlineView() {
@@ -21,7 +29,31 @@ public class OnlineView extends ViewWidget {
 				serverPortInput.getValue(),
 				playerNameInput.getValue()
 			);
-		});
+		}, false);
+
+		var localHostButton = Primitive.button("host!", () -> {
+
+			var tps = new TurnBasedGameTypeStore();
+			tps.register("tic-tac-toe", BitboardTicTacToe::new);
+			tps.register("reversi", BitboardReversi::new);
+
+			var a = new NettyGatewayServer(6666, tps, Duration.ofSeconds(10));
+
+			new Thread(() -> {
+				try {
+					a.start();
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}).start();
+
+			new Server(
+					"127.0.0.1",
+					"6666",
+					"host",
+					a
+			);
+		}, false, false);
 
 		add(Pos.CENTER, Primitive.vbox(
 			serverInformationHeader,
@@ -32,7 +64,9 @@ public class OnlineView extends ViewWidget {
 			playerNameInput.getNode(),
 			Primitive.separator(),
 
-			connectButton
+			connectButton,
+			Primitive.separator(),
+			localHostButton
 		));
 	}
 }

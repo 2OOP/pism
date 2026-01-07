@@ -10,9 +10,9 @@ public class ShowEnableTutorialWidget extends PopupWidget {
 
     public ShowEnableTutorialWidget(Runnable tutorial, Runnable nextScreen, Runnable appSettingsSetter) {
         var a = Primitive.hbox(
-                Primitive.button("ok", () -> { appSettingsSetter.run(); tutorial.run(); this.hide(); }),
-                Primitive.button("no", () -> { appSettingsSetter.run(); nextScreen.run(); this.hide(); }),
-                Primitive.button("never", () -> { AppSettings.getSettings().setTutorialFlag(false); nextScreen.run(); this.hide(); })
+                Primitive.button("ok", () -> { appSettingsSetter.run(); tutorial.run(); this.hide(); }, false),
+                Primitive.button("no", () -> { appSettingsSetter.run(); nextScreen.run(); this.hide(); }, false),
+                Primitive.button("never", () -> { AppSettings.getSettings().setTutorialFlag(false); nextScreen.run(); this.hide(); }, false)
         );
 
         var txt = Primitive.text("tutorial");

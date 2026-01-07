@@ -6,19 +6,19 @@ import org.toop.framework.gameFramework.model.player.AbstractAI;
 import java.util.Random;
 
 
-public class RandomAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
+public class RandomAI extends AbstractAI {
 
     public RandomAI() {
         super();
     }
 
     @Override
-    public RandomAI<T> deepCopy() {
-        return new RandomAI<T>();
+    public RandomAI deepCopy() {
+        return new RandomAI();
     }
 
     @Override
-    public long getMove(T game) {
+    public long getMove(TurnBasedGame game) {
         long legalMoves = game.getLegalMoves();
         int move = new Random().nextInt(Long.bitCount(legalMoves));
         return nthBitIndex(legalMoves, move);

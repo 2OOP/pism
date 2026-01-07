@@ -40,7 +40,7 @@ public final class GameView extends ViewWidget {
         player2Icon = new Circle();
 
 		if (onForfeit != null) {
-			forfeitButton = Primitive.button("forfeit", () -> onForfeit.run());
+			forfeitButton = Primitive.button("forfeit", () -> onForfeit.run(), false);
 		} else {
 			forfeitButton = null;
 		}
@@ -48,7 +48,7 @@ public final class GameView extends ViewWidget {
 		exitButton = Primitive.button("exit", () -> {
 			onExit.run();
 			transitionPrevious();
-		});
+		}, false);
 
 		if (onMessage != null) {
 			chatInput = Primitive.input("enter-your-message", "", null);

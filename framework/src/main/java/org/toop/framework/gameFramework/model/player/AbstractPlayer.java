@@ -5,43 +5,42 @@ import org.apache.logging.log4j.Logger;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
 /**
- * Base class for players in a turn-based game.
- *
- * @param <T> the game type
+ * Abstract class representing a player in a game.
+ * <p>
+ * Players are entities that can make moves based on the current state of a game.
+ * player types, such as human players or AI players.
+ * </p>
+ * <p>
+ * Subclasses should override the {@link #getMove(GameR)} method to provide
+ * specific move logic.
+ * </p>
  */
-public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Player<T> {
+public abstract class AbstractPlayer implements Player {
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final String name;
 
-    /**
-     * Creates a new player with the given name.
-     *
-     * @param name the player name
-     */
     protected AbstractPlayer(String name) {
+        System.out.println("Player " + name + " has been created");
         this.name = name;
     }
 
-    /**
-     * Creates a copy of another player.
-     *
-     * @param other the player to copy
-     */
-    protected AbstractPlayer(AbstractPlayer<T> other) {
+    protected AbstractPlayer(AbstractPlayer other) {
         this.name = other.name;
     }
-
     /**
-     * Gets the player's move for the given game state.
-     * A deep copy is provided so the player cannot modify the real state.
+     * Determines the next move based on the provided game state.
      * <p>
-     * This method uses the Template Method Pattern: it defines the fixed
-     * algorithm and delegates the variable part to {@link #determineMove(T)}.
+     * The default implementation throws an {@link UnsupportedOperationException},
+     * indicating that concrete subclasses must override this method to provide
+     * actual move logic.
+     * </p>
      *
-     * @param game the current game
-     * @return the chosen move
+     * @param gameCopy a snapshot of the current game state
+     * @return an integer representing the chosen move
+     * @throws UnsupportedOperationException if the method is not overridden
      */
-    public final long getMove(T game) {
+    public final long getMove(TurnBasedGame game) {
         return determineMove(game.deepCopy());
     }
 
@@ -55,7 +54,7 @@ public abstract class AbstractPlayer<T extends TurnBasedGame<T>> implements Play
      * @param gameCopy a deep copy of the game
      * @return the chosen move
      */
-    protected abstract long determineMove(T gameCopy);
+    protected abstract long determineMove(TurnBasedGame gameCopy);
 
 
     /**

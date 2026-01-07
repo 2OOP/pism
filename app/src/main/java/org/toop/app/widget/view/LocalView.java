@@ -10,11 +10,11 @@ public class LocalView extends ViewWidget {
 	public LocalView() {
 		var ticTacToeButton = Primitive.button("tic-tac-toe", () -> {
 			transitionNext(new LocalMultiplayerView(GameInformation.Type.TICTACTOE));
-		});
+		}, false);
 
 		var reversiButton = Primitive.button("reversi", () -> {
 			transitionNext(new LocalMultiplayerView(GameInformation.Type.REVERSI));
-		});
+		}, false);
 
 		add(Pos.CENTER, Primitive.vbox(
 			ticTacToeButton,

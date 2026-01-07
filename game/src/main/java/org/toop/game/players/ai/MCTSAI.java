@@ -7,9 +7,9 @@ import org.toop.framework.gameFramework.model.player.AbstractAI;
 
 import java.util.Random;
 
-public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
+public class MCTSAI extends AbstractAI {
 	private static class Node {
-		public TurnBasedGame<?> state;
+		public TurnBasedGame state;
 		public long move;
 
 		public Node parent;
@@ -20,7 +20,7 @@ public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 		public int visits;
 		public float value;
 
-		public Node(TurnBasedGame<?> state, long move, Node parent) {
+		public Node(TurnBasedGame state, long move, Node parent) {
 			this.state = state;
 			this.move = move;
 
@@ -33,7 +33,7 @@ public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 			this.value = 0.0f;
 		}
 
-		public Node(TurnBasedGame<?> state) {
+		public Node(TurnBasedGame state) {
 			this(state, 0L, null);
 		}
 
@@ -71,17 +71,17 @@ public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 		this.milliseconds = milliseconds;
 	}
 
-	public MCTSAI(MCTSAI<T> other) {
+	public MCTSAI(MCTSAI other) {
 		this.milliseconds = other.milliseconds;
 	}
 
 	@Override
-	public MCTSAI<T> deepCopy() {
-		return new MCTSAI<>(this);
+	public MCTSAI deepCopy() {
+		return new MCTSAI(this);
 	}
 
 	@Override
-	public long getMove(T game) {
+	public long getMove(TurnBasedGame game) {
 		Node root = new Node(game.deepCopy());
 
 		long endTime = System.currentTimeMillis() + milliseconds;
@@ -135,7 +135,7 @@ public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 
 		long move = randomSetBit(legalMoves);
 
-		TurnBasedGame<?> copy = node.state.deepCopy();
+		TurnBasedGame copy = node.state.deepCopy();
 		copy.play(move);
 
 		Node newlyExpanded = new Node(copy, move, node);
@@ -146,8 +146,8 @@ public class MCTSAI<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 		return newlyExpanded;
 	}
 
-	private float simulation(TurnBasedGame<?> state, int playerIndex) {
-		TurnBasedGame<?> copy = state.deepCopy();
+	private float simulation(TurnBasedGame state, int playerIndex) {
+		TurnBasedGame copy = state.deepCopy();
 		long legalMoves = copy.getLegalMoves();
 		PlayResult result = null;
 

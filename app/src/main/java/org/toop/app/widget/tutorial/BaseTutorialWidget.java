@@ -47,8 +47,8 @@ public class BaseTutorialWidget extends PopupWidget implements Updatable {
         this.pages = pages;
         this.nextScreen = nextScreen;
 
-        previousButton = Primitive.button("goback", () -> { update(false); this.hide(); });
-        nextButton = Primitive.button(">", () -> update(true));
+        previousButton = Primitive.button("goback", () -> { update(false); this.hide(); }, false);
+        nextButton = Primitive.button(">", () -> update(true), false);
 
         var w = Primitive.hbox(
                 previousButton,

@@ -5,9 +5,9 @@ import org.toop.framework.gameFramework.model.player.AbstractAI;
 
 import java.util.Random;
 
-public class MCTSAI2<T extends TurnBasedGame<T>> extends AbstractAI<T> {
+public class MCTSAI2 extends AbstractAI {
 	private static class Node {
-		public TurnBasedGame<?> state;
+		public TurnBasedGame state;
 
 		public long move;
 		public long unexpandedMoves;
@@ -20,7 +20,7 @@ public class MCTSAI2<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 		public float value;
 		public int visits;
 
-		public Node(TurnBasedGame<?> state, Node parent, long move) {
+		public Node(TurnBasedGame state, Node parent, long move) {
 			final long legalMoves = state.getLegalMoves();
 
 			this.state = state;
@@ -37,7 +37,7 @@ public class MCTSAI2<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 			this.visits = 0;
 		}
 
-		public Node(TurnBasedGame<?> state) {
+		public Node(TurnBasedGame state) {
 			this(state, null, 0L);
 		}
 
@@ -78,18 +78,18 @@ public class MCTSAI2<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 		this.milliseconds = milliseconds;
 	}
 
-	public MCTSAI2(MCTSAI2<?> other) {
+	public MCTSAI2(MCTSAI2 other) {
 		this.random = other.random;
 		this.milliseconds = other.milliseconds;
 	}
 
 	@Override
-	public MCTSAI2<T> deepCopy() {
-		return new MCTSAI2<>(this);
+	public MCTSAI2 deepCopy() {
+		return new MCTSAI2(this);
 	}
 
 	@Override
-	public long getMove(T game) {
+	public long getMove(TurnBasedGame game) {
 		final Node root = new Node(game, null, 0L);
 
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;
@@ -135,7 +135,7 @@ public class MCTSAI2<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 
 		final long unexpandedMove = leaf.unexpandedMoves & -leaf.unexpandedMoves;
 
-		final TurnBasedGame<?> copiedState = leaf.state.deepCopy();
+		final TurnBasedGame copiedState = leaf.state.deepCopy();
 		copiedState.play(unexpandedMove);
 
 		final Node expandedChild = new Node(copiedState, leaf, unexpandedMove);
@@ -149,7 +149,7 @@ public class MCTSAI2<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 	}
 
 	private float simulation(Node leaf) {
-		final TurnBasedGame<?> copiedState = leaf.state.deepCopy();
+		final TurnBasedGame copiedState = leaf.state.deepCopy();
 		final int playerIndex = 1 - copiedState.getCurrentTurn();
 
 		while (!copiedState.isTerminal()) {

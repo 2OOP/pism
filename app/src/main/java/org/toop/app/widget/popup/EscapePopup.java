@@ -18,13 +18,13 @@ public class EscapePopup extends PopupWidget {
         ViewWidget currentView = WidgetContainer.getCurrentView();
         ArrayList<Node> nodes = new ArrayList<>();
 
-        nodes.add(Primitive.button("Continue", this::hide, false)); // TODO, localize
+        nodes.add(Primitive.button("Continue", this::hide, false, false)); // TODO, localize
 
         if (!(currentView.getClass().isAssignableFrom(OptionsView.class))) {
             var opt = Primitive.button("options", () -> {
                 hide();
                 WidgetContainer.getCurrentView().transitionNext(new OptionsView());
-            });
+            }, false);
             nodes.add(opt);
         }
 
@@ -33,14 +33,14 @@ public class EscapePopup extends PopupWidget {
             if (tut != null) {
                 nodes.add(Primitive.button("tutorialstring", () -> {
                     WidgetContainer.getCurrentView().add(Pos.CENTER, tut);
-                }));
+                }, false));
             }
         }
 
         nodes.add(Primitive.button("quit", () -> {
             hide();
             WidgetContainer.add(Pos.CENTER, new QuitPopup());
-        }));
+        }, false));
 
         add(Pos.CENTER, Primitive.vbox(nodes.toArray(new Node[0])));
 
