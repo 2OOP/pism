@@ -11,6 +11,7 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.game.players.LocalPlayer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gameFramework.model.player.Player;
@@ -202,33 +203,24 @@ public final class Server {
             final GameInformation information = new GameInformation(type);
             //information.players[0] = playerInformation;
             information.players[0].name = user;
-            information.players[0].isHuman = false;
-            information.players[0].computerDifficulty = 5;
-            information.players[0].computerThinkTime = 1;
+            information.players[0].isHuman = true; // Make false and uncomment/comment code at lines HERE To make use of AI.
+//            information.players[0].computerDifficulty = 5; // HERE
+//            information.players[0].computerThinkTime = 1; // HERE
             information.players[1].name = response.opponent();
 
-            /*switch (type){
-                case TICTACTOE ->{
-                    players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(9), user);
-                }
-                case REVERSI ->{
-                    players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
-                }
-            }*/
-
-
-
             switch (type) {
-                case TICTACTOE ->{
-                        Player[] players = new Player[2];
-                        players[(myTurn + 1) % 2] = new OnlinePlayer(response.opponent());
-                        players[myTurn] = new ArtificialPlayer(new RandomAI(), user);
-                        gameController = new TicTacToeBitController(players);
+                case TICTACTOE -> {
+                    Player[] players = new Player[2];
+                    players[Math.abs(myTurn-1)] = new OnlinePlayer(response.opponent());
+                    players[myTurn] = new LocalPlayer(user); // HERE
+//                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
+                    gameController = new TicTacToeBitController(players);
                 }
                 case REVERSI -> {
                     Player[] players = new Player[2];
-                    players[(myTurn + 1) % 2] = new OnlinePlayer(response.opponent());
-                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user);
+                    players[Math.abs(myTurn-1)] = new OnlinePlayer(response.opponent());
+                    players[myTurn] = new LocalPlayer(user); // HERE
+//                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
                     gameController = new ReversiBitController(players);}
                 default -> new ErrorPopup("Unsupported game type.");
 

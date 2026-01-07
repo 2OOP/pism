@@ -136,7 +136,6 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 players[i] = new ServerPlayer(clients[i]);
                 clients[i].setGame(new ImmutablePair<>(game, players[i]));
             }
-            System.out.println("Starting OnlineTurnBasedGame");
 
             game.game().init(players);
             gameStore.add(game);
