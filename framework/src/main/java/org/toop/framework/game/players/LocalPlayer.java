@@ -1,4 +1,4 @@
-package org.toop.game.players;
+package org.toop.framework.game.players;
 
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractPlayer;
@@ -45,11 +45,16 @@ public class LocalPlayer extends AbstractPlayer {
         long legalMoves = gameCopy.getLegalMoves();
         long move;
 
-        do {
-            move = getLastMove();
-        } while ((legalMoves & move) == 0);
-
-        return move;
+        try {
+            do {
+                move = getLastMove();
+                IO.println("GETTING MOVE");
+            } while ((legalMoves & move) == 0);
+            return move;
+        } catch (Exception e) {
+            IO.println(e);
+        }
+        return -1;
     }
 
     /**

@@ -16,7 +16,7 @@ import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehavio
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.gameFramework.view.GUIEvents;
 import org.toop.framework.networking.connection.events.NetworkEvents;
-import org.toop.game.players.LocalPlayer;
+import org.toop.framework.game.players.LocalPlayer;
 
 public class GenericGameController implements GameController {
     protected final EventFlow eventFlow = new EventFlow();
@@ -35,14 +35,16 @@ public class GenericGameController implements GameController {
 
     // TODO: Change gameType to automatically happen with either dependency injection or something else.
     public GenericGameController(GameCanvas canvas, TurnBasedGame game, ThreadBehaviour gameThreadBehaviour, String gameType) {
-        logger.info("Creating: " + this.getClass());
+        logger.info("Creating: {}", this.getClass());
 
         this.canvas = canvas;
         this.game = game;
         this.gameThreadBehaviour = gameThreadBehaviour;
 
         // Tell thread how to send moves
-        this.gameThreadBehaviour.setOnSendMove((id, m) -> GlobalEventBus.get().post(new NetworkEvents.SendMove(id, (short)translateMove(m))));
+        this.gameThreadBehaviour.setOnSendMove(
+                (id, m) -> GlobalEventBus.get().post(new NetworkEvents.SendMove(id, (short)translateMove(m)))
+        );
 
         // Tell thread how to update UI
         this.gameThreadBehaviour.setOnUpdateUI(() -> Platform.runLater(this::updateUI));
@@ -53,21 +55,37 @@ public class GenericGameController implements GameController {
         WidgetContainer.getCurrentView().transitionNext(gameView, true);
 
         // Listen to updates
+        logger.info("Game controller started listening");
         eventFlow
                 .listen(GUIEvents.GameEnded.class, this::onGameFinish, false)
-                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {if (getCurrentPlayer() instanceof LocalPlayer lp){lp.setLastMove(event.move());}}, false);
+                .listen(GUIEvents.PlayerAttemptedMove.class, event -> {
+                    logger.info("User attempting move {}", event.move());
+                    logger.info("Current player's turn {}", getCurrentPlayer().getName());
+                    logger.info("First player {}", game.getPlayer(0).getName());
+                    logger.info("Username {}", getCurrentPlayer().getName());
+                    logger.info("User is class {}, {}", getCurrentPlayer().getClass(), getCurrentPlayer() instanceof LocalPlayer);
+                    if (getCurrentPlayer() instanceof LocalPlayer lp) {
+                        try {
+                            lp.setLastMove(event.move());
+                        } catch (Exception e) {
+                            IO.println(e);
+                        }
+                    }
+                }, false);
     }
 
     public void start(){
         logger.info("Starting GameManager");
         updateUI();
         gameThreadBehaviour.start();
+        logger.info("GameManager started");
     }
 
     public void stop(){
         logger.info("Stopping GameManager");
         removeListeners();
         gameThreadBehaviour.stop();
+        logger.info("GameManager stopped");
     }
 
     public Player getCurrentPlayer(){
@@ -98,7 +116,7 @@ public class GenericGameController implements GameController {
     }
 
     public Player getPlayer(int player){
-        if (player < 0 || player >= 2){ // TODO: Make game turn player count
+        if (player < 0 || player > game.getPlayerCount()-1){ // TODO: Make game turn player count
             logger.error("Invalid player index");
             throw new IllegalArgumentException("player out of range");
         }

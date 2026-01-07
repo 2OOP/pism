@@ -78,6 +78,7 @@ public abstract class BitGameCanvas implements GameCanvas {
 		}
 
 		canvas.setOnMouseClicked(event -> {
+
 			if (event.getButton() != MouseButton.PRIMARY) {
 				return;
 			}
@@ -92,9 +93,6 @@ public abstract class BitGameCanvas implements GameCanvas {
 				this.onCellCLicked.accept(1L << (column + row * rowSize));
 			}
 		});
-
-
-
 
 		render();
 	}

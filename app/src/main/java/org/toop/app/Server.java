@@ -11,7 +11,6 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
-import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.framework.game.players.OnlinePlayer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.eventbus.GlobalEventBus;
@@ -20,8 +19,7 @@ import org.toop.framework.networking.connection.clients.TournamentNetworkingClie
 import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.types.NetworkingConnector;
 import org.toop.framework.networking.server.gateway.NettyGatewayServer;
-import org.toop.game.players.LocalPlayer;
-import org.toop.game.players.ai.RandomAI;
+import org.toop.framework.game.players.LocalPlayer;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -198,30 +196,21 @@ public final class Server {
                 return;
             }
 
-            final int myTurn = response.playerToMove().equalsIgnoreCase(response.opponent()) ? 1 : 0;
+            final String startingPlayer = response.playerToMove();
+            final int userStartingTurn = startingPlayer.equalsIgnoreCase(user) ? 0 : 1;
+            final int opponentStartingTurn = 1 - userStartingTurn;
 
             final GameInformation information = new GameInformation(type);
-            //information.players[0] = playerInformation;
-            information.players[0].name = user;
-            information.players[0].isHuman = true; // Make false and uncomment/comment code at lines HERE To make use of AI.
-//            information.players[0].computerDifficulty = 5; // HERE
-//            information.players[0].computerThinkTime = 1; // HERE
-            information.players[1].name = response.opponent();
+            information.players[userStartingTurn].name = user;
+            information.players[opponentStartingTurn].name = response.opponent();
+
+            Player[] players = new Player[2];
+            players[userStartingTurn] = new LocalPlayer(user);
+            players[opponentStartingTurn] = new OnlinePlayer(response.opponent());
 
             switch (type) {
-                case TICTACTOE -> {
-                    Player[] players = new Player[2];
-                    players[Math.abs(myTurn-1)] = new OnlinePlayer(response.opponent());
-                    //players[myTurn] = new LocalPlayer(user); // HERE
-                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
-                    gameController = new TicTacToeBitController(players);
-                }
-                case REVERSI -> {
-                    Player[] players = new Player[2];
-                    players[Math.abs(myTurn-1)] = new OnlinePlayer(response.opponent());
-                    //players[myTurn] = new LocalPlayer(user); // HERE
-                    players[myTurn] = new ArtificialPlayer(new RandomAI(), user); // HERE
-                    gameController = new ReversiBitController(players);}
+                case TICTACTOE -> gameController = new TicTacToeBitController(players);
+                case REVERSI -> gameController = new ReversiBitController(players);
                 default -> new ErrorPopup("Unsupported game type.");
 
             }

@@ -8,6 +8,9 @@ import org.toop.framework.gameFramework.model.game.threadBehaviour.SupportsOnlin
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.game.players.OnlinePlayer;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * Handles online multiplayer game logic.
  * <p>
@@ -15,6 +18,9 @@ import org.toop.framework.game.players.OnlinePlayer;
  * for the local player while receiving moves from other players.
  */
 public class OnlineThreadBehaviour extends AbstractThreadBehaviour implements SupportsOnlinePlay {
+
+    private ExecutorService moveExecutor = Executors.newSingleThreadExecutor();
+
     /**
      * Creates behaviour and sets the first local player
      * (non-online player) from the given array.
@@ -51,9 +57,33 @@ public class OnlineThreadBehaviour extends AbstractThreadBehaviour implements Su
      */
     @Override
     public void onYourTurn(long clientId) {
-        if (!isRunning.get()) return;
-        long move = game.getPlayer(game.getCurrentTurn()).getMove(game.deepCopy());
-        sendMove(clientId, move);
+        logger.info("Yourturn");
+        if (!isRunning.get()) {
+            logger.warn("Game is not running!");
+            return;
+        }
+
+        TurnBasedGame gameCopy = game.deepCopy();
+        if (gameCopy == null) {
+            logger.error("Could not deep copy game");
+            return;
+        }
+        logger.info("Successfully collected game copy");
+
+        Player player = gameCopy.getPlayer(game.getCurrentTurn());
+        if (player == null) {
+            logger.error("Could not find current turn's player");
+            return;
+        }
+        logger.info("Successfully collected current turn's player");
+
+        moveExecutor.submit(() -> {
+            long move = player.getMove(gameCopy);
+            logger.info("Move set: {}", move);
+            logger.info("Completed onYourTurn");
+
+            sendMove(clientId, move);
+        });
     }
 
     /**
