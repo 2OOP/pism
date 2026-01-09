@@ -5,12 +5,27 @@ import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.server.client.NettyClient;
 
+import java.util.concurrent.CompletableFuture;
+
 public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
 
     private long id;
     private NettyClient[] clients;
     private TurnBasedGame game;
     private ServerThreadBehaviour gameThread;
+
+    private CompletableFuture<Void> futureOrNull = null;
+
+    public OnlineTurnBasedGame(TurnBasedGame game, CompletableFuture<Void> futureOrNull, NettyClient... clients) {
+        this.game = game;
+        this.gameThread = new ServerThreadBehaviour(
+                game,
+                (pair) -> notifyMoveMade(pair.getLeft(), pair.getRight()),
+                (pair) -> notifyGameEnd(pair.getLeft(), pair.getRight())
+        );
+        this.futureOrNull = futureOrNull;
+        this.clients = clients;
+    }
 
     public OnlineTurnBasedGame(TurnBasedGame game, NettyClient... clients) {
         this.game = game;
@@ -42,6 +57,10 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
         // Remove game fromt clients
         for(NettyClient client : clients) {
             client.clearGame();
+        }
+
+        if (futureOrNull != null) {
+            futureOrNull.complete(null);
         }
     }
 

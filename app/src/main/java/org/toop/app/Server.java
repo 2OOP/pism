@@ -117,7 +117,9 @@ public final class Server {
 				return;
 			}
 
-			primary = new ServerView(user, this::sendChallenge, clientId);
+			primary = new ServerView(user, this::sendChallenge, () -> {
+                GlobalEventBus.get().post(new NetworkEvents.SendCommand(clientId, "tournament", "start", "tic-tac-toe"));
+            }, clientId);
 			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
 
 			a.unsubscribe("connecting");

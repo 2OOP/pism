@@ -5,6 +5,7 @@ import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.client.Client;
 import org.toop.framework.networking.server.parsing.ParsedMessage;
+import org.toop.framework.networking.server.tournaments.BasicTournament;
 import org.toop.framework.utils.Utils;
 
 public class MessageHandler implements Handler<ParsedMessage> {
@@ -28,6 +29,7 @@ public class MessageHandler implements Handler<ParsedMessage> {
             case "challenge" -> handleChallenge(message, client);
             case "message" -> handleMessage(message, client);
             case "help" -> handleHelp(message, client);
+            case "tournament" -> handleTournament(message, client);
             default -> client.send("ERROR Unknown command");
         }
     }
@@ -106,5 +108,15 @@ public class MessageHandler implements Handler<ParsedMessage> {
 
         // TODO check if not number
         client.player().setMove(1L << Integer.parseInt(p.args()[0]));
+    }
+
+    private void handleTournament(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+        if(!hasArgs(p.args())) return;
+
+        if (!client.name().equalsIgnoreCase("host")) return;
+
+        if (p.args()[0].equalsIgnoreCase("start") && p.args().length > 1) {
+            server.startTournament(new BasicTournament(server), p.args()[1]);
+        }
     }
 }

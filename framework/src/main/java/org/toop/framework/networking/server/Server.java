@@ -9,6 +9,8 @@ import org.toop.framework.networking.server.stores.ClientStore;
 import org.toop.framework.networking.server.stores.SubscriptionStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
+import org.toop.framework.networking.server.tournaments.BasicTournament;
+import org.toop.framework.networking.server.tournaments.Tournament;
 import org.toop.framework.utils.ImmutablePair;
 
 import java.util.*;
@@ -33,7 +35,6 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
             ClientStore<Long, NettyClient> clientStore,
             TurnBasedGameStore gameStore,
             SubscriptionStore subStore
-
     ) {
         this.gameTypesStore = turnBasedGameTypeStore;
         this.challengeDuration = challengeDuration;
@@ -103,7 +104,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     public void acceptChallenge(Long challengeId) {
         for (var challenge : gameChallenges) {
             if (challenge.id() == challengeId) {
-                startGame(challenge.acceptChallenge(), challenge.getUsers());
+                startGame(challenge.acceptChallenge(), null, challenge.getUsers());
                 break;
             }
         }
@@ -125,12 +126,12 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     }
 
     @Override
-    public void startGame(String gameType, NettyClient... clients) {
-        if (!gameTypesStore.all().containsKey(gameType)) return;
+    public OnlineGame<TurnBasedGame> startGame(String gameType, CompletableFuture<Void> futureOrNull, NettyClient... clients) {
+        if (!gameTypesStore.all().containsKey(gameType)) return null;
 
         try {
             ServerPlayer[] players = new ServerPlayer[clients.length];
-            var game = new OnlineTurnBasedGame(gameTypesStore.create(gameType), clients);
+            var game = new OnlineTurnBasedGame(gameTypesStore.create(gameType), futureOrNull, clients);
 
             for (int i = 0; i < clients.length; i++) {
                 players[i] = new ServerPlayer(clients[i]);
@@ -149,10 +150,12 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                     gameType,
                     clients[0].name()));
             game.start();
+            return game;
         } catch (Exception e) {
             IO.println("ERROR: Failed to start OnlineTurnBasedGame");
             e.printStackTrace();
         }
+        return null;
     }
 
     @Override
@@ -226,7 +229,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 userNames.remove(first);
                 userNames.remove(second);
 
-                startGame(key, getUser(userLeft), getUser(userRight));
+                startGame(key, null, getUser(userLeft), getUser(userRight));
             }
         }
     }
@@ -259,5 +262,20 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         }
 
         return true;
+    }
+
+    public void startTournament(Tournament tournament, String gameType) {
+        tournament.init(clientStore.all().toArray(new NettyClient[0]));
+        new Thread(() -> tournament.start(gameType)).start();
+    }
+
+    public void endTournament(Map<NettyClient, Integer> score) {
+        IO.println("TOUNAMENT WINNER IS: "); // TODO
+        IO.println("SCORES");
+        IO.println("-----------------------------------");
+        for (var a : score.entrySet()) {
+            String b = "" + a.getKey().name() + ": " + a.getValue();
+            IO.println(b);
+        }
     }
 }

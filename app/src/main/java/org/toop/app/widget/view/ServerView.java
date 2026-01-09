@@ -6,6 +6,7 @@ import javafx.scene.control.ComboBox;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.ViewWidget;
 
+import java.io.Reader;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -20,15 +21,17 @@ import org.toop.framework.networking.connection.events.NetworkEvents;
 public final class ServerView extends ViewWidget {
 	private final String user;
 	private final Consumer<String> onPlayerClicked;
+    private final Runnable tournamentRequest;
 	private final long clientId;
 
 	private final ComboBox<String> gameList;
 	private final ListView<Button> listView;
 	private Button subscribeButton;
 
-	public ServerView(String user, Consumer<String> onPlayerClicked, long clientId) {
+	public ServerView(String user, Consumer<String> onPlayerClicked, Runnable tournamentRequest, long clientId) {
 		this.user = user;
 		this.onPlayerClicked = onPlayerClicked;
+        this.tournamentRequest = tournamentRequest;
 		this.clientId = clientId;
 
 		this.gameList = new ComboBox<>();
@@ -57,6 +60,17 @@ public final class ServerView extends ViewWidget {
 		);
 
 		add(Pos.CENTER, playerListSection);
+
+        var tournamentButton = Primitive.vbox(
+            Primitive.button(
+                    "tournament",
+                    tournamentRequest,
+                    false,
+                    false
+            )
+        );
+
+        add(Pos.BOTTOM_CENTER, tournamentButton);
 
 		var disconnectButton = Primitive.button(
 				"disconnect", () -> transitionPrevious(), false);

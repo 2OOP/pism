@@ -1,9 +1,12 @@
 package org.toop.framework.networking.server;
 
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
+
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface GameServer<GAMETYPE, CLIENT, CHALLENGEIDTYPE> {
-    void startGame(String gameType, CLIENT... clients);
+    OnlineGame<TurnBasedGame> startGame(String gameType, CompletableFuture<Void> futureOrNull, CLIENT... clients);
 
     void addClient(CLIENT client);
     void removeClient(CLIENT client);
