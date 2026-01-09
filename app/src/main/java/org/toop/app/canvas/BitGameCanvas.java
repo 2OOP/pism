@@ -14,7 +14,7 @@ import org.toop.framework.gameFramework.view.GUIEvents;
 
 import java.util.function.Consumer;
 
-public abstract class BitGameCanvas<T extends TurnBasedGame<T>> implements GameCanvas<T> {
+public abstract class BitGameCanvas implements GameCanvas {
 	protected record Cell(float x, float y, float width, float height) {
 		public boolean isInside(double x, double y) {
 			return x >= this.x && x <= this.x + width &&
@@ -78,6 +78,7 @@ public abstract class BitGameCanvas<T extends TurnBasedGame<T>> implements GameC
 		}
 
 		canvas.setOnMouseClicked(event -> {
+
 			if (event.getButton() != MouseButton.PRIMARY) {
 				return;
 			}
@@ -92,9 +93,6 @@ public abstract class BitGameCanvas<T extends TurnBasedGame<T>> implements GameC
 				this.onCellCLicked.accept(1L << (column + row * rowSize));
 			}
 		});
-
-
-
 
 		render();
 	}

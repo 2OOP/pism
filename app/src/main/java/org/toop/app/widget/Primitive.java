@@ -64,7 +64,7 @@ public final class Primitive {
         return imageView;
     }
 
-	public static Button button(String key, Runnable onAction, boolean localize) {
+	public static Button button(String key, Runnable onAction, boolean localize, boolean disableOnClick) {
 		var button = new Button();
 		button.getStyleClass().add("button");
 
@@ -75,6 +75,7 @@ public final class Primitive {
 
 		if (onAction != null) {
 			button.setOnAction(_ -> {
+				if (disableOnClick) button.setDisable(true);
                 onAction.run();
                 playButtonSound();
             });
@@ -83,8 +84,8 @@ public final class Primitive {
 		return button;
 	}
 
-	public static Button button(String key, Runnable onAction) {
-		return button(key, onAction, true);
+	public static Button button(String key, Runnable onAction, boolean disableOnClick) {
+		return button(key, onAction, true, disableOnClick);
 	}
 
 	public static TextField input(String promptKey, String text, Consumer<String> onValueChanged, boolean localize) {

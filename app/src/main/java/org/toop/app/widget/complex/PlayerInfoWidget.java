@@ -91,7 +91,7 @@ public class PlayerInfoWidget {
             information.computerDifficulty = depth;
             information.computerThinkTime = thinktime;
             this.playerName.setText(getName(name));
-        });
+        }, false);
     }
 
     private String getName(String name) {

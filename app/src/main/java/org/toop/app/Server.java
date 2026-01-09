@@ -11,17 +11,15 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.game.players.OnlinePlayer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.framework.networking.clients.TournamentNetworkingClient;
-import org.toop.framework.networking.events.NetworkEvents;
-import org.toop.framework.networking.types.NetworkingConnector;
-import org.toop.game.games.reversi.BitboardReversi;
-import org.toop.game.games.tictactoe.BitboardTicTacToe;
-import org.toop.game.players.ArtificialPlayer;
-import org.toop.game.players.OnlinePlayer;
-import org.toop.game.players.RandomAI;
+import org.toop.framework.networking.connection.clients.TournamentNetworkingClient;
+import org.toop.framework.networking.connection.events.NetworkEvents;
+import org.toop.framework.networking.connection.types.NetworkingConnector;
+import org.toop.framework.networking.server.gateway.NettyGatewayServer;
+import org.toop.framework.game.players.LocalPlayer;
 import org.toop.local.AppContext;
 
 import java.util.List;
@@ -32,7 +30,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Server {
-    // TODO: Keep track of listeners. Remove them on Server connection close so reference is deleted.
+	private NettyGatewayServer nettyGatewayServer;
+
 	private String user = "";
 	private long clientId = -1;
 
@@ -60,10 +59,13 @@ public final class Server {
 		return null;
 	}
 
+	public Server(String ip, String port, String user) {
+		this(ip, port, user, null);
+	}
 
     // Server has to deal with ALL network related listen events. This "server" can then interact with the manager to make stuff happen.
     // This prevents data races where events get sent to the game manager but the manager isn't ready yet.
-	public Server(String ip, String port, String user) {
+	public Server(String ip, String port, String user, NettyGatewayServer nettyGatewayServer) {
 		if (ip.split("\\.").length < 4) {
 			new ErrorPopup("\"" + ip + "\" " + AppContext.getString("is-not-a-valid-ip-address"));
 			return;
@@ -82,6 +84,8 @@ public final class Server {
 			new ErrorPopup(AppContext.getString("invalid-username"));
 			return;
 		}
+
+		this.nettyGatewayServer = nettyGatewayServer;
 
 		final int reconnectAttempts = 10;
 
@@ -113,7 +117,7 @@ public final class Server {
 				return;
 			}
 
-			primary = new ServerView(user, this::sendChallenge);
+			primary = new ServerView(user, this::sendChallenge, clientId);
 			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
 
 			a.unsubscribe("connecting");
@@ -154,7 +158,8 @@ public final class Server {
                 .listen(NetworkEvents.GameMatchResponse.class, this::handleMatchResponse, false, "match-response")
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false, "game-result")
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false, "game-move")
-                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn");
+                .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn")
+				.listen(NetworkEvents.ClosedConnection.class, this::closedConnection, false, "closed-connection");
 
 		connectFlow = a;
 	}
@@ -178,7 +183,7 @@ public final class Server {
 
         gameController = null;
 
-        //if (!isPolling) return;
+//        if (!isPolling) return;
 
         String gameType = extractQuotedValue(response.gameType());
         if (response.clientId() == clientId) {
@@ -191,45 +196,29 @@ public final class Server {
                 return;
             }
 
-            final int myTurn = response.playerToMove().equalsIgnoreCase(response.opponent()) ? 1 : 0;
+            final String startingPlayer = response.playerToMove();
+            final int userStartingTurn = startingPlayer.equalsIgnoreCase(user) ? 0 : 1;
+            final int opponentStartingTurn = 1 - userStartingTurn;
 
             final GameInformation information = new GameInformation(type);
-            //information.players[0] = playerInformation;
-            information.players[0].name = user;
-            information.players[0].isHuman = false;
-            information.players[0].computerDifficulty = 5;
-            information.players[0].computerThinkTime = 1;
-            information.players[1].name = response.opponent();
+            information.players[userStartingTurn].name = user;
+            information.players[opponentStartingTurn].name = response.opponent();
 
-            /*switch (type){
-                case TICTACTOE ->{
-                    players[myTurn] = new ArtificialPlayer<>(new TicTacToeAIR(9), user);
-                }
-                case REVERSI ->{
-                    players[myTurn] = new ArtificialPlayer<>(new ReversiAIR(), user);
-                }
-            }*/
-
-
+            Player[] players = new Player[2];
+            players[userStartingTurn] = new LocalPlayer(user);
+            players[opponentStartingTurn] = new OnlinePlayer(response.opponent());
 
             switch (type) {
-                case TICTACTOE ->{
-                        Player<BitboardTicTacToe>[] players = new Player[2];
-                        players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
-                        players[myTurn] = new ArtificialPlayer<>(new RandomAI<BitboardTicTacToe>(), user);
-                        gameController = new TicTacToeBitController(players);
-                }
-                case REVERSI -> {
-                    Player<BitboardReversi>[] players = new Player[2];
-                    players[(myTurn + 1) % 2] = new OnlinePlayer<>(response.opponent());
-                    players[myTurn] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), user);
-                    gameController = new ReversiBitController(players);}
+                case TICTACTOE -> gameController = new TicTacToeBitController(players);
+                case REVERSI -> gameController = new ReversiBitController(players);
                 default -> new ErrorPopup("Unsupported game type.");
 
             }
 
-            if (gameController != null){
+            if (gameController != null) {
+				primary.reEnableButton(); // Re enable subscribe button
                 gameController.start();
+				isPolling = true; // Fixes server getting stuck
             }
         }
     }
@@ -263,7 +252,7 @@ public final class Server {
 		String gameType = extractQuotedValue(response.gameType());
 		final String finalGameType = gameType;
 		var a = new ChallengePopup(challengerName, gameType, (playerInformation) -> {
-			final int challengeId = Integer.parseInt(response.challengeId().replaceAll("\\D", ""));
+			final long challengeId = Long.parseLong(response.challengeId().replaceAll("\\D", ""));
 			new EventFlow().addPostEvent(new NetworkEvents.SendAcceptChallenge(clientId, challengeId)).postEvent();
             isSingleGame.set(true);
 		});
@@ -281,7 +270,25 @@ public final class Server {
 		stopScheduler();
 		connectFlow.unsubscribeAll();
 
+		if (nettyGatewayServer != null) {
+			nettyGatewayServer.stop();
+		}
+
 		WidgetContainer.getCurrentView().transitionPrevious();
+	}
+
+	private void closedConnection(NetworkEvents.ClosedConnection e) {
+		new EventFlow().addPostEvent(new NetworkEvents.CloseClient(clientId)).postEvent();
+		isPolling = false;
+		stopScheduler();
+		connectFlow.unsubscribeAll();
+
+		if (nettyGatewayServer != null) {
+			nettyGatewayServer.stop();
+		}
+
+		WidgetContainer.getCurrentView().transitionPrevious();
+		WidgetContainer.add(Pos.CENTER, new ErrorPopup("Server closed connection."));
 	}
 
 	private void forfeitGame() {
@@ -330,7 +337,9 @@ public final class Server {
 
 	private void gamesListFromServerHandler(NetworkEvents.GamelistResponse event) {
 		gameList.clear();
-		gameList.addAll(List.of(event.gamelist()));
+		var gl = List.of(event.gamelist());
+		gameList.addAll(gl);
+		primary.updateGameList(gl);
 	}
 
 	public void populateGameList() {

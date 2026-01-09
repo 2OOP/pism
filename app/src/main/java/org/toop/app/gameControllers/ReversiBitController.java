@@ -3,20 +3,21 @@ package org.toop.app.gameControllers;
 import org.toop.app.canvas.ReversiBitCanvas;
 import org.toop.framework.gameFramework.model.game.threadBehaviour.ThreadBehaviour;
 import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.gameThreads.LocalThreadBehaviour;
-import org.toop.game.gameThreads.OnlineThreadBehaviour;
-import org.toop.game.games.reversi.BitboardReversi;
-import org.toop.game.players.OnlinePlayer;
+import org.toop.framework.game.gameThreads.LocalThreadBehaviour;
+import org.toop.framework.game.gameThreads.OnlineThreadBehaviour;
+import org.toop.framework.game.games.reversi.BitboardReversi;
+import org.toop.framework.game.players.OnlinePlayer;
 
-public class ReversiBitController extends GenericGameController<BitboardReversi> {
-    public ReversiBitController(Player<BitboardReversi>[] players) {
-        BitboardReversi game = new BitboardReversi(players);
-        ThreadBehaviour thread = new LocalThreadBehaviour<>(game);
-        for (Player<BitboardReversi> player : players) {
-            if (player instanceof OnlinePlayer<BitboardReversi>){
-                thread = new OnlineThreadBehaviour<>(game);
-            }
-        }
+import java.util.Arrays;
+
+public class ReversiBitController extends GenericGameController {
+    public ReversiBitController(Player[] players) {
+        BitboardReversi game = new BitboardReversi();
+        game.init(players);
+
+        ThreadBehaviour thread = Arrays.stream(players).anyMatch(e -> e instanceof OnlinePlayer) ?
+                new OnlineThreadBehaviour(game) : new LocalThreadBehaviour(game);
+
         super(new ReversiBitCanvas(), game, thread, "Reversi");
     }
 }

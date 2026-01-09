@@ -32,7 +32,7 @@ public abstract class ViewWidget extends StackWidget {
 
 		var backButton = Primitive.button("back", () -> {
 			view.transitionPrevious();
-		});
+		}, false);
 
 		view.add(Pos.BOTTOM_LEFT, Primitive.vbox(backButton));
 	}
@@ -45,7 +45,7 @@ public abstract class ViewWidget extends StackWidget {
 		var customButton = Primitive.button(key, () -> {
 			runnable.run();
 			view.transitionPrevious();
-		});
+		}, false);
 
 		view.add(Pos.BOTTOM_LEFT, Primitive.vbox(customButton));
 	}
@@ -97,7 +97,7 @@ public abstract class ViewWidget extends StackWidget {
 
 		var backButton = Primitive.button("back", () -> {
 			view.transitionPrevious();
-		});
+		}, false);
 
 		view.add(Pos.BOTTOM_LEFT, Primitive.vbox(backButton));
 	}

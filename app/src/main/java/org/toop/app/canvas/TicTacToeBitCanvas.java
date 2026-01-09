@@ -2,12 +2,9 @@ package org.toop.app.canvas;
 
 import javafx.scene.paint.Color;
 import org.toop.app.App;
-import org.toop.game.games.tictactoe.BitboardTicTacToe;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 
-import java.util.Arrays;
-import java.util.function.Consumer;
-
-public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
+public class TicTacToeBitCanvas extends BitGameCanvas{
     public TicTacToeBitCanvas() {
         super(
                 Color.GRAY,
@@ -22,7 +19,7 @@ public class TicTacToeBitCanvas extends BitGameCanvas<BitboardTicTacToe>{
     }
 
     @Override
-    public void redraw(BitboardTicTacToe gameCopy) {
+    public void redraw(TurnBasedGame gameCopy) {
         clearAll();
         drawMoves(gameCopy.getBoard());
     }
