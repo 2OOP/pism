@@ -1,5 +1,0 @@
-package org.toop.framework.gameFramework.model.game;
-
-public interface BoardProvider {
-    long[] getBoard();
-}
