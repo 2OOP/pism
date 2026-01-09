@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:framework/src/main/java/org/toop/framework/networking/connection/clients/TournamentNetworkingClient.java
 package org.toop.framework.networking.connection.clients;
+========
+package org.toop.framework.networking.clients;
+>>>>>>>> refs/remotes/origin/main:framework/src/main/java/org/toop/framework/networking/clients/TournamentNetworkingClient.java
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -12,10 +16,16 @@ import io.netty.util.CharsetUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.bus.EventBus;
+<<<<<<<< HEAD:framework/src/main/java/org/toop/framework/networking/connection/clients/TournamentNetworkingClient.java
 import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.exceptions.CouldNotConnectException;
 import org.toop.framework.networking.connection.handlers.NetworkingGameClientHandler;
 import org.toop.framework.networking.connection.interfaces.NetworkingClient;
+========
+import org.toop.framework.networking.exceptions.CouldNotConnectException;
+import org.toop.framework.networking.handlers.NetworkingGameClientHandler;
+import org.toop.framework.networking.interfaces.NetworkingClient;
+>>>>>>>> refs/remotes/origin/main:framework/src/main/java/org/toop/framework/networking/clients/TournamentNetworkingClient.java
 
 import java.net.InetSocketAddress;
 
@@ -24,7 +34,10 @@ public class TournamentNetworkingClient implements NetworkingClient {
 
     private final EventBus eventBus;
     private Channel channel;
+<<<<<<<< HEAD:framework/src/main/java/org/toop/framework/networking/connection/clients/TournamentNetworkingClient.java
     private long clientId;
+========
+>>>>>>>> refs/remotes/origin/main:framework/src/main/java/org/toop/framework/networking/clients/TournamentNetworkingClient.java
 
     public TournamentNetworkingClient(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -37,7 +50,10 @@ public class TournamentNetworkingClient implements NetworkingClient {
 
     @Override
     public void connect(long clientId, String host, int port) throws CouldNotConnectException {
+<<<<<<<< HEAD:framework/src/main/java/org/toop/framework/networking/connection/clients/TournamentNetworkingClient.java
         this.clientId = clientId;
+========
+>>>>>>>> refs/remotes/origin/main:framework/src/main/java/org/toop/framework/networking/clients/TournamentNetworkingClient.java
         try {
             Bootstrap bootstrap = new Bootstrap();
             EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
@@ -57,6 +73,7 @@ public class TournamentNetworkingClient implements NetworkingClient {
                             pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
                             pipeline.addLast(handler);
                         }
+                        
                     });
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             this.channel = channelFuture.channel();
@@ -78,7 +95,10 @@ public class TournamentNetworkingClient implements NetworkingClient {
             logger.info("Connection {} sent message: '{}' ", this.channel.remoteAddress(), literalMsg);
         } else {
             logger.warn("Cannot send message: '{}', connection inactive. ", literalMsg);
+<<<<<<<< HEAD:framework/src/main/java/org/toop/framework/networking/connection/clients/TournamentNetworkingClient.java
             eventBus.post(new NetworkEvents.ClosedConnection(clientId));
+========
+>>>>>>>> refs/remotes/origin/main:framework/src/main/java/org/toop/framework/networking/clients/TournamentNetworkingClient.java
         }
     }
 

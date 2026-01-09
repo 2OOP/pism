@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:framework/src/main/java/org/toop/framework/networking/connection/handlers/NetworkingGameClientHandler.java
 package org.toop.framework.networking.connection.handlers;
+========
+package org.toop.framework.networking.handlers;
+>>>>>>>> refs/remotes/origin/main:framework/src/main/java/org/toop/framework/networking/handlers/NetworkingGameClientHandler.java
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -9,7 +13,11 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.framework.eventbus.bus.EventBus;
+<<<<<<<< HEAD:framework/src/main/java/org/toop/framework/networking/connection/handlers/NetworkingGameClientHandler.java
 import org.toop.framework.networking.connection.events.NetworkEvents;
+========
+import org.toop.framework.networking.events.NetworkEvents;
+>>>>>>>> refs/remotes/origin/main:framework/src/main/java/org/toop/framework/networking/handlers/NetworkingGameClientHandler.java
 
 public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
     private static final Logger logger = LogManager.getLogger(NetworkingGameClientHandler.class);
