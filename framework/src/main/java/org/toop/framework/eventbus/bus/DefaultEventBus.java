@@ -5,11 +5,15 @@ import org.toop.framework.eventbus.events.EventType;
 import org.toop.framework.eventbus.store.SubscriberStore;
 import org.toop.framework.eventbus.subscriber.Subscriber;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-public class DefaultEventBus implements EventBus {
+public class DefaultEventBus implements AsyncEventBus {
     private final Logger logger;
     private final SubscriberStore eventsHolder;
+
+    private final ExecutorService asyncExecutor = Executors.newCachedThreadPool();
 
     public DefaultEventBus(Logger logger, SubscriberStore eventsHolder) {
         this.logger = logger;
@@ -36,9 +40,14 @@ public class DefaultEventBus implements EventBus {
                 Class<T> eventClass = (Class<T>) subscriber.event();
                 Consumer<EventType> action = (Consumer<EventType>) subscriber.handler();
 
-                action.accept((EventType) eventClass.cast(event));
+                action.accept(eventClass.cast(event));
             }
         }
+    }
+
+    @Override
+    public <T extends EventType> void asyncPost(T event) {
+        asyncExecutor.submit(() -> post(event));
     }
 
     @Override
@@ -50,4 +59,5 @@ public class DefaultEventBus implements EventBus {
     public void reset() {
         eventsHolder.reset();
     }
+
 }
