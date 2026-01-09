@@ -117,9 +117,8 @@ public final class Server {
 				return;
 			}
 
-			primary = new ServerView(user, this::sendChallenge, () -> {
-                GlobalEventBus.get().post(new NetworkEvents.SendCommand(clientId, "tournament", "start", "tic-tac-toe"));
-            }, clientId);
+			primary = new ServerView(user, this::sendChallenge, user, clientId);
+
 			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
 
 			a.unsubscribe("connecting");
@@ -339,7 +338,8 @@ public final class Server {
 
 	private void gamesListFromServerHandler(NetworkEvents.GamelistResponse event) {
 		gameList.clear();
-		var gl = List.of(event.gamelist());
+		var gl = new java.util.ArrayList<>(List.of(event.gamelist()));
+        gl.sort(String::compareTo);
 		gameList.addAll(gl);
 		primary.updateGameList(gl);
 	}

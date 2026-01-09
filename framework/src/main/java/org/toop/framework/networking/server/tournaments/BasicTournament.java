@@ -28,7 +28,7 @@ public class BasicTournament implements Tournament {
     }
 
     @Override
-    public void init(NettyClient[] clients) {
+    public void init(NettyClient[] clients, Shuffler shuffler) {
 //        if (this.clients == null || clients.length < 1) return;
 
         for (NettyClient client : clients) {
@@ -52,21 +52,7 @@ public class BasicTournament implements Tournament {
             }
         }
 
-        shuffle();
-    }
-
-    public void shuffle() { // TODO make shuffle own class so user can use different shuffles
-
-        final int SHUFFLE_AMOUNT = matchList.size() * 2;
-
-        Random rand = new Random();
-
-        for (int i = 0; i <= SHUFFLE_AMOUNT; i++) {
-            int index = rand.nextInt(matchList.size());
-            TournamentMatch match = matchList.get(index);
-            matchList.remove(index);
-            matchList.addLast(match);
-        }
+        shuffler.shuffle(matchList);
     }
 
     public void addScorePoints(NettyClient client) {

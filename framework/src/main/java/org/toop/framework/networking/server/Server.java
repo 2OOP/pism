@@ -10,6 +10,7 @@ import org.toop.framework.networking.server.stores.SubscriptionStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 import org.toop.framework.networking.server.tournaments.BasicTournament;
+import org.toop.framework.networking.server.tournaments.RandomShuffle;
 import org.toop.framework.networking.server.tournaments.Tournament;
 import org.toop.framework.utils.ImmutablePair;
 
@@ -265,7 +266,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     }
 
     public void startTournament(Tournament tournament, String gameType) {
-        tournament.init(clientStore.all().toArray(new NettyClient[0]));
+        tournament.init(clientStore.all().toArray(new NettyClient[0]), new RandomShuffle());
         new Thread(() -> tournament.start(gameType)).start();
     }
 

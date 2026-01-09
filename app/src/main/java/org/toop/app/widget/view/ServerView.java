@@ -7,6 +7,7 @@ import org.toop.app.widget.Primitive;
 import org.toop.app.widget.complex.ViewWidget;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -16,41 +17,42 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.eventbus.GlobalEventBus;
 import org.toop.framework.networking.connection.events.NetworkEvents;
 
 public final class ServerView extends ViewWidget {
 	private final String user;
 	private final Consumer<String> onPlayerClicked;
-    private final Runnable tournamentRequest;
 	private final long clientId;
 
-	private final ComboBox<String> gameList;
+	private final ComboBox<String> gameListSub;
+    private final ComboBox<String> gameListTour;
 	private final ListView<Button> listView;
 	private Button subscribeButton;
 
-	public ServerView(String user, Consumer<String> onPlayerClicked, Runnable tournamentRequest, long clientId) {
+	public ServerView(String user, Consumer<String> onPlayerClicked, String userName, long clientId) {
 		this.user = user;
 		this.onPlayerClicked = onPlayerClicked;
-        this.tournamentRequest = tournamentRequest;
 		this.clientId = clientId;
 
-		this.gameList = new ComboBox<>();
+		this.gameListSub = new ComboBox<>();
+        this.gameListTour = new ComboBox<>();
 		this.listView = new ListView<>();
 
-		setupLayout();
+		setupLayout(userName);
 	}
 
-	private void setupLayout() {
+	private void setupLayout(String userName) {
 		var playerHeader = Primitive.header(user, false);
 
 		subscribeButton = Primitive.button(
 				"subscribe",
-				() -> new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, gameList.getValue())).postEvent(),
+				() -> new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, gameListSub.getValue())).postEvent(),
 				false,
 				true
 		); // TODO localize
 
-		var subscribe = Primitive.hbox(gameList, subscribeButton);
+		var subscribe = Primitive.hbox(gameListSub, subscribeButton);
 
 		var playerListSection = Primitive.vbox(
 			playerHeader,
@@ -61,16 +63,19 @@ public final class ServerView extends ViewWidget {
 
 		add(Pos.CENTER, playerListSection);
 
-        var tournamentButton = Primitive.vbox(
-            Primitive.button(
-                    "tournament",
-                    tournamentRequest,
-                    false,
-                    false
-            )
-        );
+        if (userName.equals("host")) {
+            var tournamentButton = Primitive.hbox(
+                    gameListTour,
+                    Primitive.button(
+                            "tournament",
+                            () -> GlobalEventBus.get().post(new NetworkEvents.SendCommand(clientId, "tournament", "start", gameListTour.getValue())),
+                            false,
+                            false
+                    )
+            );
 
-        add(Pos.BOTTOM_CENTER, tournamentButton);
+            add(Pos.BOTTOM_CENTER, tournamentButton);
+        }
 
 		var disconnectButton = Primitive.button(
 				"disconnect", () -> transitionPrevious(), false);
@@ -91,9 +96,13 @@ public final class ServerView extends ViewWidget {
 
 	public void updateGameList(List<String> games) {
 		Platform.runLater(() -> {
-			gameList.getItems().clear();
-			gameList.setItems(FXCollections.observableArrayList(games));
-			gameList.getSelectionModel().select(0);
+			gameListSub.getItems().clear();
+			gameListSub.setItems(FXCollections.observableArrayList(games));
+			gameListSub.getSelectionModel().select(0);
+
+            gameListTour.getItems().clear();
+            gameListTour.setItems(FXCollections.observableArrayList(games));
+            gameListTour.getSelectionModel().select(0);
 		});
 	}
 
