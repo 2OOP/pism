@@ -116,7 +116,7 @@ public class MessageHandler implements Handler<ParsedMessage> {
         if (!client.name().equalsIgnoreCase("host")) return;
 
         if (p.args()[0].equalsIgnoreCase("start") && p.args().length > 1) {
-            server.startTournament(new BasicTournament(server), p.args()[1]);
+            server.startTournament(new BasicTournament(), p.args()[1]);
         }
     }
 }

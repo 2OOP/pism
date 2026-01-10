@@ -10,8 +10,7 @@ import org.toop.framework.networking.server.stores.ClientStore;
 import org.toop.framework.networking.server.stores.SubscriptionStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
-import org.toop.framework.networking.server.tournaments.RandomShuffle;
-import org.toop.framework.networking.server.tournaments.Tournament;
+import org.toop.framework.networking.server.tournaments.*;
 import org.toop.framework.utils.ImmutablePair;
 
 import java.util.*;
@@ -222,7 +221,6 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 }
 
                 if  (userInGame) { continue; }
-                //
 
                 int first = Math.max(left, right);
                 int second = Math.min(left, right);
@@ -267,8 +265,16 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
     public void startTournament(Tournament tournament, String gameType) {
         try {
-            tournament.init(clientStore.all().toArray(new NettyClient[0]), new RandomShuffle());
-            new Thread(() -> tournament.run(gameType)).start();
+            var tb = new TournamentBuilder();
+            var cTournament = tb.create(
+                    tournament,
+                    onlineUsers(),
+                    this,
+                    new BasicScoreManager(new HashMap<>()),
+                    new BasicMatchManager(),
+                    new RandomShuffle()
+            );
+            new Thread(() -> cTournament.run(gameType)).start();
         } catch (IllegalArgumentException e) {
             getUser("host").send("ERR not enough clients to start a tournament");
         } catch (RuntimeException e) {
