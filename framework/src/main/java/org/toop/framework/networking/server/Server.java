@@ -110,7 +110,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     public void acceptChallenge(Long challengeId) {
         for (var challenge : gameChallenges) {
             if (challenge.id() == challengeId) {
-                startGame(challenge.acceptChallenge(), null, challenge.getUsers());
+                startGame(challenge.acceptChallenge(), challenge.getUsers());
                 break;
             }
         }
@@ -132,12 +132,23 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     }
 
     @Override
-    public OnlineGame<TurnBasedGame> startGame(String gameType, CompletableFuture<Void> futureOrNull, NettyClient... clients) {
+    public GameResultFuture startGame(String gameType, NettyClient... clients) {
         if (!gameTypesStore.all().containsKey(gameType)) return null;
 
         try {
+
             ServerPlayer[] players = new ServerPlayer[clients.length];
-            var game = new OnlineTurnBasedGame(getAdmins().toArray(NettyClient[]::new), gameTypesStore.create(gameType), futureOrNull, clients);
+
+            var gameResult = new CompletableFuture<Integer>();
+
+            var game = new OnlineTurnBasedGame(
+                    getAdmins().toArray(NettyClient[]::new),
+                    gameTypesStore.create(gameType),
+                    gameResult,
+                    clients
+            );
+
+            var grfReturn = new GameResultFuture(game, gameResult);
 
             for (int i = 0; i < clients.length; i++) {
                 players[i] = new ServerPlayer(clients[i]);
@@ -156,7 +167,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                     gameType,
                     clients[0].name()));
             game.start();
-            return game;
+            return grfReturn;
         } catch (Exception e) {
             IO.println("ERROR: Failed to start OnlineTurnBasedGame");
             e.printStackTrace();

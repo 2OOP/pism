@@ -18,19 +18,17 @@ public class BasicTournamentRunner implements TournamentRunner {
         try {
             threadPool.execute(() -> {
                 for (var match : matchMaker) {
-                    final CompletableFuture<Void> finished = new CompletableFuture<>();
-
                     // Play game and await the results
-                    OnlineGame<TurnBasedGame> game = server.startGame(gameType, finished, match.getClient0(), match.getClient1()); // TODO can possibly create a race condition
-                    finished.join();
+                    var game = server.startGame(gameType, match.getClient0(), match.getClient1());
+                    int result = game.result().join();
                     // End
 
                     // Get result and calculate new score
-                    switch (game.game().getWinner()) {
+                    switch (result) {
                         case 0 -> scoreSystem.addScore(match.getClient0());
                         case 1 -> scoreSystem.addScore(match.getClient1());
-                        default -> {
-                        }
+                        case -1 -> {} // Draw
+                        default -> {}
                     }
 
                     match.getClient0().clearGame();

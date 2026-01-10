@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface GameServer<GAMETYPE, CLIENT, CHALLENGEIDTYPE> {
-    OnlineGame<TurnBasedGame> startGame(String gameType, CompletableFuture<Void> futureOrNull, CLIENT... clients);
+    GameResultFuture startGame(String gameType, CLIENT... clients);
 
     void addClient(CLIENT client);
     void removeClient(CLIENT client);

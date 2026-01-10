@@ -17,22 +17,18 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
     private TurnBasedGame game;
     private ServerThreadBehaviour gameThread;
 
-    private final CompletableFuture<Void> futureOrNull;
+    private final CompletableFuture<Integer> resultFuture;
 
-    public OnlineTurnBasedGame(NettyClient[] admins, TurnBasedGame game, CompletableFuture<Void> futureOrNull, NettyClient... clients) {
+    public OnlineTurnBasedGame(NettyClient[] admins, TurnBasedGame game, CompletableFuture<Integer> resultFuture, NettyClient... clients) {
         this.game = game;
         this.gameThread = new ServerThreadBehaviour(
                 game,
                 (pair) -> notifyMoveMade(pair.getLeft(), pair.getRight()),
                 (pair) -> notifyGameEnd(pair.getLeft(), pair.getRight())
         );
-        this.futureOrNull = futureOrNull;
+        this.resultFuture = resultFuture;
         this.clients = clients;
         this.admins = admins;
-    }
-
-    public OnlineTurnBasedGame(NettyClient[] admins, TurnBasedGame game, NettyClient... clients) {
-        this(admins, game, null, clients);
     }
 
     private void notifyMoveMade(String speler, int move){
@@ -44,7 +40,7 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
         }
     }
 
-    private void notifyGameEnd(GameState state, int winner){
+    private void notifyGameEnd(GameState state, int winner) {
         if (state == GameState.DRAW) {
             Arrays.stream(admins).forEach(a -> a.send(
                 String.format("SVR GAME END")
@@ -56,7 +52,7 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
         } else {
             Arrays.stream(admins).forEach(a -> a.send("SVR GAME END"));
             clients[winner].send(String.format("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}"));
-            clients[1-winner].send(String.format("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}"));
+            clients[(winner+1)%2].send(String.format("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}"));
         }
 
         // Remove game from clients
@@ -65,8 +61,9 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
             client.clearGame();
         }
 
-        if (futureOrNull != null) {
-            futureOrNull.complete(null);
+        if (resultFuture != null) {
+            if (state.equals(GameState.DRAW)) resultFuture.complete(-1); // Return -1 if draw
+            else resultFuture.complete(winner); // Return number for winner's index
         }
     }
 
@@ -86,7 +83,7 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
     }
 
     @Override
-    public void start(){
+    public void start() {
         this.gameThread.start();
     }
 }
