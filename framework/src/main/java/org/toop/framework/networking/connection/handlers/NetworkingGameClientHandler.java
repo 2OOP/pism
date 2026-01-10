@@ -120,19 +120,32 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
         IO.println(rec);
 
         String gameTypeRaw = extract(rec, "GAMETYPE");
-        String usersRaw    = extract(rec, "USERS");
-        String scoresRaw   = extract(rec, "SCORES");
+        String usersRaw = extract(rec, "USERS");
+        String scoresRaw = extract(rec, "SCORES");
 
-        String[] users = Arrays.stream(usersRaw.substring(1, usersRaw.length() - 1).split(","))
+        if (usersRaw == null) return;
+
+        String[] users;
+        if (usersRaw.length() > 2) {
+            users = Arrays.stream(usersRaw.substring(1, usersRaw.length() - 1).split(","))
                 .map(s -> s.trim().replace("\"", ""))
                 .toArray(String[]::new);
+        } else {
+            users = new String[]{};
+        }
 
-        Integer[] scores = Arrays.stream(scoresRaw.substring(1, scoresRaw.length() - 1).split(","))
-                .map(String::trim)
-                .map(Integer::parseInt)
-                .toArray(Integer[]::new);
+        if (scoresRaw == null) return;
+        if (scoresRaw.length() > 2) {
+            Integer[] scores = Arrays.stream(scoresRaw.substring(1, scoresRaw.length() - 1).split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .toArray(Integer[]::new);
 
-        eventBus.post(new NetworkEvents.TournamentResultResponse(this.connectionId, gameTypeRaw, users, scores));
+            eventBus.post(new NetworkEvents.TournamentResultResponse(this.connectionId, gameTypeRaw, users, scores));
+        } else {
+            eventBus.post(new NetworkEvents.TournamentResultResponse(this.connectionId, gameTypeRaw, users, new Integer[]{}));
+        }
+
     }
 
     private void gameMoveHandler(String rec) {

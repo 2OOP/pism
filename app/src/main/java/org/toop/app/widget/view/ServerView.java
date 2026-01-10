@@ -45,24 +45,6 @@ public final class ServerView extends ViewWidget {
 	private void setupLayout(String userName) {
 		var playerHeader = Primitive.header(user, false);
 
-		subscribeButton = Primitive.button(
-				"subscribe",
-				() -> new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, gameListSub.getValue())).postEvent(),
-				false,
-				true
-		); // TODO localize
-
-		var subscribe = Primitive.hbox(gameListSub, subscribeButton);
-
-		var playerListSection = Primitive.vbox(
-			playerHeader,
-			Primitive.separator(),
-			subscribe,
-			listView
-		);
-
-		add(Pos.CENTER, playerListSection);
-
         if (userName.equals("host")) {
             var tournamentButton = Primitive.hbox(
                     gameListTour,
@@ -75,12 +57,30 @@ public final class ServerView extends ViewWidget {
             );
 
             add(Pos.BOTTOM_CENTER, tournamentButton);
+        } else {
+            subscribeButton = Primitive.button(
+                    "subscribe",
+                    () -> new EventFlow().addPostEvent(new NetworkEvents.SendSubscribe(clientId, gameListSub.getValue())).postEvent(),
+                    false,
+                    true
+            ); // TODO localize
+
+            var subscribe = Primitive.hbox(gameListSub, subscribeButton);
+
+            var playerListSection = Primitive.vbox(
+                    playerHeader,
+                    Primitive.separator(),
+                    subscribe,
+                    listView
+            );
+
+            add(Pos.CENTER, playerListSection);
+
+            var disconnectButton = Primitive.button(
+                    "disconnect", () -> transitionPrevious(), false);
+
+            add(Pos.BOTTOM_LEFT, Primitive.vbox(disconnectButton));
         }
-
-		var disconnectButton = Primitive.button(
-				"disconnect", () -> transitionPrevious(), false);
-
-		add(Pos.BOTTOM_LEFT, Primitive.vbox(disconnectButton));
 	}
 
 	public void update(List<String> players) {

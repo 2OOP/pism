@@ -279,11 +279,14 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
             return;
         }
 
+        var tournamentUsers = new ArrayList<>(onlineUsers());
+        tournamentUsers.removeIf(admins::contains);
+
         Tournament tournament = new BasicTournament(new TournamentBuilder(
                 this,
                 new BasicTournamentRunner(),
-                new RoundRobinMatchMaker(onlineUsers()),
-                new BasicScoreSystem(onlineUsers())
+                new RoundRobinMatchMaker(tournamentUsers),
+                new BasicScoreSystem(tournamentUsers)
         ));
 
         try {
