@@ -1,11 +1,10 @@
-package org.toop.framework.networking.server.tournaments;
+package org.toop.framework.networking.server.tournaments.scoresystems;
 
 import org.toop.framework.networking.server.client.NettyClient;
 
 import java.util.Map;
 
-public interface ScoreManager {
-    void addClient(NettyClient client);
+public interface ScoreSystem {
     void addScore(NettyClient client);
     Map<NettyClient, Integer> getScore();
 

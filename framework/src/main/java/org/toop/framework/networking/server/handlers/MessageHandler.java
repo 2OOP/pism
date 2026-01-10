@@ -5,7 +5,7 @@ import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.client.Client;
 import org.toop.framework.networking.server.parsing.ParsedMessage;
-import org.toop.framework.networking.server.tournaments.BasicTournament;
+import org.toop.framework.networking.server.tournaments.*;
 import org.toop.framework.utils.Utils;
 
 public class MessageHandler implements Handler<ParsedMessage> {
@@ -116,7 +116,7 @@ public class MessageHandler implements Handler<ParsedMessage> {
         if (!client.name().equalsIgnoreCase("host")) return;
 
         if (p.args()[0].equalsIgnoreCase("start") && p.args().length > 1) {
-            server.startTournament(new BasicTournament(), p.args()[1]);
+            server.startTournament(p.args()[1]);
         }
     }
 }

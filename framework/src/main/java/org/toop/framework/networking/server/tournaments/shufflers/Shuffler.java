@@ -1,4 +1,4 @@
-package org.toop.framework.networking.server.tournaments;
+package org.toop.framework.networking.server.tournaments.shufflers;
 
 import java.util.List;
 

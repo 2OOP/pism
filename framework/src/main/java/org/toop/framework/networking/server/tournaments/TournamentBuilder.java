@@ -1,39 +1,24 @@
 package org.toop.framework.networking.server.tournaments;
 
 import org.toop.framework.networking.server.Server;
-import org.toop.framework.networking.server.client.NettyClient;
-
-import java.util.List;
+import org.toop.framework.networking.server.tournaments.matchmakers.MatchMaker;
+import org.toop.framework.networking.server.tournaments.scoresystems.ScoreSystem;
 
 public class TournamentBuilder {
     public Server server;
-    public ScoreManager scoreManager;
-    public MatchManager matchManager;
+    public ScoreSystem scoreSystem;
+    public TournamentRunner tournamentRunner;
+    public MatchMaker matchMaker;
 
-    public TournamentBuilder() {}
-
-    public Tournament create(
-            Tournament tournament,
-            List<NettyClient> clients,
+    public TournamentBuilder(
             Server server,
-            ScoreManager scoreManager,
-            MatchManager matchManager,
-            Shuffler shuffler
+            TournamentRunner tournamentRunner,
+            MatchMaker matchMaker,
+            ScoreSystem scoreSystem
     ) {
-
         this.server = server;
-        this.scoreManager = scoreManager;
-        this.matchManager = matchManager;
-
-        for (var client : clients) {
-            matchManager.addClient(client);
-            scoreManager.addClient(client);
-        }
-
-        matchManager.createMatches();
-        matchManager.shuffle(shuffler);
-
-        tournament.init(this);
-        return tournament;
+        this.tournamentRunner = tournamentRunner;
+        this.matchMaker = matchMaker;
+        this.scoreSystem = scoreSystem;
     }
 }

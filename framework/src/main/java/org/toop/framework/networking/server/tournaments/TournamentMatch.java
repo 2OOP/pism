@@ -7,4 +7,12 @@ public class TournamentMatch extends ImmutablePair<NettyClient, NettyClient> {
     public TournamentMatch(NettyClient a, NettyClient b) {
         super(a, b);
     }
+
+    NettyClient getClient0() {
+        return getLeft();
+    }
+
+    NettyClient getClient1() {
+        return getRight();
+    }
 }
