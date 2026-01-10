@@ -169,6 +169,10 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         return clientStore.all().stream().toList();
     }
 
+    public List<NettyClient> getAdmins() {
+        return new ArrayList<>(admins); // Clone so the list can't be edited.
+    }
+
     @Override
     public void shutdown() {
         scheduler.shutdown();

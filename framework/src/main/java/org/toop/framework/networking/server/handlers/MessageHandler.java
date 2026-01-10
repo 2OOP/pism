@@ -76,6 +76,10 @@ public class MessageHandler implements Handler<ParsedMessage> {
                 var names = server.gameTypes().stream().iterator();
                 client.send("SVR GAMELIST " + Utils.returnQuotedString(names));
             }
+            case "admins" -> {
+                var names = server.getAdmins().stream().map(Client::name).iterator();
+                client.send("SVR ADMINS " + Utils.returnQuotedString(names));
+            }
         }
     }
 
