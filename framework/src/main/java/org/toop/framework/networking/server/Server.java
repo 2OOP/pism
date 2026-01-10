@@ -137,7 +137,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
         try {
             ServerPlayer[] players = new ServerPlayer[clients.length];
-            var game = new OnlineTurnBasedGame(gameTypesStore.create(gameType), futureOrNull, clients);
+            var game = new OnlineTurnBasedGame(getAdmins().toArray(NettyClient[]::new), gameTypesStore.create(gameType), futureOrNull, clients);
 
             for (int i = 0; i < clients.length; i++) {
                 players[i] = new ServerPlayer(clients[i]);
