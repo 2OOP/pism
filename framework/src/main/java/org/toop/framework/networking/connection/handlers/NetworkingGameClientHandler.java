@@ -3,6 +3,7 @@ package org.toop.framework.networking.connection.handlers;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+import java.util.Arrays;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,6 +95,9 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                     case "HELP":
                         helpHandler(recSrvRemoved);
                         return;
+                    case "RESULTS":
+                        resultsHandler(recSrvRemoved);
+                        return;
                     default:
                         // return
                 }
@@ -101,6 +105,34 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                 logger.error("Could not parse: {}", rec);
             }
         }
+    }
+
+    private static String extract(String input, String key) {
+        Pattern p = Pattern.compile(
+                key + "\\s*:\\s*(\\[[^]]*]|\"[^\"]*\")",
+                Pattern.CASE_INSENSITIVE
+        );
+        Matcher m = p.matcher(input);
+        return m.find() ? m.group(1) : null;
+    }
+
+    private void resultsHandler(String rec) {
+        IO.println(rec);
+
+        String gameTypeRaw = extract(rec, "GAMETYPE");
+        String usersRaw    = extract(rec, "USERS");
+        String scoresRaw   = extract(rec, "SCORES");
+
+        String[] users = Arrays.stream(usersRaw.substring(1, usersRaw.length() - 1).split(","))
+                .map(s -> s.trim().replace("\"", ""))
+                .toArray(String[]::new);
+
+        Integer[] scores = Arrays.stream(scoresRaw.substring(1, scoresRaw.length() - 1).split(","))
+                .map(String::trim)
+                .map(Integer::parseInt)
+                .toArray(Integer[]::new);
+
+        eventBus.post(new NetworkEvents.TournamentResultResponse(this.connectionId, gameTypeRaw, users, scores));
     }
 
     private void gameMoveHandler(String rec) {

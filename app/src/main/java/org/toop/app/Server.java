@@ -6,8 +6,10 @@ import org.toop.app.gameControllers.*;
 import org.toop.app.widget.Primitive;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.complex.LoadingWidget;
+import org.toop.app.widget.complex.PopupWidget;
 import org.toop.app.widget.popup.ChallengePopup;
 import org.toop.app.widget.popup.ErrorPopup;
+import org.toop.app.widget.popup.GameOverPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
@@ -22,6 +24,7 @@ import org.toop.framework.networking.server.gateway.NettyGatewayServer;
 import org.toop.framework.game.players.LocalPlayer;
 import org.toop.local.AppContext;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -160,7 +163,8 @@ public final class Server {
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false, "game-result")
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false, "game-move")
                 .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn")
-				.listen(NetworkEvents.ClosedConnection.class, this::closedConnection, false, "closed-connection");
+				.listen(NetworkEvents.ClosedConnection.class, this::closedConnection, false, "closed-connection")
+                .listen(NetworkEvents.TournamentResultResponse.class, this::handleTournamentResult, false, "tournament-result");
 
 		connectFlow = a;
 	}
@@ -237,6 +241,12 @@ public final class Server {
             return;
         }
         gameController.gameFinished(response);
+    }
+
+    private void handleTournamentResult(NetworkEvents.TournamentResultResponse response) {
+        IO.println(response.gameType());
+        IO.println(Arrays.toString(response.names()));
+        IO.println(Arrays.toString(response.scores()));
     }
 
     private void handleReceivedMove(NetworkEvents.GameMoveResponse response) {

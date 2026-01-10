@@ -292,7 +292,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         String scores = gson.toJson(s);
 
         String msg = String.format(
-                "SVR RESULTS {GAMETYPE: \"%s\", USERS: %s, SCORES: %s}",
+                "SVR RESULTS {GAMETYPE: \"%s\", USERS: %s, SCORES: %s, TOURNAMENT: 1}",
                 gameType,
                 users,
                 scores
