@@ -31,6 +31,8 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     final private Duration challengeDuration;
     final private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    private final List<NettyClient> admins = new ArrayList<>();
+
     public Server(
             Duration challengeDuration,
             TurnBasedGameTypeStore turnBasedGameTypeStore,
@@ -49,11 +51,13 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
     @Override
     public void addClient(NettyClient client) {
+        if (admins.isEmpty()) admins.addLast(client);
         clientStore.add(client);
     }
 
     @Override
     public void removeClient(NettyClient client) {
+        admins.remove(client);
         clientStore.remove(client.id());
     }
 
@@ -265,19 +269,25 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         return true;
     }
 
-    public void startTournament(String gameType) {
+    public void startTournament(String gameType, NettyClient requestor) {
+        if (!admins.contains(requestor)) {
+            requestor.send("ERR you do not have the privileges to start a tournament");
+            return;
+        }
+
         Tournament tournament = new BasicTournament(new TournamentBuilder(
                 this,
                 new BasicTournamentRunner(),
                 new RoundRobinMatchMaker(onlineUsers()),
                 new BasicScoreSystem(onlineUsers())
         ));
+
         try {
             new Thread(() -> tournament.run(gameType)).start();
         } catch (IllegalArgumentException e) {
-            getUser("host").send("ERR not enough clients to start a tournament");
+            admins.forEach(c -> c.send("ERR not enough clients to start a tournament"));
         } catch (RuntimeException e) {
-            getUser("host").send("ERR no matches could be created to start a tournament with");
+            admins.forEach(c -> c.send("ERR no matches could be created to start a tournament with"));
         }
     }
 
