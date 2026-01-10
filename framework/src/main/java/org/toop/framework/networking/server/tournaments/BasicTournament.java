@@ -8,7 +8,6 @@ import org.toop.framework.networking.server.client.NettyClient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -28,8 +27,8 @@ public class BasicTournament implements Tournament {
     }
 
     @Override
-    public void init(NettyClient[] clients, Shuffler shuffler) {
-//        if (this.clients == null || clients.length < 1) return;
+    public void init(NettyClient[] clients, Shuffler shuffler) throws IllegalArgumentException {
+        if (clients.length <= 1) throw new IllegalArgumentException("Not enough clients to initialize a tournament");
 
         for (NettyClient client : clients) {
             int INIT_SCORE = 0;
@@ -52,7 +51,11 @@ public class BasicTournament implements Tournament {
             }
         }
 
-        shuffler.shuffle(matchList);
+        try {
+            shuffler.shuffle(matchList);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void addScorePoints(NettyClient client) {
@@ -60,8 +63,8 @@ public class BasicTournament implements Tournament {
     }
 
     @Override
-    public boolean start(String gameType) { // TODO, rename to run
-//        if (this.clients == null || clients.length < 1) return false;
+    public boolean run(String gameType) throws RuntimeException {
+        if (matchList.isEmpty()) throw new RuntimeException("No matches to start a tournament with");
 
         if (server.gameTypes().stream().noneMatch(e -> e.equalsIgnoreCase(gameType))) return false;
         this.gameType = gameType;
@@ -84,7 +87,7 @@ public class BasicTournament implements Tournament {
                 match.getRight().clearGame();
             }
 
-            server.endTournament(end());
+            server.endTournament(end(), gameType);
         }).start();
 
         return true;

@@ -1,5 +1,6 @@
 package org.toop.framework.networking.server;
 
+import com.google.gson.Gson;
 import org.toop.framework.game.players.ServerPlayer;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.server.challenges.gamechallenge.GameChallenge;
@@ -9,7 +10,6 @@ import org.toop.framework.networking.server.stores.ClientStore;
 import org.toop.framework.networking.server.stores.SubscriptionStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
-import org.toop.framework.networking.server.tournaments.BasicTournament;
 import org.toop.framework.networking.server.tournaments.RandomShuffle;
 import org.toop.framework.networking.server.tournaments.Tournament;
 import org.toop.framework.utils.ImmutablePair;
@@ -266,17 +266,40 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     }
 
     public void startTournament(Tournament tournament, String gameType) {
-        tournament.init(clientStore.all().toArray(new NettyClient[0]), new RandomShuffle());
-        new Thread(() -> tournament.start(gameType)).start();
+        try {
+            tournament.init(clientStore.all().toArray(new NettyClient[0]), new RandomShuffle());
+            new Thread(() -> tournament.run(gameType)).start();
+        } catch (IllegalArgumentException e) {
+            getUser("host").send("ERR not enough clients to start a tournament");
+        } catch (RuntimeException e) {
+            getUser("host").send("ERR no matches could be created to start a tournament with");
+        }
     }
 
-    public void endTournament(Map<NettyClient, Integer> score) {
-        IO.println("TOUNAMENT WINNER IS: "); // TODO
-        IO.println("SCORES");
-        IO.println("-----------------------------------");
-        for (var a : score.entrySet()) {
-            String b = "" + a.getKey().name() + ": " + a.getValue();
-            IO.println(b);
+    public void endTournament(Map<NettyClient, Integer> score, String gameType) {
+
+        List<String> u = new ArrayList<>();
+        List<Integer> s = new ArrayList<>();
+
+        for (var entry : score.entrySet()) {
+            u.add(entry.getKey().name());
+            s.add(entry.getValue());
+        }
+
+        Gson gson = new Gson();
+
+        String users = gson.toJson(u);
+        String scores = gson.toJson(s);
+
+        String msg = String.format(
+                "SVR RESULTS {GAMETYPE: \"%s\", USERS: %s, SCORES: %s}",
+                gameType,
+                users,
+                scores
+        );
+
+        for (var user : onlineUsers()) {
+            user.send(msg);
         }
     }
 }
