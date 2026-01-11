@@ -299,12 +299,12 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
             matchMaker.shuffle(new RandomShuffle()); // Remove if not wanting to shuffle
         }
 
-        Tournament tournament = new BasicTournament(new TournamentBuilder(
-                this,
-                new AsyncTournamentRunner(),
-                matchMaker,
-                new BasicScoreSystem(tournamentUsers)
-        ));
+        Tournament tournament = new Tournament.Builder()
+                .server(this)
+                .tournamentRunner(new AsyncTournamentRunner())
+                .matchMaker(matchMaker)
+                .scoreSystem(new BasicScoreSystem(tournamentUsers))
+                .build();
 
         try {
             new Thread(() -> tournament.run(gameType)).start();

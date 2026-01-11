@@ -45,7 +45,7 @@ public final class ServerView extends ViewWidget {
 	private void setupLayout(String userName) {
 		var playerHeader = Primitive.header(user, false);
 
-        if (userName.equals("host")) {
+        if (userName.equals("host")) { // TODO is fragile
             var tournamentButton = Primitive.hbox(
                     gameListTour,
                     Primitive.button(
@@ -77,7 +77,10 @@ public final class ServerView extends ViewWidget {
             add(Pos.CENTER, playerListSection);
 
             var disconnectButton = Primitive.button(
-                    "disconnect", () -> transitionPrevious(), false);
+                    "disconnect",
+					this::transitionPrevious,
+					false
+			);
 
             add(Pos.BOTTOM_LEFT, Primitive.vbox(disconnectButton));
         }
