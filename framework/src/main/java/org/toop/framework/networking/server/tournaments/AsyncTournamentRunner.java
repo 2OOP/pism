@@ -1,5 +1,6 @@
 package org.toop.framework.networking.server.tournaments;
 
+import org.toop.framework.networking.server.GameResultFuture;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.tournaments.matchmakers.MatchMaker;
@@ -51,13 +52,8 @@ public class AsyncTournamentRunner implements TournamentRunner {
                     CompletableFuture<Void> f =
                             CompletableFuture.runAsync(() -> {
                                 try {
-                                    var game = server.startGame(gameType, a, b);
-                                    int result = game.result().join();
-
-                                    switch (result) {
-                                        case 0 -> scoreSystem.addScore(a);
-                                        case 1 -> scoreSystem.addScore(b);
-                                    }
+                                    GameResultFuture game = server.startGame(gameType, a, b);
+                                    scoreSystem.matchEndAwait(game);
                                 } finally {
                                     a.clearGame();
                                     b.clearGame();
@@ -71,7 +67,7 @@ public class AsyncTournamentRunner implements TournamentRunner {
                     f.whenComplete((_, _) -> runningMatches.remove(f));
                 }
 
-                Thread.sleep(10);
+                Thread.sleep(10); // Safety
             }
 
             server.endTournament(scoreSystem.getScore(), gameType);

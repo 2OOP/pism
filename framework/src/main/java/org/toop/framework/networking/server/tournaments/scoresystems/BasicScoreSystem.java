@@ -1,5 +1,6 @@
 package org.toop.framework.networking.server.tournaments.scoresystems;
 
+import org.toop.framework.networking.server.GameResultFuture;
 import org.toop.framework.networking.server.client.NettyClient;
 
 import java.util.List;
@@ -17,7 +18,19 @@ public class BasicScoreSystem implements ScoreSystem {
     }
 
     @Override
-    public void addScore(NettyClient client) {
+    public void matchEndAwait(GameResultFuture result) {
+
+        if (result.game().users().length < 2) return;
+
+        switch (result.result().join()) {
+            case 0 -> givePoints(result.game().users()[0]);
+            case 1 -> givePoints(result.game().users()[1]);
+            case -1 -> {} // Draw
+            default -> {}
+        }
+    }
+
+    private void givePoints(NettyClient client) {
         int clientScore = scores.get(client);
         scores.put(client, clientScore + getWinPointAmount());
     }
