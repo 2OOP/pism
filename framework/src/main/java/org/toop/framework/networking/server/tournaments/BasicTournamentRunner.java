@@ -1,7 +1,5 @@
 package org.toop.framework.networking.server.tournaments;
 
-import org.toop.framework.gameFramework.model.game.TurnBasedGame;
-import org.toop.framework.networking.server.OnlineGame;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.tournaments.matchmakers.MatchMaker;
 import org.toop.framework.networking.server.tournaments.scoresystems.ScoreSystem;

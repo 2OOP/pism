@@ -295,7 +295,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
         Tournament tournament = new BasicTournament(new TournamentBuilder(
                 this,
-                new BasicTournamentRunner(),
+                new AsyncTournamentRunner(),
                 new RoundRobinMatchMaker(tournamentUsers),
                 new BasicScoreSystem(tournamentUsers)
         ));

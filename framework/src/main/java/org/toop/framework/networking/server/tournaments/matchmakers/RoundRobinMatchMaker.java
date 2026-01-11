@@ -16,6 +16,11 @@ public class RoundRobinMatchMaker implements MatchMaker {
     }
 
     @Override
+    public List<NettyClient> getPlayers() {
+        return players;
+    }
+
+    @Override
     public Iterator<TournamentMatch> iterator() {
         return new Iterator<>() {
 
