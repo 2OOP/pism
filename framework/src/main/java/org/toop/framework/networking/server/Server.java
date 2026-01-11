@@ -250,7 +250,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 userNames.remove(first);
                 userNames.remove(second);
 
-                startGame(key, null, getUser(userLeft), getUser(userRight));
+                startGame(key, getUser(userLeft), getUser(userRight));
             }
         }
     }
