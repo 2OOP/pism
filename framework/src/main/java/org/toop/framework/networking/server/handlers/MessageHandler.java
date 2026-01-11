@@ -1,12 +1,9 @@
 package org.toop.framework.networking.server.handlers;
 
-import org.toop.framework.game.players.ServerPlayer;
-import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.client.Client;
 import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.parsing.ParsedMessage;
-import org.toop.framework.networking.server.tournaments.*;
 import org.toop.framework.utils.Utils;
 
 public class MessageHandler implements Handler<ParsedMessage> {
@@ -111,8 +108,11 @@ public class MessageHandler implements Handler<ParsedMessage> {
     private void handleMove(ParsedMessage p, NettyClient client) {
         if(!hasArgs(p.args())) return;
 
+        var player = client.player();
+        if (player == null) return;
+
         // TODO check if not number
-        client.player().setMove(1L << Integer.parseInt(p.args()[0]));
+        player.setMove(1L << Integer.parseInt(p.args()[0]));
     }
 
     private void handleTournament(ParsedMessage p, NettyClient client) {
