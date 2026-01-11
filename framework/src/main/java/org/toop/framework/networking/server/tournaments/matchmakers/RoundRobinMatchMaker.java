@@ -2,6 +2,7 @@ package org.toop.framework.networking.server.tournaments.matchmakers;
 
 import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.tournaments.TournamentMatch;
+import org.toop.framework.networking.server.tournaments.shufflers.Shuffler;
 
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +14,11 @@ public class RoundRobinMatchMaker implements MatchMaker {
 
     public RoundRobinMatchMaker(List<NettyClient> players) {
         this.players = players;
+    }
+
+    @Override
+    public void shuffle(Shuffler shuffler) {
+        shuffler.shuffle(players);
     }
 
     @Override

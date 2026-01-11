@@ -13,6 +13,7 @@ import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 import org.toop.framework.networking.server.tournaments.*;
 import org.toop.framework.networking.server.tournaments.matchmakers.RoundRobinMatchMaker;
 import org.toop.framework.networking.server.tournaments.scoresystems.BasicScoreSystem;
+import org.toop.framework.networking.server.tournaments.shufflers.RandomShuffle;
 import org.toop.framework.utils.ImmutablePair;
 
 import java.util.*;
@@ -284,7 +285,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         return true;
     }
 
-    public void startTournament(String gameType, NettyClient requestor) {
+    public void startTournament(String gameType, NettyClient requestor, boolean shuffle) {
         if (!admins.contains(requestor)) {
             requestor.send("ERR you do not have the privileges to start a tournament");
             return;
@@ -293,10 +294,15 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         var tournamentUsers = new ArrayList<>(onlineUsers());
         tournamentUsers.removeIf(admins::contains);
 
+        var matchMaker = new RoundRobinMatchMaker(tournamentUsers);
+        if (shuffle) {
+            matchMaker.shuffle(new RandomShuffle()); // Remove if not wanting to shuffle
+        }
+
         Tournament tournament = new BasicTournament(new TournamentBuilder(
                 this,
                 new AsyncTournamentRunner(),
-                new RoundRobinMatchMaker(tournamentUsers),
+                matchMaker,
                 new BasicScoreSystem(tournamentUsers)
         ));
 

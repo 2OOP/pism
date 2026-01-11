@@ -119,7 +119,7 @@ public class MessageHandler implements Handler<ParsedMessage> {
         if(!hasArgs(p.args())) return;
 
         if (p.args()[0].equalsIgnoreCase("start") && p.args().length > 1) {
-            server.startTournament(p.args()[1], client);
+            server.startTournament(p.args()[1], client, false); // TODO add shuffle to msg
         }
     }
 }
