@@ -22,10 +22,8 @@ public class AsyncTournamentRunner implements TournamentRunner {
             String gameType
     ) {
 
-        ExecutorService matchExecutor =
-                Executors.newFixedThreadPool(
-                        Runtime.getRuntime().availableProcessors()
-                );
+        ExecutorService matchExecutor = Executors.newVirtualThreadPerTaskExecutor();
+        ExecutorService scoringExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         Queue<TournamentMatch> pendingMatches = new ConcurrentLinkedQueue<>();
         matchMaker.forEach(pendingMatches::add);
@@ -56,7 +54,11 @@ public class AsyncTournamentRunner implements TournamentRunner {
                             CompletableFuture.runAsync(() -> {
                                 try {
                                     GameResultFuture game = matchRunner.submit(gameType, turnTime, a, b);
-                                    scoreSystems.forEach(s -> s.result(match, game.result().join()));
+
+                                    CompletableFuture.runAsync(
+                                            () -> scoreSystems.forEach(s -> s.result(match, game.result().join())),
+                                            scoringExecutor
+                                    ).join();
                                 } finally {
                                     a.clearGame();
                                     b.clearGame();
