@@ -32,7 +32,7 @@ public class Tournament {
         shuffler = builder.shuffler;
     }
 
-    public void run(String gameType) throws IllegalArgumentException {
+    public void run(String gameType) {
 
         Arrays.stream(players).forEach(e -> {
             matchMaker.addPlayer(e);
