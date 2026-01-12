@@ -154,5 +154,7 @@ public class GenericGameController implements GameController {
     @Override
     public void updateUI() {
         canvas.redraw(game.deepCopy());
+        String gameType = game.getClass().getSimpleName().replace("Bitboard","");
+        gameView.nextPlayer(true, getCurrentPlayer().getName(), game.getPlayer(1-getCurrentPlayerIndex()).getName(),gameType);
     }
 }
