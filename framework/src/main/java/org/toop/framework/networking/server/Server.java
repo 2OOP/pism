@@ -13,7 +13,7 @@ import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 import org.toop.framework.networking.server.tournaments.*;
 import org.toop.framework.networking.server.tournaments.matchmakers.RoundRobinMatchMaker;
 import org.toop.framework.networking.server.tournaments.scoresystems.BasicScoreSystem;
-import org.toop.framework.networking.server.tournaments.shufflers.RandomShuffle;
+import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScoreSystem;
 import org.toop.framework.utils.ImmutablePair;
 
 import java.util.*;
@@ -111,7 +111,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     public void acceptChallenge(Long challengeId) {
         for (var challenge : gameChallenges) {
             if (challenge.id() == challengeId) {
-                startGame(challenge.acceptChallenge(), challenge.getUsers());
+                startGame(challenge.acceptChallenge(), Duration.ofSeconds(10), challenge.getUsers());
                 break;
             }
         }
@@ -133,7 +133,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     }
 
     @Override
-    public GameResultFuture startGame(String gameType, NettyClient... clients) {
+    public GameResultFuture startGame(String gameType, Duration turnTime, NettyClient... clients) {
         if (!gameTypesStore.all().containsKey(gameType)) return null;
 
         try {
@@ -250,7 +250,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 userNames.remove(first);
                 userNames.remove(second);
 
-                startGame(key, getUser(userLeft), getUser(userRight));
+                startGame(key, Duration.ofSeconds(10), getUser(userLeft), getUser(userRight));
             }
         }
     }
@@ -294,33 +294,26 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         var tournamentUsers = new ArrayList<>(onlineUsers());
         tournamentUsers.removeIf(admins::contains);
 
-        var matchMaker = new RoundRobinMatchMaker(tournamentUsers);
-        if (shuffle) {
-            matchMaker.shuffle(new RandomShuffle()); // Remove if not wanting to shuffle
-        }
-
         Tournament tournament = new Tournament.Builder()
-                .server(this)
+                .matchExecutor(this::startGame)
                 .tournamentRunner(new AsyncTournamentRunner())
-                .matchMaker(matchMaker)
-                .scoreSystem(new BasicScoreSystem(tournamentUsers))
+                .matchMaker(new RoundRobinMatchMaker())
+                .scoreSystem(new BasicScoreSystem())
+                .resultBroadcaster(this::endTournament)
+                .turnTimeout(Duration.ofSeconds(5))
+                .addPlayers(tournamentUsers.toArray(NettyClient[]::new))
+                .addAdmins(admins.toArray(NettyClient[]::new))
                 .build();
 
-        try {
-            new Thread(() -> tournament.run(gameType)).start();
-        } catch (IllegalArgumentException e) {
-            admins.forEach(c -> c.send("ERR not enough clients to start a tournament"));
-        } catch (RuntimeException e) {
-            admins.forEach(c -> c.send("ERR no matches could be created to start a tournament with"));
-        }
+        new Thread(() -> tournament.run(gameType)).start();
     }
 
-    public void endTournament(Map<NettyClient, Integer> score, String gameType) {
+    public void endTournament(IntegerScoreSystem score) {
 
         List<String> u = new ArrayList<>();
         List<Integer> s = new ArrayList<>();
 
-        for (var entry : score.entrySet()) {
+        for (var entry : score.getScore().entrySet()) {
             u.add(entry.getKey().name());
             s.add(entry.getValue());
         }
@@ -332,7 +325,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
         String msg = String.format(
                 "SVR RESULTS {GAMETYPE: \"%s\", USERS: %s, SCORES: %s, TOURNAMENT: 1}",
-                gameType,
+                "none", // TODO gametype
                 users,
                 scores
         );

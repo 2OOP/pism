@@ -1,19 +1,9 @@
 package org.toop.framework.networking.server.tournaments.scoresystems;
 
-import org.toop.framework.networking.server.GameResultFuture;
-import org.toop.framework.networking.server.client.NettyClient;
-import org.toop.framework.networking.server.tournaments.TournamentMatch;
-
 import java.util.Map;
 
-public interface ScoreSystem {
-    void matchEndAwait(GameResultFuture result);
-    Map<NettyClient, Integer> getScore();
-
-    default int getWinPointAmount() {
-        return 1;
-    }
-    default int getInitScore() {
-        return 0;
-    }
+public interface ScoreSystem<MATCHTYPE, SCORETYPE, USERTYPE> {
+    void addPlayer(USERTYPE user);
+    void result(MATCHTYPE match, SCORETYPE result);
+    Map<USERTYPE, SCORETYPE> getScore();
 }

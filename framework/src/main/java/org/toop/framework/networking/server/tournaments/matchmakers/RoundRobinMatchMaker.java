@@ -4,20 +4,25 @@ import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.tournaments.TournamentMatch;
 import org.toop.framework.networking.server.tournaments.shufflers.Shuffler;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class RoundRobinMatchMaker implements MatchMaker {
 
-    private final List<NettyClient> players;
+    private final List<NettyClient> players = new ArrayList<>();
 
-    public RoundRobinMatchMaker(List<NettyClient> players) {
-        this.players = players;
+    public RoundRobinMatchMaker() {} // TODO let user decide store type
+
+    @Override
+    public void addPlayer(NettyClient player) {
+        players.addLast(player);
     }
 
     @Override
     public void shuffle(Shuffler shuffler) {
+        if (players.size() < 2) return;
         shuffler.shuffle(players);
     }
 

@@ -1,11 +1,12 @@
 package org.toop.framework.networking.server.tournaments;
 
 import org.toop.framework.networking.server.GameResultFuture;
-import org.toop.framework.networking.server.Server;
+import org.toop.framework.networking.server.MatchExecutor;
 import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.tournaments.matchmakers.MatchMaker;
-import org.toop.framework.networking.server.tournaments.scoresystems.ScoreSystem;
+import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScoreSystem;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -13,9 +14,11 @@ public class AsyncTournamentRunner implements TournamentRunner {
 
     @Override
     public void run(
-            Server server,
+            MatchExecutor matchRunner,
             MatchMaker matchMaker,
-            ScoreSystem scoreSystem,
+            IntegerScoreSystem scoreSystem,
+            ResultBroadcaster<IntegerScoreSystem> broadcaster,
+            Duration turnTime,
             String gameType
     ) {
 
@@ -52,8 +55,8 @@ public class AsyncTournamentRunner implements TournamentRunner {
                     CompletableFuture<Void> f =
                             CompletableFuture.runAsync(() -> {
                                 try {
-                                    GameResultFuture game = server.startGame(gameType, a, b);
-                                    scoreSystem.matchEndAwait(game);
+                                    GameResultFuture game = matchRunner.submit(gameType, turnTime, a, b);
+                                    scoreSystem.result(match, game.result().join());
                                 } finally {
                                     a.clearGame();
                                     b.clearGame();
@@ -70,7 +73,7 @@ public class AsyncTournamentRunner implements TournamentRunner {
                 Thread.sleep(10); // Safety
             }
 
-            server.endTournament(scoreSystem.getScore(), gameType);
+            broadcaster.broadcast(scoreSystem);
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

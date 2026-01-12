@@ -1,9 +1,12 @@
 package org.toop.framework.networking.server.tournaments;
 
-import org.toop.framework.networking.server.Server;
+import org.toop.framework.networking.server.MatchExecutor;
 import org.toop.framework.networking.server.tournaments.matchmakers.MatchMaker;
-import org.toop.framework.networking.server.tournaments.scoresystems.ScoreSystem;
+import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScoreSystem;
+
+import java.time.Duration;
 
 public interface TournamentRunner {
-    void run(Server server, MatchMaker matchMaker, ScoreSystem scoreSystem, String gameType);
+    void run(MatchExecutor matchExecutor, MatchMaker matchMaker, IntegerScoreSystem scoreSystem,
+             ResultBroadcaster<IntegerScoreSystem> broadcaster, Duration turnTime, String gameType);
 }

@@ -1,38 +1,33 @@
 package org.toop.framework.networking.server.tournaments.scoresystems;
 
-import org.toop.framework.networking.server.GameResultFuture;
 import org.toop.framework.networking.server.client.NettyClient;
+import org.toop.framework.networking.server.tournaments.TournamentMatch;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BasicScoreSystem implements ScoreSystem {
+public class BasicScoreSystem implements IntegerScoreSystem {
 
     private final Map<NettyClient, Integer> scores = new ConcurrentHashMap<>();
+    private final int INIT_SCORE = 0;
+    private final int WIN_POINTS = 1;
 
-    public BasicScoreSystem(List<NettyClient> store) {
-        for (NettyClient c : store) {
-            scores.putIfAbsent(c, getInitScore());
-        }
+    public BasicScoreSystem() {} // TODO let user decide store type
+
+    @Override
+    public void addPlayer(NettyClient user) {
+        scores.putIfAbsent(user, INIT_SCORE);
     }
 
     @Override
-    public void matchEndAwait(GameResultFuture result) {
-
-        if (result.game().users().length < 2) return;
-
-        switch (result.result().join()) {
-            case 0 -> givePoints(result.game().users()[0]);
-            case 1 -> givePoints(result.game().users()[1]);
+    public void result(TournamentMatch match, Integer result) {
+        switch (result) {
+            case 0 -> scores.merge(match.getClient0(), WIN_POINTS, Integer::sum);
+            case 1 -> scores.merge(match.getClient1(), WIN_POINTS, Integer::sum);
             case -1 -> {} // Draw
-            default -> {}
+            default -> throw new IllegalArgumentException("Unknown result: " + result);
         }
-    }
-
-    private void givePoints(NettyClient client) {
-        int clientScore = scores.get(client);
-        scores.put(client, clientScore + getWinPointAmount());
     }
 
     @Override
