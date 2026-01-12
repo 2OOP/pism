@@ -4,6 +4,7 @@ import org.toop.framework.networking.server.MatchExecutor;
 import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.tournaments.matchmakers.MatchMaker;
 import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScoreSystem;
+import org.toop.framework.networking.server.tournaments.shufflers.Shuffler;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ public class Tournament {
     private final ResultBroadcaster<IntegerScoreSystem> broadcaster;
     private final NettyClient[] players;
     private final Duration turnTime;
+    private final Shuffler shuffler;
 
     private Tournament(Tournament.Builder builder) {
         matchExecutor = builder.matchExecutor;
@@ -27,6 +29,7 @@ public class Tournament {
         broadcaster = builder.broadcaster;
         players = builder.players;
         turnTime = builder.turnTime;
+        shuffler = builder.shuffler;
     }
 
     public void run(String gameType) throws IllegalArgumentException {
@@ -35,6 +38,8 @@ public class Tournament {
             matchMaker.addPlayer(e);
             scoreSystem.addPlayer(e);
         });
+
+        if (shuffler != null) matchMaker.shuffle(shuffler);
 
         tournamentRunner.run(matchExecutor, matchMaker, scoreSystem, broadcaster, turnTime, gameType);
 
@@ -50,6 +55,7 @@ public class Tournament {
         private NettyClient[] observors;
         private NettyClient[] admins;
         private Duration turnTime = Duration.ofSeconds(10);
+        private Shuffler shuffler;
 
         public Builder matchExecutor(MatchExecutor matchExecutor) {
             this.matchExecutor = matchExecutor;
@@ -93,6 +99,11 @@ public class Tournament {
 
         public Builder turnTimeout(Duration turnTime) {
             this.turnTime = turnTime;
+            return this;
+        }
+
+        public Builder addMatchShuffler(Shuffler shuffler) {
+            this.shuffler = shuffler;
             return this;
         }
 

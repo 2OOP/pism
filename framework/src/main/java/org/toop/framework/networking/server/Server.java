@@ -14,6 +14,7 @@ import org.toop.framework.networking.server.tournaments.*;
 import org.toop.framework.networking.server.tournaments.matchmakers.RoundRobinMatchMaker;
 import org.toop.framework.networking.server.tournaments.scoresystems.BasicScoreSystem;
 import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScoreSystem;
+import org.toop.framework.networking.server.tournaments.shufflers.RandomShuffle;
 import org.toop.framework.utils.ImmutablePair;
 
 import java.util.*;
@@ -300,9 +301,10 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 .matchMaker(new RoundRobinMatchMaker())
                 .scoreSystem(new BasicScoreSystem())
                 .resultBroadcaster(this::endTournament)
-                .turnTimeout(Duration.ofSeconds(5))
+                .turnTimeout(Duration.ofSeconds(10))
                 .addPlayers(tournamentUsers.toArray(NettyClient[]::new))
                 .addAdmins(admins.toArray(NettyClient[]::new))
+                .addMatchShuffler(new RandomShuffle())
                 .build();
 
         new Thread(() -> tournament.run(gameType)).start();
