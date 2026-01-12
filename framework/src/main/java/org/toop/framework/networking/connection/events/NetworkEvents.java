@@ -65,7 +65,7 @@ public class NetworkEvents extends EventsBase {
     public record GameResultResponse(long clientId, String condition)
             implements GenericEvent {}
 
-    public record TournamentResultResponse(long clientId, String gameType, String[] names, Integer[] scores)
+    public record TournamentResultResponse(long clientId, String gameType, String[] names, String[] scoreTypes, List<Integer[]> scores)
             implements GenericEvent {}
 
     /** Indicates that a game move has been processed or received. */

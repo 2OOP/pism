@@ -11,6 +11,7 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.framework.game.players.OnlinePlayer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.eventbus.GlobalEventBus;
@@ -20,6 +21,7 @@ import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.types.NetworkingConnector;
 import org.toop.framework.networking.server.gateway.NettyGatewayServer;
 import org.toop.framework.game.players.LocalPlayer;
+import org.toop.game.players.ai.MCTSAI3;
 import org.toop.local.AppContext;
 
 import java.util.Arrays;
@@ -208,7 +210,8 @@ public final class Server {
             information.players[opponentStartingTurn].name = response.opponent();
 
             Player[] players = new Player[2];
-            players[userStartingTurn] = new LocalPlayer(user);
+
+            players[userStartingTurn] = new ArtificialPlayer(new MCTSAI3(100), user);
             players[opponentStartingTurn] = new OnlinePlayer(response.opponent());
 
             switch (type) {
@@ -244,7 +247,8 @@ public final class Server {
     private void handleTournamentResult(NetworkEvents.TournamentResultResponse response) {
         IO.println(response.gameType());
         IO.println(Arrays.toString(response.names()));
-        IO.println(Arrays.toString(response.scores()));
+		IO.println(Arrays.toString(response.scoreTypes()));
+        IO.println(Arrays.toString(response.scores().toArray()));
     }
 
     private void handleReceivedMove(NetworkEvents.GameMoveResponse response) {

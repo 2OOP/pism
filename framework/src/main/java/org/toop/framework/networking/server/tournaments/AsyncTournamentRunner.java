@@ -16,7 +16,7 @@ public class AsyncTournamentRunner implements TournamentRunner {
     public void run(
             MatchExecutor matchRunner,
             MatchMaker matchMaker,
-            IntegerScoreSystem scoreSystem,
+            List<IntegerScoreSystem> scoreSystems,
             ResultBroadcaster<IntegerScoreSystem> broadcaster,
             Duration turnTime,
             String gameType
@@ -56,7 +56,7 @@ public class AsyncTournamentRunner implements TournamentRunner {
                             CompletableFuture.runAsync(() -> {
                                 try {
                                     GameResultFuture game = matchRunner.submit(gameType, turnTime, a, b);
-                                    scoreSystem.result(match, game.result().join());
+                                    scoreSystems.forEach(s -> s.result(match, game.result().join()));
                                 } finally {
                                     a.clearGame();
                                     b.clearGame();
@@ -73,7 +73,7 @@ public class AsyncTournamentRunner implements TournamentRunner {
                 Thread.sleep(10); // Safety
             }
 
-            broadcaster.broadcast(scoreSystem);
+            broadcaster.broadcast(scoreSystems);
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

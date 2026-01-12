@@ -7,13 +7,15 @@ import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScor
 import org.toop.framework.networking.server.tournaments.shufflers.Shuffler;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class Tournament {
 
     private final MatchExecutor matchExecutor;
-    private final IntegerScoreSystem scoreSystem;
+    private final List<IntegerScoreSystem> scoreSystems;
     private final TournamentRunner tournamentRunner;
     private final MatchMaker matchMaker;
     private final ResultBroadcaster<IntegerScoreSystem> broadcaster;
@@ -23,7 +25,7 @@ public class Tournament {
 
     private Tournament(Tournament.Builder builder) {
         matchExecutor = builder.matchExecutor;
-        scoreSystem = builder.scoreSystem;
+        scoreSystems = builder.scoreSystems;
         tournamentRunner = builder.tournamentRunner;
         matchMaker = builder.matchMaker;
         broadcaster = builder.broadcaster;
@@ -36,18 +38,18 @@ public class Tournament {
 
         Arrays.stream(players).forEach(e -> {
             matchMaker.addPlayer(e);
-            scoreSystem.addPlayer(e);
+            scoreSystems.forEach(k -> k.addPlayer(e));
         });
 
         if (shuffler != null) matchMaker.shuffle(shuffler);
 
-        tournamentRunner.run(matchExecutor, matchMaker, scoreSystem, broadcaster, turnTime, gameType);
+        tournamentRunner.run(matchExecutor, matchMaker, scoreSystems, broadcaster, turnTime, gameType);
 
     }
 
     public static class Builder {
         private MatchExecutor matchExecutor;
-        private IntegerScoreSystem scoreSystem;
+        private List<IntegerScoreSystem> scoreSystems = new ArrayList<>();
         private TournamentRunner tournamentRunner;
         private MatchMaker matchMaker;
         private ResultBroadcaster<IntegerScoreSystem> broadcaster;
@@ -62,8 +64,8 @@ public class Tournament {
             return this;
         }
 
-        public Builder scoreSystem(IntegerScoreSystem scoreSystem) {
-            this.scoreSystem = scoreSystem;
+        public Builder addScoreSystem(IntegerScoreSystem scoreSystem) {
+            this.scoreSystems.addLast(scoreSystem);
             return this;
         }
 
@@ -109,7 +111,6 @@ public class Tournament {
 
         public Tournament build() {
             Objects.requireNonNull(matchExecutor, "matchExecutor");
-            Objects.requireNonNull(scoreSystem, "scoreSystem");
             Objects.requireNonNull(tournamentRunner, "tournamentRunner");
             Objects.requireNonNull(matchMaker, "matchMaker");
             Objects.requireNonNull(broadcaster, "resultBroadcaster"); // TODO is not always necessary and needs to be more generic, not just at the end

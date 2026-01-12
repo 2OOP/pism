@@ -11,10 +11,8 @@ import org.toop.framework.networking.server.stores.SubscriptionStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
 import org.toop.framework.networking.server.tournaments.*;
-import org.toop.framework.networking.server.tournaments.matchmakers.RoundRobinMatchMaker;
-import org.toop.framework.networking.server.tournaments.scoresystems.BasicScoreSystem;
-import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScoreSystem;
-import org.toop.framework.networking.server.tournaments.shufflers.RandomShuffle;
+import org.toop.framework.networking.server.tournaments.matchmakers.DoubleRoundRobinMatchMaker;
+import org.toop.framework.networking.server.tournaments.scoresystems.*;
 import org.toop.framework.utils.ImmutablePair;
 
 import java.util.*;
@@ -298,38 +296,57 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         Tournament tournament = new Tournament.Builder()
                 .matchExecutor(this::startGame)
                 .tournamentRunner(new AsyncTournamentRunner())
-                .matchMaker(new RoundRobinMatchMaker())
-                .scoreSystem(new BasicScoreSystem())
+                .matchMaker(new DoubleRoundRobinMatchMaker())
+                .addScoreSystem(new MatchCountScoreSystem())
+                .addScoreSystem(new WinCountScoreSystem())
+                .addScoreSystem(new DrawCountScoreSystem())
+                .addScoreSystem(new LoseCountScoreSystem())
                 .resultBroadcaster(this::endTournament)
                 .turnTimeout(Duration.ofSeconds(10))
                 .addPlayers(tournamentUsers.toArray(NettyClient[]::new))
                 .addAdmins(admins.toArray(NettyClient[]::new))
-                .addMatchShuffler(new RandomShuffle())
                 .build();
 
         new Thread(() -> tournament.run(gameType)).start();
     }
 
-    public void endTournament(IntegerScoreSystem score) {
+    public void endTournament(List<IntegerScoreSystem> systems) {
+        if (systems.isEmpty()) return;
 
-        List<String> u = new ArrayList<>();
-        List<Integer> s = new ArrayList<>();
+        Map<String, List<ImmutablePair<String, Integer>>> combined = new HashMap<>();
 
-        for (var entry : score.getScore().entrySet()) {
-            u.add(entry.getKey().name());
-            s.add(entry.getValue());
+        for (var system : systems) {
+            for (var player : system.getScore().keySet()) {
+                combined.putIfAbsent(player.name(), new ArrayList<>());
+                combined.get(player.name()).addLast(new ImmutablePair<>(system.scoreName(), system.getScore().get(player)));
+            }
+        }
+
+        List<String> names = new ArrayList<>();
+        List<String> systemNames = new ArrayList<>();
+        List<List<Integer>> scores = new ArrayList<>();
+
+        for (var player : combined.entrySet()) {
+            names.addLast(player.getKey());
+            scores.addLast(new ArrayList<>());
+            for (var system : player.getValue()) {
+                if (!systemNames.contains(system.getLeft())) systemNames.addLast(system.getLeft());
+                scores.getLast().addLast(system.getRight());
+            }
         }
 
         Gson gson = new Gson();
 
-        String users = gson.toJson(u);
-        String scores = gson.toJson(s);
+        String namesJson = gson.toJson(names);
+        String systemNamesJson = gson.toJson(systemNames);
+        String scoresJson = gson.toJson(scores);
 
         String msg = String.format(
-                "SVR RESULTS {GAMETYPE: \"%s\", USERS: %s, SCORES: %s, TOURNAMENT: 1}",
+                "SVR RESULTS {GAMETYPE: \"%s\", USERS: %s, SCORETYPES: %s, SCORES: %s, TOURNAMENT: 1}",
                 "none", // TODO gametype
-                users,
-                scores
+                namesJson,
+                systemNamesJson,
+                scoresJson
         );
 
         for (var user : onlineUsers()) {

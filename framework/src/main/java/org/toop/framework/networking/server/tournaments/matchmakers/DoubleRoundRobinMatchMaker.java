@@ -9,11 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class RoundRobinMatchMaker implements MatchMaker {
+public class DoubleRoundRobinMatchMaker implements MatchMaker {
 
     private final List<NettyClient> players = new ArrayList<>();
 
-    public RoundRobinMatchMaker() {} // TODO let user decide store type
+    public DoubleRoundRobinMatchMaker() {} // TODO let user decide store type
 
     @Override
     public void addPlayer(NettyClient player) {
@@ -37,6 +37,7 @@ public class RoundRobinMatchMaker implements MatchMaker {
 
             private int i = 0;
             private int j = 1;
+            private boolean reverse = false;
 
             @Override
             public boolean hasNext() {
@@ -54,13 +55,26 @@ public class RoundRobinMatchMaker implements MatchMaker {
                 NettyClient home = players.get(i);
                 NettyClient away = players.get(j);
 
+                TournamentMatch match = reverse ? new TournamentMatch(away, home) : new TournamentMatch(home, away);
+
+                advance();
+                return match;
+            }
+
+            private void advance() {
                 j++;
                 if (j >= players.size()) {
                     i++;
                     j = i + 1;
-                }
 
-                return new TournamentMatch(home, away);
+                    if (i >= players.size() - 1) {
+                        if (!reverse) {
+                            reverse = true;
+                            i = 0;
+                            j = 1;
+                        }
+                    }
+                }
             }
         };
     }

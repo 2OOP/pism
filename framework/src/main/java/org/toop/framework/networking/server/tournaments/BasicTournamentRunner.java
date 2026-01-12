@@ -6,6 +6,7 @@ import org.toop.framework.networking.server.tournaments.matchmakers.MatchMaker;
 import org.toop.framework.networking.server.tournaments.scoresystems.IntegerScoreSystem;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class BasicTournamentRunner implements TournamentRunner {
@@ -13,7 +14,7 @@ public class BasicTournamentRunner implements TournamentRunner {
     public void run(
             MatchExecutor matchExecutor,
             MatchMaker matchMaker,
-            IntegerScoreSystem scoreSystem,
+            List<IntegerScoreSystem> scoreSystems,
             ResultBroadcaster<IntegerScoreSystem> broadcaster,
             Duration turnTime,
             String gameType
@@ -24,13 +25,13 @@ public class BasicTournamentRunner implements TournamentRunner {
                 for (TournamentMatch match : matchMaker) {
                     // Play game and await the results
                     GameResultFuture game = matchExecutor.submit(gameType, turnTime, match.getClient0(), match.getClient1());
-                    scoreSystem.result(match, game.result().join());
+                    scoreSystems.forEach(e -> e.result(match, game.result().join()));
 
                     match.getClient0().clearGame();
                     match.getClient1().clearGame();
                 }
 
-                broadcaster.broadcast(scoreSystem);
+                broadcaster.broadcast(scoreSystems);
             });
         } finally {
             threadPool.shutdown();
