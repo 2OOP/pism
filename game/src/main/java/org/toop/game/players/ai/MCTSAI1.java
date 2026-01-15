@@ -3,15 +3,9 @@ package org.toop.game.players.ai;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractAI;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-public class MCTSAI3<T extends TurnBasedGame<T>> extends AbstractAI<T> {
+public class MCTSAI1<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 	private static class Node {
 		public TurnBasedGame<?> state;
 
@@ -85,79 +79,38 @@ public class MCTSAI3<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 		}
 	}
 
-	private static final ThreadLocal<Random> random = ThreadLocal.withInitial(Random::new);
+	private static final Random random = new Random();
 
 	private final int milliseconds;
-	private final int threads;
 
-	public MCTSAI3(int milliseconds, int threads) {
+	public MCTSAI1(int milliseconds) {
 		this.milliseconds = milliseconds;
-		this.threads = threads;
 	}
 
-	public MCTSAI3(MCTSAI3<T> other) {
+	public MCTSAI1(MCTSAI1<T> other) {
 		this.milliseconds = other.milliseconds;
-		this.threads = other.threads;
 	}
 
 	@Override
-	public MCTSAI3<T> deepCopy() {
-		return new MCTSAI3<>(this);
+	public MCTSAI1<T> deepCopy() {
+		return new MCTSAI1<>(this);
 	}
 
 	@Override
 	public long getMove(T game) {
-		final ExecutorService pool = Executors.newFixedThreadPool(threads);
+		final Node root = new Node(game, null, 0L);
+
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;
 
-		final List<Callable<Node>> tasks = new ArrayList<>();
-
-		for (int i = 0; i < threads; i++) {
-			tasks.add(() -> {
-				final Node localRoot = new Node(game.deepCopy());
-
-				while (System.nanoTime() < endTime) {
-					Node leaf = selection(localRoot);
-					leaf = expansion(leaf);
-					final float value = simulation(leaf);
-					backPropagation(leaf, value);
-				}
-
-				return localRoot;
-			});
+		while (System.nanoTime() < endTime) {
+			Node leaf = selection(root);
+			leaf = expansion(leaf);
+			final float value = simulation(leaf);
+			backPropagation(leaf, value);
 		}
 
-		try {
-			final List<Future<Node>> results = pool.invokeAll(tasks);
-
-			pool.shutdown();
-
-			final Node root = new Node(game.deepCopy());
-
-			for (int i = 0; i < root.children.length; i++) {
-				expansion(root);
-			}
-
-			for (final Future<Node> result : results) {
-				final Node localRoot = result.get();
-
-				for (final Node localChild : localRoot.children) {
-					for (int i = 0; i < root.children.length; i++) {
-						if (localChild.move == root.children[i].move) {
-							root.children[i].visits += localChild.visits;
-							root.visits += localChild.visits;
-							break;
-						}
-					}
-				}
-			}
-
-			final Node mostVisitedChild = mostVisitedChild(root);
-			return mostVisitedChild.move;
-		} catch (Exception _) {
-			final long legalMoves = game.getLegalMoves();
-			return randomSetBit(legalMoves);
-		}
+		final Node mostVisitedChild = mostVisitedChild(root);
+		return mostVisitedChild.move;
 	}
 
 	private Node mostVisitedChild(Node root) {
@@ -286,7 +239,7 @@ public class MCTSAI3<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 		}
 
 		final int bitCount = Long.bitCount(value);
-		final int randomBitCount = random.get().nextInt(bitCount);
+		final int randomBitCount = random.nextInt(bitCount);
 
 		for (int i = 0; i < randomBitCount; i++) {
 			value &= value - 1;

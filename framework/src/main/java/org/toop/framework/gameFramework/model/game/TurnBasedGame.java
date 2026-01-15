@@ -7,4 +7,7 @@ public interface TurnBasedGame<T extends TurnBasedGame<T>> extends Playable, Dee
 
 	PlayResult getState();
 	boolean isTerminal();
+
+	float rateMove(long move);
+	long heuristicMove(long legalMoves);
 }

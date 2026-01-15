@@ -104,4 +104,14 @@ public class BitboardTicTacToe extends BitboardGame<BitboardTicTacToe> {
     public BitboardTicTacToe deepCopy() {
         return new BitboardTicTacToe(this);
     }
+
+	@Override
+	public float rateMove(long move) {
+		return 0.0f;
+	}
+
+	@Override
+	public long heuristicMove(long legalMoves) {
+		return legalMoves;
+	}
 }
