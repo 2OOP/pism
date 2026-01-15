@@ -12,11 +12,13 @@ import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.*;
-import org.toop.framework.game.players.LocalPlayer;
-import org.toop.game.players.ai.MCTSAI;
+import org.toop.game.players.ai.MCTSAI1;
 import org.toop.game.players.ai.MCTSAI2;
 import org.toop.game.players.ai.MCTSAI3;
+import org.toop.game.players.ai.MCTSAI4;
+import org.toop.game.players.ai.MCTSAI5;
 import org.toop.game.players.ai.MiniMaxAI;
+import org.toop.game.players.ai.RandomAI;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;

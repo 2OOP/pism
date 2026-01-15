@@ -321,8 +321,51 @@ public class BitboardReversi extends BitboardGame {
         else if (blackCount > whiteCount){
             return 0;
         }
-        else{
+        else {
             return 1;
         }
     }
+
+	@Override
+	public float rateMove(long move) {
+		final long corners = 0x8100000000000081L;
+
+		if ((move & corners) != 0L) {
+			return 0.4f;
+		}
+
+		final long xSquares = 0x0042000000004200L;
+
+		if ((move & xSquares) != 0) {
+			return -0.4f;
+		}
+
+		final long cSquares = 0x4281000000008142L;
+
+		if ((move & cSquares) != 0) {
+			return -0.1f;
+		}
+
+		return 0.0f;
+	}
+
+	@Override
+	public long heuristicMove(long legalMoves) {
+		long bestMove = 0L;
+		float bestMoveRate = Float.NEGATIVE_INFINITY;
+
+		while (legalMoves != 0L) {
+			final long move = legalMoves & -legalMoves;
+			final float moveRate = rateMove(move);
+
+			if (moveRate > bestMoveRate) {
+				bestMove = move;
+				bestMoveRate = moveRate;
+			}
+
+			legalMoves &= ~move;
+		}
+
+		return bestMove;
+	}
 }

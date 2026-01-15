@@ -35,6 +35,9 @@ public class MCTSAI2 extends AbstractAI {
 
 			this.value = 0.0f;
 			this.visits = 0;
+
+			this.solved = false;
+			this.solvedValue = 0.0f;
 		}
 
 		public Node(TurnBasedGame state) {
@@ -46,6 +49,10 @@ public class MCTSAI2 extends AbstractAI {
 		}
 
 		public float calculateUCT(int parentVisits) {
+			if (visits == 0) {
+				return Float.POSITIVE_INFINITY;
+			}
+
 			final float exploitation = value / visits;
 			final float exploration = 1.41f * (float)(Math.sqrt(Math.log(parentVisits) / visits));
 
@@ -63,24 +70,29 @@ public class MCTSAI2 extends AbstractAI {
 					highestUCTChild = children[i];
 					highestUCT = childUCT;
 				}
-
 			}
 
 			return highestUCTChild;
 		}
 	}
 
-	private final Random random;
+	private static final Random random = new Random();
+
 	private final int milliseconds;
 
+	private Node root;
+
 	public MCTSAI2(int milliseconds) {
-		this.random = new Random();
 		this.milliseconds = milliseconds;
+
+		this.root = null;
 	}
 
 	public MCTSAI2(MCTSAI2 other) {
 		this.random = other.random;
 		this.milliseconds = other.milliseconds;
+
+		this.root = other.root;
 	}
 
 	@Override
@@ -90,7 +102,7 @@ public class MCTSAI2 extends AbstractAI {
 
 	@Override
 	public long getMove(TurnBasedGame game) {
-		final Node root = new Node(game, null, 0L);
+        root = findOrResetRoot(root, game);
 
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;
 
@@ -102,8 +114,11 @@ public class MCTSAI2 extends AbstractAI {
 		}
 
 		final Node mostVisitedChild = mostVisitedChild(root);
+		final long move = mostVisitedChild.move;
 
-		return mostVisitedChild != null? mostVisitedChild.move : 0L;
+		root = findChildByMove(root, move);
+
+		return move;
 	}
 
 	private Node mostVisitedChild(Node root) {
@@ -120,8 +135,51 @@ public class MCTSAI2 extends AbstractAI {
 		return mostVisitedChild;
 	}
 
+	private Node findOrResetRoot(Node root, T game) {
+		if (root == null) {
+			return new Node(game.deepCopy());
+		}
+
+		if (areStatesEqual(root.state.getBoard(), game.getBoard())) {
+			return root;
+		}
+
+		for (int i = 0; i < root.expanded; i++) {
+			if (areStatesEqual(root.children[i].state.getBoard(), game.getBoard())) {
+				root.children[i].parent = null;
+				return root.children[i];
+			}
+		}
+
+		return new Node(game.deepCopy());
+	}
+
+	private Node findChildByMove(Node root, long move) {
+		for (int i = 0; i < root.expanded; i++) {
+			if (root.children[i].move == move) {
+				root.children[i].parent = null;
+				return root.children[i];
+			}
+		}
+
+		return null;
+	}
+
+	private boolean areStatesEqual(long[] state1, long[] state2) {
+		if (state1.length != state2.length) {
+			return false;
+		}
+
+		for (int i = 0; i < state1.length; i++) {
+			if (state1[i] != state2[i]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 	private Node selection(Node root) {
-		while (root.isFullyExpanded() && !root.state.isTerminal()) {
+		while (!root.solved && root.isFullyExpanded() && !root.state.isTerminal()) {
 			root = root.bestUCTChild();
 		}
 
@@ -161,7 +219,9 @@ public class MCTSAI2 extends AbstractAI {
 
 		if (copiedState.getWinner() == playerIndex) {
 			return 1.0f;
-		} else if (copiedState.getWinner() >= 0) {
+		}
+
+		if (copiedState.getWinner() >= 0) {
 			return -1.0f;
 		}
 
@@ -173,8 +233,54 @@ public class MCTSAI2 extends AbstractAI {
 			leaf.value += value;
 			leaf.visits++;
 
+			if (!leaf.solved) {
+				updateSolvedStatus(leaf);
+			}
+
 			value = -value;
 			leaf = leaf.parent;
+		}
+	}
+
+	private void updateSolvedStatus(Node node) {
+		if (node.state.isTerminal()) {
+			node.solved = true;
+
+			final int winner = node.state.getWinner();
+			final int mover = 1 - node.state.getCurrentTurn();
+
+			node.solvedValue = winner == mover? 1.0f : winner == -1? 0.0f : -1.0f;
+
+			return;
+		}
+
+		if (node.isFullyExpanded()) {
+			boolean allChildrenSolved = true;
+			boolean foundWinningMove = false;
+			boolean foundDrawMove = false;
+
+			for (final Node child : node.children) {
+				if (child.solved) {
+					if (child.solvedValue == -1.0f) {
+						foundWinningMove = true;
+						break;
+					}
+
+					if (child.solvedValue == 0.0f) {
+						foundDrawMove = true;
+					}
+				} else {
+					allChildrenSolved = false;
+				}
+			}
+
+			if (foundWinningMove) {
+				node.solved = true;
+				node.solvedValue = 1.0f;
+			} else if (allChildrenSolved) {
+				node.solved = true;
+				node.solvedValue = foundDrawMove? 0.0f : -1.0f;
+			}
 		}
 	}
 

@@ -11,9 +11,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class MCTSAI3 extends AbstractAI {
+public class MCTSAI5<T extends TurnBasedGame<T>> extends AbstractAI<T> {
 	private static class Node {
-		public TurnBasedGame state;
+		public TurnBasedGame<?> state;
 
 		public long move;
 		public long unexpandedMoves;
@@ -26,10 +26,12 @@ public class MCTSAI3 extends AbstractAI {
 		public float value;
 		public int visits;
 
-        public boolean solved;
-        public float solvedValue;
+		public boolean solved;
+		public float solvedValue;
 
-		public Node(TurnBasedGame state, Node parent, long move) {
+		public float heuristic;
+
+		public Node(TurnBasedGame<?> state, Node parent, long move) {
 			final long legalMoves = state.getLegalMoves();
 
 			this.state = state;
@@ -47,9 +49,11 @@ public class MCTSAI3 extends AbstractAI {
 
 			this.solved = false;
 			this.solvedValue = 0.0f;
+
+			this.heuristic = state.rateMove(move);
 		}
 
-		public Node(TurnBasedGame state) {
+		public Node(TurnBasedGame<?> state) {
 			this(state, null, 0L);
 		}
 
@@ -64,8 +68,9 @@ public class MCTSAI3 extends AbstractAI {
 
 			final float exploitation = value / visits;
 			final float exploration = 1.41f * (float)(Math.sqrt(Math.log(parentVisits) / visits));
+			final float bias = heuristic / visits;
 
-			return exploitation + exploration;
+			return exploitation + exploration + bias;
 		}
 
 		public Node bestUCTChild() {
@@ -90,34 +95,43 @@ public class MCTSAI3 extends AbstractAI {
 	private final int milliseconds;
 	private final int threads;
 
-	public MCTSAI3(int milliseconds, int threads) {
+	private final Node[] threadRoots;
+
+	public MCTSAI5(int milliseconds, int threads) {
 		this.milliseconds = milliseconds;
 		this.threads = threads;
+
+		this.threadRoots = new Node[threads];
 	}
 
-	public MCTSAI3(MCTSAI3 other) {
-		this.random = other.random;
-
-		this.root = other.root;
+	public MCTSAI5(MCTSAI5<T> other) {
 		this.milliseconds = other.milliseconds;
 		this.threads = other.threads;
+
+		this.threadRoots = other.threadRoots;
 	}
 
 	@Override
-	public MCTSAI3 deepCopy() {
-		return new MCTSAI3(this);
+	public MCTSAI5<T> deepCopy() {
+		return new MCTSAI5<>(this);
 	}
 
 	@Override
 	public long getMove(T game) {
+		for (int i = 0; i < threads; i++) {
+			threadRoots[i] = findOrResetRoot(threadRoots[i], game);
+		}
+
 		final ExecutorService pool = Executors.newFixedThreadPool(threads);
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;
 
 		final List<Callable<Node>> tasks = new ArrayList<>();
 
 		for (int i = 0; i < threads; i++) {
+			final int threadIndex = i;
+
 			tasks.add(() -> {
-				final Node localRoot = new Node(game.deepCopy());
+				final Node localRoot = threadRoots[threadIndex];
 
 				while (System.nanoTime() < endTime) {
 					Node leaf = selection(localRoot);
@@ -156,7 +170,13 @@ public class MCTSAI3 extends AbstractAI {
 			}
 
 			final Node mostVisitedChild = mostVisitedChild(root);
-			return mostVisitedChild.move;
+			final long move = mostVisitedChild.move;
+
+			for (int i = 0; i < threads; i++) {
+				threadRoots[i] = findChildByMove(threadRoots[i], move);
+			}
+
+			return move;
 		} catch (Exception _) {
 			final long legalMoves = game.getLegalMoves();
 			return randomSetBit(legalMoves);
@@ -177,58 +197,48 @@ public class MCTSAI3 extends AbstractAI {
 		return mostVisitedChild;
 	}
 
-	private void detectRoot(TurnBasedGame game) {
+	private Node findOrResetRoot(Node root, T game) {
 		if (root == null) {
-			root = new Node(game.deepCopy());
-			return;
+			return new Node(game.deepCopy());
 		}
 
-		final long[] currentBoards = game.getBoard();
-		final long[] rootBoards = root.state.getBoard();
-
-		boolean detected = true;
-
-		for (int i = 0; i < rootBoards.length; i++) {
-			if (rootBoards[i] != currentBoards[i]) {
-				detected = false;
-				break;
-			}
-		}
-
-		if (detected) {
-			return;
+		if (areStatesEqual(root.state.getBoard(), game.getBoard())) {
+			return root;
 		}
 
 		for (int i = 0; i < root.expanded; i++) {
-			final Node child = root.children[i];
-
-			final long[] childBoards = child.state.getBoard();
-
-			detected = true;
-
-			for (int j = 0; j < childBoards.length; j++) {
-				if (childBoards[j] != currentBoards[j]) {
-					detected = false;
-					break;
-				}
-			}
-
-			if (detected) {
-				root = child;
-				return;
+			if (areStatesEqual(root.children[i].state.getBoard(), game.getBoard())) {
+				root.children[i].parent = null;
+				return root.children[i];
 			}
 		}
 
-		root = new Node(game.deepCopy());
+		return new Node(game.deepCopy());
 	}
 
-	private void newRoot(long move) {
-		for (final Node child : root.children) {
-			if (child.move == move) {
-				root = child;
-				break;
+	private Node findChildByMove(Node root, long move) {
+		for (int i = 0; i < root.expanded; i++) {
+			if (root.children[i].move == move) {
+				root.children[i].parent = null;
+				return root.children[i];
 			}
 		}
+
+		return null;
+	}
+
+	private boolean areStatesEqual(long[] state1, long[] state2) {
+		if (state1.length != state2.length) {
+			return false;
+		}
+
+		for (int i = 0; i < state1.length; i++) {
+			if (state1[i] != state2[i]) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private Node selection(Node root) {
@@ -246,7 +256,7 @@ public class MCTSAI3 extends AbstractAI {
 
 		final long unexpandedMove = leaf.unexpandedMoves & -leaf.unexpandedMoves;
 
-		final TurnBasedGame copiedState = leaf.state.deepCopy();
+		final TurnBasedGame<?> copiedState = leaf.state.deepCopy();
 		copiedState.play(unexpandedMove);
 
 		final Node expandedChild = new Node(copiedState, leaf, unexpandedMove);
@@ -260,14 +270,21 @@ public class MCTSAI3 extends AbstractAI {
 	}
 
 	private float simulation(Node leaf) {
-		final TurnBasedGame copiedState = leaf.state.deepCopy();
+		final TurnBasedGame<?> copiedState = leaf.state.deepCopy();
 		final int playerIndex = 1 - copiedState.getCurrentTurn();
 
 		while (!copiedState.isTerminal()) {
 			final long legalMoves = copiedState.getLegalMoves();
-			final long randomMove = randomSetBit(legalMoves);
 
-			copiedState.play(randomMove);
+			long move = 0L;
+
+			if (random.get().nextFloat() > 0.9f) {
+				move = copiedState.heuristicMove(legalMoves);
+			} else {
+				move = randomSetBit(legalMoves);
+			}
+
+			copiedState.play(move);
 		}
 
 		if (copiedState.getWinner() == playerIndex) {
