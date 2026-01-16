@@ -92,10 +92,14 @@ public abstract class MCTSAI extends AbstractAI {
 
 	public MCTSAI(int milliseconds) {
 		this.milliseconds = milliseconds;
+
+		this.lastIterations = 0;
 	}
 
 	public MCTSAI(MCTSAI other) {
 		this.milliseconds = other.milliseconds;
+
+		this.lastIterations = other.lastIterations;
 	}
 
 	public int getLastIterations() {

@@ -1,6 +1,5 @@
 package org.toop;
 
-
 import org.toop.app.App;
 import org.toop.framework.game.games.reversi.BitboardReversi;
 import org.toop.framework.game.players.ArtificialPlayer;
@@ -16,13 +15,13 @@ import java.util.concurrent.Executors;
 
 public final class Main {
     static void main(String[] args) {
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-
-		executor.execute(() -> testMCTS(25));
 		App.run(args);
+
+		// final ExecutorService executor = Executors.newFixedThreadPool(1);
+		// executor.execute(() -> testAIs(25));
     }
 
-	private static void testMCTS(int games) {
+	private static void testAIs(int games) {
 		var versions = new ArtificialPlayer[5];
 		versions[0] = new ArtificialPlayer(new RandomAI(), "Random AI");
 		versions[1] = new ArtificialPlayer(new MCTSAI1(1000), "MCTS V1 AI");
@@ -35,12 +34,12 @@ public final class Main {
 				final int playerIndex1 = i % versions.length;
 				final int playerIndex2 = j % versions.length;
 
-				testAI(games, new ArtificialPlayer[] { versions[playerIndex1], versions[playerIndex2]});
+				testAIVSAI(games, new ArtificialPlayer[] { versions[playerIndex1], versions[playerIndex2]});
 			}
 		}
 	}
 
-	private static void testAI(int games, ArtificialPlayer[] ais) {
+	private static void testAIVSAI(int games, ArtificialPlayer[] ais) {
 		int wins = 0;
 		int ties = 0;
 
@@ -53,11 +52,6 @@ public final class Main {
 				final long move = ais[currentAI].getMove(match);
 
 				match.play(move);
-
-				if (ais[currentAI].getAi() instanceof MCTSAI mcts) {
-					final int lastIterations = mcts.getLastIterations();
-					System.out.printf("iterations %s: %d\n", ais[currentAI].getName(), lastIterations);
-				}
 			}
 
 			if (match.getWinner() < 0) {

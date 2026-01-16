@@ -41,7 +41,8 @@ public class MCTSAI3 extends MCTSAI {
 			tasks.add(() -> {
 				final Node localRoot = new Node(game.deepCopy());
 
-				while (Float.isNaN(localRoot.solved) && System.nanoTime() < endTime) {
+				// while (Float.isNaN(localRoot.solved) && System.nanoTime() < endTime) {
+				while (System.nanoTime() < endTime) {
 					Node leaf = selection(localRoot);
 					leaf = expansion(leaf);
 					final float value = simulation(leaf);
