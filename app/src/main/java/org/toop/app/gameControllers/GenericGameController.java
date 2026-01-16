@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.app.canvas.GameCanvas;
+import org.toop.app.canvas.ReversiBitCanvas;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
@@ -153,6 +154,12 @@ public class GenericGameController implements GameController {
 
     @Override
     public void updateUI() {
-        canvas.redraw(game.deepCopy());
+        TurnBasedGame gameCopy = game.deepCopy();
+        canvas.redraw(gameCopy);
+        String gameType = game.getClass().getSimpleName().replace("Bitboard","");
+        gameView.nextPlayer(true, getCurrentPlayer().getName(), game.getPlayer(1-getCurrentPlayerIndex()).getName(),gameType);
+        if (getCurrentPlayer() instanceof LocalPlayer && gameType.equals("Reversi")){
+            ((ReversiBitCanvas)canvas).drawLegalDots(gameCopy);
+        }
     }
 }

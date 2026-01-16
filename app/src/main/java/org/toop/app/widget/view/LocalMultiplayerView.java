@@ -88,7 +88,7 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer(information.players[1].name);
                     } else {
-						players[1] = new ArtificialPlayer(new MCTSAI2(50), "MCTS V2 AI");
+						players[1] = new ArtificialPlayer(new MCTSAI(50), "MCTS V1 AI");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(
