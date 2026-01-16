@@ -5,7 +5,7 @@ import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.server.client.NettyClient;
 
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,12 +19,13 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
 
     private final CompletableFuture<Integer> resultFuture;
 
-    public OnlineTurnBasedGame(NettyClient[] admins, TurnBasedGame game, CompletableFuture<Integer> resultFuture, NettyClient... clients) {
+    public OnlineTurnBasedGame(NettyClient[] admins, TurnBasedGame game, CompletableFuture<Integer> resultFuture, Duration timeOut, NettyClient... clients) {
         this.game = game;
         this.gameThread = new ServerThreadBehaviour(
                 game,
                 (pair) -> notifyMoveMade(pair.getLeft(), pair.getRight()),
-                (pair) -> notifyGameEnd(pair.getLeft(), pair.getRight())
+                (pair) -> notifyGameEnd(pair.getLeft(), pair.getRight()),
+                timeOut
         );
         this.resultFuture = resultFuture;
         this.clients = clients;
@@ -42,17 +43,15 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
 
     private void notifyGameEnd(GameState state, int winner) {
         if (state == GameState.DRAW) {
-            Arrays.stream(admins).forEach(a -> a.send(
-                String.format("SVR GAME END")
-            ));
+            Arrays.stream(admins).forEach(a -> a.send("SVR GAME END"));
 
             for (NettyClient client : clients) {
-                client.send(String.format("SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}"));
+                client.send("SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}");
             }
         } else {
             Arrays.stream(admins).forEach(a -> a.send("SVR GAME END"));
-            clients[winner].send(String.format("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}"));
-            clients[(winner+1)%2].send(String.format("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}"));
+            clients[winner].send("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}");
+            clients[(winner+1)%2].send("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}");
         }
 
         // Remove game from clients

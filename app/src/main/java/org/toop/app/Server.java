@@ -211,7 +211,7 @@ public final class Server {
 
             Player[] players = new Player[2];
 
-            players[userStartingTurn] = new ArtificialPlayer(new MCTSAI3(100), user);
+            players[userStartingTurn] = new ArtificialPlayer(new MCTSAI3(200000), user);
             players[opponentStartingTurn] = new OnlinePlayer(response.opponent());
 
             switch (type) {

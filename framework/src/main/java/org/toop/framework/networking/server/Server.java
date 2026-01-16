@@ -145,6 +145,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                     getAdmins().toArray(NettyClient[]::new),
                     gameTypesStore.create(gameType),
                     gameResult,
+                    turnTime,
                     clients
             );
 
@@ -166,6 +167,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                     clients[0].name(),
                     gameType,
                     clients[0].name()));
+
             game.start();
             return grfReturn;
         } catch (Exception e) {
