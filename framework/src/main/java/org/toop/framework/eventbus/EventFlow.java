@@ -415,11 +415,9 @@ public class EventFlow {
     /**
      * Posts the event added through {@link #addPostEvent} asynchronously.
      *
-     * @deprecated use {@link #postEvent()} instead.
      */
-    @Deprecated
     public EventFlow asyncPostEvent() {
-        eventBus.post(this.event);
+        GlobalEventBus.get().post(this.event);
         return this;
     }
 

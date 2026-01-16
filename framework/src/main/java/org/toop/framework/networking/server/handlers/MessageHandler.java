@@ -1,18 +1,17 @@
 package org.toop.framework.networking.server.handlers;
 
-import org.toop.framework.game.players.ServerPlayer;
-import org.toop.framework.networking.server.OnlineTurnBasedGame;
 import org.toop.framework.networking.server.Server;
 import org.toop.framework.networking.server.client.Client;
+import org.toop.framework.networking.server.client.NettyClient;
 import org.toop.framework.networking.server.parsing.ParsedMessage;
 import org.toop.framework.utils.Utils;
 
 public class MessageHandler implements Handler<ParsedMessage> {
 
     private final Server server;
-    private final Client<OnlineTurnBasedGame, ServerPlayer> client;
+    private final NettyClient client;
 
-    public MessageHandler(Server server, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    public MessageHandler(Server server, NettyClient client) {
         this.server = server;
         this.client = client;
     }
@@ -28,6 +27,7 @@ public class MessageHandler implements Handler<ParsedMessage> {
             case "challenge" -> handleChallenge(message, client);
             case "message" -> handleMessage(message, client);
             case "help" -> handleHelp(message, client);
+            case "tournament" -> handleTournament(message, client);
             default -> client.send("ERROR Unknown command");
         }
     }
@@ -41,27 +41,27 @@ public class MessageHandler implements Handler<ParsedMessage> {
         return true;
     }
 
-    private void handleLogin(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    private void handleLogin(ParsedMessage p, NettyClient client) {
         if (!hasArgs(p.args())) return;
 
         client.setName(p.args()[0]);
     }
 
-    private void handleSubscribe(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    private void handleSubscribe(ParsedMessage p, NettyClient client) {
         if (!hasArgs(p.args())) return;
 
         server.subscribeClient(client.name(), p.args()[0]);
     }
 
-    private void handleHelp(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    private void handleHelp(ParsedMessage p, NettyClient client) {
         // TODO
     }
 
-    private void handleMessage(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    private void handleMessage(ParsedMessage p, NettyClient client) {
         // TODO
     }
 
-    private void handleGet(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    private void handleGet(ParsedMessage p, NettyClient client) {
         if (!hasArgs(p.args())) return;
 
         switch (p.args()[0]) {
@@ -73,10 +73,14 @@ public class MessageHandler implements Handler<ParsedMessage> {
                 var names = server.gameTypes().stream().iterator();
                 client.send("SVR GAMELIST " + Utils.returnQuotedString(names));
             }
+            case "admins" -> {
+                var names = server.getAdmins().stream().map(Client::name).iterator();
+                client.send("SVR ADMINS " + Utils.returnQuotedString(names));
+            }
         }
     }
 
-    private void handleChallenge(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    private void handleChallenge(ParsedMessage p, NettyClient client) {
         if (!hasArgs(p.args())) return;
         if (p.args().length < 2) return;
 
@@ -101,10 +105,21 @@ public class MessageHandler implements Handler<ParsedMessage> {
         server.challengeClient(client.name(), p.args()[0], p.args()[1]);
     }
 
-    private void handleMove(ParsedMessage p, Client<OnlineTurnBasedGame, ServerPlayer> client) {
+    private void handleMove(ParsedMessage p, NettyClient client) {
         if(!hasArgs(p.args())) return;
 
+        var player = client.player();
+        if (player == null) return;
+
         // TODO check if not number
-        client.player().setMove(1L << Integer.parseInt(p.args()[0]));
+        player.setMove(1L << Integer.parseInt(p.args()[0]));
+    }
+
+    private void handleTournament(ParsedMessage p, NettyClient client) {
+        if(!hasArgs(p.args())) return;
+
+        if (p.args()[0].equalsIgnoreCase("start") && p.args().length > 1) {
+            server.startTournament(p.args()[1], client, false); // TODO add shuffle to msg
+        }
     }
 }
