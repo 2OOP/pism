@@ -6,8 +6,8 @@ import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.BitboardGame;
 
 public class BitboardReversi extends BitboardGame<BitboardReversi> {
-	private final long notAFile = 0xfefefefefefefefeL;
-	private final long notHFile = 0x7f7f7f7f7f7f7f7fL;
+	private static final long notAFile = 0xfefefefefefefefeL;
+	private static final long notHFile = 0x7f7f7f7f7f7f7f7fL;
 
 	public BitboardReversi(Player<BitboardReversi>[] players) {
 		super(8, 8, 2, players);

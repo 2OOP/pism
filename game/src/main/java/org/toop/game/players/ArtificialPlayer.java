@@ -52,4 +52,8 @@ public class ArtificialPlayer<T extends TurnBasedGame<T>> extends AbstractPlayer
     public ArtificialPlayer<T> deepCopy() {
         return new ArtificialPlayer<>(this);
     }
+
+	public AI<T> getAi() {
+		return ai;
+	}
 }

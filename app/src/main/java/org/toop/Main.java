@@ -3,39 +3,39 @@ package org.toop;
 import org.toop.app.App;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.game.games.reversi.BitboardReversi;
-import org.toop.game.games.tictactoe.BitboardTicTacToe;
 import org.toop.game.players.ArtificialPlayer;
-import org.toop.game.players.ai.MCTSAI1;
-import org.toop.game.players.ai.MCTSAI2;
-import org.toop.game.players.ai.MCTSAI3;
-import org.toop.game.players.ai.MCTSAI4;
-import org.toop.game.players.ai.MCTSAI5;
+import org.toop.game.players.ai.MCTSAI;
+import org.toop.game.players.ai.RandomAI;
+import org.toop.game.players.ai.mcts.MCTSAI1;
+import org.toop.game.players.ai.mcts.MCTSAI2;
+import org.toop.game.players.ai.mcts.MCTSAI3;
+import org.toop.game.players.ai.mcts.MCTSAI4;
 
 public final class Main {
     static void main(String[] args) {
-        App.run(args);
-		// testMCTS(100);
+     //   App.run(args);
+		testMCTS(25);
     }
 
 	private static void testMCTS(int games) {
 		var versions = new ArtificialPlayer[5];
-		versions[0] = new ArtificialPlayer<>(new MCTSAI1<BitboardTicTacToe>(10), "MCTS V1 AI");
-		versions[1] = new ArtificialPlayer<>(new MCTSAI2<BitboardTicTacToe>(10), "MCTS V2 AI");
-		versions[2] = new ArtificialPlayer<>(new MCTSAI3<BitboardTicTacToe>(10, 10), "MCTS V3 AI");
-		versions[3] = new ArtificialPlayer<>(new MCTSAI4<BitboardTicTacToe>(10, 10), "MCTS V4 AI");
-		versions[4] = new ArtificialPlayer<>(new MCTSAI5<BitboardTicTacToe>(10, 10), "MCTS V5 AI");
+		versions[0] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), "Random AI");
+		versions[1] = new ArtificialPlayer<>(new MCTSAI1<BitboardReversi>(1000), "MCTS V1 AI");
+		versions[2] = new ArtificialPlayer<>(new MCTSAI2<BitboardReversi>(1000), "MCTS V2 AI");
+		versions[3] = new ArtificialPlayer<>(new MCTSAI3<BitboardReversi>(10, 10), "MCTS V3 AI");
+		versions[4] = new ArtificialPlayer<>(new MCTSAI4<BitboardReversi>(10, 10), "MCTS V4 AI");
 
-		for (int i = 2; i < versions.length; i++) {
+		for (int i = 0; i < versions.length; i++) {
 			for (int j = i + 1; j < versions.length; j++) {
 				final int playerIndex1 = i % versions.length;
 				final int playerIndex2 = j % versions.length;
 
-				testAI(games, new Player[] { versions[playerIndex1], versions[playerIndex2]});
+				testAI(games, new ArtificialPlayer[] { versions[playerIndex1], versions[playerIndex2]});
 			}
 		}
 	}
 
-	private static void testAI(int games, Player<BitboardReversi>[] ais) {
+	private static void testAI(int games, ArtificialPlayer<BitboardReversi>[] ais) {
 		int wins = 0;
 		int ties = 0;
 
@@ -47,6 +47,11 @@ public final class Main {
 				final long move = ais[currentAI].getMove(match);
 
 				match.play(move);
+
+				if (ais[currentAI].getAi() instanceof MCTSAI<?> mcts) {
+					final int lastIterations = mcts.getLastIterations();
+					System.out.printf("iterations %s: %d\n", ais[currentAI].getName(), lastIterations);
+				}
 			}
 
 			if (match.getWinner() < 0) {

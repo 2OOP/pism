@@ -15,13 +15,11 @@ import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.*;
-import org.toop.game.players.ai.MCTSAI1;
-import org.toop.game.players.ai.MCTSAI2;
-import org.toop.game.players.ai.MCTSAI3;
-import org.toop.game.players.ai.MCTSAI4;
-import org.toop.game.players.ai.MCTSAI5;
+import org.toop.game.players.ai.mcts.MCTSAI1;
+import org.toop.game.players.ai.mcts.MCTSAI2;
+import org.toop.game.players.ai.mcts.MCTSAI3;
+import org.toop.game.players.ai.mcts.MCTSAI4;
 import org.toop.game.players.ai.MiniMaxAI;
-import org.toop.game.players.ai.RandomAI;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -87,12 +85,12 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer<>(information.players[0].name);
                     } else {
-						players[0] = new ArtificialPlayer<>(new MCTSAI4<BitboardReversi>(100, 3), "MCTS V4 AI");
+						players[0] = new ArtificialPlayer<>(new MCTSAI4<BitboardReversi>(1000, 4), "MCTS V4 AI");
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer<>(information.players[1].name);
                     } else {
-						players[1] = new ArtificialPlayer<>(new MCTSAI5<BitboardReversi>(100, 3), "MCTS V5 AI");
+						players[1] = new ArtificialPlayer<>(new MCTSAI2<BitboardReversi>(1000), "MCTS V2 AI");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(
