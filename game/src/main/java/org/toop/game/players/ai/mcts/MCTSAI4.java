@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class MCTSAI4<T extends TurnBasedGame<T>> extends MCTSAI<T> {
+public class MCTSAI4 extends MCTSAI {
 	private final int threads;
 	private final Node[] threadRoots;
 
@@ -21,7 +21,7 @@ public class MCTSAI4<T extends TurnBasedGame<T>> extends MCTSAI<T> {
 		this.threadRoots = new Node[threads];
 	}
 
-	public MCTSAI4(MCTSAI4<T> other) {
+	public MCTSAI4(MCTSAI4 other) {
 		super(other);
 
 		this.threads = other.threads;
@@ -29,12 +29,12 @@ public class MCTSAI4<T extends TurnBasedGame<T>> extends MCTSAI<T> {
 	}
 
 	@Override
-	public MCTSAI4<T> deepCopy() {
-		return new MCTSAI4<>(this);
+	public MCTSAI4 deepCopy() {
+		return new MCTSAI4(this);
 	}
 
 	@Override
-	public long getMove(T game) {
+	public long getMove(TurnBasedGame game) {
 		for (int i = 0; i < threads; i++) {
 			threadRoots[i] = findOrResetRoot(threadRoots[i], game);
 		}

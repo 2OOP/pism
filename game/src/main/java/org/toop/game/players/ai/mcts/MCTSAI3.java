@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class MCTSAI3<T extends TurnBasedGame<T>> extends MCTSAI<T> {
+public class MCTSAI3 extends MCTSAI {
 	private final int threads;
 
 	public MCTSAI3(int milliseconds, int threads) {
@@ -19,19 +19,19 @@ public class MCTSAI3<T extends TurnBasedGame<T>> extends MCTSAI<T> {
 		this.threads = threads;
 	}
 
-	public MCTSAI3(MCTSAI3<T> other) {
+	public MCTSAI3(MCTSAI3 other) {
 		super(other);
 
 		this.threads = other.threads;
 	}
 
 	@Override
-	public MCTSAI3<T> deepCopy() {
-		return new MCTSAI3<>(this);
+	public MCTSAI3 deepCopy() {
+		return new MCTSAI3(this);
 	}
 
 	@Override
-	public long getMove(T game) {
+	public long getMove(TurnBasedGame game) {
 		final ExecutorService pool = Executors.newFixedThreadPool(threads);
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;
 

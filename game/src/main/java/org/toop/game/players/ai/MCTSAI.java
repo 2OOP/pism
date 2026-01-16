@@ -5,8 +5,8 @@ import org.toop.framework.gameFramework.model.player.AbstractAI;
 
 import java.util.Random;
 
-public class MCTSAI2 extends AbstractAI {
-	private static class Node {
+public abstract class MCTSAI extends AbstractAI {
+	protected static class Node {
 		public TurnBasedGame state;
 
 		public long move;
@@ -181,7 +181,7 @@ public class MCTSAI2 extends AbstractAI {
 		return mostVisitedChild;
 	}
 
-	protected Node findOrResetRoot(Node root, T game) {
+	protected Node findOrResetRoot(Node root, TurnBasedGame game) {
 		if (root == null) {
 			return new Node(game.deepCopy());
 		}

@@ -1,9 +1,9 @@
 package org.toop;
 
+
 import org.toop.app.App;
-import org.toop.framework.gameFramework.model.player.Player;
-import org.toop.game.games.reversi.BitboardReversi;
-import org.toop.game.players.ArtificialPlayer;
+import org.toop.framework.game.games.reversi.BitboardReversi;
+import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.game.players.ai.MCTSAI;
 import org.toop.game.players.ai.RandomAI;
 import org.toop.game.players.ai.mcts.MCTSAI1;
@@ -11,19 +11,24 @@ import org.toop.game.players.ai.mcts.MCTSAI2;
 import org.toop.game.players.ai.mcts.MCTSAI3;
 import org.toop.game.players.ai.mcts.MCTSAI4;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public final class Main {
     static void main(String[] args) {
-     //   App.run(args);
-		testMCTS(25);
+        ExecutorService executor = Executors.newFixedThreadPool(1);
+
+		executor.execute(() -> testMCTS(25));
+		App.run(args);
     }
 
 	private static void testMCTS(int games) {
 		var versions = new ArtificialPlayer[5];
-		versions[0] = new ArtificialPlayer<>(new RandomAI<BitboardReversi>(), "Random AI");
-		versions[1] = new ArtificialPlayer<>(new MCTSAI1<BitboardReversi>(1000), "MCTS V1 AI");
-		versions[2] = new ArtificialPlayer<>(new MCTSAI2<BitboardReversi>(1000), "MCTS V2 AI");
-		versions[3] = new ArtificialPlayer<>(new MCTSAI3<BitboardReversi>(10, 10), "MCTS V3 AI");
-		versions[4] = new ArtificialPlayer<>(new MCTSAI4<BitboardReversi>(10, 10), "MCTS V4 AI");
+		versions[0] = new ArtificialPlayer(new RandomAI(), "Random AI");
+		versions[1] = new ArtificialPlayer(new MCTSAI1(1000), "MCTS V1 AI");
+		versions[2] = new ArtificialPlayer(new MCTSAI2(1000), "MCTS V2 AI");
+		versions[3] = new ArtificialPlayer(new MCTSAI3(10, 10), "MCTS V3 AI");
+		versions[4] = new ArtificialPlayer(new MCTSAI4(10, 10), "MCTS V4 AI");
 
 		for (int i = 0; i < versions.length; i++) {
 			for (int j = i + 1; j < versions.length; j++) {
@@ -35,12 +40,13 @@ public final class Main {
 		}
 	}
 
-	private static void testAI(int games, ArtificialPlayer<BitboardReversi>[] ais) {
+	private static void testAI(int games, ArtificialPlayer[] ais) {
 		int wins = 0;
 		int ties = 0;
 
 		for (int i = 0; i < games; i++) {
-			final BitboardReversi match = new BitboardReversi(ais);
+			final BitboardReversi match = new BitboardReversi();
+			match.init(ais);
 
 			while (!match.isTerminal()) {
 				final int currentAI = match.getCurrentTurn();
@@ -48,7 +54,7 @@ public final class Main {
 
 				match.play(move);
 
-				if (ais[currentAI].getAi() instanceof MCTSAI<?> mcts) {
+				if (ais[currentAI].getAi() instanceof MCTSAI mcts) {
 					final int lastIterations = mcts.getLastIterations();
 					System.out.printf("iterations %s: %d\n", ais[currentAI].getName(), lastIterations);
 				}

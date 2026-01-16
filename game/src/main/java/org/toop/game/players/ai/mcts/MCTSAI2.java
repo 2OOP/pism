@@ -3,7 +3,7 @@ package org.toop.game.players.ai.mcts;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.game.players.ai.MCTSAI;
 
-public class MCTSAI2<T extends TurnBasedGame<T>> extends MCTSAI<T> {
+public class MCTSAI2 extends MCTSAI {
 	private Node root;
 
 	public MCTSAI2(int milliseconds) {
@@ -12,19 +12,19 @@ public class MCTSAI2<T extends TurnBasedGame<T>> extends MCTSAI<T> {
 		this.root = null;
 	}
 
-	public MCTSAI2(MCTSAI2<T> other) {
+	public MCTSAI2(MCTSAI2 other) {
 		super(other);
 
 		this.root = other.root;
 	}
 
 	@Override
-	public MCTSAI2<T> deepCopy() {
-		return new MCTSAI2<>(this);
+	public MCTSAI2 deepCopy() {
+		return new MCTSAI2(this);
 	}
 
 	@Override
-	public long getMove(T game) {
+	public long getMove(TurnBasedGame game) {
 		root = findOrResetRoot(root, game);
 
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;

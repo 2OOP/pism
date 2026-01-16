@@ -57,4 +57,8 @@ public class ArtificialPlayer extends AbstractPlayer {
     public ArtificialPlayer deepCopy() {
         return new ArtificialPlayer(this);
     }
+
+    public AI getAi() {
+        return ai;
+    }
 }
