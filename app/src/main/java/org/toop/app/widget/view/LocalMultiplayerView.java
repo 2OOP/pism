@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import org.toop.app.GameInformation;
 import org.toop.app.gameControllers.ReversiBitController;
 import org.toop.app.gameControllers.TicTacToeBitController;
+import org.toop.framework.game.players.LocalPlayer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.game.players.ArtificialPlayer;
@@ -12,11 +13,10 @@ import org.toop.app.widget.complex.PlayerInfoWidget;
 import org.toop.app.widget.complex.ViewWidget;
 import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.tutorial.*;
-import org.toop.framework.game.players.LocalPlayer;
-import org.toop.game.players.ai.MCTSAI;
-import org.toop.game.players.ai.MCTSAI2;
-import org.toop.game.players.ai.MCTSAI3;
 import org.toop.game.players.ai.MiniMaxAI;
+import org.toop.game.players.ai.mcts.MCTSAI1;
+import org.toop.game.players.ai.mcts.MCTSAI3;
+import org.toop.game.players.ai.mcts.MCTSAI4;
 import org.toop.local.AppContext;
 
 import javafx.geometry.Pos;
@@ -54,7 +54,7 @@ public class LocalMultiplayerView extends ViewWidget {
                     if (information.players[0].isHuman) {
                         players[0] = new LocalPlayer(information.players[0].name);
                     } else {
-                        players[0] = new ArtificialPlayer(new MCTSAI(100), "MCTS AI");
+                        players[0] = new ArtificialPlayer(new MCTSAI1(100), "MCTS AI");
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer(information.players[1].name);
@@ -83,12 +83,12 @@ public class LocalMultiplayerView extends ViewWidget {
                         players[0] = new LocalPlayer(information.players[0].name);
                     } else {
 						// players[0] = new ArtificialPlayer(new RandomAI<BitboardReversi>(), "Random AI");
-						players[0] = new ArtificialPlayer(new MCTSAI3(50), "MCTS V3 AI");
+						players[0] = new ArtificialPlayer(new MCTSAI4(500, 4), "MCTS V4 AI");
                     }
                     if (information.players[1].isHuman) {
                         players[1] = new LocalPlayer(information.players[1].name);
                     } else {
-						players[1] = new ArtificialPlayer(new MCTSAI(50), "MCTS V1 AI");
+						players[1] = new ArtificialPlayer(new MCTSAI1(500), "MCTS V1 AI");
                     }
                     if (AppSettings.getSettings().getTutorialFlag() && AppSettings.getSettings().getFirstReversi()) {
                         new ShowEnableTutorialWidget(

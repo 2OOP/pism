@@ -20,8 +20,7 @@ import org.toop.framework.networking.connection.clients.TournamentNetworkingClie
 import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.types.NetworkingConnector;
 import org.toop.framework.networking.server.gateway.NettyGatewayServer;
-import org.toop.framework.game.players.LocalPlayer;
-import org.toop.game.players.ai.MCTSAI3;
+import org.toop.game.players.ai.mcts.MCTSAI3;
 import org.toop.local.AppContext;
 
 import java.util.Arrays;
@@ -211,7 +210,7 @@ public final class Server {
 
             Player[] players = new Player[2];
 
-            players[userStartingTurn] = new ArtificialPlayer(new MCTSAI3(1000), user);
+            players[userStartingTurn] = new ArtificialPlayer(new MCTSAI3(1000, Runtime.getRuntime().availableProcessors()), user);
             players[opponentStartingTurn] = new OnlinePlayer(response.opponent());
 
             switch (type) {
