@@ -4,6 +4,7 @@ import org.toop.app.widget.complex.ConfirmWidget;
 import org.toop.app.widget.complex.PopupWidget;
 
 import javafx.geometry.Pos;
+import org.toop.framework.game.games.reversi.BitboardReversi;
 
 public final class GameOverPopup extends PopupWidget {
 	public GameOverPopup(boolean winOrTie, String winner) {
@@ -15,7 +16,6 @@ public final class GameOverPopup extends PopupWidget {
         else{
             confirmWidget.setMessage("It was a tie!");
         }
-
 		confirmWidget.addButton("ok", this::hide);
 
 		add(Pos.CENTER, confirmWidget);

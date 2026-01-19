@@ -26,6 +26,8 @@ public final class GameView extends ViewWidget {
     private final Text player2Header;
     private Circle player1Icon;
     private Circle player2Icon;
+    private final Text player1Score;
+    private final Text player2Score;
 	private final Button forfeitButton;
 	private final Button exitButton;
     private final TextField chatInput;
@@ -40,6 +42,8 @@ public final class GameView extends ViewWidget {
         player2Header = Primitive.header("");
         player1Icon = new Circle();
         player2Icon = new Circle();
+        player1Score = Primitive.header("");
+        player2Score = Primitive.header("");
 
 		if (onForfeit != null) {
 			forfeitButton = Primitive.button("forfeit", () -> onForfeit.run(), false);
@@ -153,14 +157,16 @@ public final class GameView extends ViewWidget {
     private void setPlayerInfoReversi() {
         var player1box = Primitive.hbox(
                 player1Icon,
-                player1Header
+                player1Header,
+                player1Score
         );
 
         player1box.getStyleClass().add("hboxspacing");
 
         var player2box = Primitive.hbox(
                 player2Icon,
-                player2Header
+                player2Header,
+                player2Score
         );
 
         player2box.getStyleClass().add("hboxspacing");
@@ -177,5 +183,13 @@ public final class GameView extends ViewWidget {
         player1Icon.setFill(Color.WHITE);
         player2Icon.setFill(Color.BLACK);
         add(Pos.TOP_RIGHT, playerInfo);
+    }
+
+    public void setPlayer1Score(int score) {
+        player1Score.setText("(" + Integer.toString(score) + ")");
+    }
+
+    public void setPlayer2Score(int score) {
+        player2Score.setText("(" + Integer.toString(score) + ")");
     }
 }
