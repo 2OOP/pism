@@ -5,7 +5,6 @@ import org.junit.jupiter.api.*;
 import org.toop.framework.game.games.reversi.BitboardReversi;
 import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.game.players.ai.MCTSAI;
-import org.toop.game.players.ai.RandomAI;
 import org.toop.game.players.ai.mcts.MCTSAI1;
 import org.toop.game.players.ai.mcts.MCTSAI2;
 import org.toop.game.players.ai.mcts.MCTSAI3;
@@ -21,15 +20,16 @@ public class AITest {
 
     private static List<Matchup> matchupList = new ArrayList<Matchup>();
     private static List<AIData> dataList = new ArrayList<AIData>();
+    private static List<GameData> gameDataList = new ArrayList<GameData>();
 
     @BeforeAll
     public static void init() {
 
-        var versions = new ArtificialPlayer[4];
-        versions[0] = new ArtificialPlayer(new MCTSAI1(100), "MCTS V1");
-        versions[1] = new ArtificialPlayer(new MCTSAI2(100), "MCTS V2");
-        versions[2] = new ArtificialPlayer(new MCTSAI3(100, 8), "MCTS V3");
-        versions[3] = new ArtificialPlayer(new MCTSAI4(100, 8), "MCTS V4");
+        var versions = new ArtificialPlayer[2];
+//        versions[0] = new ArtificialPlayer(new MCTSAI1(10), "MCTS V1");
+//        versions[1] = new ArtificialPlayer(new MCTSAI2(10), "MCTS V2");
+        versions[0] = new ArtificialPlayer(new MCTSAI3(10, 8), "MCTS V3");
+        versions[1] = new ArtificialPlayer(new MCTSAI4(10, 8), "MCTS V4");
         for (int i = 0; i < versions.length; i++) {
             for (int j = i + 1; j < versions.length; j++) {
                 final int playerIndex1 = i % versions.length;
@@ -44,18 +44,26 @@ public class AITest {
         matchupList.add(new Matchup(v1, v2));
     }
 
-    public void addData(AIData data) {
+    public void addAIData(AIData data) {
         dataList.add(data);
+    }
+
+    public void addGameData(GameData data) {
+        gameDataList.add(data);
     }
 
     @Test
     public void testAIvsAI() {
         for (Matchup m : matchupList) {
-            playGame(m);
+            for (int i = 0; i < 6; i++) {
+                playGame(m);
+            }
         }
     }
 
     public void playGame(Matchup m) {
+        long millisecondscounterAI1 = 0L;
+        long millisecondscounterAI2 = 0L;
         List<Integer> iterationsAI1 = new ArrayList<>();
         List<Integer> iterationsAI2 = new ArrayList<>();
         final BitboardReversi match = new BitboardReversi();
@@ -65,18 +73,44 @@ public class AITest {
         match.init(players);
         while (!match.isTerminal()) {
             final int currentAI = match.getCurrentTurn();
+            final long startTime = System.nanoTime();
             final long move = players[currentAI].getMove(match);
+            final long endTime = System.nanoTime();
             if (players[currentAI].getAi() instanceof MCTSAI) {
                 final int lastIterations = ((MCTSAI) players[currentAI].getAi()).getLastIterations();
                 if (currentAI == 0) {
                     iterationsAI1.add(lastIterations);
+                    millisecondscounterAI1 += (endTime - startTime);
                 } else {
                     iterationsAI2.add(lastIterations);
+                    millisecondscounterAI2 += (endTime - startTime);
                 }
             }
             match.play(move);
         }
+        generateMatchData(m.getPlayer1().getName(), m.getPlayer2().getName(), match, millisecondscounterAI1, millisecondscounterAI2);
         generateData(m, match, iterationsAI1, iterationsAI2);
+    }
+
+    public void generateMatchData(String AI1, String AI2, BitboardReversi match, long millisecondscounterAI1, long millisecondscounterAI2) {
+        addGameData(new GameData(
+                AI1,
+                AI2,
+                getWinnerForMatch(AI1, AI2, match
+                millisecondscounterAI1,
+                millisecondscounterAI2
+                ));
+    }
+
+    public String getWinnerForMatch(String AI1, String AI2, BitboardReversi match) {
+        if (match.getWinner() == 0) {
+            return AI1;
+        }
+        if (match.getWinner() == 1) {
+            return AI2;
+        } else {
+            return "TIE";
+        }
     }
 
     public void generateData(Matchup matchup, BitboardReversi match, List<Integer> iterationsAI1, List<Integer> iterationsAI2) {
@@ -90,10 +124,10 @@ public class AITest {
             }
         }
         if (!(matchup1Found)) {
-            addData(new AIData(matchup.getPlayer1().getName(), 0, 0, 0, 0, 0, 0));
+            addAIData(new AIData(matchup.getPlayer1().getName(), 0, 0, 0, 0, 0, 0));
         }
         if (!(matchup2Found)) {
-            addData(new AIData(matchup.getPlayer2().getName(), 0, 0, 0, 0, 0, 0));
+            addAIData(new AIData(matchup.getPlayer2().getName(), 0, 0, 0, 0, 0, 0));
         }
 
         for (AIData aiData : dataList) { // set data for player 1
@@ -150,13 +184,31 @@ public class AITest {
     @AfterAll
     public static void writeAfterTests() {
         try {
-            writeToCsv("Data.csv", dataList);
+            writeAIToCsv("Data.csv", dataList);
+            writeGamesToCSV("Games.csv", gameDataList);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void writeToCsv(String filepath, List<AIData> dataList) throws IOException {
+    public static void writeGamesToCSV(String filepath, List<GameData> gameDataList) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filepath))) {
+            writer.write("Black,White,Winner,Turns Played,Total Time AI1, Total Time AI2");
+            writer.newLine();
+            for (GameData gameData : gameDataList) {
+                writer.write(
+                        gameData.AI1() + "," +
+                        gameData.AI2() + "," +
+                        gameData.winner() + "," +
+                        gameData.turns() + "," +
+                        (gameData.millisecondsAI1() / 1_000_000L) + "," +
+                        (gameData.millisecondsAI2() / 1_000_000L));
+                writer.newLine();
+            }
+        }
+    }
+
+    public static void writeAIToCsv(String filepath, List<AIData> dataList) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filepath))) {
             writer.write("AI Name,Games Played,Winrate,Average Iterations,Average Iterations 0-10, Average Iterations 11-20, Average Iterations 20-30");
             writer.newLine();

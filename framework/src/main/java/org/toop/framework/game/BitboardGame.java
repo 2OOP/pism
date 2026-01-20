@@ -74,6 +74,8 @@ public abstract class BitboardGame implements TurnBasedGame {
 		return playerBitboard.length;
 	}
 
+    public int getAmountOfTurns() { return currentTurn; }
+
 	public int getCurrentTurn() {
 		return getCurrentPlayerIndex();
 	}
