@@ -3,6 +3,7 @@ package org.toop.framework.game.games.reversi;
 import org.toop.framework.game.BitboardGame;
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.game.BitboardGame;
 
@@ -367,5 +368,12 @@ public class BitboardReversi extends BitboardGame {
 		}
 
 		return bestMove;
+	}
+
+	@Override
+	public void setFrom(long player1, long player2, int turn) {
+		this.playerBitboard[0] = player1;
+		this.playerBitboard[1] = player2;
+		this.currentTurn = turn;
 	}
 }

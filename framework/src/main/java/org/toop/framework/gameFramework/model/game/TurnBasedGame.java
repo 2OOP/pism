@@ -16,4 +16,6 @@ public interface TurnBasedGame extends DeepCopyable<TurnBasedGame> {
 
 	float rateMove(long move);
 	long heuristicMove(long legalMoves);
+
+	void setFrom(long player1, long player2, int turn);
 }

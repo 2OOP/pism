@@ -6,7 +6,6 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 
 // There is AI performance to be gained by getting rid of non-primitives and thus speeding up deepCopy
 public abstract class BitboardGame implements TurnBasedGame {
@@ -18,8 +17,8 @@ public abstract class BitboardGame implements TurnBasedGame {
     private Player[] players;
 
 	// long is 64 bits. Every game has a limit of 64 cells maximum.
-	private final long[] playerBitboard;
-	private int currentTurn = 0;
+	protected final long[] playerBitboard;
+	protected int currentTurn = 0;
 	private final int playerCount;
 
 	public BitboardGame(int columnSize, int rowSize, int playerCount) {

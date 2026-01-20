@@ -23,8 +23,7 @@ public class MCTSAI1 extends MCTSAI {
 
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;
 
-		// while (Float.isNaN(root.solved) && System.nanoTime() < endTime) {
-		while (System.nanoTime() < endTime) {
+		while (Float.isNaN(root.solved) && System.nanoTime() < endTime) {
 			Node leaf = selection(root);
 			leaf = expansion(leaf);
 			final float value = simulation(leaf);

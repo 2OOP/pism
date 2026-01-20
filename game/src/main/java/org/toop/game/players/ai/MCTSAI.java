@@ -107,8 +107,7 @@ public abstract class MCTSAI extends AbstractAI {
 	}
 
 	protected Node selection(Node root) {
-		// while (Float.isNaN(root.solved) && root.isFullyExpanded() && !root.state.isTerminal()) {
-		while (root.isFullyExpanded() && !root.state.isTerminal()) {
+		while (Float.isNaN(root.solved) && root.isFullyExpanded() && !root.state.isTerminal()) {
 			root = root.bestUCTChild();
 		}
 

@@ -50,8 +50,7 @@ public class MCTSAI4 extends MCTSAI {
 			tasks.add(() -> {
 				final Node localRoot = threadRoots[threadIndex];
 
-				// while (Float.isNaN(localRoot.solved) && System.nanoTime() < endTime) {
-				while (System.nanoTime() < endTime) {
+				while (Float.isNaN(localRoot.solved) && System.nanoTime() < endTime) {
 					Node leaf = selection(localRoot);
 					leaf = expansion(leaf);
 					final float value = simulation(leaf);
