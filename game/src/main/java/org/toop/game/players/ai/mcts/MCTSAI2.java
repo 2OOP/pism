@@ -37,6 +37,7 @@ public class MCTSAI2 extends MCTSAI {
 		}
 
 		lastIterations = root.visits;
+		IO.println("V2: " + lastIterations);
 
 		final Node mostVisitedChild = mostVisitedChild(root);
 		final long move = mostVisitedChild.move;
