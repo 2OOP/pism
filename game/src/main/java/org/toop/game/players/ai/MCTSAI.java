@@ -59,7 +59,7 @@ public abstract class MCTSAI extends AbstractAI {
 			}
 
 			final float exploitation = value / visits;
-			final float exploration = (float)(Math.sqrt(Math.log(parentVisits) / visits));
+			final float exploration = 1.4141f * (float)(Math.sqrt(Math.log(parentVisits) / visits));
 			final float bias = heuristic * 10.0f / (visits + 1);
 
 			return exploitation + exploration + bias;
