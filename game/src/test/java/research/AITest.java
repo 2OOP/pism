@@ -44,14 +44,12 @@ public class AITest {
         versions[2] = new ArtificialPlayer(new MCTSAI3(5), "MCTS V3");
         versions[3] = new ArtificialPlayer(new MCTSAI4(5), "MCTS V4");
 
-        for (int k = 0; k < 50; k++) {
-            for (int i = 0; i < versions.length; i++) {
-                for (int j = i + 1; j < versions.length; j++) {
-                    final int playerIndex1 = i % versions.length;
-                    final int playerIndex2 = j % versions.length;
-                    addMatch(versions[playerIndex1], versions[playerIndex2]);
-                    addMatch(versions[playerIndex2], versions[playerIndex1]); // home vs away system
-                }
+        for (int i = 0; i < versions.length; i++) {
+            for (int j = i + 1; j < versions.length; j++) {
+                final int playerIndex1 = i % versions.length;
+                final int playerIndex2 = j % versions.length;
+                addMatch(versions[playerIndex1], versions[playerIndex2]);
+                addMatch(versions[playerIndex2], versions[playerIndex1]); // home vs away system
             }
         }
     }
@@ -70,8 +68,10 @@ public class AITest {
 
     @Test
     public void testAIvsAI() {
-        for (Matchup m : matchupList) {
-            playGame(m);
+        while (true) {
+            for (Matchup m : matchupList) {
+                playGame(m);
+            }
         }
     }
 
