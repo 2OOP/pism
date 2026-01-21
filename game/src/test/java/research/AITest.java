@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -146,7 +147,7 @@ public class AITest {
 
                     millisecondscounterAI1,
                     millisecondscounterAI2,
-                    LocalTime.now().toString()
+                    LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
             ));
         } catch (IOException e) {
             throw new RuntimeException(e);
