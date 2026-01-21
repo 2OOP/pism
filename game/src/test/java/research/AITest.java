@@ -40,10 +40,10 @@ public class AITest {
     public static void init() {
 
         var versions = new ArtificialPlayer[4];
-        versions[0] = new ArtificialPlayer(new MCTSAI1(5), "MCTS V1");
-        versions[1] = new ArtificialPlayer(new MCTSAI2(5), "MCTS V2");
-        versions[2] = new ArtificialPlayer(new MCTSAI3(5), "MCTS V3");
-        versions[3] = new ArtificialPlayer(new MCTSAI4(5), "MCTS V4");
+        versions[0] = new ArtificialPlayer(new MCTSAI1(10), "MCTS V1");
+        versions[1] = new ArtificialPlayer(new MCTSAI2(10), "MCTS V2");
+        versions[2] = new ArtificialPlayer(new MCTSAI3(10), "MCTS V3");
+        versions[3] = new ArtificialPlayer(new MCTSAI4(10), "MCTS V4");
 
         for (int i = 0; i < versions.length; i++) {
             for (int j = i + 1; j < versions.length; j++) {
