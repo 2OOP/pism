@@ -25,11 +25,11 @@ public class AITest {
     @BeforeAll
     public static void init() {
 
-        var versions = new ArtificialPlayer[2];
-//        versions[0] = new ArtificialPlayer(new MCTSAI1(10), "MCTS V1");
-//        versions[1] = new ArtificialPlayer(new MCTSAI2(10), "MCTS V2");
-        versions[0] = new ArtificialPlayer(new MCTSAI3(10, 8), "MCTS V3");
-        versions[1] = new ArtificialPlayer(new MCTSAI4(10, 8), "MCTS V4");
+        var versions = new ArtificialPlayer[4];
+		versions[0] = new ArtificialPlayer(new MCTSAI1(10), "MCTS V1");
+		versions[1] = new ArtificialPlayer(new MCTSAI2(10), "MCTS V2");
+		versions[2] = new ArtificialPlayer(new MCTSAI3(10), "MCTS V3");
+		versions[3] = new ArtificialPlayer(new MCTSAI4(10), "MCTS V4");
         for (int i = 0; i < versions.length; i++) {
             for (int j = i + 1; j < versions.length; j++) {
                 final int playerIndex1 = i % versions.length;
@@ -96,7 +96,8 @@ public class AITest {
         addGameData(new GameData(
                 AI1,
                 AI2,
-                getWinnerForMatch(AI1, AI2, match
+                getWinnerForMatch(AI1, AI2, match),
+				match.getAmountOfTurns(),
                 millisecondscounterAI1,
                 millisecondscounterAI2
                 ));

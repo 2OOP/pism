@@ -4,9 +4,12 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractAI;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class MCTSAI extends AbstractAI {
 	protected static class Node {
+		public static final int VIRTUAL_LOSS = -1;
+
 		public TurnBasedGame state;
 
 		public long move;
@@ -15,8 +18,8 @@ public abstract class MCTSAI extends AbstractAI {
 		public Node parent;
 		public Node[] children;
 
-		public float value;
-		public int visits;
+		public AtomicInteger value;
+		public AtomicInteger visits;
 
 		public float heuristic;
 
@@ -33,8 +36,8 @@ public abstract class MCTSAI extends AbstractAI {
 			this.parent = parent;
 			this.children = new Node[Long.bitCount(legalMoves)];
 
-			this.value = 0.0f;
-			this.visits = 0;
+			this.value = new AtomicInteger(0);
+			this.visits = new AtomicInteger(0);
 
 			this.heuristic = state.rateMove(move);
 
@@ -53,14 +56,14 @@ public abstract class MCTSAI extends AbstractAI {
 			return unexpandedMoves == 0L;
 		}
 
-		public float calculateUCT(int parentVisits) {
-			if (visits == 0) {
+		public float calculateUCT(float explorationFactor) {
+			if (visits.get() == 0) {
 				return Float.POSITIVE_INFINITY;
 			}
 
-			final float exploitation = value / visits;
-			final float exploration = 1.4141f * (float)(Math.sqrt(Math.log(parentVisits) / visits));
-			final float bias = heuristic * 10.0f / (visits + 1);
+			final float exploitation = (float) value.get() / visits.get();
+			final float exploration = (float)(Math.sqrt(explorationFactor / visits.get()));
+			final float bias = heuristic * 10.0f / (visits.get() + 1);
 
 			return exploitation + exploration + bias;
 		}
@@ -72,7 +75,7 @@ public abstract class MCTSAI extends AbstractAI {
 			float highestUCT = Float.NEGATIVE_INFINITY;
 
 			for (int i = 0; i < expanded; i++) {
-				final float childUCT = children[i].calculateUCT(visits);
+				final float childUCT = children[i].calculateUCT(2.0f * (float)Math.log(visits.get()));
 
 				if (childUCT > highestUCT) {
 					highestUCTChild = children[i];
@@ -108,31 +111,39 @@ public abstract class MCTSAI extends AbstractAI {
 
 	protected Node selection(Node root) {
 		while (Float.isNaN(root.solved) && root.isFullyExpanded() && !root.state.isTerminal()) {
+			root.value.addAndGet(Node.VIRTUAL_LOSS);
+			root.visits.incrementAndGet();
+
 			root = root.bestUCTChild();
 		}
+
+		root.value.addAndGet(Node.VIRTUAL_LOSS);
+		root.visits.incrementAndGet();
 
 		return root;
 	}
 
 	protected Node expansion(Node leaf) {
-		if (leaf.unexpandedMoves == 0L) {
-			return leaf;
+		synchronized (leaf) {
+			if (leaf.unexpandedMoves == 0L) {
+				return leaf;
+			}
+
+			final long unexpandedMove = leaf.unexpandedMoves & -leaf.unexpandedMoves;
+
+			final TurnBasedGame copiedState = leaf.state.deepCopy();
+			copiedState.play(unexpandedMove);
+
+			final Node expandedChild = new Node(copiedState, leaf, unexpandedMove);
+
+			leaf.children[leaf.getExpanded()] = expandedChild;
+			leaf.unexpandedMoves &= ~unexpandedMove;
+
+			return expandedChild;
 		}
-
-		final long unexpandedMove = leaf.unexpandedMoves & -leaf.unexpandedMoves;
-
-		final TurnBasedGame copiedState = leaf.state.deepCopy();
-		copiedState.play(unexpandedMove);
-
-		final Node expandedChild = new Node(copiedState, leaf, unexpandedMove);
-
-		leaf.children[leaf.getExpanded()] = expandedChild;
-		leaf.unexpandedMoves &= ~unexpandedMove;
-
-		return expandedChild;
 	}
 
-	protected float simulation(Node leaf) {
+	protected int simulation(Node leaf) {
 		final TurnBasedGame copiedState = leaf.state.deepCopy();
 		final int playerIndex = 1 - copiedState.getCurrentTurn();
 
@@ -144,20 +155,20 @@ public abstract class MCTSAI extends AbstractAI {
 		}
 
 		if (copiedState.getWinner() == playerIndex) {
-			return 1.0f;
+			return 1;
 		}
 
 		if (copiedState.getWinner() >= 0) {
-			return -1.0f;
+			return -1;
 		}
 
-		return 0.0f;
+		return 0;
 	}
 
-	protected void backPropagation(Node leaf, float value) {
+	protected void backPropagation(Node leaf, int value) {
 		while (leaf != null) {
-			leaf.value += value;
-			leaf.visits++;
+			value -= Node.VIRTUAL_LOSS;
+			leaf.value.addAndGet(value);
 
 			if (Float.isNaN(leaf.solved)) {
 				updateSolvedStatus(leaf);
@@ -175,9 +186,9 @@ public abstract class MCTSAI extends AbstractAI {
 		int mostVisited = -1;
 
 		for (int i = 0; i < expanded; i++) {
-			if (root.children[i].visits > mostVisited) {
+			if (root.children[i].visits.get() > mostVisited) {
 				mostVisitedChild = root.children[i];
-				mostVisited = root.children[i].visits;
+				mostVisited = root.children[i].visits.get();
 			}
 		}
 

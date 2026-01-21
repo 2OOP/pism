@@ -32,12 +32,11 @@ public class MCTSAI2 extends MCTSAI {
 		while (Float.isNaN(root.solved) && System.nanoTime() < endTime) {
 			Node leaf = selection(root);
 			leaf = expansion(leaf);
-			final float value = simulation(leaf);
+			final int value = simulation(leaf);
 			backPropagation(leaf, value);
 		}
 
-		lastIterations = root.visits;
-		IO.println("V2: " + lastIterations);
+		lastIterations = root.visits.get();
 
 		final Node mostVisitedChild = mostVisitedChild(root);
 		final long move = mostVisitedChild.move;
