@@ -65,9 +65,9 @@ public class AITest {
         versions[3] = new ArtificialPlayer(new MCTSAI3(10, 8), "MCTS V3T8");
         versions[4] = new ArtificialPlayer(new MCTSAI3(10, 16), "MCTS V3T16");
         versions[5] = new ArtificialPlayer(new MCTSAI3(10, 128), "MCTS V3T128");
-        versions[6] = new ArtificialPlayer(new MCTSAI3(10, 256), "MCTS V3T16");
-        versions[7] = new ArtificialPlayer(new MCTSAI3(10, 512), "MCTS V3T128");
-        versions[8] = new ArtificialPlayer(new MCTSAI3(10, 1024), "MCTS V3T128");
+        versions[6] = new ArtificialPlayer(new MCTSAI3(10, 256), "MCTS V3T256");
+        versions[7] = new ArtificialPlayer(new MCTSAI3(10, 512), "MCTS V3T512");
+        versions[8] = new ArtificialPlayer(new MCTSAI3(10, 1024), "MCTS V3T1024");
 
         for (int i = 0; i < versions.length; i++) {
             for (int j = i + 1; j < versions.length; j++) {
