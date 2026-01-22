@@ -88,11 +88,14 @@ public class AITest {
         match.init(players);
         while (!match.isTerminal()) {
             final int currentAI = match.getCurrentTurn();
+
             final long startTime = System.nanoTime();
             final long move = players[currentAI].getMove(match);
             final long endTime = System.nanoTime();
+
             if (players[currentAI].getAi() instanceof MCTSAI) {
                 final int lastIterations = ((MCTSAI) players[currentAI].getAi()).getLastIterations();
+
                 if (currentAI == 0) {
                     iterationsAI1.add(lastIterations);
                     millisecondscounterAI1 += (endTime - startTime);
