@@ -77,8 +77,8 @@ public class AITest {
     }
 
     public void playGame(Matchup m) {
-        long millisecondscounterAI1 = 0L;
-        long millisecondscounterAI2 = 0L;
+        long nanocounterAI1 = 0L;
+        long nanocounterAI2 = 0L;
         List<Integer> iterationsAI1 = new ArrayList<>();
         List<Integer> iterationsAI2 = new ArrayList<>();
         final BitboardReversi match = new BitboardReversi();
@@ -98,15 +98,15 @@ public class AITest {
 
                 if (currentAI == 0) {
                     iterationsAI1.add(lastIterations);
-                    millisecondscounterAI1 += (endTime - startTime);
+                    nanocounterAI1 += (endTime - startTime);
                 } else {
                     iterationsAI2.add(lastIterations);
-                    millisecondscounterAI2 += (endTime - startTime);
+                    nanocounterAI2 += (endTime - startTime);
                 }
             }
             match.play(move);
         }
-        generateMatchData(m.getPlayer1().getName(), m.getPlayer2().getName(), match, iterationsAI1, iterationsAI2, millisecondscounterAI1, millisecondscounterAI2);
+        generateMatchData(m.getPlayer1().getName(), m.getPlayer2().getName(), match, iterationsAI1, iterationsAI2, nanocounterAI1, nanocounterAI2);
     }
 
     public void generateMatchData(
@@ -117,8 +117,8 @@ public class AITest {
             List<Integer> iterationsAI1,
             List<Integer> iterationsAI2,
 
-            long millisecondscounterAI1,
-            long millisecondscounterAI2
+            long nanocounterAI1,
+            long nanocounterAI2
     ) {
         try {
 
@@ -154,8 +154,8 @@ public class AITest {
                     ai220.stream().mapToDouble(Integer::doubleValue).sum() / ai220.size(),
                     ai230.stream().mapToDouble(Integer::doubleValue).sum() / ai230.size(),
 
-                    millisecondscounterAI1,
-                    millisecondscounterAI2,
+                    nanocounterAI1,
+                    nanocounterAI2,
                     LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
             ));
         } catch (IOException e) {
@@ -289,8 +289,8 @@ public class AITest {
                     BigDecimal.valueOf(gameData.AI2averageIterations10()).setScale(2, RoundingMode.HALF_EVEN) + "," +
                     BigDecimal.valueOf(gameData.AI2averageIterations20()).setScale(2, RoundingMode.HALF_EVEN) + "," +
                     BigDecimal.valueOf(gameData.AI2averageIterations30()).setScale(2, RoundingMode.HALF_EVEN) + "," +
-                    (gameData.millisecondsAI1() / 1_000_000L) + "," +
-                    (gameData.millisecondsAI2() / 1_000_000L) + "," +
+                    (gameData.nanoAI1() / 1_000_000L) + "," +
+                    (gameData.nanoAI2() / 1_000_000L) + "," +
                     gameData.time());
             writer.newLine();
         }

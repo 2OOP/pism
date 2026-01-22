@@ -24,8 +24,8 @@ public record GameData(
         double AI2averageIterations20,
         double AI2averageIterations30,
 
-        long millisecondsAI1,
-        long millisecondsAI2,
+        long nanoAI1,
+        long nanoAI2,
 
         String time
 ) {}
