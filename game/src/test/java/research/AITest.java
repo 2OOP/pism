@@ -58,11 +58,13 @@ public class AITest {
     @BeforeAll
     public static void init() {
 
-        var versions = new ArtificialPlayer[4];
-        versions[0] = new ArtificialPlayer(new MCTSAI3(10, 4), "MCTS V3T4");
-        versions[1] = new ArtificialPlayer(new MCTSAI3(10, 8), "MCTS V3T8");
-        versions[2] = new ArtificialPlayer(new MCTSAI3(10, 16), "MCTS V3T16");
-        versions[3] = new ArtificialPlayer(new MCTSAI3(10, 32), "MCTS V3T32");
+        var versions = new ArtificialPlayer[6];
+        versions[0] = new ArtificialPlayer(new MCTSAI3(10, 1), "MCTS V3T1");
+        versions[1] = new ArtificialPlayer(new MCTSAI3(10, 2), "MCTS V3T2");
+        versions[2] = new ArtificialPlayer(new MCTSAI3(10, 4), "MCTS V3T4");
+        versions[3] = new ArtificialPlayer(new MCTSAI3(10, 8), "MCTS V3T8");
+        versions[4] = new ArtificialPlayer(new MCTSAI3(10, 16), "MCTS V3T16");
+        versions[5] = new ArtificialPlayer(new MCTSAI3(10, 128), "MCTS V3T128");
 
         for (int i = 0; i < versions.length; i++) {
             for (int j = i + 1; j < versions.length; j++) {

@@ -18,7 +18,7 @@ public class MCTSAI3 extends MCTSAI {
 	}
 
 	public MCTSAI3(int milliseconds, int threads) {
-		this.threads = 8;
+		this.threads = threads;
 		threadPool = Executors.newFixedThreadPool(threads);
 		super(milliseconds);
 	}
