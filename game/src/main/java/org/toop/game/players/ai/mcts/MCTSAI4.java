@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MCTSAI4 extends MCTSAI {
-	private static final int THREADS = Runtime.getRuntime().availableProcessors();
+	private static final int THREADS = 8;
 
 	private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREADS);
 
