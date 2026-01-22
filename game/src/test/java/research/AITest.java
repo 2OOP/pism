@@ -133,13 +133,19 @@ public class AITest {
                     getWinnerForMatch(AI1, AI2, match),
                     match.getAmountOfTurns(),
 
-                    iterationsAI1.stream().mapToInt(Integer::intValue).sum(),
+                    iterationsAI1.stream().mapToLong(Integer::longValue).sum(),
+                    ai110.stream().mapToLong(Integer::longValue).sum(),
+                    ai120.stream().mapToLong(Integer::longValue).sum(),
+                    ai130.stream().mapToLong(Integer::longValue).sum(),
                     iterationsAI1.stream().mapToDouble(Integer::doubleValue).sum() / iterationsAI1.size(),
                     ai110.stream().mapToDouble(Integer::doubleValue).sum() / ai110.size(),
                     ai120.stream().mapToDouble(Integer::doubleValue).sum() / ai120.size(),
                     ai130.stream().mapToDouble(Integer::doubleValue).sum() / ai130.size(),
 
                     iterationsAI2.stream().mapToInt(Integer::intValue).sum(),
+                    ai210.stream().mapToLong(Integer::longValue).sum(),
+                    ai220.stream().mapToLong(Integer::longValue).sum(),
+                    ai230.stream().mapToLong(Integer::longValue).sum(),
                     iterationsAI2.stream().mapToDouble(Integer::doubleValue).sum() / iterationsAI2.size(),
                     ai210.stream().mapToDouble(Integer::doubleValue).sum() / ai210.size(),
                     ai220.stream().mapToDouble(Integer::doubleValue).sum() / ai220.size(),
@@ -255,7 +261,7 @@ public class AITest {
                 final BufferedReader reader = new BufferedReader(new FileReader(filepath))
         ) {
             if (reader.readLine() == null || reader.readLine().isBlank()) {
-                writer.write("Black,White,Winner,Turns Played,Black iterations,Black average iterations,Black average iterations 0-10,Black average iterations 11-20,Black average iterations 21-30,White iterations,White average iterations,White average iterations 0-10,White average iterations 11-20,White average iterations 21-30,Total Time AI1,Total Time AI2,Time");
+                writer.write("Black,White,Winner,Turns Played,Black total iterations,Black total iterations 0-10,Black total iterations 11-20,Black total iterations 21-30,Black average iterations,Black average iterations 0-10,Black average iterations 11-20,Black average iterations 21-30,White total iterations,White total iterations 0-10,White total iterations 11-20,White total iterations 21-30,White average iterations,White average iterations 0-10,White average iterations 11-20,White average iterations 21-30,Total Time AI1,Total Time AI2,Time");
                 writer.newLine();
             }
 
@@ -265,15 +271,21 @@ public class AITest {
                     gameData.winner() + "," +
                     gameData.turns() + "," +
                     gameData.AI1totalIterations() + "," +
-                    BigDecimal.valueOf(gameData.AI1averageIterations()).setScale(2, RoundingMode.DOWN) + "," +
-                    BigDecimal.valueOf(gameData.AI1averageIterations10()).setScale(2, RoundingMode.DOWN) + "," +
-                    BigDecimal.valueOf(gameData.AI1averageIterations20()).setScale(2, RoundingMode.DOWN) + "," +
-                    BigDecimal.valueOf(gameData.AI1averageIterations30()).setScale(2, RoundingMode.DOWN) + "," +
+                    gameData.AI1totalIterations10() + "," +
+                    gameData.AI1totalIterations20() + "," +
+                    gameData.AI1totalIterations30() + "," +
+                    BigDecimal.valueOf(gameData.AI1averageIterations()).setScale(2, RoundingMode.HALF_EVEN) + "," +
+                    BigDecimal.valueOf(gameData.AI1averageIterations10()).setScale(2, RoundingMode.HALF_EVEN) + "," +
+                    BigDecimal.valueOf(gameData.AI1averageIterations20()).setScale(2, RoundingMode.HALF_EVEN) + "," +
+                    BigDecimal.valueOf(gameData.AI1averageIterations30()).setScale(2, RoundingMode.HALF_EVEN) + "," +
                     gameData.AI2totalIterations() + "," +
-                    BigDecimal.valueOf(gameData.AI2averageIterations()).setScale(2, RoundingMode.DOWN) + "," +
-                    BigDecimal.valueOf(gameData.AI2averageIterations10()).setScale(2, RoundingMode.DOWN) + "," +
-                    BigDecimal.valueOf(gameData.AI2averageIterations20()).setScale(2, RoundingMode.DOWN) + "," +
-                    BigDecimal.valueOf(gameData.AI2averageIterations30()).setScale(2, RoundingMode.DOWN) + "," +
+                    gameData.AI2totalIterations10() + "," +
+                    gameData.AI2totalIterations20() + "," +
+                    gameData.AI2totalIterations30() + "," +
+                    BigDecimal.valueOf(gameData.AI2averageIterations()).setScale(2, RoundingMode.HALF_EVEN) + "," +
+                    BigDecimal.valueOf(gameData.AI2averageIterations10()).setScale(2, RoundingMode.HALF_EVEN) + "," +
+                    BigDecimal.valueOf(gameData.AI2averageIterations20()).setScale(2, RoundingMode.HALF_EVEN) + "," +
+                    BigDecimal.valueOf(gameData.AI2averageIterations30()).setScale(2, RoundingMode.HALF_EVEN) + "," +
                     (gameData.millisecondsAI1() / 1_000_000L) + "," +
                     (gameData.millisecondsAI2() / 1_000_000L) + "," +
                     gameData.time());
