@@ -36,7 +36,7 @@ public class MCTSAI3 extends MCTSAI {
 		}
 
 		try {
-			threadPool.awaitTermination(milliseconds + 50, TimeUnit.MILLISECONDS);
+			threadPool.awaitTermination(milliseconds, TimeUnit.MILLISECONDS);
 
 			lastIterations = root.visits.get();
 

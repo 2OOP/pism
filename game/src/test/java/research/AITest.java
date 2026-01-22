@@ -88,7 +88,6 @@ public class AITest {
         match.init(players);
         while (!match.isTerminal()) {
             final int currentAI = match.getCurrentTurn();
-
             final long startTime = System.nanoTime();
             final long move = players[currentAI].getMove(match);
             final long endTime = System.nanoTime();
