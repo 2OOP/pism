@@ -9,22 +9,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MCTSAI4 extends MCTSAI {
-	private static final int THREADS = 8;
-
-	private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREADS);
+	private final int threads;
+	private final ExecutorService threadPool;
 
 	private Node root;
 
-	public MCTSAI4(int milliseconds) {
+	public MCTSAI4(int milliseconds, int threads) {
 		super(milliseconds);
 
-		this.root = null;
+		this.threads = threads;
+		this.threadPool = Executors.newFixedThreadPool(threads);
 	}
 
 	public MCTSAI4(MCTSAI4 other) {
 		super(other);
 
-		this.root = other.root;
+		this.threads = other.threads;
+		this.threadPool = other.threadPool;
 	}
 
 	@Override
@@ -38,9 +39,9 @@ public class MCTSAI4 extends MCTSAI {
 
 		final long endTime = System.nanoTime() + milliseconds * 1_000_000L;
 
-		final CountDownLatch latch = new CountDownLatch(THREADS);
+		final CountDownLatch latch = new CountDownLatch(threads);
 
-		for (int i = 0; i < THREADS; i++) {
+		for (int i = 0; i < threads; i++) {
 			threadPool.submit(() -> {
 				try {
 					iterate(root, endTime);
