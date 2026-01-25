@@ -56,7 +56,6 @@ public class NettyClient implements Client<OnlineTurnBasedGame, ServerPlayer> {
 
     @Override
     public void send(String message) {
-        IO.println(message);
         ctx.channel().writeAndFlush(message + "\r\n");
     }
 

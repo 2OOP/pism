@@ -5,43 +5,64 @@ import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.server.client.NettyClient;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+
 public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
 
     private long id;
     private NettyClient[] clients;
+    private NettyClient[] admins;
     private TurnBasedGame game;
     private ServerThreadBehaviour gameThread;
 
-    public OnlineTurnBasedGame(TurnBasedGame game, NettyClient... clients) {
+    private final CompletableFuture<Integer> resultFuture;
+
+    public OnlineTurnBasedGame(NettyClient[] admins, TurnBasedGame game, CompletableFuture<Integer> resultFuture, Duration timeOut, NettyClient... clients) {
         this.game = game;
         this.gameThread = new ServerThreadBehaviour(
                 game,
                 (pair) -> notifyMoveMade(pair.getLeft(), pair.getRight()),
-                (pair) -> notifyGameEnd(pair.getLeft(), pair.getRight())
+                (pair) -> notifyGameEnd(pair.getLeft(), pair.getRight()),
+                timeOut
         );
+        this.resultFuture = resultFuture;
         this.clients = clients;
+        this.admins = admins;
     }
 
     private void notifyMoveMade(String speler, int move){
+        for (NettyClient admin : admins) {
+            admin.send(String.format("SVR GAME MOVE {PLAYER: \"%s\", MOVE: \"%s\", DETAILS: \"<reactie spel op zet>\"}", speler, move));
+        }
         for (NettyClient client : clients) {
-            client.send(String.format("SVR GAME MOVE {PLAYER: \"%s\", MOVE: \"%s\", DETAILS: \"<reactie spel op zet>\"}\n", speler, move));
+            client.send(String.format("SVR GAME MOVE {PLAYER: \"%s\", MOVE: \"%s\", DETAILS: \"<reactie spel op zet>\"}", speler, move));
         }
     }
 
-    private void notifyGameEnd(GameState state, int winner){
-        if (state == GameState.DRAW){
+    private void notifyGameEnd(GameState state, int winner) {
+        if (state == GameState.DRAW) {
+            Arrays.stream(admins).forEach(a -> a.send("SVR GAME END"));
+
             for (NettyClient client : clients) {
-                client.send(String.format("SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}\n"));
+                client.send("SVR GAME DRAW {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}");
             }
-        }
-        else{
-            clients[winner].send(String.format("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}\n"));
-            clients[(winner + 1)%2].send(String.format("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}\n"));
+        } else {
+            Arrays.stream(admins).forEach(a -> a.send("SVR GAME END"));
+            clients[winner].send("SVR GAME WIN {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}");
+            clients[(winner+1)%2].send("SVR GAME LOSS {PLAYERONESCORE: \"<score speler1>\", PLAYERTWOSCORE: \"<score speler2>\", COMMENT: \"<comment>\"}");
         }
 
-        // Remove game fromt clients
-        for(NettyClient client : clients) {
+        // Remove game from clients
+        for (NettyClient client : clients) {
+            admins = null;
             client.clearGame();
+        }
+
+        if (resultFuture != null) {
+            if (state.equals(GameState.DRAW)) resultFuture.complete(-1); // Return -1 if draw
+            else resultFuture.complete(winner); // Return number for winner's index
         }
     }
 
@@ -61,7 +82,7 @@ public class OnlineTurnBasedGame implements OnlineGame<TurnBasedGame> {
     }
 
     @Override
-    public void start(){
+    public void start() {
         this.gameThread.start();
     }
 }

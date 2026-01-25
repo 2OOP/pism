@@ -29,13 +29,8 @@ public class ServerPlayer extends AbstractPlayer {
     @Override
     public long determineMove(TurnBasedGame game) {
         lastMove = new CompletableFuture<>();
-        System.out.println("Sending yourturn");
-        client.send("SVR GAME YOURTURN {TURNMESSAGE: \"<bericht voor deze beurt>\"}\n");
-        try {
-            return lastMove.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return 0;
-        }
+
+        client.send("SVR GAME YOURTURN {TURNMESSAGE: \"<bericht voor deze beurt>\"}");
+        return lastMove.join();
     }
 }

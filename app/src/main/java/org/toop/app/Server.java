@@ -11,6 +11,7 @@ import org.toop.app.widget.popup.ErrorPopup;
 import org.toop.app.widget.popup.SendChallengePopup;
 import org.toop.app.widget.view.ServerView;
 import org.toop.framework.eventbus.EventFlow;
+import org.toop.framework.game.players.ArtificialPlayer;
 import org.toop.framework.game.players.OnlinePlayer;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.eventbus.GlobalEventBus;
@@ -19,9 +20,10 @@ import org.toop.framework.networking.connection.clients.TournamentNetworkingClie
 import org.toop.framework.networking.connection.events.NetworkEvents;
 import org.toop.framework.networking.connection.types.NetworkingConnector;
 import org.toop.framework.networking.server.gateway.NettyGatewayServer;
-import org.toop.framework.game.players.LocalPlayer;
+import org.toop.game.players.ai.mcts.MCTSAI3;
 import org.toop.local.AppContext;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -117,7 +119,8 @@ public final class Server {
 				return;
 			}
 
-			primary = new ServerView(user, this::sendChallenge, clientId);
+			primary = new ServerView(user, this::sendChallenge, user, clientId);
+
 			WidgetContainer.getCurrentView().transitionNextCustom(primary, "disconnect", this::disconnect);
 
 			a.unsubscribe("connecting");
@@ -159,7 +162,8 @@ public final class Server {
                 .listen(NetworkEvents.GameResultResponse.class, this::handleGameResult, false, "game-result")
                 .listen(NetworkEvents.GameMoveResponse.class, this::handleReceivedMove, false, "game-move")
                 .listen(NetworkEvents.YourTurnResponse.class, this::handleYourTurn, false, "your-turn")
-				.listen(NetworkEvents.ClosedConnection.class, this::closedConnection, false, "closed-connection");
+				.listen(NetworkEvents.ClosedConnection.class, this::closedConnection, false, "closed-connection")
+                .listen(NetworkEvents.TournamentResultResponse.class, this::handleTournamentResult, false, "tournament-result");
 
 		connectFlow = a;
 	}
@@ -205,7 +209,8 @@ public final class Server {
             information.players[opponentStartingTurn].name = response.opponent();
 
             Player[] players = new Player[2];
-            players[userStartingTurn] = new LocalPlayer(user);
+
+            players[userStartingTurn] = new ArtificialPlayer(new MCTSAI3(1000, 8), user);
             players[opponentStartingTurn] = new OnlinePlayer(response.opponent());
 
             switch (type) {
@@ -236,6 +241,13 @@ public final class Server {
             return;
         }
         gameController.gameFinished(response);
+    }
+
+    private void handleTournamentResult(NetworkEvents.TournamentResultResponse response) {
+        IO.println(response.gameType());
+        IO.println(Arrays.toString(response.names()));
+		IO.println(Arrays.toString(response.scoreTypes()));
+        IO.println(Arrays.toString(response.scores().toArray()));
     }
 
     private void handleReceivedMove(NetworkEvents.GameMoveResponse response) {
@@ -337,7 +349,8 @@ public final class Server {
 
 	private void gamesListFromServerHandler(NetworkEvents.GamelistResponse event) {
 		gameList.clear();
-		var gl = List.of(event.gamelist());
+		var gl = new java.util.ArrayList<>(List.of(event.gamelist()));
+        gl.sort(String::compareTo);
 		gameList.addAll(gl);
 		primary.updateGameList(gl);
 	}

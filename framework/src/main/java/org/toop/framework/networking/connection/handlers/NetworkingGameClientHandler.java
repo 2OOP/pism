@@ -3,6 +3,9 @@ package org.toop.framework.networking.connection.handlers;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,6 +97,9 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                     case "HELP":
                         helpHandler(recSrvRemoved);
                         return;
+                    case "RESULTS":
+                        resultsHandler(recSrvRemoved);
+                        return;
                     default:
                         // return
                 }
@@ -101,6 +107,66 @@ public class NetworkingGameClientHandler extends ChannelInboundHandlerAdapter {
                 logger.error("Could not parse: {}", rec);
             }
         }
+    }
+
+    private static String extract(String input, String key) {
+        Pattern p = Pattern.compile(
+                key + "\\s*:\\s*(\\[[^]]*]|\"[^\"]*\")",
+                Pattern.CASE_INSENSITIVE
+        );
+        Matcher m = p.matcher(input);
+        return m.find() ? m.group(1) : null;
+    }
+
+    private void resultsHandler(String rec) {
+        // TODO all of this
+
+        IO.println(rec);
+
+        String gameTypeRaw = extract(rec, "GAMETYPE");
+        String usersRaw = extract(rec, "USERS");
+        String scoreTypesRaw = extract(rec, "SCORETYPES");
+        String scoresRaw = extract(rec, "SCORES");
+
+        if (usersRaw == null) return;
+
+        String[] users;
+        if (usersRaw.length() > 2) {
+            users = Arrays.stream(usersRaw.substring(1, usersRaw.length() - 1).split(","))
+                .map(s -> s.trim().replace("\"", ""))
+                .toArray(String[]::new);
+        } else {
+            users = new String[]{};
+        }
+
+        String[] scoreTypes;
+        if (scoreTypesRaw.length() > 2) {
+            scoreTypes = Arrays.stream(scoreTypesRaw.substring(1, usersRaw.length() - 1).split(","))
+                    .map(s -> s.trim().replace("\"", ""))
+                    .toArray(String[]::new);
+        } else {
+            scoreTypes = new String[]{};
+        }
+
+        if (scoresRaw == null) return;
+        if (scoresRaw.length() > 2) {
+            List<Integer[]> scores = Arrays.stream(
+                            scoresRaw.substring(1, scoresRaw.length() - 1) // remove outer []
+                                    .split("\\],\\[")
+                    )
+                    .map(part -> part.replace("[", "").replace("]", ""))
+                    .map(part -> Arrays.stream(part.split(","))
+                            .map(String::trim)
+                            .map(Integer::parseInt)
+                            .toArray(Integer[]::new)
+                    )
+                    .toList();
+
+            eventBus.post(new NetworkEvents.TournamentResultResponse(this.connectionId, gameTypeRaw, users, scoreTypes, scores));
+        } else {
+            eventBus.post(new NetworkEvents.TournamentResultResponse(this.connectionId, gameTypeRaw, users, scoreTypes, new ArrayList<>()));
+        }
+
     }
 
     private void gameMoveHandler(String rec) {

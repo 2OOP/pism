@@ -17,8 +17,8 @@ public abstract class BitboardGame implements TurnBasedGame {
     private Player[] players;
 
 	// long is 64 bits. Every game has a limit of 64 cells maximum.
-	private final long[] playerBitboard;
-	private int currentTurn = 0;
+	protected final long[] playerBitboard;
+	protected int currentTurn = 0;
 	private final int playerCount;
 
 	public BitboardGame(int columnSize, int rowSize, int playerCount) {
@@ -73,6 +73,8 @@ public abstract class BitboardGame implements TurnBasedGame {
 	public int getPlayerCount() {
 		return playerBitboard.length;
 	}
+
+    public int getAmountOfTurns() { return currentTurn; }
 
 	public int getCurrentTurn() {
 		return getCurrentPlayerIndex();

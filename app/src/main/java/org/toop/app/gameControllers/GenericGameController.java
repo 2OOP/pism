@@ -5,10 +5,12 @@ import javafx.geometry.Pos;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.toop.app.canvas.GameCanvas;
+import org.toop.app.canvas.ReversiBitCanvas;
 import org.toop.app.widget.WidgetContainer;
 import org.toop.app.widget.view.GameView;
 import org.toop.framework.eventbus.EventFlow;
 import org.toop.framework.eventbus.GlobalEventBus;
+import org.toop.framework.game.games.reversi.BitboardReversi;
 import org.toop.framework.gameFramework.controller.GameController;
 import org.toop.framework.gameFramework.model.game.threadBehaviour.SupportsOnlinePlay;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
@@ -153,6 +155,18 @@ public class GenericGameController implements GameController {
 
     @Override
     public void updateUI() {
-        canvas.redraw(game.deepCopy());
+        TurnBasedGame gameCopy = game.deepCopy();
+        canvas.redraw(gameCopy);
+        String gameType = game.getClass().getSimpleName().replace("Bitboard","");
+        gameView.nextPlayer(true, getCurrentPlayer().getName(), game.getPlayer(1-getCurrentPlayerIndex()).getName(),gameType);
+        if (gameType.equals("Reversi")) {
+            BitboardReversi reversiGame = (BitboardReversi) game;
+            BitboardReversi.Score reversiScore = reversiGame.getScore();
+            gameView.setPlayer1Score(reversiScore.black());
+            gameView.setPlayer2Score(reversiScore.white());
+            if (getCurrentPlayer() instanceof LocalPlayer) {
+                ((ReversiBitCanvas)canvas).drawLegalDots(gameCopy);
+            }
+        }
     }
 }

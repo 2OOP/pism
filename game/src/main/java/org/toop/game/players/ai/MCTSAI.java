@@ -1,193 +1,298 @@
 package org.toop.game.players.ai;
 
-import org.toop.framework.gameFramework.GameState;
-import org.toop.framework.gameFramework.model.game.PlayResult;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.AbstractAI;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class MCTSAI extends AbstractAI {
-	private static class Node {
+public abstract class MCTSAI extends AbstractAI {
+	protected static class Node {
+		public static final int VIRTUAL_LOSS = -1;
+
 		public TurnBasedGame state;
+
 		public long move;
+		public long unexpandedMoves;
 
 		public Node parent;
-
-		public int expanded;
 		public Node[] children;
 
-		public int visits;
-		public float value;
+		public AtomicInteger value;
+		public AtomicInteger visits;
 
-		public Node(TurnBasedGame state, long move, Node parent) {
+		public float heuristic;
+
+		public float solved;
+
+		public Node(TurnBasedGame state, Node parent, long move) {
+			final long legalMoves = state.getLegalMoves();
+
 			this.state = state;
+
 			this.move = move;
+			this.unexpandedMoves = legalMoves;
 
 			this.parent = parent;
+			this.children = new Node[Long.bitCount(legalMoves)];
 
-			this.expanded = 0;
-			this.children = new Node[Long.bitCount(state.getLegalMoves())];
+			this.value = new AtomicInteger(0);
+			this.visits = new AtomicInteger(0);
 
-			this.visits = 0;
-			this.value = 0.0f;
+			this.heuristic = state.rateMove(move);
+
+			this.solved = Float.NaN;
 		}
 
 		public Node(TurnBasedGame state) {
-			this(state, 0L, null);
+			this(state, null, 0L);
+		}
+
+		public int getExpanded() {
+			return children.length - Long.bitCount(unexpandedMoves);
 		}
 
 		public boolean isFullyExpanded() {
-			return expanded >= children.length;
+			return unexpandedMoves == 0L;
 		}
 
-		float calculateUCT() {
-			float exploitation = visits <= 0? 0 : value / visits;
-			float exploration = 1.41f * (float)(Math.sqrt(Math.log(visits) / visits));
+		public float calculateUCT(float explorationFactor) {
+			if (visits.get() == 0) {
+				return Float.POSITIVE_INFINITY;
+			}
 
-			return exploitation + exploration;
+			final float exploitation = (float) value.get() / visits.get();
+			final float exploration = (float)(Math.sqrt(explorationFactor / visits.get()));
+			final float bias = heuristic * 10.0f / (visits.get() + 1);
+
+			return exploitation + exploration + bias;
 		}
 
 		public Node bestUCTChild() {
-			int bestChildIndex = -1;
-			float bestScore = Float.NEGATIVE_INFINITY;
+			final int expanded = getExpanded();
+
+			Node highestUCTChild = null;
+			float highestUCT = Float.NEGATIVE_INFINITY;
 
 			for (int i = 0; i < expanded; i++) {
-				final float score = calculateUCT();
+				final float childUCT = children[i].calculateUCT(2.0f * (float)Math.log(visits.get()));
 
-				if (score > bestScore) {
-					bestChildIndex = i;
-					bestScore = score;
+				if (childUCT > highestUCT) {
+					highestUCTChild = children[i];
+					highestUCT = childUCT;
 				}
 			}
 
-			return bestChildIndex >= 0? children[bestChildIndex] : this;
+			return highestUCTChild;
 		}
 	}
 
-	private final int milliseconds;
+	protected static final ThreadLocal<Random> random = ThreadLocal.withInitial(Random::new);
+
+	protected final int milliseconds;
+
+	protected int lastIterations;
 
 	public MCTSAI(int milliseconds) {
 		this.milliseconds = milliseconds;
+
+		this.lastIterations = 0;
 	}
 
 	public MCTSAI(MCTSAI other) {
 		this.milliseconds = other.milliseconds;
+
+		this.lastIterations = other.lastIterations;
 	}
 
-	@Override
-	public MCTSAI deepCopy() {
-		return new MCTSAI(this);
+	public int getLastIterations() {
+		return lastIterations;
 	}
 
-	@Override
-	public long getMove(TurnBasedGame game) {
-		Node root = new Node(game.deepCopy());
+	protected Node selection(Node root) {
+		while (Float.isNaN(root.solved) && root.isFullyExpanded() && !root.state.isTerminal()) {
+			root.value.addAndGet(Node.VIRTUAL_LOSS);
+			root.visits.incrementAndGet();
 
-		long endTime = System.currentTimeMillis() + milliseconds;
+			root = root.bestUCTChild();
+		}
 
-		while (System.currentTimeMillis() <= endTime) {
-			Node node = selection(root);
-			long legalMoves = node.state.getLegalMoves();
+		root.value.addAndGet(Node.VIRTUAL_LOSS);
+		root.visits.incrementAndGet();
 
-			if (legalMoves != 0) {
-				node = expansion(node, legalMoves);
+		return root;
+	}
+
+	protected Node expansion(Node leaf) {
+		synchronized (leaf) {
+			if (leaf.unexpandedMoves == 0L) {
+				return leaf;
 			}
 
-			float result = 0.0f;
+			final long unexpandedMove = leaf.unexpandedMoves & -leaf.unexpandedMoves;
 
-			if (node.state.getLegalMoves() != 0) {
-				result = simulation(node.state, game.getCurrentTurn());
+			final TurnBasedGame copiedState = leaf.state.deepCopy();
+			copiedState.play(unexpandedMove);
+
+			final Node expandedChild = new Node(copiedState, leaf, unexpandedMove);
+
+			leaf.children[leaf.getExpanded()] = expandedChild;
+			leaf.unexpandedMoves &= ~unexpandedMove;
+
+			return expandedChild;
+		}
+	}
+
+	protected int simulation(Node leaf) {
+		final TurnBasedGame copiedState = leaf.state.deepCopy();
+		final int playerIndex = 1 - copiedState.getCurrentTurn();
+
+		while (!copiedState.isTerminal()) {
+			final long legalMoves = copiedState.getLegalMoves();
+			final long randomMove = randomSetBit(legalMoves);
+
+			copiedState.play(randomMove);
+		}
+
+		if (copiedState.getWinner() == playerIndex) {
+			return 1;
+		}
+
+		if (copiedState.getWinner() >= 0) {
+			return -1;
+		}
+
+		return 0;
+	}
+
+	protected void backPropagation(Node leaf, int value) {
+		while (leaf != null) {
+			value -= Node.VIRTUAL_LOSS;
+			leaf.value.addAndGet(value);
+
+			if (Float.isNaN(leaf.solved)) {
+				updateSolvedStatus(leaf);
 			}
 
-			backPropagation(node, result);
+			value = -value;
+			leaf = leaf.parent;
 		}
+	}
 
-		int mostVisitedIndex = -1;
-		int mostVisits = -1;
+	protected Node mostVisitedChild(Node root) {
+		final int expanded = root.getExpanded();
 
-		for (int i = 0; i < root.expanded; i++) {
-			if (root.children[i].visits > mostVisits) {
-				mostVisitedIndex = i;
-				mostVisits = root.children[i].visits;
+		Node mostVisitedChild = null;
+		int mostVisited = -1;
+
+		for (int i = 0; i < expanded; i++) {
+			if (root.children[i].visits.get() > mostVisited) {
+				mostVisitedChild = root.children[i];
+				mostVisited = root.children[i].visits.get();
 			}
 		}
 
-		return mostVisitedIndex != -1? root.children[mostVisitedIndex].move : randomSetBit(game.getLegalMoves());
+		return mostVisitedChild;
 	}
 
-	private Node selection(Node node) {
-		while (node.state.getLegalMoves() != 0L && node.isFullyExpanded()) {
-			node = node.bestUCTChild();
+	protected Node findOrResetRoot(Node root, TurnBasedGame game) {
+		if (root == null) {
+			return new Node(game.deepCopy());
 		}
 
-		return node;
-	}
-
-	private Node expansion(Node node, long legalMoves) {
-		for (int i = 0; i < node.expanded; i++) {
-			legalMoves &= ~node.children[i].move;
+		if (areStatesEqual(root.state.getBoard(), game.getBoard())) {
+			return root;
 		}
 
-		if (legalMoves == 0L) {
-			return node;
-		}
+		final int expanded = root.getExpanded();
 
-		long move = randomSetBit(legalMoves);
-
-		TurnBasedGame copy = node.state.deepCopy();
-		copy.play(move);
-
-		Node newlyExpanded = new Node(copy, move, node);
-
-		node.children[node.expanded] = newlyExpanded;
-		node.expanded++;
-
-		return newlyExpanded;
-	}
-
-	private float simulation(TurnBasedGame state, int playerIndex) {
-		TurnBasedGame copy = state.deepCopy();
-		long legalMoves = copy.getLegalMoves();
-		PlayResult result = null;
-
-		while (legalMoves != 0) {
-			result = copy.play(randomSetBit(legalMoves));
-			legalMoves = copy.getLegalMoves();
-		}
-
-		if (result.state() == GameState.WIN) {
-			if (result.player() == playerIndex) {
-				return 1.0f;
+		for (int i = 0; i < expanded; i++) {
+			if (areStatesEqual(root.children[i].state.getBoard(), game.getBoard())) {
+				root.children[i].parent = null;
+				return root.children[i];
 			}
-
-			return -1.0f;
 		}
 
-		return -0.2f;
+		return new Node(game.deepCopy());
 	}
 
-	private void backPropagation(Node node, float value) {
-		while (node != null) {
-			node.visits++;
-			node.value += value;
-			node = node.parent;
-		}
-	}
+	protected Node findChildByMove(Node root, long move) {
+		final int expanded = root.getExpanded();
 
-	public static long randomSetBit(long value) {
-		Random random = new Random();
-
-		int count = Long.bitCount(value);
-		int target = random.nextInt(count);
-
-		while (true) {
-			int bit = Long.numberOfTrailingZeros(value);
-			if (target == 0) {
-				return 1L << bit;
+		for (int i = 0; i < expanded; i++) {
+			if (root.children[i].move == move) {
+				root.children[i].parent = null;
+				return root.children[i];
 			}
+		}
+
+		return null;
+	}
+
+	protected boolean areStatesEqual(long[] state1, long[] state2) {
+		if (state1.length != state2.length) {
+			return false;
+		}
+
+		for (int i = 0; i < state1.length; i++) {
+			if (state1[i] != state2[i]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	protected long randomSetBit(long value) {
+		if (0L == value) {
+			return 0;
+		}
+
+		final int bitCount = Long.bitCount(value);
+		final int randomBitCount = random.get().nextInt(bitCount);
+
+		for (int i = 0; i < randomBitCount; i++) {
 			value &= value - 1;
-			target--;
+		}
+
+		return value & -value;
+	}
+
+	private void updateSolvedStatus(Node node) {
+		if (node.state.isTerminal()) {
+			final int winner = node.state.getWinner();
+			final int mover = 1 - node.state.getCurrentTurn();
+
+			node.solved = winner == mover? 1.0f : winner == -1? 0.0f : -1.0f;
+
+			return;
+		}
+
+		if (node.isFullyExpanded()) {
+			boolean allChildrenSolved = true;
+			boolean foundWinningMove = false;
+			boolean foundDrawMove = false;
+
+			for (final Node child : node.children) {
+				if (!Float.isNaN(child.solved)) {
+					if (child.solved == -1.0f) {
+						foundWinningMove = true;
+						break;
+					}
+
+					if (child.solved == 0.0f) {
+						foundDrawMove = true;
+					}
+				} else {
+					allChildrenSolved = false;
+				}
+			}
+
+			if (foundWinningMove) {
+				node.solved = 1.0f;
+			} else if (allChildrenSolved) {
+				node.solved = foundDrawMove? 0.0f : -1.0f;
+			}
 		}
 	}
 }

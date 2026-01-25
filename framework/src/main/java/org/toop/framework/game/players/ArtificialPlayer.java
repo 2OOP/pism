@@ -14,7 +14,9 @@ import org.toop.framework.gameFramework.model.game.TurnBasedGame;
  */
 public class ArtificialPlayer extends AbstractPlayer {
 
-    /** The AI instance used to calculate moves. */
+    /**
+     * The AI instance used to calculate moves.
+     */
     private final AI ai;
 
     /**
@@ -56,5 +58,9 @@ public class ArtificialPlayer extends AbstractPlayer {
     @Override
     public ArtificialPlayer deepCopy() {
         return new ArtificialPlayer(this);
+    }
+
+    public AI getAi() {
+        return ai;
     }
 }

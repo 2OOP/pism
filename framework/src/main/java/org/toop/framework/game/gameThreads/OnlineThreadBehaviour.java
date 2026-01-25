@@ -77,13 +77,11 @@ public class OnlineThreadBehaviour extends AbstractThreadBehaviour implements Su
         }
         logger.info("Successfully collected current turn's player");
 
-        moveExecutor.submit(() -> {
-            long move = player.getMove(gameCopy);
-            logger.info("Move set: {}", move);
-            logger.info("Completed onYourTurn");
+        long move = player.getMove(gameCopy);
+        logger.info("Move set: {}", move);
+        logger.info("Completed onYourTurn");
 
-            sendMove(clientId, move);
-        });
+        sendMove(clientId, move);
     }
 
     /**

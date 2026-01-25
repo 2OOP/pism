@@ -2,6 +2,7 @@ package org.toop.framework.game.games.tictactoe;
 
 import org.toop.framework.gameFramework.GameState;
 import org.toop.framework.gameFramework.model.game.PlayResult;
+import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.gameFramework.model.player.Player;
 import org.toop.framework.game.BitboardGame;
 
@@ -110,4 +111,18 @@ public class BitboardTicTacToe extends BitboardGame {
     public BitboardTicTacToe deepCopy() {
         return new BitboardTicTacToe(this);
     }
+
+	@Override
+	public float rateMove(long move) {
+		return 0.0f;
+	}
+
+	@Override
+	public long heuristicMove(long legalMoves) {
+		return legalMoves;
+	}
+
+	@Override
+	public void setFrom(long player1, long player2, int turn) {
+	}
 }

@@ -1,5 +1,6 @@
 package org.toop.framework.networking.server;
 
+import com.google.gson.Gson;
 import org.toop.framework.game.players.ServerPlayer;
 import org.toop.framework.gameFramework.model.game.TurnBasedGame;
 import org.toop.framework.networking.server.challenges.gamechallenge.GameChallenge;
@@ -9,6 +10,9 @@ import org.toop.framework.networking.server.stores.ClientStore;
 import org.toop.framework.networking.server.stores.SubscriptionStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameStore;
 import org.toop.framework.networking.server.stores.TurnBasedGameTypeStore;
+import org.toop.framework.networking.server.tournaments.*;
+import org.toop.framework.networking.server.tournaments.matchmakers.DoubleRoundRobinMatchMaker;
+import org.toop.framework.networking.server.tournaments.scoresystems.*;
 import org.toop.framework.utils.ImmutablePair;
 
 import java.util.*;
@@ -27,13 +31,14 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     final private Duration challengeDuration;
     final private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    private final List<NettyClient> admins = new ArrayList<>();
+
     public Server(
             Duration challengeDuration,
             TurnBasedGameTypeStore turnBasedGameTypeStore,
             ClientStore<Long, NettyClient> clientStore,
             TurnBasedGameStore gameStore,
             SubscriptionStore subStore
-
     ) {
         this.gameTypesStore = turnBasedGameTypeStore;
         this.challengeDuration = challengeDuration;
@@ -46,11 +51,13 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
 
     @Override
     public void addClient(NettyClient client) {
+        if (admins.isEmpty()) admins.addLast(client);
         clientStore.add(client);
     }
 
     @Override
     public void removeClient(NettyClient client) {
+        admins.remove(client);
         clientStore.remove(client.id());
     }
 
@@ -103,7 +110,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     public void acceptChallenge(Long challengeId) {
         for (var challenge : gameChallenges) {
             if (challenge.id() == challengeId) {
-                startGame(challenge.acceptChallenge(), challenge.getUsers());
+                startGame(challenge.acceptChallenge(), Duration.ofSeconds(10), challenge.getUsers());
                 break;
             }
         }
@@ -125,12 +132,24 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
     }
 
     @Override
-    public void startGame(String gameType, NettyClient... clients) {
-        if (!gameTypesStore.all().containsKey(gameType)) return;
+    public GameResultFuture startGame(String gameType, Duration turnTime, NettyClient... clients) {
+        if (!gameTypesStore.all().containsKey(gameType)) return null;
 
         try {
+
             ServerPlayer[] players = new ServerPlayer[clients.length];
-            var game = new OnlineTurnBasedGame(gameTypesStore.create(gameType), clients);
+
+            var gameResult = new CompletableFuture<Integer>();
+
+            var game = new OnlineTurnBasedGame(
+                    getAdmins().toArray(NettyClient[]::new),
+                    gameTypesStore.create(gameType),
+                    gameResult,
+                    turnTime,
+                    clients
+            );
+
+            var grfReturn = new GameResultFuture(game, gameResult);
 
             for (int i = 0; i < clients.length; i++) {
                 players[i] = new ServerPlayer(clients[i]);
@@ -148,16 +167,23 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                     clients[0].name(),
                     gameType,
                     clients[0].name()));
+
             game.start();
+            return grfReturn;
         } catch (Exception e) {
             IO.println("ERROR: Failed to start OnlineTurnBasedGame");
             e.printStackTrace();
         }
+        return null;
     }
 
     @Override
     public List<NettyClient> onlineUsers() {
         return clientStore.all().stream().toList();
+    }
+
+    public List<NettyClient> getAdmins() {
+        return new ArrayList<>(admins); // Clone so the list can't be edited.
     }
 
     @Override
@@ -218,7 +244,6 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 }
 
                 if  (userInGame) { continue; }
-                //
 
                 int first = Math.max(left, right);
                 int second = Math.min(left, right);
@@ -226,7 +251,7 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
                 userNames.remove(first);
                 userNames.remove(second);
 
-                startGame(key, getUser(userLeft), getUser(userRight));
+                startGame(key, Duration.ofSeconds(10), getUser(userLeft), getUser(userRight));
             }
         }
     }
@@ -259,5 +284,75 @@ public class Server implements GameServer<TurnBasedGame, NettyClient, Long> {
         }
 
         return true;
+    }
+
+    public void startTournament(String gameType, NettyClient requestor, boolean shuffle) {
+        if (!admins.contains(requestor)) {
+            requestor.send("ERR you do not have the privileges to start a tournament");
+            return;
+        }
+
+        var tournamentUsers = new ArrayList<>(onlineUsers());
+        tournamentUsers.removeIf(admins::contains);
+
+        Tournament tournament = new Tournament.Builder()
+                .matchExecutor(this::startGame)
+                .tournamentRunner(new AsyncTournamentRunner())
+                .matchMaker(new DoubleRoundRobinMatchMaker())
+                .addScoreSystem(new MatchCountScoreSystem())
+                .addScoreSystem(new WinCountScoreSystem())
+                .addScoreSystem(new DrawCountScoreSystem())
+                .addScoreSystem(new LoseCountScoreSystem())
+                .resultBroadcaster(this::endTournament)
+                .turnTimeout(Duration.ofSeconds(10))
+                .addPlayers(tournamentUsers.toArray(NettyClient[]::new))
+                .addAdmins(admins.toArray(NettyClient[]::new))
+                .build();
+
+        new Thread(() -> tournament.run(gameType)).start();
+    }
+
+    public void endTournament(List<IntegerScoreSystem> systems) {
+        if (systems.isEmpty()) return;
+
+        Map<String, List<ImmutablePair<String, Integer>>> combined = new HashMap<>();
+
+        for (var system : systems) {
+            for (var player : system.getScore().keySet()) {
+                combined.putIfAbsent(player.name(), new ArrayList<>());
+                combined.get(player.name()).addLast(new ImmutablePair<>(system.scoreName(), system.getScore().get(player)));
+            }
+        }
+
+        List<String> names = new ArrayList<>();
+        List<String> systemNames = new ArrayList<>();
+        List<List<Integer>> scores = new ArrayList<>();
+
+        for (var player : combined.entrySet()) {
+            names.addLast(player.getKey());
+            scores.addLast(new ArrayList<>());
+            for (var system : player.getValue()) {
+                if (!systemNames.contains(system.getLeft())) systemNames.addLast(system.getLeft());
+                scores.getLast().addLast(system.getRight());
+            }
+        }
+
+        Gson gson = new Gson();
+
+        String namesJson = gson.toJson(names);
+        String systemNamesJson = gson.toJson(systemNames);
+        String scoresJson = gson.toJson(scores);
+
+        String msg = String.format(
+                "SVR RESULTS {GAMETYPE: \"%s\", USERS: %s, SCORETYPES: %s, SCORES: %s, TOURNAMENT: 1}",
+                "none", // TODO gametype
+                namesJson,
+                systemNamesJson,
+                scoresJson
+        );
+
+        for (var user : onlineUsers()) {
+            user.send(msg);
+        }
     }
 }

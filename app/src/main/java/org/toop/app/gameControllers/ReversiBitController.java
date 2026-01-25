@@ -11,13 +11,19 @@ import org.toop.framework.game.players.OnlinePlayer;
 import java.util.Arrays;
 
 public class ReversiBitController extends GenericGameController {
+
+    private BitboardReversi game;
+
     public ReversiBitController(Player[] players) {
         BitboardReversi game = new BitboardReversi();
         game.init(players);
-
         ThreadBehaviour thread = Arrays.stream(players).anyMatch(e -> e instanceof OnlinePlayer) ?
                 new OnlineThreadBehaviour(game) : new LocalThreadBehaviour(game);
 
         super(new ReversiBitCanvas(), game, thread, "Reversi");
+    }
+
+    public BitboardReversi.Score getScore() {
+        return game.getScore();
     }
 }
